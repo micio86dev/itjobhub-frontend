@@ -1,5 +1,6 @@
 import { component$, useStore, $, type QRL } from "@builder.io/qwik";
 import type { WizardData } from "~/contexts/auth";
+import { useTranslate, interpolate } from "~/contexts/i18n";
 import { TagInput } from "~/components/ui/tag-input";
 
 interface ProfileWizardProps {
@@ -8,9 +9,10 @@ interface ProfileWizardProps {
   onCancel$?: QRL<() => void>;
 }
 
+// Language names in English (universal across languages)
 const LANGUAGE_SUGGESTIONS = [
-  'Italiano', 'Inglese', 'Francese', 'Spagnolo', 'Tedesco', 'Portoghese',
-  'Russo', 'Cinese', 'Giapponese', 'Arabo', 'Olandese', 'Svedese'
+  'Italian', 'English', 'French', 'Spanish', 'German', 'Portuguese',
+  'Russian', 'Chinese', 'Japanese', 'Arabic', 'Dutch', 'Swedish'
 ];
 
 const SKILL_SUGGESTIONS = [
@@ -27,6 +29,8 @@ export const ProfileWizard = component$<ProfileWizardProps>(({
   onComplete$, 
   onCancel$ 
 }) => {
+  const t = useTranslate();
+  
   const state = useStore({
     currentStep: 1,
     data: {
@@ -53,7 +57,7 @@ export const ProfileWizard = component$<ProfileWizardProps>(({
     onComplete$(state.data);
   });
 
-  const canProceed = $(() => {
+  const getCanProceed = () => {
     switch (state.currentStep) {
       case 1: return state.data.languages.length > 0;
       case 2: return state.data.skills.length > 0;
@@ -61,7 +65,16 @@ export const ProfileWizard = component$<ProfileWizardProps>(({
       case 4: return state.data.availability !== '';
       default: return false;
     }
-  });
+  };
+
+  // Get step text with proper interpolation
+  const getStepText = async () => {
+    const template = await t('wizard.step_of');
+    return interpolate(template, { 
+      current: state.currentStep.toString(), 
+      total: '4' 
+    });
+  };
 
   return (
     <div class="min-h-screen flex items-center justify-center bg-gray-50 py-4 px-4">
@@ -70,7 +83,7 @@ export const ProfileWizard = component$<ProfileWizardProps>(({
         <div class="mb-8">
           <div class="flex items-center justify-between mb-2">
             <span class="text-sm font-medium text-gray-900">
-              Step {state.currentStep} of 4
+              {getStepText()}
             </span>
             <span class="text-sm text-gray-500">
               {Math.round((state.currentStep / 4) * 100)}%
@@ -89,10 +102,10 @@ export const ProfileWizard = component$<ProfileWizardProps>(({
           <div class="space-y-4">
             <div>
               <h2 class="text-xl font-semibold text-gray-900 mb-2">
-                Lingue parlate
+                {t('wizard.languages_step')}
               </h2>
               <p class="text-sm text-gray-600 mb-4">
-                Seleziona le lingue che parli fluentemente
+                {t('wizard.languages_desc')}
               </p>
               <TagInput
                 value={state.data.languages}
@@ -108,10 +121,10 @@ export const ProfileWizard = component$<ProfileWizardProps>(({
           <div class="space-y-4">
             <div>
               <h2 class="text-xl font-semibold text-gray-900 mb-2">
-                Skills tecniche
+                {t('wizard.skills_step')}
               </h2>
               <p class="text-sm text-gray-600 mb-4">
-                Aggiungi le tue competenze tecniche principali
+                {t('wizard.skills_desc')}
               </p>
               <TagInput
                 value={state.data.skills}
@@ -127,16 +140,16 @@ export const ProfileWizard = component$<ProfileWizardProps>(({
           <div class="space-y-4">
             <div>
               <h2 class="text-xl font-semibold text-gray-900 mb-2">
-                Livello di seniority
+                {t('wizard.seniority_step')}
               </h2>
               <p class="text-sm text-gray-600 mb-4">
-                Seleziona il tuo livello di esperienza
+                {t('wizard.seniority_desc')}
               </p>
               <div class="space-y-3">
                 {[
-                  { value: 'junior', label: 'Junior', desc: '0-2 anni di esperienza' },
-                  { value: 'mid', label: 'Mid-level', desc: '2-5 anni di esperienza' },
-                  { value: 'senior', label: 'Senior', desc: '5+ anni di esperienza' }
+                  { value: 'junior', labelKey: 'wizard.junior_label', descKey: 'wizard.junior_desc' },
+                  { value: 'mid', labelKey: 'wizard.mid_label', descKey: 'wizard.mid_desc' },
+                  { value: 'senior', labelKey: 'wizard.senior_label', descKey: 'wizard.senior_desc' }
                 ].map((option) => (
                   <label
                     key={option.value}
@@ -155,8 +168,8 @@ export const ProfileWizard = component$<ProfileWizardProps>(({
                       class="mt-0.5 h-4 w-4 text-indigo-600 focus:ring-indigo-500"
                     />
                     <div class="ml-3">
-                      <div class="font-medium text-gray-900">{option.label}</div>
-                      <div class="text-sm text-gray-500">{option.desc}</div>
+                      <div class="font-medium text-gray-900">{t(option.labelKey)}</div>
+                      <div class="text-sm text-gray-500">{t(option.descKey)}</div>
                     </div>
                   </label>
                 ))}
@@ -169,16 +182,16 @@ export const ProfileWizard = component$<ProfileWizardProps>(({
           <div class="space-y-4">
             <div>
               <h2 class="text-xl font-semibold text-gray-900 mb-2">
-                Disponibilità
+                {t('wizard.availability_step')}
               </h2>
               <p class="text-sm text-gray-600 mb-4">
-                Indica la tua disponibilità lavorativa
+                {t('wizard.availability_desc')}
               </p>
               <div class="space-y-3">
                 {[
-                  { value: 'full-time', label: 'Full-time', desc: 'Disponibile per lavoro a tempo pieno' },
-                  { value: 'part-time', label: 'Part-time', desc: 'Disponibile per lavoro part-time' },
-                  { value: 'occupato', label: 'Attualmente occupato', desc: 'In cerca di nuove opportunità' }
+                  { value: 'full-time', labelKey: 'wizard.fulltime_label', descKey: 'wizard.fulltime_desc' },
+                  { value: 'part-time', labelKey: 'wizard.parttime_label', descKey: 'wizard.parttime_desc' },
+                  { value: 'occupato', labelKey: 'wizard.occupied_label', descKey: 'wizard.occupied_desc' }
                 ].map((option) => (
                   <label
                     key={option.value}
@@ -197,8 +210,8 @@ export const ProfileWizard = component$<ProfileWizardProps>(({
                       class="mt-0.5 h-4 w-4 text-indigo-600 focus:ring-indigo-500"
                     />
                     <div class="ml-3">
-                      <div class="font-medium text-gray-900">{option.label}</div>
-                      <div class="text-sm text-gray-500">{option.desc}</div>
+                      <div class="font-medium text-gray-900">{t(option.labelKey)}</div>
+                      <div class="text-sm text-gray-500">{t(option.descKey)}</div>
                     </div>
                   </label>
                 ))}
@@ -215,7 +228,7 @@ export const ProfileWizard = component$<ProfileWizardProps>(({
                 onClick$={prevStep}
                 class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
               >
-                Indietro
+                {t('wizard.back')}
               </button>
             )}
             {onCancel$ && (
@@ -223,7 +236,7 @@ export const ProfileWizard = component$<ProfileWizardProps>(({
                 onClick$={onCancel$}
                 class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
               >
-                Annulla
+                {t('wizard.cancel')}
               </button>
             )}
           </div>
@@ -232,18 +245,18 @@ export const ProfileWizard = component$<ProfileWizardProps>(({
             {state.currentStep < 4 ? (
               <button
                 onClick$={nextStep}
-                disabled={!canProceed()}
+                disabled={!getCanProceed()}
                 class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Avanti
+                {t('wizard.next')}
               </button>
             ) : (
               <button
                 onClick$={handleComplete}
-                disabled={!canProceed()}
+                disabled={!getCanProceed()}
                 class="px-6 py-2 text-sm font-medium text-white bg-green-600 border border-transparent rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Completa
+                {t('wizard.complete')}
               </button>
             )}
           </div>

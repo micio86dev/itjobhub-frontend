@@ -2,6 +2,7 @@ import { component$, useStore, $, useTask$ } from "@builder.io/qwik";
 import { useNavigate } from "@builder.io/qwik-city";
 import type { DocumentHead } from "@builder.io/qwik-city";
 import { useAuth } from "~/contexts/auth";
+import { useTranslate } from "~/contexts/i18n";
 
 interface RegisterForm {
   name: string;
@@ -15,6 +16,7 @@ interface RegisterForm {
 export default component$(() => {
   const auth = useAuth();
   const nav = useNavigate();
+  const t = useTranslate();
   
   const form = useStore<RegisterForm>({
     name: '',
@@ -37,7 +39,7 @@ export default component$(() => {
           nav('/');
         }
       } else {
-        form.error = result.error || 'Errore durante la registrazione';
+        form.error = result.error || t('auth.register_error');
       }
       form.loading = false;
       auth.registerResult.value = null; // Clear result
@@ -49,12 +51,12 @@ export default component$(() => {
     form.error = '';
     
     if (form.password !== form.confirmPassword) {
-      form.error = 'Le password non corrispondono';
+      form.error = t('auth.password_mismatch');
       return;
     }
     
     if (form.password.length < 6) {
-      form.error = 'La password deve essere di almeno 6 caratteri';
+      form.error = t('auth.password_min_length');
       return;
     }
     
@@ -79,12 +81,12 @@ export default component$(() => {
       <div class="max-w-md w-full space-y-8">
         <div>
           <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Crea il tuo account
+            {t('auth.register_title')}
           </h2>
           <p class="mt-2 text-center text-sm text-gray-600">
-            O{' '}
+            {t('common.or')}{' '}
             <a href="/login" class="font-medium text-indigo-600 hover:text-indigo-500">
-              accedi se hai già un account
+              {t('auth.have_account')}
             </a>
           </p>
         </div>
@@ -92,53 +94,53 @@ export default component$(() => {
         <form class="mt-8 space-y-6" onSubmit$={handleRegister}>
           <div class="rounded-md shadow-sm -space-y-px">
             <div>
-              <label for="name" class="sr-only">Nome</label>
+              <label for="name" class="sr-only">{t('auth.name')}</label>
               <input
                 id="name"
                 name="name"
                 type="text"
                 required
                 class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Nome completo"
+                placeholder={t('auth.name')}
                 value={form.name}
                 onInput$={(e) => form.name = (e.target as HTMLInputElement).value}
               />
             </div>
             <div>
-              <label for="email" class="sr-only">Email</label>
+              <label for="email" class="sr-only">{t('auth.email')}</label>
               <input
                 id="email"
                 name="email"
                 type="email"
                 required
                 class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Indirizzo email"
+                placeholder={t('auth.email')}
                 value={form.email}
                 onInput$={(e) => form.email = (e.target as HTMLInputElement).value}
               />
             </div>
             <div>
-              <label for="password" class="sr-only">Password</label>
+              <label for="password" class="sr-only">{t('auth.password')}</label>
               <input
                 id="password"
                 name="password"
                 type="password"
                 required
                 class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Password"
+                placeholder={t('auth.password')}
                 value={form.password}
                 onInput$={(e) => form.password = (e.target as HTMLInputElement).value}
               />
             </div>
             <div>
-              <label for="confirmPassword" class="sr-only">Conferma Password</label>
+              <label for="confirmPassword" class="sr-only">{t('auth.confirm_password')}</label>
               <input
                 id="confirmPassword"
                 name="confirmPassword"
                 type="password"
                 required
                 class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Conferma password"
+                placeholder={t('auth.confirm_password')}
                 value={form.confirmPassword}
                 onInput$={(e) => form.confirmPassword = (e.target as HTMLInputElement).value}
               />
@@ -157,7 +159,7 @@ export default component$(() => {
               disabled={form.loading}
               class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
             >
-              {form.loading ? 'Registrazione in corso...' : 'Registrati'}
+              {form.loading ? t('auth.registering') : t('auth.register_btn')}
             </button>
           </div>
         </form>
@@ -168,7 +170,7 @@ export default component$(() => {
               <div class="w-full border-t border-gray-300" />
             </div>
             <div class="relative flex justify-center text-sm">
-              <span class="px-2 bg-gray-50 text-gray-500">Oppure registrati con</span>
+              <span class="px-2 bg-gray-50 text-gray-500">{t('auth.or_register')}</span>
             </div>
           </div>
 
@@ -213,11 +215,11 @@ export default component$(() => {
 });
 
 export const head: DocumentHead = {
-  title: "Registrati - ITJobHub",
+  title: 'Registrati - ITJobHub',
   meta: [
     {
       name: "description",
-      content: "Crea il tuo account ITJobHub",
+      content: 'Crea il tuo account ITJobHub',
     },
   ],
 };

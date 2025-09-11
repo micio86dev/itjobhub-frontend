@@ -44,11 +44,11 @@ export default component$(() => {
 });
 
 export const head: DocumentHead = {
-  title: "Completa il tuo profilo - ITJobHub",
+  title: 'Completa il tuo profilo - ITJobHub',
   meta: [
     {
       name: "description",
-      content: "Completa il tuo profilo professionale su ITJobHub",
+      content: 'Completa il tuo profilo professionale su ITJobHub',
     },
   ],
 };

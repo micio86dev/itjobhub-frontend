@@ -4,6 +4,11 @@ export interface User {
   id: string;
   email: string;
   name?: string;
+  phone?: string;
+  location?: string;
+  birthDate?: string;
+  bio?: string;
+  avatar?: string;
   languages?: string[];
   skills?: string[];
   seniority?: 'junior' | 'mid' | 'senior';
@@ -33,6 +38,19 @@ export interface SocialLoginRequest {
   provider: 'google' | 'linkedin' | 'github';
 }
 
+export interface PersonalInfoUpdate {
+  name: string;
+  email: string;
+  phone: string;
+  location: string;
+  birthDate: string;
+  bio: string;
+}
+
+export interface AvatarUpdateRequest {
+  avatar: string;
+}
+
 export interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
@@ -42,6 +60,8 @@ export interface AuthState {
   socialLoginSignal: Signal<SocialLoginRequest | null>;
   logoutSignal: Signal<boolean>;
   updateProfileSignal: Signal<WizardData | null>;
+  updatePersonalInfoSignal: Signal<PersonalInfoUpdate | null>;
+  updateAvatarSignal: Signal<AvatarUpdateRequest | null>;
   // Result signals
   loginResult: Signal<{success: boolean, error?: string} | null>;
   registerResult: Signal<{success: boolean, error?: string} | null>;
@@ -56,19 +76,35 @@ export const AuthProvider = component$(() => {
   const socialLoginSignal = useSignal<SocialLoginRequest | null>(null);
   const logoutSignal = useSignal(false);
   const updateProfileSignal = useSignal<WizardData | null>(null);
+  const updatePersonalInfoSignal = useSignal<PersonalInfoUpdate | null>(null);
+  const updateAvatarSignal = useSignal<AvatarUpdateRequest | null>(null);
   
   // Create result signals
   const loginResult = useSignal<{success: boolean, error?: string} | null>(null);
   const registerResult = useSignal<{success: boolean, error?: string} | null>(null);
 
   const authState = useStore<AuthState>({
-    user: null,
-    isAuthenticated: false,
+    user: {
+      id: '1',
+      email: 'test@example.com',
+      name: 'Test User',
+      profileCompleted: true,
+      languages: ['Italian', 'English'],
+      skills: ['JavaScript', 'TypeScript', 'React', 'Node.js', 'Qwik'],
+      seniority: 'mid',
+      availability: 'full-time',
+      location: 'Milan, Italy',
+      phone: '+39 123 456 7890',
+      bio: 'Full-stack developer with experience in modern web technologies.'
+    },
+    isAuthenticated: true,
     loginSignal,
     registerSignal,
     socialLoginSignal,
     logoutSignal,
     updateProfileSignal,
+    updatePersonalInfoSignal,
+    updateAvatarSignal,
     loginResult,
     registerResult
   });
@@ -130,10 +166,18 @@ export const AuthProvider = component$(() => {
       try {
         // Mock social login - in real app this would use OAuth
         const mockEmail = `user@${socialReq.provider}.com`;
+        const mockAvatars = {
+          google: 'https://lh3.googleusercontent.com/a/default-user',
+          linkedin: 'https://media.licdn.com/dms/image/default-user',
+          github: 'https://avatars.githubusercontent.com/u/default'
+        };
+        
         authState.user = {
           id: '3',
           email: mockEmail,
           name: `User from ${socialReq.provider}`,
+          avatar: mockAvatars[socialReq.provider],
+          location: socialReq.provider === 'linkedin' ? 'Milan, Italy' : undefined,
           profileCompleted: false
         };
         authState.isAuthenticated = true;
@@ -164,6 +208,30 @@ export const AuthProvider = component$(() => {
       authState.user.availability = wizardData.availability || undefined;
       authState.user.profileCompleted = true;
       updateProfileSignal.value = null;
+    }
+  });
+
+  // Handle personal info update requests
+  useTask$(({ track }) => {
+    const personalInfo = track(() => updatePersonalInfoSignal.value);
+    if (personalInfo && authState.user) {
+      authState.user.name = personalInfo.name;
+      authState.user.phone = personalInfo.phone;
+      authState.user.location = personalInfo.location;
+      authState.user.birthDate = personalInfo.birthDate;
+      authState.user.bio = personalInfo.bio;
+      // Email is usually not editable in most systems, but updating anyway
+      // In a real app, you might want to handle email updates differently
+      updatePersonalInfoSignal.value = null;
+    }
+  });
+
+  // Handle avatar update requests
+  useTask$(({ track }) => {
+    const avatarUpdate = track(() => updateAvatarSignal.value);
+    if (avatarUpdate && authState.user) {
+      authState.user.avatar = avatarUpdate.avatar;
+      updateAvatarSignal.value = null;
     }
   });
 

@@ -2,6 +2,7 @@ import { component$, $, useStore, type QRL } from "@builder.io/qwik";
 import type { JobListing } from "~/contexts/jobs";
 import { useJobs, useJobsActions } from "~/contexts/jobs";
 import { useAuth } from "~/contexts/auth";
+import { useTranslate } from "~/contexts/i18n";
 
 interface JobCardProps {
   job: JobListing;
@@ -13,6 +14,7 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
   const jobsContext = useJobs();
   const jobsActions = useJobsActions();
   const auth = useAuth();
+  const t = useTranslate();
   
   // Extract values and signals to avoid serialization issues
   const isAuthenticated = auth.isAuthenticated;
@@ -42,16 +44,11 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
     }
   });
 
-  const formatDate = (date: Date) => {
-    const now = new Date();
-    const diffTime = Math.abs(now.getTime() - date.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
-    if (diffDays === 1) return 'Oggi';
-    if (diffDays === 2) return 'Ieri';
-    if (diffDays <= 7) return `${diffDays - 1} giorni fa`;
-    return date.toLocaleDateString('it-IT', { day: 'numeric', month: 'short' });
-  };
+  // Calculate date diff for rendering
+  const now = new Date();
+  const diffTime = Math.abs(now.getTime() - job.publishDate.getTime());
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  
 
   const companyScore = jobsActions.getCompanyScore(job.company);
 
@@ -79,7 +76,7 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
                   {job.company}
                 </span>
                 <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                  {companyScore}% trust
+                  {companyScore}% {t('job.trust_score')}
                 </span>
               </div>
             </div>
@@ -88,12 +85,15 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
         
         <div class="text-right">
           <span class="text-xs text-gray-500">
-            {formatDate(job.publishDate)}
+            {diffDays === 1 ? t('job.today') : 
+             diffDays === 2 ? t('job.yesterday') :
+             diffDays <= 7 ? `${diffDays - 1} giorni fa` :
+             job.publishDate.toLocaleDateString('it-IT', { day: 'numeric', month: 'short' })}
           </span>
           {job.remote && (
             <div class="mt-1">
               <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                Remote
+                {t('job.remote_badge')}
               </span>
             </div>
           )}
@@ -111,7 +111,7 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
         <div>
           <span class="text-xs font-medium text-gray-500 uppercase tracking-wide">
-            Seniority
+            {t('job.seniority')}
           </span>
           <div class="mt-1">
             <span class={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
@@ -126,7 +126,7 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
         
         <div>
           <span class="text-xs font-medium text-gray-500 uppercase tracking-wide">
-            Disponibilità
+            {t('job.availability')}
           </span>
           <div class="mt-1">
             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
@@ -139,7 +139,7 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
         {job.location && (
           <div>
             <span class="text-xs font-medium text-gray-500 uppercase tracking-wide">
-              Località
+              {t('job.location')}
             </span>
             <div class="mt-1">
               <span class="text-sm text-gray-900">
@@ -154,7 +154,7 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
       {job.salary && (
         <div class="mb-4">
           <span class="text-xs font-medium text-gray-500 uppercase tracking-wide">
-            Retribuzione
+            {t('job.salary')}
           </span>
           <div class="mt-1">
             <span class="text-sm font-semibold text-green-600">
@@ -167,7 +167,7 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
       {/* Skills */}
       <div class="mb-4">
         <span class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2 block">
-          Skills richieste
+          {t('job.skills_required')}
         </span>
         <div class="flex flex-wrap gap-2">
           {job.skills.map((skill) => (
@@ -234,7 +234,7 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
           rel="noopener noreferrer"
           class="inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
         >
-          <span>Candidati</span>
+          <span>{t('job.apply')}</span>
           <svg class="ml-1 w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
             <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" />
           </svg>
@@ -246,13 +246,13 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
         <div class="mt-3 p-3 bg-gray-50 rounded-md">
           <p class="text-xs text-gray-600 text-center">
             <a href="/login" class="text-indigo-600 hover:text-indigo-500 font-medium">
-              Accedi
+              {t('common.login')}
             </a>
-            {' '}o{' '}
+            {' '}{t('common.or')}{' '}
             <a href="/register" class="text-indigo-600 hover:text-indigo-500 font-medium">
-              registrati
+              {t('common.register')}
             </a>
-            {' '}per mettere like e commentare
+            {' '}{t('auth.login_to_interact')}
           </p>
         </div>
       )}
