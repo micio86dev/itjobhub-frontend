@@ -1,6 +1,6 @@
 import { component$, $, useStore } from "@builder.io/qwik";
 import type { DocumentHead } from "@builder.io/qwik-city";
-import { useJobs } from "~/contexts/jobs";
+import { useJobs, useJobsActions } from "~/contexts/jobs";
 import { useAuth } from "~/contexts/auth";
 import { JobCard } from "~/components/jobs/job-card";
 import { CommentsSection } from "~/components/jobs/comments-section";
@@ -18,6 +18,7 @@ interface JobSearchFilters {
 
 export default component$(() => {
   const jobsContext = useJobs();
+  const jobsActions = useJobsActions();
   const auth = useAuth();
   
   // Extract values to avoid serialization issues
@@ -40,14 +41,14 @@ export default component$(() => {
   // Calculate jobs to show based on current state - this runs reactively
   const allJobsToShow = (() => {
     if (state.searchFilters) {
-      return jobsContext.getJobs(1, 100, state.searchFilters);
+      return jobsActions.getJobs(1, 100, state.searchFilters);
     } else if (state.showPersonalized && isAuthenticated && user?.profileCompleted) {
-      return jobsContext.getFilteredJobs(
+      return jobsActions.getFilteredJobs(
         user.skills || [],
         user.availability || 'full-time'
       );
     } else {
-      return jobsContext.getJobs(1, 100);
+      return jobsActions.getJobs(1, 100);
     }
   })();
 
@@ -78,8 +79,8 @@ export default component$(() => {
   });
 
   const handleSearch = $((filters: JobSearchFilters) => {
-    const hasFilters = filters.query || filters.seniority || filters.availability || 
-                      filters.remote || filters.dateRange;
+    const hasFilters = !!(filters.query || filters.seniority || filters.availability || 
+                      filters.remote || filters.dateRange);
     
     // Convert JobSearchFilters to JobFilters
     const convertedFilters: JobFilters | null = hasFilters ? {

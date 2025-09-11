@@ -9,7 +9,6 @@ export interface SetLanguageRequest {
 interface I18nState {
   currentLanguage: SupportedLanguage;
   setLanguageSignal: Signal<SetLanguageRequest | null>;
-  t: (key: string) => string;
 }
 
 export const I18nContext = createContextId<I18nState>('i18n-context');
@@ -440,13 +439,6 @@ export const I18nProvider = component$(() => {
   const i18nState: I18nState = useStore<I18nState>({
     currentLanguage: 'it',
     setLanguageSignal,
-
-    t: (key: string) => {
-      const currentTranslations = translations[i18nState.currentLanguage];
-      if (!currentTranslations) return key;
-      const translation = currentTranslations[key as keyof typeof currentTranslations];
-      return translation || key;
-    }
   });
 
   // Load saved language preference
@@ -477,6 +469,16 @@ export const I18nProvider = component$(() => {
 
 export const useI18n = () => {
   return useContext(I18nContext);
+};
+
+export const useTranslate = () => {
+  const i18n = useContext(I18nContext);
+  return (key: string) => {
+    const currentTranslations = translations[i18n.currentLanguage];
+    if (!currentTranslations) return key;
+    const translation = currentTranslations[key as keyof typeof currentTranslations];
+    return translation || key;
+  };
 };
 
 // Helper function for interpolation

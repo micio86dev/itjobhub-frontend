@@ -308,7 +308,126 @@ export const JobsProvider = component$(() => {
     likeJobSignal,
     dislikeJobSignal,
     addCommentSignal,
+      let filteredJobs = [...jobsState.jobs];
+      
+      if (filters) {
+        // Text search
+        if (filters.query) {
+          const query = filters.query.toLowerCase();
+          filteredJobs = filteredJobs.filter(job =>
+            job.title.toLowerCase().includes(query) ||
+            job.company.toLowerCase().includes(query) ||
+            job.skills.some(skill => skill.toLowerCase().includes(query)) ||
+            (job.description && job.description.toLowerCase().includes(query))
+          );
+        }
+
+        // Skills filter
+        if (filters.skills?.length) {
+          filteredJobs = filteredJobs.filter(job =>
+            job.skills.some((skill: string) =>
+              filters.skills!.some((filterSkill: string) =>
+                skill.toLowerCase().includes(filterSkill.toLowerCase())
+              )
+            )
+          );
+        }
+
+        // Seniority filter
+        if (filters.seniority) {
+          filteredJobs = filteredJobs.filter(job => job.seniority === filters.seniority);
+        }
+
+        // Availability filter
+        if (filters.availability) {
+          filteredJobs = filteredJobs.filter(job => job.availability === filters.availability);
+        }
+
+        // Remote filter
+        if (filters.remote !== undefined) {
+          filteredJobs = filteredJobs.filter(job => job.remote === filters.remote);
+        }
+
+        // Date range filter
+        if (filters.dateRange) {
+          const now = new Date();
+          const filterDate = new Date();
+          
+          switch (filters.dateRange) {
+            case 'today':
+              filterDate.setHours(0, 0, 0, 0);
+              break;
+            case 'week':
+              filterDate.setDate(now.getDate() - 7);
+              break;
+            case 'month':
+              filterDate.setMonth(now.getMonth() - 1);
+              break;
+            case '3months':
+              filterDate.setMonth(now.getMonth() - 3);
+              break;
+            default:
+              filterDate.setFullYear(2000); // Show all
+          }
+          
+          filteredJobs = filteredJobs.filter(job => job.publishDate >= filterDate);
+        }
+      }
+
+      const startIndex = (page - 1) * limit;
+      return filteredJobs.slice(startIndex, startIndex + limit);
+    },
+
+    getFilteredJobs: (userSkills?: string[], userAvailability?: string) => {
+      if (!userSkills?.length && !userAvailability) {
+        return jobsState.jobs;
+      }
+
+      const scoredJobs = jobsState.jobs.map((job: JobListing) => {
+        let score = 0;
+        
+        // Score based on skills match
+        if (userSkills?.length) {
+          const matchingSkills = job.skills.filter((skill: string) =>
+            userSkills.some((userSkill: string) =>
+              skill.toLowerCase().includes(userSkill.toLowerCase())
+            )
+          );
+          score += matchingSkills.length * 10;
+        }
+
+        // Score based on availability match
+        if (userAvailability && job.availability === userAvailability) {
+          score += 20;
+        }
+
+        // Boost recent jobs
+        const daysSincePosted = Math.floor(
+          (Date.now() - job.publishDate.getTime()) / (1000 * 60 * 60 * 24)
+        );
+        score += Math.max(0, 10 - daysSincePosted);
+
+        return { ...job, score };
+      });
+
+      return scoredJobs
+        .sort((a: JobListing & {score: number}, b: JobListing & {score: number}) => b.score - a.score || b.publishDate.getTime() - a.publishDate.getTime())
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        .map(({ score: _, ...job }: JobListing & {score: number}) => job);
+},
+
+    getComments: (jobId: string) => {
+      return jobsState.comments
+        .filter((comment: Comment) => comment.jobId === jobId)
+        .sort((a: Comment, b: Comment) => b.date.getTime() - a.date.getTime());
+    },
+
+    getCompanyScore: (companyName: string) => {
+      const company = jobsState.companies.find((c: Company) => c.name === companyName);
+      return company ? Math.round(company.trustScore) : 80;
+    }
   });
+
   // Handle like job requests
   useTask$(async ({ track }) => {
     const likeReq = track(() => likeJobSignal.value);
@@ -368,135 +487,4 @@ export const JobsProvider = component$(() => {
 
 export const useJobs = () => {
   return useContext(JobsContext);
-};
-
-export const useJobsActions = () => {
-  const jobsState = useContext(JobsContext);
-  
-  const getJobs = (page = 1, limit = 10, filters?: JobFilters) => {
-    let filteredJobs = [...jobsState.jobs];
-    
-    if (filters) {
-      // Text search
-      if (filters.query) {
-        const query = filters.query.toLowerCase();
-        filteredJobs = filteredJobs.filter(job =>
-          job.title.toLowerCase().includes(query) ||
-          job.company.toLowerCase().includes(query) ||
-          job.skills.some(skill => skill.toLowerCase().includes(query)) ||
-          (job.description && job.description.toLowerCase().includes(query))
-        );
-      }
-
-      // Skills filter
-      if (filters.skills?.length) {
-        filteredJobs = filteredJobs.filter(job =>
-          job.skills.some((skill: string) =>
-            filters.skills!.some((filterSkill: string) =>
-              skill.toLowerCase().includes(filterSkill.toLowerCase())
-            )
-          )
-        );
-      }
-
-      // Seniority filter
-      if (filters.seniority) {
-        filteredJobs = filteredJobs.filter(job => job.seniority === filters.seniority);
-      }
-
-      // Availability filter
-      if (filters.availability) {
-        filteredJobs = filteredJobs.filter(job => job.availability === filters.availability);
-      }
-
-      // Remote filter
-      if (filters.remote !== undefined) {
-        filteredJobs = filteredJobs.filter(job => job.remote === filters.remote);
-      }
-
-      // Date range filter
-      if (filters.dateRange) {
-        const now = new Date();
-        const filterDate = new Date();
-        
-        switch (filters.dateRange) {
-          case 'today':
-            filterDate.setHours(0, 0, 0, 0);
-            break;
-          case 'week':
-            filterDate.setDate(now.getDate() - 7);
-            break;
-          case 'month':
-            filterDate.setMonth(now.getMonth() - 1);
-            break;
-          case '3months':
-            filterDate.setMonth(now.getMonth() - 3);
-            break;
-          default:
-            filterDate.setFullYear(2000); // Show all
-        }
-        
-        filteredJobs = filteredJobs.filter(job => job.publishDate >= filterDate);
-      }
-    }
-
-    const startIndex = (page - 1) * limit;
-    return filteredJobs.slice(startIndex, startIndex + limit);
-  };
-
-  const getFilteredJobs = (userSkills?: string[], userAvailability?: string) => {
-    if (!userSkills?.length && !userAvailability) {
-      return jobsState.jobs;
-    }
-
-    const scoredJobs = jobsState.jobs.map((job) => {
-      let score = 0;
-
-      // Skills matching
-      if (userSkills?.length) {
-        const matchingSkills = job.skills.filter(skill => 
-          userSkills.some(userSkill => 
-            skill.toLowerCase().includes(userSkill.toLowerCase())
-          )
-        );
-        score += (matchingSkills.length / userSkills.length) * 50;
-      }
-
-      // Availability matching
-      if (userAvailability && job.availability === userAvailability) {
-        score += 25;
-      }
-
-      // Recent posts get bonus
-      const daysSincePosted = Math.floor(
-        (new Date().getTime() - job.publishDate.getTime()) / (1000 * 60 * 60 * 24)
-      );
-      score += Math.max(0, 10 - daysSincePosted);
-
-      return { ...job, score };
-    });
-
-    return scoredJobs
-      .sort((a: JobListing & {score: number}, b: JobListing & {score: number}) => b.score - a.score || b.publishDate.getTime() - a.publishDate.getTime())
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      .map(({ score: _, ...job }: JobListing & {score: number}) => job);
-  };
-
-  const getComments = (jobId: string) => {
-    return jobsState.comments
-      .filter((comment: Comment) => comment.jobId === jobId)
-      .sort((a: Comment, b: Comment) => b.date.getTime() - a.date.getTime());
-  };
-
-  const getCompanyScore = (companyName: string) => {
-    const company = jobsState.companies.find((c: Company) => c.name === companyName);
-    return company ? Math.round(company.trustScore) : 80;
-  };
-
-  return {
-    getJobs,
-    getFilteredJobs, 
-    getComments,
-    getCompanyScore
-  };
 };

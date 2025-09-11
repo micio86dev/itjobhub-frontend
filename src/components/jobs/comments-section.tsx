@@ -1,5 +1,5 @@
 import { component$, $, useStore } from "@builder.io/qwik";
-import { useJobs } from "~/contexts/jobs";
+import { useJobs, useJobsActions } from "~/contexts/jobs";
 import { useAuth } from "~/contexts/auth";
 
 interface CommentsSectionProps {
@@ -8,6 +8,7 @@ interface CommentsSectionProps {
 
 export const CommentsSection = component$<CommentsSectionProps>(({ jobId }) => {
   const jobsContext = useJobs();
+  const jobsActions = useJobsActions();
   const auth = useAuth();
   
   // Extract values and signals to avoid serialization issues
@@ -20,7 +21,7 @@ export const CommentsSection = component$<CommentsSectionProps>(({ jobId }) => {
     isSubmitting: false
   });
 
-  const comments = jobsContext.getComments(jobId);
+  const comments = jobsActions.getComments(jobId);
 
   const handleSubmitComment = $(async (e: Event) => {
     e.preventDefault();

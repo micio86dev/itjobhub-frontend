@@ -1,16 +1,16 @@
 import { component$, $, useStore } from "@builder.io/qwik";
 import { useAuth } from "~/contexts/auth";
-import { useI18n, type SupportedLanguage } from "~/contexts/i18n";
+import { useI18n, useTranslate, type SupportedLanguage } from "~/contexts/i18n";
 
 export const Navigation = component$(() => {
   const auth = useAuth();
   const i18n = useI18n();
+  const t = useTranslate();
   
   // Extract values and signals to avoid serialization issues
   const isAuthenticated = auth.isAuthenticated;
   const user = auth.user;
   const currentLanguage = i18n.currentLanguage;
-  const t = i18n.t;
   const logoutSignal = auth.logoutSignal;
   const setLanguageSignal = i18n.setLanguageSignal;
   
