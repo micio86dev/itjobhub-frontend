@@ -1,7 +1,7 @@
 import { component$ } from "@builder.io/qwik";
 import type { DocumentHead } from "@builder.io/qwik-city";
 import { useAuth } from "~/contexts/auth";
-import { useI18n, useTranslate, translate } from "~/contexts/i18n";
+import { useTranslate, translate } from "~/contexts/i18n";
 
 export default component$(() => {
   const auth = useAuth();
@@ -103,9 +103,8 @@ export default component$(() => {
   );
 });
 
-export const head: DocumentHead = ({ resolveValue }) => {
-  const i18n = resolveValue(useI18n);
-  const t = (key: string) => translate(key, i18n?.currentLanguage || 'it');
+export const head: DocumentHead = () => {
+  const t = (key: string) => translate(key, 'it');
   return {
     title: t('meta.index_title'),
     meta: [
