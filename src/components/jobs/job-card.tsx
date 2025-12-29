@@ -107,7 +107,7 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
 
       {/* Description */}
       {job.description && (
-        <p class="text-gray-600 text-sm mb-4 line-clamp-2">
+        <p class="text-gray-600 dark:text-gray-400 text-sm mb-4 line-clamp-2">
           {job.description}
         </p>
       )}
@@ -115,14 +115,14 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
       {/* Job Details */}
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
         <div>
-          <span class="text-xs font-medium text-gray-500 uppercase tracking-wide">
+          <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
             {t('job.seniority')}
           </span>
           <div class="mt-1">
             <span class={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-              job.seniority === 'junior' ? 'bg-green-100 text-green-800' :
-              job.seniority === 'mid' ? 'bg-yellow-100 text-yellow-800' :
-              'bg-red-100 text-red-800'
+              job.seniority === 'junior' ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200' :
+              job.seniority === 'mid' ? 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200' :
+              'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200'
             }`}>
               {job.seniority === 'mid' ? 'Mid-level' : job.seniority}
             </span>
@@ -130,11 +130,11 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
         </div>
         
         <div>
-          <span class="text-xs font-medium text-gray-500 uppercase tracking-wide">
+          <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
             {t('job.availability')}
           </span>
           <div class="mt-1">
-            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200">
               {job.availability === 'full-time' ? 'Full-time' : 
                job.availability === 'part-time' ? 'Part-time' : 'Contract'}
             </span>
@@ -143,11 +143,11 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
         
         {job.location && (
           <div>
-            <span class="text-xs font-medium text-gray-500 uppercase tracking-wide">
+            <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
               {t('job.location')}
             </span>
             <div class="mt-1">
-              <span class="text-sm text-gray-900">
+              <span class="text-sm text-gray-900 dark:text-gray-100">
                 {job.location}
               </span>
             </div>
@@ -158,7 +158,7 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
       {/* Salary */}
       {job.salary && (
         <div class="mb-4">
-          <span class="text-xs font-medium text-gray-500 uppercase tracking-wide">
+          <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
             {t('job.salary')}
           </span>
           <div class="mt-1">
@@ -171,14 +171,14 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
 
       {/* Skills */}
       <div class="mb-4">
-        <span class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2 block">
+        <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2 block">
           {t('job.skills_required')}
         </span>
         <div class="flex flex-wrap gap-2">
           {job.skills.map((skill) => (
             <span
               key={skill}
-              class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800"
+              class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200"
             >
               {skill}
             </span>
@@ -187,7 +187,7 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
       </div>
 
       {/* Actions */}
-      <div class="flex items-center justify-between pt-4 border-t border-gray-100">
+      <div class="flex items-center justify-between pt-4 border-t border-gray-100 dark:border-gray-700">
         <div class="flex items-center space-x-4">
           {/* Like/Dislike buttons */}
           <button
@@ -195,8 +195,8 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
             disabled={!isAuthenticated}
             class={`flex items-center space-x-1 px-2 py-1 rounded transition-colors ${
               state.hasLiked 
-                ? 'bg-green-100 text-green-700' 
-                : 'text-gray-500 hover:text-green-600 hover:bg-green-50'
+                ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-200' 
+                : 'text-gray-500 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20'
             } ${!isAuthenticated ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
           >
             <span class="text-lg">👍</span>
@@ -208,8 +208,8 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
             disabled={!isAuthenticated}
             class={`flex items-center space-x-1 px-2 py-1 rounded transition-colors ${
               state.hasDisliked 
-                ? 'bg-red-100 text-red-700' 
-                : 'text-gray-500 hover:text-red-600 hover:bg-red-50'
+                ? 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-200' 
+                : 'text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20'
             } ${!isAuthenticated ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
           >
             <span class="text-lg">👎</span>
@@ -221,8 +221,8 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
             onClick$={() => onToggleComments$(job.id)}
             class={`flex items-center space-x-1 px-2 py-1 rounded transition-colors ${
               showComments 
-                ? 'bg-blue-100 text-blue-700' 
-                : 'text-gray-500 hover:text-blue-600 hover:bg-blue-50'
+                ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200' 
+                : 'text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20'
             } cursor-pointer`}
           >
             <span class="text-lg">💬</span>
@@ -248,8 +248,8 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
 
       {/* Login prompt for non-authenticated users */}
       {!isAuthenticated && (
-        <div class="mt-3 p-3 bg-gray-50 rounded-md">
-          <p class="text-xs text-gray-600 text-center">
+        <div class="mt-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-md">
+          <p class="text-xs text-gray-600 dark:text-gray-300 text-center">
             <a href="/login" class="text-indigo-600 hover:text-indigo-500 font-medium">
               {t('common.login')}
             </a>
