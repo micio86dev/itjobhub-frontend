@@ -1,6 +1,6 @@
 import { component$, $, useStore, type QRL } from "@builder.io/qwik";
 import type { JobListing } from "~/contexts/jobs";
-import { useJobs, useJobsActions } from "~/contexts/jobs";
+import { useJobs, getCompanyScoreFromState, getCommentsFromState } from "~/contexts/jobs";
 import { useAuth } from "~/contexts/auth";
 import { useTranslate } from "~/contexts/i18n";
 
@@ -12,7 +12,6 @@ interface JobCardProps {
 
 export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showComments = false }) => {
   const jobsContext = useJobs();
-  const jobsActions = useJobsActions();
   const auth = useAuth();
   const t = useTranslate();
   
@@ -50,7 +49,7 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   
 
-  const companyScore = jobsActions.getCompanyScore(job.company);
+  const companyScore = getCompanyScoreFromState(jobsContext.companies, job.company);
 
   return (
     <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6 mb-4 hover:shadow-md transition-shadow">
@@ -222,7 +221,7 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
           >
             <span class="text-lg">💬</span>
             <span class="text-sm font-medium">
-              {jobsActions.getComments(job.id).length}
+              {getCommentsFromState(jobsContext.comments, job.id).length}
             </span>
           </button>
         </div>

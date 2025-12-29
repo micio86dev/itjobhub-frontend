@@ -1,6 +1,6 @@
 import { component$, $, useStore, useTask$ } from "@builder.io/qwik";
 import type { DocumentHead } from "@builder.io/qwik-city";
-import { useJobsActions } from "~/contexts/jobs";
+import { useJobsActions, useJobs, filterJobs, getPersonalizedJobs } from "~/contexts/jobs";
 import { useAuth } from "~/contexts/auth";
 import { useTranslate } from "~/contexts/i18n";
 import { JobCard } from "~/components/jobs/job-card";
@@ -18,7 +18,6 @@ interface JobSearchFilters {
 }
 
 export default component$(() => {
-  const jobsActions = useJobsActions();
   const auth = useAuth();
   const t = useTranslate();
   
@@ -39,26 +38,28 @@ export default component$(() => {
     shouldLoadJobs: true
   });
 
-  // Calculate jobs to show based on current state - this runs reactively
-  const allJobsToShow = (() => {
-    if (state.searchFilters) {
-      return jobsActions.getJobs(1, 100, state.searchFilters);
-    } else if (state.showPersonalized && isAuthenticated && user?.profileCompleted) {
-      return jobsActions.getFilteredJobs(
-        user.skills || [],
-        user.availability || 'full-time'
-      );
-    } else {
-      return jobsActions.getJobs(1, 100);
-    }
-  })();
+  const jobsState = useJobs();
 
   // Update displayed jobs when calculation changes
   useTask$(({ track }) => {
     track(() => state.page);
     track(() => state.searchFilters);
     track(() => state.showPersonalized);
-    track(() => allJobsToShow.length);
+    track(() => jobsState.jobs); // Track the jobs from context
+    
+    let allJobsToShow: JobListing[] = [];
+    
+    if (state.searchFilters) {
+      allJobsToShow = filterJobs(jobsState.jobs, 1, 100, state.searchFilters);
+    } else if (state.showPersonalized && isAuthenticated && user?.profileCompleted) {
+      allJobsToShow = getPersonalizedJobs(
+        jobsState.jobs,
+        user.skills || [],
+        user.availability || 'full-time'
+      );
+    } else {
+      allJobsToShow = filterJobs(jobsState.jobs, 1, 100);
+    }
     
     const startIndex = 0; // Always start from beginning for simplicity
     const endIndex = state.page * state.pageSize;

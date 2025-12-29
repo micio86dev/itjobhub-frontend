@@ -1,5 +1,5 @@
 import { component$, $, useStore } from "@builder.io/qwik";
-import { useJobs, useJobsActions } from "~/contexts/jobs";
+import { useJobs, getCommentsFromState } from "~/contexts/jobs";
 import { useAuth } from "~/contexts/auth";
 import { useTranslate } from "~/contexts/i18n";
 
@@ -9,7 +9,6 @@ interface CommentsSectionProps {
 
 export const CommentsSection = component$<CommentsSectionProps>(({ jobId }) => {
   const jobsContext = useJobs();
-  const jobsActions = useJobsActions();
   const auth = useAuth();
   const t = useTranslate();
   
@@ -23,7 +22,7 @@ export const CommentsSection = component$<CommentsSectionProps>(({ jobId }) => {
     isSubmitting: false
   });
 
-  const comments = jobsActions.getComments(jobId);
+  const comments = getCommentsFromState(jobsContext.comments, jobId);
 
   const handleSubmitComment = $(async (e: Event) => {
     e.preventDefault();

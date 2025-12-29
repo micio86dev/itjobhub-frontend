@@ -1110,8 +1110,9 @@ export const translate = (key: string, language: SupportedLanguage): string => {
 };
 
 export const useTranslate = () => {
-  const i18n = useContext(I18nContext);
-  return $((key: string) => translate(key, i18n.currentLanguage));
+  // const i18n = useContext(I18nContext);
+  // return (key: string) => translate(key, i18n.currentLanguage);
+  return (key: string) => key;
 };
 
 // Helper function for interpolation
