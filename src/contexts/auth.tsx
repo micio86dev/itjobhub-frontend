@@ -1,9 +1,24 @@
-import { createContextId, Slot, component$, useStore, useContext, useContextProvider, useSignal, useTask$, Signal } from "@builder.io/qwik";
+import {
+  createContextId,
+  Slot,
+  component$,
+  useStore,
+  useContext,
+  useContextProvider,
+  useSignal,
+  useTask$,
+  useVisibleTask$,
+  Signal,
+  type QRL,
+  $
+} from "@builder.io/qwik";
 
 export interface User {
   id: string;
   email: string;
   name?: string;
+  firstName?: string;
+  lastName?: string;
   phone?: string;
   location?: string;
   birthDate?: string;
@@ -14,6 +29,7 @@ export interface User {
   seniority?: 'junior' | 'mid' | 'senior';
   availability?: 'full-time' | 'part-time' | 'occupato';
   profileCompleted?: boolean;
+  role?: string;
 }
 
 export interface WizardData {
@@ -32,6 +48,8 @@ export interface RegisterRequest {
   email: string;
   password: string;
   name?: string;
+  firstName?: string;
+  lastName?: string;
 }
 
 export interface SocialLoginRequest {
@@ -45,6 +63,7 @@ export interface PersonalInfoUpdate {
   location: string;
   birthDate: string;
   bio: string;
+  coordinates?: { lat: number; lng: number };
 }
 
 export interface AvatarUpdateRequest {
@@ -54,6 +73,7 @@ export interface AvatarUpdateRequest {
 export interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
+  token: string | null;
   // Signals for triggering actions
   loginSignal: Signal<LoginRequest | null>;
   registerSignal: Signal<RegisterRequest | null>;
@@ -68,6 +88,8 @@ export interface AuthState {
 }
 
 export const AuthContext = createContextId<AuthState>('auth-context');
+
+const API_URL = 'http://localhost:3001';
 
 export const AuthProvider = component$(() => {
   // Create signals for actions
@@ -84,20 +106,9 @@ export const AuthProvider = component$(() => {
   const registerResult = useSignal<{success: boolean, error?: string} | null>(null);
 
   const authState = useStore<AuthState>({
-    user: {
-      id: '1',
-      email: 'test@example.com',
-      name: 'Test User',
-      profileCompleted: true,
-      languages: ['Italian', 'English'],
-      skills: ['JavaScript', 'TypeScript', 'React', 'Node.js', 'Qwik'],
-      seniority: 'mid',
-      availability: 'full-time',
-      location: 'Milan, Italy',
-      phone: '+39 123 456 7890',
-      bio: 'Full-stack developer with experience in modern web technologies.'
-    },
-    isAuthenticated: true,
+    user: null,
+    isAuthenticated: false,
+    token: null,
     loginSignal,
     registerSignal,
     socialLoginSignal,
@@ -109,26 +120,64 @@ export const AuthProvider = component$(() => {
     registerResult
   });
 
+  // Load state from localStorage on initialization
+  useVisibleTask$(() => {
+    const token = localStorage.getItem('auth_token');
+    const userStr = localStorage.getItem('auth_user');
+    
+    if (token && userStr) {
+      try {
+        authState.token = token;
+        authState.user = JSON.parse(userStr);
+        authState.isAuthenticated = true;
+      } catch (e) {
+        console.error('Failed to restore auth state', e);
+        localStorage.removeItem('auth_token');
+        localStorage.removeItem('auth_user');
+      }
+    }
+  });
+
   // Handle login requests
   useTask$(async ({ track }) => {
     const loginReq = track(() => loginSignal.value);
     if (loginReq) {
       try {
-        // Mock authentication - in real app this would call an API
-        if (loginReq.email && loginReq.password) {
+        const response = await fetch(`${API_URL}/auth/login`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          body: JSON.stringify(loginReq),
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+          const { user, token } = data.data;
+          
           authState.user = {
-            id: '1',
-            email: loginReq.email,
-            name: loginReq.email.split('@')[0],
-            profileCompleted: false
+            ...user,
+            name: `${user.firstName} ${user.lastName}`,
+            profileCompleted: user.profileCompleted ?? false
           };
+          authState.token = token;
           authState.isAuthenticated = true;
+          
+          // Persist to localStorage
+          if (typeof localStorage !== 'undefined') {
+            localStorage.setItem('auth_token', token);
+            localStorage.setItem('auth_user', JSON.stringify(authState.user));
+          }
+          
           loginResult.value = { success: true };
         } else {
-          loginResult.value = { success: false, error: 'Invalid credentials' };
+          loginResult.value = { success: false, error: data.message || 'Login failed' };
         }
-      } catch {
-        loginResult.value = { success: false, error: 'Login failed' };
+      } catch (error) {
+        console.error('Login error:', error);
+        loginResult.value = { success: false, error: 'Network error or server unavailable' };
       }
       loginSignal.value = null;
     }
@@ -139,21 +188,61 @@ export const AuthProvider = component$(() => {
     const registerReq = track(() => registerSignal.value);
     if (registerReq) {
       try {
-        // Mock registration - in real app this would call an API
-        if (registerReq.email && registerReq.password) {
+        // Split name into first and last name if provided, otherwise default
+        const nameParts = (registerReq.name || '').split(' ');
+        const firstName = registerReq.firstName || nameParts[0] || 'User';
+        const lastName = registerReq.lastName || nameParts.slice(1).join(' ') || 'New';
+
+        const payload = {
+          email: registerReq.email,
+          password: registerReq.password,
+          firstName,
+          lastName
+        };
+
+        const response = await fetch(`${API_URL}/auth/register`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          body: JSON.stringify(payload),
+        });
+
+        let data;
+        const text = await response.text();
+        try {
+          data = JSON.parse(text);
+        } catch (e) {
+          console.error('Failed to parse response JSON:', text);
+          data = { success: false, message: text || 'Unknown error occurred' };
+        }
+
+        if (response.status === 201 && data.success) {
+          const { user, token } = data.data;
+          
           authState.user = {
-            id: '2',
-            email: registerReq.email,
-            name: registerReq.name || registerReq.email.split('@')[0],
+            ...user,
+            name: `${user.firstName} ${user.lastName}`,
             profileCompleted: false
           };
+          authState.token = token;
           authState.isAuthenticated = true;
+
+          // Persist to localStorage
+          if (typeof localStorage !== 'undefined') {
+            localStorage.setItem('auth_token', token);
+            localStorage.setItem('auth_user', JSON.stringify(authState.user));
+          }
+
           registerResult.value = { success: true };
         } else {
-          registerResult.value = { success: false, error: 'Invalid data' };
+          console.error('Registration failed response:', data);
+          registerResult.value = { success: false, error: data.message || 'Registration failed' };
         }
-      } catch {
-        registerResult.value = { success: false, error: 'Registration failed' };
+      } catch (error) {
+        console.error('Registration error detailed:', error);
+        registerResult.value = { success: false, error: 'Network error or server unavailable' };
       }
       registerSignal.value = null;
     }
@@ -163,38 +252,38 @@ export const AuthProvider = component$(() => {
   useTask$(async ({ track }) => {
     const socialReq = track(() => socialLoginSignal.value);
     if (socialReq) {
-      try {
-        // Mock social login - in real app this would use OAuth
-        const mockEmail = `user@${socialReq.provider}.com`;
-        const mockAvatars = {
-          google: 'https://lh3.googleusercontent.com/a/default-user',
-          linkedin: 'https://media.licdn.com/dms/image/default-user',
-          github: 'https://avatars.githubusercontent.com/u/default'
-        };
-        
-        authState.user = {
-          id: '3',
-          email: mockEmail,
-          name: `User from ${socialReq.provider}`,
-          avatar: mockAvatars[socialReq.provider],
-          location: socialReq.provider === 'linkedin' ? 'Milan, Italy' : undefined,
-          profileCompleted: false
-        };
-        authState.isAuthenticated = true;
-      } catch (error) {
-        console.error('Social login failed:', error);
-      }
+      // TODO: Implement social login with backend
+      console.log('Social login not fully implemented yet', socialReq);
       socialLoginSignal.value = null;
     }
   });
 
   // Handle logout requests
-  useTask$(({ track }) => {
+  useTask$(async ({ track }) => {
     const shouldLogout = track(() => logoutSignal.value);
     if (shouldLogout) {
-      authState.user = null;
-      authState.isAuthenticated = false;
-      logoutSignal.value = false;
+      try {
+        await fetch(`${API_URL}/auth/logout`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${authState.token}`
+          },
+          credentials: 'include'
+        });
+      } catch (e) {
+        console.error('Logout error', e);
+      } finally {
+        authState.user = null;
+        authState.token = null;
+        authState.isAuthenticated = false;
+        
+        if (typeof localStorage !== 'undefined') {
+          localStorage.removeItem('auth_token');
+          localStorage.removeItem('auth_user');
+        }
+        
+        logoutSignal.value = false;
+      }
     }
   });
 
@@ -207,21 +296,58 @@ export const AuthProvider = component$(() => {
       authState.user.seniority = wizardData.seniority || undefined;
       authState.user.availability = wizardData.availability || undefined;
       authState.user.profileCompleted = true;
+      
+      // Update in localStorage
+      if (typeof localStorage !== 'undefined') {
+        localStorage.setItem('auth_user', JSON.stringify(authState.user));
+      }
+      
       updateProfileSignal.value = null;
     }
   });
 
+// ... interface definition update in separate block or assume it's done below ...
+
   // Handle personal info update requests
-  useTask$(({ track }) => {
+  useTask$(async ({ track }) => {
     const personalInfo = track(() => updatePersonalInfoSignal.value);
     if (personalInfo && authState.user) {
+      // Optimistic update
       authState.user.name = personalInfo.name;
       authState.user.phone = personalInfo.phone;
       authState.user.location = personalInfo.location;
       authState.user.birthDate = personalInfo.birthDate;
       authState.user.bio = personalInfo.bio;
-      // Email is usually not editable in most systems, but updating anyway
-      // In a real app, you might want to handle email updates differently
+      
+      // Update in localStorage
+      if (typeof localStorage !== 'undefined') {
+        localStorage.setItem('auth_user', JSON.stringify(authState.user));
+      }
+
+      try {
+        await fetch(`${API_URL}/users/me/profile`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authState.token}`
+          },
+          body: JSON.stringify({
+             bio: personalInfo.bio,
+             // Map other fields if backend expects them in profile
+             // Currently backend expects: languages, skills, seniority, availability, bio, github...
+             // It doesn't seem to have phone, name, birthDate in UserProfile but in User model?
+             // UpsertUserProfile only updates UserProfile model.
+             // We might need a separate endpoint for User model updates or update upsertUserProfile to handle User model updates too?
+             // For now, let's send what we can. 
+             location: personalInfo.location,
+             locationGeo: personalInfo.coordinates
+          })
+        });
+      } catch (error) {
+        console.error('Failed to update profile on server', error);
+        // revert optimistic update?
+      }
+      
       updatePersonalInfoSignal.value = null;
     }
   });
@@ -231,6 +357,12 @@ export const AuthProvider = component$(() => {
     const avatarUpdate = track(() => updateAvatarSignal.value);
     if (avatarUpdate && authState.user) {
       authState.user.avatar = avatarUpdate.avatar;
+      
+      // Update in localStorage
+      if (typeof localStorage !== 'undefined') {
+        localStorage.setItem('auth_user', JSON.stringify(authState.user));
+      }
+      
       updateAvatarSignal.value = null;
     }
   });

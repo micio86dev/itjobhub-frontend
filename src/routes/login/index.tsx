@@ -4,6 +4,8 @@ import type { DocumentHead } from "@builder.io/qwik-city";
 import { useAuth } from "~/contexts/auth";
 import { useTranslate } from "~/contexts/i18n";
 
+
+
 interface LoginForm {
   email: string;
   password: string;
@@ -75,7 +77,7 @@ export default component$(() => {
           </p>
         </div>
         
-        <form class="mt-8 space-y-6" onSubmit$={handleLogin}>
+        <form class="mt-8 space-y-6" preventdefault:submit onSubmit$={handleLogin}>
           <div class="rounded-md shadow-sm -space-y-px">
             <div>
               <label for="email" class="sr-only">{t('auth.email')}</label>

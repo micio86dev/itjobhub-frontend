@@ -91,7 +91,7 @@ export default component$(() => {
           </p>
         </div>
         
-        <form class="mt-8 space-y-6" onSubmit$={handleRegister}>
+        <form class="mt-8 space-y-6" preventdefault:submit onSubmit$={handleRegister}>
           <div class="rounded-md shadow-sm -space-y-px">
             <div>
               <label for="name" class="sr-only">{t('auth.name')}</label>

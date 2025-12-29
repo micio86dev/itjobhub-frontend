@@ -3,6 +3,7 @@ import type { DocumentHead } from "@builder.io/qwik-city";
 import { useAuth } from "~/contexts/auth";
 import { useI18n, useTranslate, translate } from "~/contexts/i18n";
 import { ProfileWizard } from "~/components/wizard/profile-wizard";
+import { LocationAutocomplete } from "~/components/ui/location-autocomplete";
 import type { WizardData } from "~/contexts/auth";
 
 interface EditFormData {
@@ -12,6 +13,7 @@ interface EditFormData {
   location: string;
   birthDate: string;
   bio: string;
+  coordinates?: { lat: number; lng: number };
 }
 
 export default component$(() => {
@@ -46,11 +48,15 @@ export default component$(() => {
     }
   });
 
-  // Handle redirect on client side only
+  // Handle redirect on client side only, but double check simple auth presence
   useVisibleTask$(({ track }) => {
     const shouldRedirect = track(() => state.shouldRedirect);
     if (shouldRedirect) {
-      window.location.href = '/login';
+      // Double check if we really need to redirect, maybe auth state is still loading
+      const token = localStorage.getItem('auth_token');
+      if (!token) {
+        window.location.href = '/login';
+      }
     }
   });
 
@@ -301,10 +307,17 @@ export default component$(() => {
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                           {t('profile.location_label')}
                         </label>
-                        <input
-                          type="text"
+                        <LocationAutocomplete
                           value={state.formData.location}
-                          onInput$={(e) => state.formData.location = (e.target as HTMLInputElement).value}
+                          onInput$={(val) => state.formData.location = val}
+                          onLocationSelect$={(location, coordinates) => {
+                             state.formData.location = location;
+                             // Store coordinates in formData (need to add coordinates to EditFormData interface first)
+                             // Assuming I will add it in a subsequent step or previous step was missed?
+                             // I need to update EditFormData interface in this file too!
+                             // For now I'll cast to any or add it.
+                             (state.formData as any).coordinates = coordinates;
+                          }}
                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:ring-indigo-500 focus:border-indigo-500 dark:focus:ring-indigo-400 dark:focus:border-indigo-400"
                         />
                       </div>
