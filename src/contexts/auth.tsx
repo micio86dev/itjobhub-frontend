@@ -9,9 +9,8 @@ import {
   useTask$,
   useVisibleTask$,
   Signal,
-  type QRL,
-  $
 } from "@builder.io/qwik";
+import { useNavigate } from "@builder.io/qwik-city";
 
 export interface User {
   id: string;
@@ -27,16 +26,17 @@ export interface User {
   languages?: string[];
   skills?: string[];
   seniority?: 'junior' | 'mid' | 'senior';
-  availability?: 'full-time' | 'part-time' | 'occupato';
+  availability?: 'full-time' | 'part-time' | 'busy';
   profileCompleted?: boolean;
   role?: string;
+  language?: string;
 }
 
 export interface WizardData {
   languages: string[];
   skills: string[];
   seniority: 'junior' | 'mid' | 'senior' | '';
-  availability: 'full-time' | 'part-time' | 'occupato' | '';
+  availability: 'full-time' | 'part-time' | 'busy' | '';
 }
 
 export interface LoginRequest {
@@ -85,6 +85,8 @@ export interface AuthState {
   // Result signals
   loginResult: Signal<{success: boolean, error?: string} | null>;
   registerResult: Signal<{success: boolean, error?: string} | null>;
+  profileUpdateResult: Signal<{success: boolean, error?: string} | null>;
+  avatarUpdateResult: Signal<{success: boolean, error?: string} | null>;
 }
 
 export const AuthContext = createContextId<AuthState>('auth-context');
@@ -92,6 +94,7 @@ export const AuthContext = createContextId<AuthState>('auth-context');
 const API_URL = 'http://localhost:3001';
 
 export const AuthProvider = component$(() => {
+  const nav = useNavigate();
   // Create signals for actions
   const loginSignal = useSignal<LoginRequest | null>(null);
   const registerSignal = useSignal<RegisterRequest | null>(null);
@@ -104,6 +107,8 @@ export const AuthProvider = component$(() => {
   // Create result signals
   const loginResult = useSignal<{success: boolean, error?: string} | null>(null);
   const registerResult = useSignal<{success: boolean, error?: string} | null>(null);
+  const profileUpdateResult = useSignal<{success: boolean, error?: string} | null>(null);
+  const avatarUpdateResult = useSignal<{success: boolean, error?: string} | null>(null);
 
   const authState = useStore<AuthState>({
     user: null,
@@ -117,7 +122,9 @@ export const AuthProvider = component$(() => {
     updatePersonalInfoSignal,
     updateAvatarSignal,
     loginResult,
-    registerResult
+    registerResult,
+    profileUpdateResult,
+    avatarUpdateResult
   });
 
   // Load state from localStorage on initialization
@@ -147,6 +154,7 @@ export const AuthProvider = component$(() => {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            'Accept-Language': authState.user?.language || 'it', // Access i18n context or use default
           },
           credentials: 'include',
           body: JSON.stringify(loginReq),
@@ -204,6 +212,7 @@ export const AuthProvider = component$(() => {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            'Accept-Language': authState.user?.language || 'it',
           },
           credentials: 'include',
           body: JSON.stringify(payload),
@@ -266,7 +275,8 @@ export const AuthProvider = component$(() => {
         await fetch(`${API_URL}/auth/logout`, {
           method: 'POST',
           headers: {
-            'Authorization': `Bearer ${authState.token}`
+            'Authorization': `Bearer ${authState.token}`,
+            'Accept-Language': authState.user?.language || 'it',
           },
           credentials: 'include'
         });
@@ -280,6 +290,7 @@ export const AuthProvider = component$(() => {
         if (typeof localStorage !== 'undefined') {
           localStorage.removeItem('auth_token');
           localStorage.removeItem('auth_user');
+          nav('/login');
         }
         
         logoutSignal.value = false;
@@ -288,9 +299,10 @@ export const AuthProvider = component$(() => {
   });
 
   // Handle profile update requests
-  useTask$(({ track }) => {
+  useTask$(async ({ track }) => {
     const wizardData = track(() => updateProfileSignal.value);
     if (wizardData && authState.user) {
+      // Optimistic update
       authState.user.languages = wizardData.languages;
       authState.user.skills = wizardData.skills;
       authState.user.seniority = wizardData.seniority || undefined;
@@ -300,6 +312,34 @@ export const AuthProvider = component$(() => {
       // Update in localStorage
       if (typeof localStorage !== 'undefined') {
         localStorage.setItem('auth_user', JSON.stringify(authState.user));
+      }
+
+      try {
+        const response = await fetch(`${API_URL}/users/me/profile`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authState.token}`,
+            'Accept-Language': authState.user?.language || 'it',
+          },
+          body: JSON.stringify({
+            languages: wizardData.languages,
+            skills: wizardData.skills,
+            seniority: wizardData.seniority,
+            availability: wizardData.availability
+          })
+        });
+
+        if (response.ok) {
+          profileUpdateResult.value = { success: true };
+        } else {
+          const data = await response.json();
+          profileUpdateResult.value = { success: false, error: data.message || 'Failed to save profile data' };
+        }
+      } catch (error) {
+        console.error('Failed to update profile on server', error);
+        profileUpdateResult.value = { success: false, error: 'Failed to save profile data' };
+        // Consider reverting optimistic update here if critical
       }
       
       updateProfileSignal.value = null;
@@ -333,12 +373,9 @@ export const AuthProvider = component$(() => {
           },
           body: JSON.stringify({
              bio: personalInfo.bio,
-             // Map other fields if backend expects them in profile
-             // Currently backend expects: languages, skills, seniority, availability, bio, github...
-             // It doesn't seem to have phone, name, birthDate in UserProfile but in User model?
-             // UpsertUserProfile only updates UserProfile model.
-             // We might need a separate endpoint for User model updates or update upsertUserProfile to handle User model updates too?
-             // For now, let's send what we can. 
+             name: personalInfo.name,
+             phone: personalInfo.phone,
+             birthDate: personalInfo.birthDate,
              location: personalInfo.location,
              locationGeo: personalInfo.coordinates
           })
@@ -349,21 +386,39 @@ export const AuthProvider = component$(() => {
       }
       
       updatePersonalInfoSignal.value = null;
+      profileUpdateResult.value = { success: true };
     }
   });
 
   // Handle avatar update requests
-  useTask$(({ track }) => {
+  useTask$(async ({ track }) => {
     const avatarUpdate = track(() => updateAvatarSignal.value);
     if (avatarUpdate && authState.user) {
+      // Optimistic update
       authState.user.avatar = avatarUpdate.avatar;
       
       // Update in localStorage
       if (typeof localStorage !== 'undefined') {
         localStorage.setItem('auth_user', JSON.stringify(authState.user));
       }
+
+      try {
+        await fetch(`${API_URL}/users/me/profile`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authState.token}`
+          },
+          body: JSON.stringify({
+             avatar: avatarUpdate.avatar
+          })
+        });
+      } catch (error) {
+        console.error('Failed to update avatar on server', error);
+      }
       
       updateAvatarSignal.value = null;
+      avatarUpdateResult.value = { success: true };
     }
   });
 

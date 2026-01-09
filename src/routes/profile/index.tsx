@@ -1,7 +1,7 @@
 import { component$, useStore, $, useTask$, useVisibleTask$, useSignal } from "@builder.io/qwik";
 import type { DocumentHead } from "@builder.io/qwik-city";
 import { useAuth } from "~/contexts/auth";
-import { useTranslate, translate } from "~/contexts/i18n";
+import { useTranslate, translate, useI18n } from "~/contexts/i18n";
 import { ProfileWizard } from "~/components/wizard/profile-wizard";
 import { LocationAutocomplete } from "~/components/ui/location-autocomplete";
 import type { WizardData } from "~/contexts/auth";
@@ -18,6 +18,7 @@ interface EditFormData {
 
 export default component$(() => {
   const auth = useAuth();
+  const i18n = useI18n();
   const t = useTranslate();
   
   // Extract values to avoid serialization issues
@@ -30,6 +31,7 @@ export default component$(() => {
     isEditing: false,
     editingSection: '' as 'profile' | 'personal' | '',
     shouldRedirect: false,
+    message: { type: 'success' as 'success' | 'error', text: '' },
     formData: {
       name: user?.name || '',
       email: user?.email || '',
@@ -72,6 +74,39 @@ export default component$(() => {
         birthDate: currentUser.birthDate || '',
         bio: currentUser.bio || ''
       };
+    }
+  });
+  
+  // Watch for profile update results
+  useTask$(({ track }) => {
+    const result = track(() => auth.profileUpdateResult.value);
+    if (result) {
+      if (result.success) {
+        state.message = { type: 'success', text: translate('profile.update_success', i18n.currentLanguage) };
+      } else {
+        state.message = { type: 'error', text: result.error || translate('profile.update_error', i18n.currentLanguage) };
+      }
+      auth.profileUpdateResult.value = null;
+      // Clear message after 5 seconds
+      setTimeout(() => {
+        state.message.text = '';
+      }, 5000);
+    }
+  });
+
+  // Watch for avatar update results
+  useTask$(({ track }) => {
+    const result = track(() => auth.avatarUpdateResult.value);
+    if (result) {
+      if (result.success) {
+        state.message = { type: 'success', text: translate('profile.avatar_success', i18n.currentLanguage) };
+      } else {
+        state.message = { type: 'error', text: result.error ? translate(result.error, i18n.currentLanguage) : translate('profile.avatar_error', i18n.currentLanguage) };
+      }
+      auth.avatarUpdateResult.value = null;
+      setTimeout(() => {
+        state.message.text = '';
+      }, 5000);
     }
   });
 
@@ -145,7 +180,7 @@ export default component$(() => {
       languages: user?.languages || [],
       skills: user?.skills || [],
       seniority: (user?.seniority as 'junior' | 'mid' | 'senior' | '') || '',
-      availability: (user?.availability as 'full-time' | 'part-time' | 'occupato' | '') || ''
+      availability: (user?.availability as 'full-time' | 'part-time' | 'busy' | '') || ''
     };
     return (
       <ProfileWizard 
@@ -160,7 +195,7 @@ export default component$(() => {
     switch (availability) {
       case 'full-time': return t('jobs.full_time');
       case 'part-time': return t('jobs.part_time');
-      case 'occupato': return t('profile.occupied');
+      case 'busy': return t('profile.occupied');
       default: return availability;
     }
   });
@@ -177,6 +212,16 @@ export default component$(() => {
   return (
     <div class="max-w-4xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
       <div class="bg-white dark:bg-gray-800 shadow rounded-lg">
+        {/* Feedback Message */}
+        {state.message.text && (
+          <div class={`p-4 rounded-t-lg text-center text-sm font-medium ${
+            state.message.type === 'success' 
+              ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300' 
+              : 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300'
+          }`}>
+            {state.message.text}
+          </div>
+        )}
         {/* Header */}
         <div class="px-4 py-5 sm:px-6 border-b border-gray-200 dark:border-gray-700">
           <div class="flex items-center justify-between">

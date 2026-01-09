@@ -66,26 +66,20 @@ export const ProfileWizard = component$<ProfileWizardProps>(({
       default: return false;
     }
   };
-
-  // Get step text with proper interpolation
-  const getStepText = async () => {
-    const template = await t('wizard.step_of');
-    return interpolate(template, { 
-      current: state.currentStep.toString(), 
-      total: '4' 
-    });
-  };
-
+  
   return (
-    <div class="min-h-screen flex items-center justify-center bg-gray-50 py-4 px-4">
-      <div class="max-w-md w-full bg-white rounded-lg shadow-lg p-6">
-        {/* Progress indicator */}
-        <div class="mb-8">
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 overflow-y-auto">
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-lg w-full p-6 my-8">
+        {/* Progress bar */}
+        <div class="mb-6">
           <div class="flex items-center justify-between mb-2">
-            <span class="text-sm font-medium text-gray-900">
-              {getStepText()}
+            <span class="text-sm font-medium text-gray-900 dark:text-white">
+              {interpolate(t('wizard.step_of'), { 
+                current: state.currentStep.toString(), 
+                total: '4' 
+              })}
             </span>
-            <span class="text-sm text-gray-500">
+            <span class="text-sm text-gray-500 dark:text-gray-400">
               {Math.round((state.currentStep / 4) * 100)}%
             </span>
           </div>
@@ -101,10 +95,10 @@ export const ProfileWizard = component$<ProfileWizardProps>(({
         {state.currentStep === 1 && (
           <div class="space-y-4">
             <div>
-              <h2 class="text-xl font-semibold text-gray-900 mb-2">
+              <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">
                 {t('wizard.languages_step')}
               </h2>
-              <p class="text-sm text-gray-600 mb-4">
+              <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
                 {t('wizard.languages_desc')}
               </p>
               <TagInput
@@ -120,10 +114,10 @@ export const ProfileWizard = component$<ProfileWizardProps>(({
         {state.currentStep === 2 && (
           <div class="space-y-4">
             <div>
-              <h2 class="text-xl font-semibold text-gray-900 mb-2">
+              <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">
                 {t('wizard.skills_step')}
               </h2>
-              <p class="text-sm text-gray-600 mb-4">
+              <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
                 {t('wizard.skills_desc')}
               </p>
               <TagInput
@@ -139,10 +133,10 @@ export const ProfileWizard = component$<ProfileWizardProps>(({
         {state.currentStep === 3 && (
           <div class="space-y-4">
             <div>
-              <h2 class="text-xl font-semibold text-gray-900 mb-2">
+              <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">
                 {t('wizard.seniority_step')}
               </h2>
-              <p class="text-sm text-gray-600 mb-4">
+              <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
                 {t('wizard.seniority_desc')}
               </p>
               <div class="space-y-3">
@@ -155,8 +149,8 @@ export const ProfileWizard = component$<ProfileWizardProps>(({
                     key={option.value}
                     class={`flex items-start p-3 rounded-lg border-2 cursor-pointer transition-colors ${
                       state.data.seniority === option.value
-                        ? 'border-indigo-500 bg-indigo-50'
-                        : 'border-gray-200 hover:border-gray-300'
+                        ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20'
+                        : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
                     }`}
                   >
                     <input
@@ -168,8 +162,8 @@ export const ProfileWizard = component$<ProfileWizardProps>(({
                       class="mt-0.5 h-4 w-4 text-indigo-600 focus:ring-indigo-500"
                     />
                     <div class="ml-3">
-                      <div class="font-medium text-gray-900">{t(option.labelKey)}</div>
-                      <div class="text-sm text-gray-500">{t(option.descKey)}</div>
+                      <div class="font-medium text-gray-900 dark:text-white">{t(option.labelKey)}</div>
+                      <div class="text-sm text-gray-500 dark:text-gray-400">{t(option.descKey)}</div>
                     </div>
                   </label>
                 ))}
@@ -181,24 +175,24 @@ export const ProfileWizard = component$<ProfileWizardProps>(({
         {state.currentStep === 4 && (
           <div class="space-y-4">
             <div>
-              <h2 class="text-xl font-semibold text-gray-900 mb-2">
+              <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">
                 {t('wizard.availability_step')}
               </h2>
-              <p class="text-sm text-gray-600 mb-4">
+              <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
                 {t('wizard.availability_desc')}
               </p>
               <div class="space-y-3">
                 {[
                   { value: 'full-time', labelKey: 'wizard.fulltime_label', descKey: 'wizard.fulltime_desc' },
                   { value: 'part-time', labelKey: 'wizard.parttime_label', descKey: 'wizard.parttime_desc' },
-                  { value: 'occupato', labelKey: 'wizard.occupied_label', descKey: 'wizard.occupied_desc' }
+                  { value: 'busy', labelKey: 'wizard.occupied_label', descKey: 'wizard.occupied_desc' }
                 ].map((option) => (
                   <label
                     key={option.value}
                     class={`flex items-start p-3 rounded-lg border-2 cursor-pointer transition-colors ${
                       state.data.availability === option.value
-                        ? 'border-indigo-500 bg-indigo-50'
-                        : 'border-gray-200 hover:border-gray-300'
+                        ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20'
+                        : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
                     }`}
                   >
                     <input
@@ -210,8 +204,8 @@ export const ProfileWizard = component$<ProfileWizardProps>(({
                       class="mt-0.5 h-4 w-4 text-indigo-600 focus:ring-indigo-500"
                     />
                     <div class="ml-3">
-                      <div class="font-medium text-gray-900">{t(option.labelKey)}</div>
-                      <div class="text-sm text-gray-500">{t(option.descKey)}</div>
+                      <div class="font-medium text-gray-900 dark:text-white">{t(option.labelKey)}</div>
+                      <div class="text-sm text-gray-500 dark:text-gray-400">{t(option.descKey)}</div>
                     </div>
                   </label>
                 ))}
@@ -221,12 +215,12 @@ export const ProfileWizard = component$<ProfileWizardProps>(({
         )}
 
         {/* Navigation buttons */}
-        <div class="flex justify-between pt-6 mt-6 border-t border-gray-200">
+        <div class="flex justify-between pt-6 mt-6 border-t border-gray-200 dark:border-gray-700">
           <div class="flex space-x-2">
             {state.currentStep > 1 && (
               <button
                 onClick$={prevStep}
-                class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-indigo-400"
               >
                 {t('wizard.back')}
               </button>
@@ -234,7 +228,7 @@ export const ProfileWizard = component$<ProfileWizardProps>(({
             {onCancel$ && (
               <button
                 onClick$={onCancel$}
-                class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-indigo-400"
               >
                 {t('wizard.cancel')}
               </button>

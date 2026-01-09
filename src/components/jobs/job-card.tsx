@@ -107,9 +107,10 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
 
       {/* Description */}
       {job.description && (
-        <p class="text-gray-600 dark:text-gray-400 text-sm mb-4 line-clamp-2">
-          {job.description}
-        </p>
+        <p 
+          class="text-gray-600 dark:text-gray-400 text-sm mb-4 line-clamp-2"
+          dangerouslySetInnerHTML={job.description}
+        ></p>
       )}
 
       {/* Job Details */}

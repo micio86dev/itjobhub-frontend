@@ -1,4 +1,4 @@
-import { component$, $ } from "@builder.io/qwik";
+import { component$, $, useVisibleTask$ } from "@builder.io/qwik";
 import { useNavigate } from "@builder.io/qwik-city";
 import type { DocumentHead } from "@builder.io/qwik-city";
 import { useAuth } from "~/contexts/auth";
@@ -9,24 +9,19 @@ export default component$(() => {
   const auth = useAuth();
   const nav = useNavigate();
 
-  // Extract values to avoid serialization issues
-  const isAuthenticated = auth.isAuthenticated;
-  const user = auth.user;
+  // Use useVisibleTask$ (client-side only) for redirection
+  useVisibleTask$(({ track }) => {
+    track(() => auth.isAuthenticated);
+    track(() => auth.user?.profileCompleted);
 
-  // Redirect if not authenticated
-  if (!isAuthenticated) {
-    nav('/login');
-    return null;
-  }
-
-  // Redirect if profile already completed
-  if (user?.profileCompleted) {
-    nav('/');
-    return null;
-  }
+    if (!auth.isAuthenticated) {
+      void nav('/login');
+    } else if (auth.user?.profileCompleted) {
+      void nav('/');
+    }
+  });
 
   const handleWizardComplete = $((data: WizardData) => {
-    // Trigger profile update through signal
     auth.updateProfileSignal.value = data;
     nav('/');
   });
@@ -35,11 +30,21 @@ export default component$(() => {
     nav('/');
   });
 
+  if (!auth.isAuthenticated || auth.user?.profileCompleted) {
+    return (
+      <div class="min-h-screen flex items-center justify-center bg-gray-50">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+      </div>
+    );
+  }
+
   return (
-    <ProfileWizard 
-      onComplete$={handleWizardComplete}
-      onCancel$={handleCancel}
-    />
+    <div class="min-h-screen bg-gray-50 py-12">
+      <ProfileWizard 
+        onComplete$={handleWizardComplete}
+        onCancel$={handleCancel}
+      />
+    </div>
   );
 });
 

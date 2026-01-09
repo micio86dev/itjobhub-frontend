@@ -2,7 +2,7 @@ import { component$, useStore, $, useTask$ } from "@builder.io/qwik";
 import { useNavigate } from "@builder.io/qwik-city";
 import type { DocumentHead } from "@builder.io/qwik-city";
 import { useAuth } from "~/contexts/auth";
-import { useTranslate } from "~/contexts/i18n";
+import { useTranslate, translate, useI18n } from "~/contexts/i18n";
 
 interface RegisterForm {
   name: string;
@@ -16,6 +16,7 @@ interface RegisterForm {
 export default component$(() => {
   const auth = useAuth();
   const nav = useNavigate();
+  const i18n = useI18n();
   const t = useTranslate();
   
   const form = useStore<RegisterForm>({
@@ -39,7 +40,7 @@ export default component$(() => {
           nav('/');
         }
       } else {
-        form.error = result.error || t('auth.register_error');
+        form.error = result.error || result.message || translate('auth.register_error', i18n.currentLanguage);
       }
       form.loading = false;
       auth.registerResult.value = null; // Clear result
@@ -51,12 +52,12 @@ export default component$(() => {
     form.error = '';
     
     if (form.password !== form.confirmPassword) {
-      form.error = t('auth.password_mismatch');
+      form.error = translate('auth.password_mismatch', i18n.currentLanguage);
       return;
     }
     
     if (form.password.length < 6) {
-      form.error = t('auth.password_min_length');
+      form.error = translate('auth.password_min_length', i18n.currentLanguage);
       return;
     }
     

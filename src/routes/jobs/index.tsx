@@ -35,7 +35,8 @@ export default component$(() => {
     showPersonalized: false,
     searchFilters: null as JobFilters | null,
     hasSearched: false,
-    shouldLoadJobs: true
+    shouldLoadJobs: true,
+    totalJobsCount: 0
   });
 
   const jobsState = useJobs();
@@ -61,6 +62,8 @@ export default component$(() => {
       allJobsToShow = filterJobs(jobsState.jobs, 1, 100);
     }
     
+    state.totalJobsCount = allJobsToShow.length;
+
     const startIndex = 0; // Always start from beginning for simplicity
     const endIndex = state.page * state.pageSize;
     const displayedJobs = allJobsToShow.slice(startIndex, endIndex);
@@ -192,6 +195,13 @@ export default component$(() => {
           </div>
         )}
       </div>
+
+      {/* Results count */}
+      {state.totalJobsCount > 0 && (
+         <div class="mb-4 text-sm font-medium text-gray-600 dark:text-gray-400">
+           {t('jobs.found_count').replace('{count}', state.totalJobsCount.toString())}
+         </div>
+      )}
 
       {/* Jobs list */}
       <div class="space-y-6">

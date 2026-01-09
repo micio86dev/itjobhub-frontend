@@ -99,6 +99,7 @@ const translations = {
       "e completa il tuo profilo per vedere annunci personalizzati basati sulle tue competenze!",
     "jobs.complete_profile_msg":
       "per ricevere annunci personalizzati basati sulle tue competenze!",
+    "jobs.found_count": "{count} annunci trovati",
 
     // Job card
     "job.skills_required": "Skills richieste",
@@ -243,6 +244,18 @@ const translations = {
     "auth.register_error": "Errore durante la registrazione",
     "auth.password_mismatch": "Le password non corrispondono",
     "auth.password_min_length": "La password deve essere di almeno 6 caratteri",
+    "validation.required": "Campo obbligatorio",
+    "validation.email": "Inserisci un indirizzo email valido",
+    "validation.password_min": "La password deve essere di almeno 6 caratteri",
+    "auth.login_failed": "Accesso fallito",
+    "auth.invalid_credentials": "Email o password non validi",
+    "common.network_error": "Errore di rete o server non disponibile",
+    "profile.update_success": "Profilo aggiornato con successo",
+    "profile.update_error": "Errore durante l'aggiornamento del profilo",
+    "profile.avatar_success": "Avatar aggiornato con successo",
+
+    "profile.avatar_error": "Errore durante l'aggiornamento dell'avatar",
+    "validation.error": "Errore di validazione",
   },
 
   en: {
@@ -315,6 +328,7 @@ const translations = {
       "and complete your profile to see personalized job listings based on your skills!",
     "jobs.complete_profile_msg":
       "to receive personalized job listings based on your skills!",
+    "jobs.found_count": "{count} jobs found",
 
     // Job card
     "job.skills_required": "Required Skills",
@@ -458,6 +472,17 @@ const translations = {
     "auth.register_error": "Error during registration",
     "auth.password_mismatch": "Passwords do not match",
     "auth.password_min_length": "Password must be at least 6 characters",
+    "validation.required": "Required field",
+    "validation.email": "Enter a valid email address",
+    "validation.password_min": "Password must be at least 6 characters",
+    "auth.login_failed": "Login failed",
+    "auth.invalid_credentials": "Invalid email or password",
+    "common.network_error": "Network error or server unavailable",
+    "profile.update_success": "Profile updated successfully",
+    "profile.update_error": "Error updating profile",
+    "profile.avatar_success": "Avatar updated successfully",
+    "profile.avatar_error": "Error updating avatar",
+    "validation.error": "Validation Error",
   },
 
   es: {
@@ -526,6 +551,7 @@ const translations = {
       "y completa tu perfil para ver ofertas personalizadas basadas en tus habilidades!",
     "jobs.complete_profile_msg":
       "para recibir ofertas personalizadas basadas en tus habilidades!",
+    "jobs.found_count": "{count} ofertas encontradas",
 
     // Job card
     "job.skills_required": "Habilidades requeridas",
@@ -648,6 +674,17 @@ const translations = {
     "wizard.next": "Siguiente",
     "wizard.cancel": "Cancelar",
     "wizard.complete": "Completar",
+    "validation.required": "Campo obligatorio",
+    "validation.email": "Ingrese un correo electrónico válido",
+    "validation.password_min": "La contraseña debe tener al menos 6 caracteres",
+    "auth.login_failed": "Inicio de sesión fallido",
+    "auth.invalid_credentials": "Email o contraseña no válidos",
+    "common.network_error": "Error de red o servidor no disponible",
+    "profile.update_success": "Perfil actualizado con éxito",
+    "profile.update_error": "Error al actualizar el perfil",
+    "profile.avatar_success": "Avatar actualizado con éxito",
+    "profile.avatar_error": "Error al actualizar el avatar",
+    "validation.error": "Error de validación",
   },
 
   de: {
@@ -716,6 +753,7 @@ const translations = {
       "und vervollständigen Sie Ihr Profil, um personalisierte Stellenanzeigen basierend auf Ihren Fähigkeiten zu sehen!",
     "jobs.complete_profile_msg":
       "um personalisierte Stellenanzeigen basierend auf Ihren Fähigkeiten zu erhalten!",
+    "jobs.found_count": "{count} Stellenanzeigen gefunden",
 
     // Job card
     "job.skills_required": "Erforderliche Fähigkeiten",
@@ -840,6 +878,16 @@ const translations = {
     "wizard.next": "Weiter",
     "wizard.cancel": "Abbrechen",
     "wizard.complete": "Abschließen",
+    "validation.required": "Pflichtfeld",
+    "validation.email": "Geben Sie eine gültige E-Mail-Adresse ein",
+    "validation.password_min": "Das Passwort muss mindestens 6 Zeichen lang sein",
+    "auth.login_failed": "Anmeldung fehlgeschlagen",
+    "auth.invalid_credentials": "Ungültige E-Mail oder Passwort",
+    "common.network_error": "Netzwerkfehler oder Server nicht verfügbar",
+    "profile.update_success": "Profil erfolgreich aktualisiert",
+    "profile.update_error": "Fehler beim Aktualisieren des Profils",
+    "profile.avatar_success": "Avatar erfolgreich aktualisiert",
+    "profile.avatar_error": "Fehler beim Aktualisieren des Avatars",
   },
 
   fr: {
@@ -910,6 +958,7 @@ const translations = {
       "et complétez votre profil pour voir des offres personnalisées basées sur vos compétences!",
     "jobs.complete_profile_msg":
       "pour recevoir des offres personnalisées basées sur vos compétences!",
+    "jobs.found_count": "{count} offres trouvées",
 
     // Job card
     "job.skills_required": "Compétences requises",
@@ -1044,6 +1093,16 @@ const translations = {
     "auth.password_mismatch": "Les mots de passe ne correspondent pas",
     "auth.password_min_length":
       "Le mot de passe doit contenir au moins 6 caractères",
+    "validation.required": "Champ obligatoire",
+    "validation.email": "Entrez une adresse email valide",
+    "validation.password_min": "Le mot de passe doit contenir au moins 6 caractères",
+    "auth.login_failed": "Échec de la connexion",
+    "auth.invalid_credentials": "Email o mot de passe invalide",
+    "common.network_error": "Erreur réseau ou serveur indisponible",
+    "profile.update_success": "Profil mis à jour avec succès",
+    "profile.update_error": "Erreur lors de la mise à jour du profil",
+    "profile.avatar_success": "Avatar mis à jour avec succès",
+    "profile.avatar_error": "Erreur lors de la mise à jour de l'avatar",
   },
 };
 

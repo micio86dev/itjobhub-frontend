@@ -314,7 +314,7 @@ export const JobsProvider = component$(() => {
   useTask$(async () => {
     try {
       console.log('Fetching jobs from API...');
-      const response = await fetch('http://127.0.0.1:3001/jobs?limit=100');
+      const response = await fetch('http://127.0.0.1:3001/jobs?limit=200');
       console.log('API Response status:', response.status);
       
       if (!response.ok) {

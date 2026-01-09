@@ -56,6 +56,32 @@ The preview command will create a production build of the client modules, a prod
 npm run preview # or `yarn preview`
 ```
 
+## Quality Assurance
+
+### Linting
+We use ESLint to maintain code quality. To run the linter:
+```bash
+npm run lint
+# or
+bun run lint
+```
+
+### Type Checking
+To run a full TypeScript type check:
+```bash
+npm run build.types
+# or
+bun run build.types
+```
+
+### Formatting
+We use Prettier for code formatting.
+- **Check formatting**: `npm run fmt.check`
+- **Fix formatting**: `npm run fmt`
+
+### Testing
+Testing is currently under development. We recommend using **Vitest** for unit tests and **Playwright** for E2E tests.
+
 ## Production
 
 The production build will generate client and server modules by running both client and server build commands. The build command will use Typescript to run a type check on the source code.
