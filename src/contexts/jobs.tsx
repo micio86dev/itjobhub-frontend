@@ -124,7 +124,8 @@ const processApiJob = (job: any): JobListing => {
     publishDate: new Date(job.published_at || job.created_at || Date.now()),
     companyLogo: job.company?.logo_url || job.company?.logo,
     language: job.language,
-    location_geo: job.location_geo
+    location_geo: job.location_geo,
+    is_favorite: job.is_favorite || false
   };
 };
 

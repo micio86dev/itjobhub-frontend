@@ -90,6 +90,8 @@
     "job.days_ago": "{days} giorni fa",
     "job.location_not_specified": "Sede non specificata",
     "job.apply": "Candidati",
+    "job.add_favorite": "Aggiungi ai preferiti",
+    "job.remove_favorite": "Rimuovi dai preferiti",
     "comments.title": "Commenti",
     "comments.placeholder": "Scrivi un commento...",
     "comments.submit": "Commenta",

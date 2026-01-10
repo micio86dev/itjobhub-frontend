@@ -90,6 +90,8 @@
     "job.days_ago": "{days} days ago",
     "job.location_not_specified": "Location not specified",
     "job.apply": "Apply",
+    "job.add_favorite": "Add to favorites",
+    "job.remove_favorite": "Remove from favorites",
     "comments.title": "Comments",
     "comments.placeholder": "Write a comment...",
     "comments.submit": "Comment",

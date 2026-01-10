@@ -65,6 +65,10 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
     }
   });
 
+  const handleToggleFavorite = $(async () => {
+    if (!isAuthenticated) return;
+    await jobsContext.toggleFavorite$(job.id);
+  });
 
   // Calculate date diff for rendering using calendar days
   // Ensure we have a real Date object (Qwik serializes dates in stores/props to strings)
@@ -126,16 +130,31 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
           </div>
         </div>
         
-        <div class="text-right">
-          <span class="text-xs text-gray-500 dark:text-gray-400">
-            {dateDisplay}
-          </span>
+        <div class="text-right flex flex-col items-end gap-1">
+          <div class="flex items-center gap-2">
+            <span class="text-xs text-gray-500 dark:text-gray-400">
+              {dateDisplay}
+            </span>
+            {isAuthenticated && (
+              <button
+                onClick$={handleToggleFavorite}
+                class={`p-1 rounded transition-colors ${
+                  job.is_favorite 
+                    ? 'text-yellow-500 hover:text-yellow-600' 
+                    : 'text-gray-400 hover:text-yellow-500'
+                }`}
+                title={job.is_favorite ? t('job.remove_favorite') : t('job.add_favorite')}
+              >
+                <svg class="w-5 h-5" fill={job.is_favorite ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                </svg>
+              </button>
+            )}
+          </div>
           {job.remote && (
-            <div class="mt-1">
-              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200">
-                {t('job.remote_badge')}
-              </span>
-            </div>
+            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200">
+              {t('job.remote_badge')}
+            </span>
           )}
         </div>
       </div>
