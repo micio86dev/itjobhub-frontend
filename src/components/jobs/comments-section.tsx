@@ -1,7 +1,7 @@
 import { component$, $, useStore, type QRL } from "@builder.io/qwik";
 import { useJobs, getCommentsFromState } from "~/contexts/jobs";
 import { useAuth } from "~/contexts/auth";
-import { useTranslate } from "~/contexts/i18n";
+import { useTranslate, useI18n } from "~/contexts/i18n";
 
 interface CommentsSectionProps {
   jobId: string;
@@ -12,6 +12,7 @@ export const CommentsSection = component$<CommentsSectionProps>(({ jobId, onClos
   const jobsContext = useJobs();
   const auth = useAuth();
   const t = useTranslate();
+  const i18n = useI18n();
   
   // Extract values and signals to avoid serialization issues
   const isAuthenticated = auth.isAuthenticated;
@@ -24,7 +25,6 @@ export const CommentsSection = component$<CommentsSectionProps>(({ jobId, onClos
   });
 
   const comments = getCommentsFromState(jobsContext.comments, jobId);
-  const demoJobErrorMsg = t('comments.error_demo_job') || "This is a demo job. Comments are disabled.";
 
   const handleSubmitComment = $(async (e: Event) => {
     e.preventDefault();
@@ -32,14 +32,6 @@ export const CommentsSection = component$<CommentsSectionProps>(({ jobId, onClos
     if (!isAuthenticated || !state.commentText.trim()) {
       return;
     }
-
-    // Check for valid MongoDB ObjectId (24 hex characters) - REMOVED to allow testing/other ID formats
-    // The backend will handle validation errors if needed.
-    // const isValidId = /^[0-9a-fA-F]{24}$/.test(jobId);
-    // if (!isValidId) {
-    //   alert(demoJobErrorMsg);
-    //   return;
-    // }
 
     state.isSubmitting = true;
     
@@ -50,8 +42,8 @@ export const CommentsSection = component$<CommentsSectionProps>(({ jobId, onClos
       addCommentSignal.value = {
         jobId,
         author: {
-          name: user?.name || 'Anonymous User',
-          avatar: undefined
+          name: user?.name || `${user?.firstName || ''} ${user?.lastName || ''}`.trim() || 'Anonymous User',
+          avatar: user?.avatar
         },
         text: state.commentText.trim()
       };
@@ -67,25 +59,57 @@ export const CommentsSection = component$<CommentsSectionProps>(({ jobId, onClos
     }
   });
 
+  // Get locale from current language
+  const localeMap: Record<string, string> = {
+    'it': 'it-IT',
+    'en': 'en-US',
+    'es': 'es-ES',
+    'de': 'de-DE',
+    'fr': 'fr-FR'
+  };
+  const locale = localeMap[i18n.currentLanguage] || 'it-IT';
+
   const formatCommentDate = (date: Date) => {
     const now = new Date();
-    const diffTime = Math.abs(now.getTime() - date.getTime());
+    const diffTime = now.getTime() - date.getTime();
+    const diffSeconds = Math.floor(diffTime / 1000);
     const diffMinutes = Math.floor(diffTime / (1000 * 60));
     const diffHours = Math.floor(diffTime / (1000 * 60 * 60));
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
     
-    if (diffMinutes < 1) return 'Now';
-    if (diffMinutes < 60) return `${diffMinutes}m ago`;
-    if (diffHours < 24) return `${diffHours}h ago`;
-    if (diffDays < 7) return `${diffDays}d ago`;
+    // Use Intl.RelativeTimeFormat for consistent locale-aware formatting
+    const rtf = new Intl.RelativeTimeFormat(locale, { numeric: 'auto' });
     
-    return date.toLocaleDateString('it-IT', { 
+    if (diffSeconds < 60) return rtf.format(0, 'second'); // "now" / "ora"
+    if (diffMinutes < 60) return rtf.format(-diffMinutes, 'minute');
+    if (diffHours < 24) return rtf.format(-diffHours, 'hour');
+    if (diffDays < 7) return rtf.format(-diffDays, 'day');
+    
+    // For older dates, use date formatter
+    const dtf = new Intl.DateTimeFormat(locale, { 
       day: 'numeric', 
       month: 'short',
       hour: '2-digit',
       minute: '2-digit'
     });
+    return dtf.format(date);
   };
+
+  // Helper to get initials from name (first letter of first name + first letter of last name)
+  const getInitials = (name: string) => {
+    const parts = name.trim().split(/\s+/);
+    if (parts.length >= 2) {
+      return `${parts[0].charAt(0)}${parts[parts.length - 1].charAt(0)}`.toUpperCase();
+    }
+    return name.charAt(0).toUpperCase();
+  };
+
+  // Get current user initials
+  const userInitials = user?.name 
+    ? getInitials(user.name)
+    : user?.firstName && user?.lastName 
+      ? `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`.toUpperCase()
+      : 'U';
 
   return (
     <div class="border-t border-gray-100 pt-4 mt-4">
@@ -99,11 +123,21 @@ export const CommentsSection = component$<CommentsSectionProps>(({ jobId, onClos
           <form onSubmit$={handleSubmitComment} class="mb-4">
             <div class="flex gap-3">
               <div class="flex-shrink-0">
-                <div class="w-8 h-8 bg-indigo-500 rounded-full flex items-center justify-center">
-                  <span class="text-xs font-medium text-white">
-                    {user?.name?.charAt(0).toUpperCase() || 'U'}
-                  </span>
-                </div>
+                {user?.avatar ? (
+                  <img 
+                    src={user.avatar} 
+                    alt={user.name || 'User'}
+                    class="w-8 h-8 rounded-full object-cover"
+                    width="32"
+                    height="32"
+                  />
+                ) : (
+                  <div class="w-8 h-8 bg-indigo-500 rounded-full flex items-center justify-center">
+                    <span class="text-xs font-medium text-white">
+                      {userInitials}
+                    </span>
+                  </div>
+                )}
               </div>
               
               <div class="flex-1">
@@ -159,14 +193,14 @@ export const CommentsSection = component$<CommentsSectionProps>(({ jobId, onClos
                   <img 
                     src={comment.author.avatar} 
                     alt={comment.author.name}
-                    class="w-6 h-6 rounded-full"
+                    class="w-6 h-6 rounded-full object-cover"
                     width="24"
                     height="24"
                   />
                 ) : (
-                  <div class="w-6 h-6 bg-gray-300 rounded-full flex items-center justify-center">
-                    <span class="text-xs font-medium text-gray-600">
-                      {comment.author.name.charAt(0).toUpperCase()}
+                  <div class="w-6 h-6 bg-gradient-to-br from-indigo-400 to-purple-500 rounded-full flex items-center justify-center">
+                    <span class="text-xs font-medium text-white">
+                      {getInitials(comment.author.name)}
                     </span>
                   </div>
                 )}

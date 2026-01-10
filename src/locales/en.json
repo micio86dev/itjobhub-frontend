@@ -208,5 +208,9 @@
     "profile.update_error": "Error updating profile",
     "profile.avatar_success": "Avatar updated successfully",
     "profile.avatar_error": "Error updating avatar",
-    "validation.error": "Validation Error"
+    "validation.error": "Validation Error",
+    "time.now": "Now",
+    "time.minutes_ago": "{n}m ago",
+    "time.hours_ago": "{n}h ago",
+    "time.days_ago": "{n}d ago"
 }

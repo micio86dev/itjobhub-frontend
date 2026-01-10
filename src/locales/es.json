@@ -170,5 +170,9 @@
     "profile.update_error": "Error al actualizar el perfil",
     "profile.avatar_success": "Avatar actualizado con éxito",
     "profile.avatar_error": "Error al actualizar el avatar",
-    "validation.error": "Error de validación"
+    "validation.error": "Error de validación",
+    "time.now": "Ahora",
+    "time.minutes_ago": "Hace {n} min",
+    "time.hours_ago": "Hace {n} h",
+    "time.days_ago": "Hace {n} días"
 }

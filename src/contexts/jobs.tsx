@@ -1,4 +1,4 @@
-import { createContextId, Slot, component$, useStore, useContext, useContextProvider, useSignal, useTask$, Signal, $, QRL } from "@builder.io/qwik";
+import { createContextId, Slot, component$, useStore, useContext, useContextProvider, useSignal, useTask$, useVisibleTask$, Signal, $, QRL } from "@builder.io/qwik";
 import { useAuth } from "./auth";
 
 export interface JobListing {
@@ -10,6 +10,7 @@ export interface JobListing {
   seniority: 'junior' | 'mid' | 'senior' | 'unknown';
   availability: 'full_time' | 'part_time' | 'contract' | 'not_specified';
   location?: string;
+  location_geo?: { coordinates: number[] };
   remote?: boolean;
   salary?: string;
   externalLink: string;
@@ -20,6 +21,7 @@ export interface JobListing {
   language?: string;
   comments_count?: number;
   user_reaction?: 'LIKE' | 'DISLIKE' | null;
+  is_favorite?: boolean;
 }
 
 export interface Comment {
@@ -57,15 +59,29 @@ export interface AddCommentRequest {
   text: string;
 }
 
+export interface PaginationState {
+  currentPage: number;
+  hasMore: boolean;
+  isLoading: boolean;
+  totalJobs: number;
+  limit: number;
+}
+
 export interface JobsState {
   jobs: JobListing[];
   comments: Comment[];
   companies: Company[];
+  pagination: PaginationState;
+  currentFilters: JobFilters | null;
   // Signals for triggering actions
   likeJobSignal: Signal<LikeJobRequest | null>;
   dislikeJobSignal: Signal<DislikeJobRequest | null>;
   addCommentSignal: Signal<AddCommentRequest | null>;
+  // QRL functions
   fetchComments$: QRL<(jobId: string) => Promise<void>>;
+  fetchJobsPage$: QRL<(page: number, filters?: JobFilters, append?: boolean) => Promise<void>>;
+  loadMoreJobs$: QRL<() => Promise<void>>;
+  toggleFavorite$: QRL<(jobId: string) => Promise<void>>;
 }
 
 export interface JobFilters {
@@ -81,6 +97,37 @@ export interface JobFilters {
   location?: string;
 }
 
+// Helper to process raw API job into JobListing (outside component to avoid QRL serialization issues)
+const processApiJob = (job: any): JobListing => {
+  let desc = job.description || "";
+  desc = desc
+    .replace(/^(&nbsp;|\s|\.|\u00A0)+/g, '')
+    .replace(/^(\.\.\.)+/g, '')
+    .trim();
+
+  return {
+    id: job.id,
+    title: job.title,
+    company: job.company?.name || 'Unknown Company',
+    description: desc,
+    skills: job.technical_skills && job.technical_skills.length > 0 ? job.technical_skills : job.skills,
+    seniority: (job.seniority || 'unknown').toLowerCase() as any,
+    availability: (job.employment_type || 'not_specified').toLowerCase().replace('-', '_') as any,
+    location: job.location,
+    remote: job.remote || job.is_remote || false,
+    salary: job.salary_min ? `€${job.salary_min.toLocaleString()}${job.salary_max ? ` - €${job.salary_max.toLocaleString()}` : ''}` : undefined,
+    externalLink: job.link ? (job.link.startsWith('http') ? job.link : `https://${job.link}`) : '#',
+    likes: job.likes || 0,
+    dislikes: job.dislikes || 0,
+    user_reaction: job.user_reaction,
+    comments_count: job.comments_count || 0,
+    publishDate: new Date(job.published_at || job.created_at || Date.now()),
+    companyLogo: job.company?.logo_url || job.company?.logo,
+    language: job.language,
+    location_geo: job.location_geo
+  };
+};
+
 export const JobsContext = createContextId<JobsState>('jobs-context');
 
 export const JobsProvider = component$(() => {
@@ -92,10 +139,21 @@ export const JobsProvider = component$(() => {
     jobs: [],
     comments: [],
     companies: [],
+    pagination: {
+      currentPage: 1,
+      hasMore: true,
+      isLoading: false,
+      totalJobs: 0,
+      limit: 10 // Load 10 jobs per page
+    },
+    currentFilters: null,
     likeJobSignal,
     dislikeJobSignal,
     addCommentSignal,
     fetchComments$: $(async () => {}), // Initialize with a no-op QRL
+    fetchJobsPage$: $(async () => {}), // Will be assigned below
+    loadMoreJobs$: $(async () => {}), // Will be assigned below
+    toggleFavorite$: $(async () => {}), // Will be assigned below
   });
 
   const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:3001';
@@ -131,89 +189,163 @@ export const JobsProvider = component$(() => {
   
   const auth = useAuth();
 
-  useTask$(async () => {
-    // We no longer track auth.user?.languages here because we want to load ALL jobs globally
-    // and only filter for personality in the UI/getPersonalizedJobs function.
-    
-    try {
-      console.log('Fetching jobs from API...');
-      const url = new URL(`${API_URL}/jobs`);
-      url.searchParams.append('limit', '1000');
+  // Assign pagination methods
+  useTask$(() => {
+    // fetchJobsPage$: Fetch a specific page of jobs with filters
+    jobsState.fetchJobsPage$ = $(async (page: number, filters?: JobFilters, append = false) => {
+      if (jobsState.pagination.isLoading) return;
       
-      const response = await fetch(url.toString());
+      jobsState.pagination.isLoading = true;
       
-      if (!response.ok) {
-        throw new Error(`Network response was not ok: ${response.status}`);
-      }
-      
-      const result = await response.json();
-      
-      if (result.success && result.data && result.data.jobs) {
-        const processedJobs = result.data.jobs.map((job: any) => {
-          let desc = job.description || "";
-          desc = desc
-            .replace(/^(&nbsp;|\s|\.|\u00A0)+/g, '')
-            .replace(/^(\.\.\.)+/g, '')
-            .trim();
-
-          return {
-            id: job.id,
-            title: job.title,
-            company: job.company?.name || 'Unknown Company',
-            description: desc,
-            skills: job.technical_skills && job.technical_skills.length > 0 ? job.technical_skills : job.skills,
-            seniority: (job.seniority || 'unknown').toLowerCase() as any,
-            availability: (job.employment_type || 'not_specified').toLowerCase().replace('-', '_') as any,
-            location: job.location,
-            remote: job.remote || job.is_remote || false,
-            salary: job.salary_min ? `€${job.salary_min.toLocaleString()}${job.salary_max ? ` - €${job.salary_max.toLocaleString()}` : ''}` : undefined,
-            externalLink: job.link ? (job.link.startsWith('http') ? job.link : `https://${job.link}`) : '#',
-            likes: job.likes || 0,
-            dislikes: job.dislikes || 0,
-            user_reaction: job.user_reaction,
-            comments_count: job.comments_count || 0,
-            publishDate: new Date(job.published_at || job.created_at || Date.now()),
-            companyLogo: job.company?.logo_url || job.company?.logo,
-            language: job.language,
-            location_geo: job.location_geo // Preserving geo data for client-side radius search
-          };
-        });
+      try {
+        console.log(`Fetching jobs page ${page} with limit ${jobsState.pagination.limit}...`);
+        const url = new URL(`${API_URL}/jobs`);
+        url.searchParams.append('page', String(page));
+        url.searchParams.append('limit', String(jobsState.pagination.limit));
         
-        // Update companies store with real data
-        const realCompanies = result.data.jobs
-          .map((j: any) => j.company)
-          .filter((c: any) => c)
-          .map((c: any) => ({
-            name: c.name,
-            trustScore: c.trustScore || 80,
-            totalRatings: c.totalRatings || 0
-          }));
+        // Add filters to URL
+        if (filters?.query) url.searchParams.append('q', filters.query);
+        if (filters?.seniority) url.searchParams.append('seniority', filters.seniority);
+        if (filters?.remote !== undefined) url.searchParams.append('remote', String(filters.remote));
+        if (filters?.languages?.length) url.searchParams.append('languages', filters.languages.join(','));
+        if (filters?.location_geo) {
+          url.searchParams.append('lat', String(filters.location_geo.lat));
+          url.searchParams.append('lng', String(filters.location_geo.lng));
+          url.searchParams.append('radius_km', String(filters.radius_km || 50));
+        }
+        
+        // Include auth token if available
+        const headers: Record<string, string> = {};
+        if (auth.token) {
+          headers['Authorization'] = `Bearer ${auth.token}`;
+        }
+        
+        const response = await fetch(url.toString(), { headers });
+        
+        if (!response.ok) {
+          throw new Error(`Network response was not ok: ${response.status}`);
+        }
+        
+        const result = await response.json();
+        
+        if (result.success && result.data && result.data.jobs) {
+          const processedJobs = result.data.jobs.map(processApiJob);
+          const pagination = result.data.pagination;
           
-        // Merge with existing unique companies
-        const existingNames = new Set(jobsState.companies.map(c => c.name));
-        realCompanies.forEach((c: any) => {
-          if (!existingNames.has(c.name)) {
-            jobsState.companies.push(c);
-            existingNames.add(c.name);
+          // Update pagination state
+          jobsState.pagination.currentPage = pagination.page;
+          jobsState.pagination.totalJobs = pagination.total;
+          jobsState.pagination.hasMore = pagination.page < pagination.pages;
+          
+          // Append or replace jobs
+          if (append) {
+            jobsState.jobs = [...jobsState.jobs, ...processedJobs];
           } else {
-             // Update existing
-             const existing = jobsState.companies.find(ec => ec.name === c.name);
-             if (existing) {
-               existing.trustScore = c.trustScore || 80;
-               existing.totalRatings = c.totalRatings || 0;
-             }
+            jobsState.jobs = processedJobs;
           }
-        });
-
-        jobsState.jobs = processedJobs.sort((a: any, b: any) => b.publishDate.getTime() - a.publishDate.getTime());
+          
+          // Update companies
+          const realCompanies = result.data.jobs
+            .map((j: any) => j.company)
+            .filter((c: any) => c)
+            .map((c: any) => ({
+              name: c.name,
+              trustScore: c.trustScore || 80,
+              totalRatings: c.totalRatings || 0
+            }));
+            
+          const existingNames = new Set(jobsState.companies.map(c => c.name));
+          realCompanies.forEach((c: any) => {
+            if (!existingNames.has(c.name)) {
+              jobsState.companies.push(c);
+              existingNames.add(c.name);
+            }
+          });
+          
+          // Store current filters
+          jobsState.currentFilters = filters || null;
+        }
+      } catch (error) {
+        console.error('Failed to fetch jobs from API:', error);
+        if (!append) {
+          jobsState.jobs = [];
+        }
+        jobsState.pagination.hasMore = false;
+      } finally {
+        jobsState.pagination.isLoading = false;
       }
-    } catch (error) {
-      console.error('Failed to fetch jobs from API:', error);
-      jobsState.jobs = [];
+    });
+
+    // loadMoreJobs$: Load next page and append
+    jobsState.loadMoreJobs$ = $(async () => {
+      if (!jobsState.pagination.hasMore || jobsState.pagination.isLoading) return;
+      
+      const nextPage = jobsState.pagination.currentPage + 1;
+      await jobsState.fetchJobsPage$(nextPage, jobsState.currentFilters || undefined, true);
+    });
+
+    // toggleFavorite$: Add/remove job from favorites
+    jobsState.toggleFavorite$ = $(async (jobId: string) => {
+      const job = jobsState.jobs.find((j: JobListing) => j.id === jobId);
+      if (!job) return;
+      
+      const wasFavorite = job.is_favorite;
+      
+      // Optimistic update
+      job.is_favorite = !wasFavorite;
+      
+      try {
+        const token = auth.token;
+        if (!token) {
+          // Revert on no auth
+          job.is_favorite = wasFavorite;
+          return;
+        }
+        
+        if (wasFavorite) {
+          // Remove from favorites
+          await fetch(`${API_URL}/favorites?jobId=${jobId}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+        } else {
+          // Add to favorites
+          await fetch(`${API_URL}/favorites`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ jobId })
+          });
+        }
+      } catch (error) {
+        console.error('Failed to toggle favorite:', error);
+        // Revert on error
+        job.is_favorite = wasFavorite;
+      }
+    });
+  });
+
+  // Load initial page on component mount (client-side only)
+  useVisibleTask$(async () => {
+    // Only fetch if we don't have jobs yet
+    if (jobsState.jobs.length === 0) {
+      await jobsState.fetchJobsPage$(1);
     }
   });
 
-  useTask$(async ({ track }) => {
+  // Refetch current page when auth token changes to get user_reaction
+  useVisibleTask$(async ({ track }) => {
+    const token = track(() => auth.token);
+    
+    if (token && jobsState.jobs.length > 0) {
+      // Refetch current page with auth to update user_reaction
+      await jobsState.fetchJobsPage$(1, jobsState.currentFilters || undefined, false);
+    }
+  });
+
+  useVisibleTask$(async ({ track }) => {
     const likeReq = track(() => likeJobSignal.value);
     if (likeReq) {
       const job = jobsState.jobs.find((j: JobListing) => j.id === likeReq.jobId);
@@ -278,7 +410,7 @@ export const JobsProvider = component$(() => {
     }
   });
 
-  useTask$(async ({ track }) => {
+  useVisibleTask$(async ({ track }) => {
     const dislikeReq = track(() => dislikeJobSignal.value);
     if (dislikeReq) {
       const job = jobsState.jobs.find((j: JobListing) => j.id === dislikeReq.jobId);
@@ -343,7 +475,7 @@ export const JobsProvider = component$(() => {
     }
   });
 
-  useTask$(async ({ track }) => {
+  useVisibleTask$(async ({ track }) => {
     const commentReq = track(() => jobsState.addCommentSignal.value);
     if (commentReq) {
       try {

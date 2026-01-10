@@ -208,5 +208,9 @@
     "profile.update_error": "Errore durante l'aggiornamento del profilo",
     "profile.avatar_success": "Avatar aggiornato con successo",
     "profile.avatar_error": "Errore durante l'aggiornamento dell'avatar",
-    "validation.error": "Errore di validazione"
+    "validation.error": "Errore di validazione",
+    "time.now": "Ora",
+    "time.minutes_ago": "{n} min fa",
+    "time.hours_ago": "{n} ore fa",
+    "time.days_ago": "{n} giorni fa"
 }

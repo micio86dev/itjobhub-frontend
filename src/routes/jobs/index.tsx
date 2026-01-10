@@ -1,6 +1,6 @@
 import { component$, $, useStore, useTask$ } from "@builder.io/qwik";
 import type { DocumentHead } from "@builder.io/qwik-city";
-import { useJobs, filterJobs, getPersonalizedJobs } from "~/contexts/jobs";
+import { useJobs, getPersonalizedJobs } from "~/contexts/jobs";
 import { useAuth } from "~/contexts/auth";
 import { useTranslate, useI18n } from "~/contexts/i18n";
 import { JobCard } from "~/components/jobs/job-card";
@@ -44,46 +44,34 @@ export default component$(() => {
 
   const jobsState = useJobs();
 
-  // Update displayed jobs when calculation changes
+  // Update displayed jobs from server-side paginated context
   useTask$(({ track }) => {
-    track(() => state.page);
-    track(() => state.searchFilters);
     track(() => state.showPersonalized);
-    track(() => jobsState.jobs); // Track the jobs from context
+    track(() => jobsState.jobs); // Track the jobs from context (already paginated)
+    track(() => jobsState.pagination.hasMore);
     
-    let allJobsToShow: JobListing[] = [];
+    let jobsToShow: JobListing[] = [...jobsState.jobs];
     
+    // Apply client-side personalized filter only if enabled
     if (state.showPersonalized && user) {
-      // 1. Personalized Feed: Filter by profile (skills, seniority, language)
-      allJobsToShow = getPersonalizedJobs(
+      jobsToShow = getPersonalizedJobs(
         jobsState.jobs,
         user.skills || [],
         user.seniority,
         user.languages || [],
         i18n.currentLanguage || 'it'
       );
-    } else {
-      // 2. All Jobs / Search Results: Filter by search params OR default language
-      const filters = state.searchFilters || {
-        languages: user?.languages && user.languages.length > 0 ? user.languages : [i18n.currentLanguage || 'it']
-      };
-      
-      allJobsToShow = filterJobs(jobsState.jobs, 1, 1000, filters as any);
     }
     
-    state.totalJobsCount = allJobsToShow.length;
-
-    const startIndex = 0; // Always start from beginning for simplicity
-    const endIndex = state.page * state.pageSize;
-    const displayedJobs = allJobsToShow.slice(startIndex, endIndex);
-    
-    state.displayedJobs = displayedJobs;
-    state.hasNextPage = (state.page * state.pageSize) < allJobsToShow.length;
+    state.displayedJobs = jobsToShow;
+    state.totalJobsCount = jobsState.pagination.totalJobs || jobsToShow.length;
+    state.hasNextPage = jobsState.pagination.hasMore;
+    state.isLoading = jobsState.pagination.isLoading;
   });
 
-  const loadMore = $(() => {
+  const loadMore = $(async () => {
     if (!state.isLoading && state.hasNextPage) {
-      state.page++;
+      await jobsState.loadMoreJobs$();
     }
   });
 
@@ -99,11 +87,11 @@ export default component$(() => {
     }
   });
 
-  const handleSearch = $((filters: JobSearchFilters) => {
+  const handleSearch = $(async (filters: JobSearchFilters) => {
     const hasFilters = !!(filters.query || filters.seniority || filters.availability || 
-                      filters.remote || filters.dateRange);
+                      filters.location || filters.remote || filters.dateRange);
     
-    // Convert JobSearchFilters to JobFilters
+    // Convert JobSearchFilters to JobFilters for API
     const convertedFilters: JobFilters | null = hasFilters ? {
       query: filters.query,
       seniority: filters.seniority,
@@ -119,7 +107,9 @@ export default component$(() => {
     state.searchFilters = convertedFilters;
     state.hasSearched = hasFilters;
     state.showPersonalized = false; // Disable personalized when searching
-    state.page = 1;
+    
+    // Fetch from server with filters
+    await jobsState.fetchJobsPage$(1, convertedFilters || undefined, false);
   });
 
   // Infinite scroll setup
@@ -257,7 +247,6 @@ export default component$(() => {
                 <div class="ml-4 sm:ml-6 mr-4 sm:mr-6">
                   <CommentsSection 
                     jobId={job.id} 
-                    onClose$={$(() => state.openComments[job.id] = false)}
                   />
                 </div>
               )}

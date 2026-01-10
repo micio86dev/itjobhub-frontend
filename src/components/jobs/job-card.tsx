@@ -1,4 +1,4 @@
-import { component$, $, useStore, type QRL } from "@builder.io/qwik";
+import { component$, $, type QRL } from "@builder.io/qwik";
 import type { JobListing } from "~/contexts/jobs";
 import { useJobs, getCompanyScoreFromState, getCommentsFromState } from "~/contexts/jobs";
 import { LoginPrompt } from "./login-prompt";
@@ -23,46 +23,48 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
   const likeJobSignal = jobsContext.likeJobSignal;
   const dislikeJobSignal = jobsContext.dislikeJobSignal;
   
-  const state = useStore({
-    hasLiked: job.user_reaction === 'LIKE',
-    hasDisliked: job.user_reaction === 'DISLIKE'
-  });
+  // Use job.user_reaction directly from props/context for reactive state
+  const hasLiked = job.user_reaction === 'LIKE';
+  const hasDisliked = job.user_reaction === 'DISLIKE';
 
   const handleLike = $(() => {
     if (!isAuthenticated) return;
     
+    // Check current reaction state at time of click (not captured at render)
+    const currentlyLiked = job.user_reaction === 'LIKE';
+    const currentlyDisliked = job.user_reaction === 'DISLIKE';
+    
     // Toggle like
-    if (state.hasLiked) {
+    if (currentlyLiked) {
       likeJobSignal.value = { jobId: job.id, remove: true };
-      state.hasLiked = false;
     } else {
       // Add like (potentially swapping)
       likeJobSignal.value = { 
         jobId: job.id, 
-        wasDisliked: state.hasDisliked 
+        wasDisliked: currentlyDisliked 
       };
-      state.hasLiked = true;
-      state.hasDisliked = false;
     }
   });
 
   const handleDislike = $(() => {
     if (!isAuthenticated) return;
 
+    // Check current reaction state at time of click (not captured at render)
+    const currentlyLiked = job.user_reaction === 'LIKE';
+    const currentlyDisliked = job.user_reaction === 'DISLIKE';
+
     // Toggle dislike
-    if (state.hasDisliked) {
+    if (currentlyDisliked) {
       dislikeJobSignal.value = { jobId: job.id, remove: true };
-      state.hasDisliked = false;
     } else {
       // Add dislike (potentially swapping)
       dislikeJobSignal.value = { 
         jobId: job.id, 
-        wasLiked: state.hasLiked 
+        wasLiked: currentlyLiked 
       };
-      state.hasDisliked = true;
-      state.hasLiked = false;
     }
   });
+
 
   // Calculate date diff for rendering using calendar days
   // Ensure we have a real Date object (Qwik serializes dates in stores/props to strings)
@@ -225,7 +227,7 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
             onClick$={handleLike}
             disabled={!isAuthenticated}
             class={`flex items-center space-x-1 px-2 py-1 rounded transition-colors ${
-              state.hasLiked 
+              hasLiked 
                 ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-200' 
                 : 'text-gray-500 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20'
             } ${!isAuthenticated ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
@@ -238,7 +240,7 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
             onClick$={handleDislike}
             disabled={!isAuthenticated}
             class={`flex items-center space-x-1 px-2 py-1 rounded transition-colors ${
-              state.hasDisliked 
+              hasDisliked 
                 ? 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-200' 
                 : 'text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20'
             } ${!isAuthenticated ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}

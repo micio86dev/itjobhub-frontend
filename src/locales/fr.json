@@ -175,5 +175,10 @@
     "profile.update_success": "Profil mis à jour avec succès",
     "profile.update_error": "Erreur lors de la mise à jour du profil",
     "profile.avatar_success": "Avatar mis à jour avec succès",
-    "profile.avatar_error": "Erreur lors de la mise à jour de l'avatar"
+    "profile.avatar_error": "Erreur lors de la mise à jour de l'avatar",
+    "validation.error": "Erreur de validation",
+    "time.now": "Maintenant",
+    "time.minutes_ago": "Il y a {n} min",
+    "time.hours_ago": "Il y a {n} h",
+    "time.days_ago": "Il y a {n} jours"
 }
