@@ -7,7 +7,7 @@ import { useTranslate, useI18n } from "~/contexts/i18n";
 
 interface JobCardProps {
   job: JobListing;
-  onToggleComments$: QRL<(jobId: string) => void>;
+  onToggleComments$?: QRL<(jobId: string) => void>;
   showComments?: boolean;
 }
 
@@ -17,31 +17,31 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
   const t = useTranslate();
   const i18n = useI18n();
   const lang = i18n.currentLanguage;
-  
+
   // Extract values and signals to avoid serialization issues
   const isAuthenticated = auth.isAuthenticated;
   const likeJobSignal = jobsContext.likeJobSignal;
   const dislikeJobSignal = jobsContext.dislikeJobSignal;
-  
+
   // Use job.user_reaction directly from props/context for reactive state
   const hasLiked = job.user_reaction === 'LIKE';
   const hasDisliked = job.user_reaction === 'DISLIKE';
 
   const handleLike = $(() => {
     if (!isAuthenticated) return;
-    
+
     // Check current reaction state at time of click (not captured at render)
     const currentlyLiked = job.user_reaction === 'LIKE';
     const currentlyDisliked = job.user_reaction === 'DISLIKE';
-    
+
     // Toggle like
     if (currentlyLiked) {
       likeJobSignal.value = { jobId: job.id, remove: true };
     } else {
       // Add like (potentially swapping)
-      likeJobSignal.value = { 
-        jobId: job.id, 
-        wasDisliked: currentlyDisliked 
+      likeJobSignal.value = {
+        jobId: job.id,
+        wasDisliked: currentlyDisliked
       };
     }
   });
@@ -58,9 +58,9 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
       dislikeJobSignal.value = { jobId: job.id, remove: true };
     } else {
       // Add dislike (potentially swapping)
-      dislikeJobSignal.value = { 
-        jobId: job.id, 
-        wasLiked: currentlyLiked 
+      dislikeJobSignal.value = {
+        jobId: job.id,
+        wasLiked: currentlyLiked
       };
     }
   });
@@ -74,21 +74,21 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
   // Ensure we have a real Date object (Qwik serializes dates in stores/props to strings)
   const dateObj = new Date(job.publishDate);
   const now = new Date();
-  
+
   // Create dates at midnight for accurate day-by-day comparison
   const todayAtMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const publishDateAtMidnight = new Date(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate());
-  
+
   const diffTime = todayAtMidnight.getTime() - publishDateAtMidnight.getTime();
   const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-  
+
   const rtf = new Intl.RelativeTimeFormat(lang, { numeric: 'auto' });
   const dtf = new Intl.DateTimeFormat(lang, { day: 'numeric', month: 'short' });
 
-  const dateDisplay = diffDays < 7 
-    ? rtf.format(-diffDays, 'day') 
+  const dateDisplay = diffDays < 7
+    ? rtf.format(-diffDays, 'day')
     : dtf.format(dateObj);
-  
+
 
   const companyScore = getCompanyScoreFromState(jobsContext.companies, job.company);
 
@@ -100,8 +100,8 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
           <div class="flex items-center gap-3 mb-2">
             <div class="w-8 h-8 rounded flex items-center justify-center bg-gray-100 dark:bg-gray-700 flex-shrink-0">
               {job.companyLogo ? (
-                <img 
-                  src={job.companyLogo} 
+                <img
+                  src={job.companyLogo}
                   alt={`${job.company} logo`}
                   class="w-full h-full rounded object-cover"
                   width="32"
@@ -129,7 +129,7 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
             </div>
           </div>
         </div>
-        
+
         <div class="text-right flex flex-col items-end gap-1">
           <div class="flex items-center gap-2">
             <span class="text-xs text-gray-500 dark:text-gray-400">
@@ -138,11 +138,10 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
             {isAuthenticated && (
               <button
                 onClick$={handleToggleFavorite}
-                class={`p-1 rounded transition-colors ${
-                  job.is_favorite 
-                    ? 'text-yellow-500 hover:text-yellow-600' 
+                class={`p-1 rounded transition-colors ${job.is_favorite
+                    ? 'text-yellow-500 hover:text-yellow-600'
                     : 'text-gray-400 hover:text-yellow-500'
-                }`}
+                  }`}
                 title={job.is_favorite ? t('job.remove_favorite') : t('job.add_favorite')}
               >
                 <svg class="w-5 h-5" fill={job.is_favorite ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
@@ -161,7 +160,7 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
 
       {/* Description */}
       {job.description && (
-        <p 
+        <p
           class="text-gray-600 dark:text-gray-400 text-sm mb-4 line-clamp-2"
           dangerouslySetInnerHTML={job.description}
         ></p>
@@ -174,16 +173,15 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
             {t('job.seniority')}
           </span>
           <div class="mt-1">
-            <span class={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-              job.seniority === 'junior' ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200' :
-              job.seniority === 'mid' ? 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200' :
-              'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200'
-            }`}>
+            <span class={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${job.seniority === 'junior' ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200' :
+                job.seniority === 'mid' ? 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200' :
+                  'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200'
+              }`}>
               {t('jobs.' + job.seniority)}
             </span>
           </div>
         </div>
-        
+
         <div>
           <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
             {t('job.availability')}
@@ -194,14 +192,14 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
             </span>
           </div>
         </div>
-        
+
         <div>
           <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
             {t('job.location')}
           </span>
           <div class="mt-1">
             <span class="text-sm text-gray-900 dark:text-gray-100">
-               {job.location || t('job.location_not_specified') || '-'}
+              {job.location || t('job.location_not_specified') || '-'}
             </span>
           </div>
         </div>
@@ -245,11 +243,10 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
           <button
             onClick$={handleLike}
             disabled={!isAuthenticated}
-            class={`flex items-center space-x-1 px-2 py-1 rounded transition-colors ${
-              hasLiked 
-                ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-200' 
+            class={`flex items-center space-x-1 px-2 py-1 rounded transition-colors ${hasLiked
+                ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-200'
                 : 'text-gray-500 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20'
-            } ${!isAuthenticated ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+              } ${!isAuthenticated ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
           >
             <span class="text-lg">👍</span>
             <span class="text-sm font-medium">{job.likes}</span>
@@ -258,30 +255,30 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
           <button
             onClick$={handleDislike}
             disabled={!isAuthenticated}
-            class={`flex items-center space-x-1 px-2 py-1 rounded transition-colors ${
-              hasDisliked 
-                ? 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-200' 
+            class={`flex items-center space-x-1 px-2 py-1 rounded transition-colors ${hasDisliked
+                ? 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-200'
                 : 'text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20'
-            } ${!isAuthenticated ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+              } ${!isAuthenticated ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
           >
             <span class="text-lg">👎</span>
             <span class="text-sm font-medium">{job.dislikes}</span>
           </button>
 
-          {/* Comments button */}
-          <button
-            onClick$={() => onToggleComments$(job.id)}
-            class={`flex items-center space-x-1 px-2 py-1 rounded transition-colors ${
-              showComments 
-                ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200' 
-                : 'text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20'
-            } cursor-pointer`}
-          >
-            <span class="text-lg">💬</span>
-            <span class="text-sm font-medium">
-              {job.comments_count !== undefined ? job.comments_count : getCommentsFromState(jobsContext.comments, job.id).length}
-            </span>
-          </button>
+          {/* Comments button - Only show if toggle function is provided */}
+          {onToggleComments$ && (
+            <button
+              onClick$={() => onToggleComments$!(job.id)}
+              class={`flex items-center space-x-1 px-2 py-1 rounded transition-colors ${showComments
+                  ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200'
+                  : 'text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20'
+                } cursor-pointer`}
+            >
+              <span class="text-lg">💬</span>
+              <span class="text-sm font-medium">
+                {job.comments_count !== undefined ? job.comments_count : getCommentsFromState(jobsContext.comments, job.id).length}
+              </span>
+            </button>
+          )}
         </div>
 
         {/* External link */}

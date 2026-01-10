@@ -69,6 +69,7 @@ export interface PaginationState {
 
 export interface JobsState {
   jobs: JobListing[];
+  favorites: JobListing[];
   comments: Comment[];
   companies: Company[];
   pagination: PaginationState;
@@ -82,6 +83,7 @@ export interface JobsState {
   fetchJobsPage$: QRL<(page: number, filters?: JobFilters, append?: boolean) => Promise<void>>;
   loadMoreJobs$: QRL<() => Promise<void>>;
   toggleFavorite$: QRL<(jobId: string) => Promise<void>>;
+  fetchFavorites$: QRL<() => Promise<void>>;
 }
 
 export interface JobFilters {
@@ -138,6 +140,7 @@ export const JobsProvider = component$(() => {
 
   const jobsState = useStore<JobsState>({
     jobs: [],
+    favorites: [],
     comments: [],
     companies: [],
     pagination: {
@@ -151,10 +154,11 @@ export const JobsProvider = component$(() => {
     likeJobSignal,
     dislikeJobSignal,
     addCommentSignal,
-    fetchComments$: $(async () => {}), // Initialize with a no-op QRL
-    fetchJobsPage$: $(async () => {}), // Will be assigned below
-    loadMoreJobs$: $(async () => {}), // Will be assigned below
-    toggleFavorite$: $(async () => {}), // Will be assigned below
+    fetchComments$: $(async () => { }), // Initialize with a no-op QRL
+    fetchJobsPage$: $(async () => { }), // Will be assigned below
+    loadMoreJobs$: $(async () => { }), // Will be assigned below
+    toggleFavorite$: $(async () => { }), // Will be assigned below
+    fetchFavorites$: $(async () => { }), // Will be assigned below
   });
 
   const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:3001';
@@ -178,7 +182,7 @@ export const JobsProvider = component$(() => {
             text: c.content,
             date: new Date(c.created_at)
           }));
-          
+
           const others = jobsState.comments.filter(c => c.jobId !== jobId);
           jobsState.comments = [...others, ...fetched];
         }
@@ -187,7 +191,7 @@ export const JobsProvider = component$(() => {
       }
     });
   });
-  
+
   const auth = useAuth();
 
   // Assign pagination methods
@@ -195,15 +199,15 @@ export const JobsProvider = component$(() => {
     // fetchJobsPage$: Fetch a specific page of jobs with filters
     jobsState.fetchJobsPage$ = $(async (page: number, filters?: JobFilters, append = false) => {
       if (jobsState.pagination.isLoading) return;
-      
+
       jobsState.pagination.isLoading = true;
-      
+
       try {
         console.log(`Fetching jobs page ${page} with limit ${jobsState.pagination.limit}...`);
         const url = new URL(`${API_URL}/jobs`);
         url.searchParams.append('page', String(page));
         url.searchParams.append('limit', String(jobsState.pagination.limit));
-        
+
         // Add filters to URL
         if (filters?.query) url.searchParams.append('q', filters.query);
         if (filters?.seniority) url.searchParams.append('seniority', filters.seniority);
@@ -214,37 +218,37 @@ export const JobsProvider = component$(() => {
           url.searchParams.append('lng', String(filters.location_geo.lng));
           url.searchParams.append('radius_km', String(filters.radius_km || 50));
         }
-        
+
         // Include auth token if available
         const headers: Record<string, string> = {};
         if (auth.token) {
           headers['Authorization'] = `Bearer ${auth.token}`;
         }
-        
+
         const response = await fetch(url.toString(), { headers });
-        
+
         if (!response.ok) {
           throw new Error(`Network response was not ok: ${response.status}`);
         }
-        
+
         const result = await response.json();
-        
+
         if (result.success && result.data && result.data.jobs) {
           const processedJobs = result.data.jobs.map(processApiJob);
           const pagination = result.data.pagination;
-          
+
           // Update pagination state
           jobsState.pagination.currentPage = pagination.page;
           jobsState.pagination.totalJobs = pagination.total;
           jobsState.pagination.hasMore = pagination.page < pagination.pages;
-          
+
           // Append or replace jobs
           if (append) {
             jobsState.jobs = [...jobsState.jobs, ...processedJobs];
           } else {
             jobsState.jobs = processedJobs;
           }
-          
+
           // Update companies
           const realCompanies = result.data.jobs
             .map((j: any) => j.company)
@@ -254,7 +258,7 @@ export const JobsProvider = component$(() => {
               trustScore: c.trustScore || 80,
               totalRatings: c.totalRatings || 0
             }));
-            
+
           const existingNames = new Set(jobsState.companies.map(c => c.name));
           realCompanies.forEach((c: any) => {
             if (!existingNames.has(c.name)) {
@@ -262,7 +266,7 @@ export const JobsProvider = component$(() => {
               existingNames.add(c.name);
             }
           });
-          
+
           // Store current filters
           jobsState.currentFilters = filters || null;
         }
@@ -280,7 +284,7 @@ export const JobsProvider = component$(() => {
     // loadMoreJobs$: Load next page and append
     jobsState.loadMoreJobs$ = $(async () => {
       if (!jobsState.pagination.hasMore || jobsState.pagination.isLoading) return;
-      
+
       const nextPage = jobsState.pagination.currentPage + 1;
       await jobsState.fetchJobsPage$(nextPage, jobsState.currentFilters || undefined, true);
     });
@@ -289,12 +293,12 @@ export const JobsProvider = component$(() => {
     jobsState.toggleFavorite$ = $(async (jobId: string) => {
       const job = jobsState.jobs.find((j: JobListing) => j.id === jobId);
       if (!job) return;
-      
+
       const wasFavorite = job.is_favorite;
-      
+
       // Optimistic update
       job.is_favorite = !wasFavorite;
-      
+
       try {
         const token = auth.token;
         if (!token) {
@@ -302,15 +306,22 @@ export const JobsProvider = component$(() => {
           job.is_favorite = wasFavorite;
           return;
         }
-        
+
         if (wasFavorite) {
           // Remove from favorites
+          // Update local favorites state immediately
+          jobsState.favorites = jobsState.favorites.filter(f => f.id !== jobId);
+
           await fetch(`${API_URL}/favorites?jobId=${jobId}`, {
             method: 'DELETE',
             headers: { 'Authorization': `Bearer ${token}` }
           });
         } else {
           // Add to favorites
+          // We can't easily add to favorites list optimistically because we might not have all fields if we are on a partial view
+          // But since we are likely adding from main list where we have data:
+          jobsState.favorites = [job, ...jobsState.favorites];
+
           await fetch(`${API_URL}/favorites`, {
             method: 'POST',
             headers: {
@@ -326,6 +337,33 @@ export const JobsProvider = component$(() => {
         job.is_favorite = wasFavorite;
       }
     });
+
+    // fetchFavorites$: Fetch all user favorites
+    jobsState.fetchFavorites$ = $(async () => {
+      try {
+        const token = auth.token;
+        if (!token) return;
+
+        const response = await fetch(`${API_URL}/favorites`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (!response.ok) throw new Error('Failed to fetch favorites');
+
+        const result = await response.json();
+        if (result.success && result.data) {
+          jobsState.favorites = result.data.map((item: any) => {
+            const job = processApiJob(item.job);
+            job.is_favorite = true; // Ensure favorite status is set
+            return job;
+          });
+        }
+      } catch (error) {
+        console.error('Failed to fetch favorites:', error);
+      }
+    });
   });
 
   // Load initial page on component mount (client-side only)
@@ -339,7 +377,7 @@ export const JobsProvider = component$(() => {
   // Refetch current page when auth token changes to get user_reaction
   useVisibleTask$(async ({ track }) => {
     const token = track(() => auth.token);
-    
+
     if (token && jobsState.jobs.length > 0) {
       // Refetch current page with auth to update user_reaction
       await jobsState.fetchJobsPage$(1, jobsState.currentFilters || undefined, false);
@@ -353,7 +391,7 @@ export const JobsProvider = component$(() => {
       if (job) {
         // Optimistic update
         const company = jobsState.companies.find((c: Company) => c.name === job.company);
-        
+
         if (likeReq.remove) {
           job.likes = Math.max(0, job.likes - 1);
           job.user_reaction = null;
@@ -369,8 +407,8 @@ export const JobsProvider = component$(() => {
           if (likeReq.wasDisliked) {
             job.dislikes = Math.max(0, job.dislikes - 1);
             if (company) {
-               company.trustScore = Math.min(100, company.trustScore + 0.2); // +0.1 remove dislike, +0.1 add like
-               // totalRatings same
+              company.trustScore = Math.min(100, company.trustScore + 0.2); // +0.1 remove dislike, +0.1 add like
+              // totalRatings same
             }
           } else {
             // pure like
@@ -386,7 +424,7 @@ export const JobsProvider = component$(() => {
           const token = auth.token;
           if (token) {
             if (likeReq.remove) {
-               await fetch(`${API_URL}/likes?jobId=${likeReq.jobId}`, {
+              await fetch(`${API_URL}/likes?jobId=${likeReq.jobId}`, {
                 method: 'DELETE',
                 headers: {
                   'Authorization': `Bearer ${token}`
@@ -418,14 +456,14 @@ export const JobsProvider = component$(() => {
       if (job) {
         // Optimistic update
         const company = jobsState.companies.find((c: Company) => c.name === job.company);
-        
+
         if (dislikeReq.remove) {
           job.dislikes = Math.max(0, job.dislikes - 1);
           job.user_reaction = null;
-           if (company) {
-             company.trustScore = Math.min(100, company.trustScore + 0.1);
-             company.totalRatings = Math.max(0, company.totalRatings - 1);
-           }
+          if (company) {
+            company.trustScore = Math.min(100, company.trustScore + 0.1);
+            company.totalRatings = Math.max(0, company.totalRatings - 1);
+          }
         } else {
           // Add Dislike
           job.dislikes++;
@@ -451,7 +489,7 @@ export const JobsProvider = component$(() => {
           const token = auth.token;
           if (token) {
             if (dislikeReq.remove) {
-               await fetch(`${API_URL}/likes?jobId=${dislikeReq.jobId}`, {
+              await fetch(`${API_URL}/likes?jobId=${dislikeReq.jobId}`, {
                 method: 'DELETE',
                 headers: {
                   'Authorization': `Bearer ${token}`
@@ -469,7 +507,7 @@ export const JobsProvider = component$(() => {
             }
           }
         } catch (error) {
-           console.error('Failed to persist dislike action:', error);
+          console.error('Failed to persist dislike action:', error);
         }
       }
       dislikeJobSignal.value = null;
@@ -482,7 +520,7 @@ export const JobsProvider = component$(() => {
       try {
         const token = auth.token;
         if (!token) throw new Error("No token found");
-        
+
         console.log('Adding comment to job:', commentReq.jobId, 'using token:', token ? 'exists' : 'null');
         const response = await fetch(`${API_URL}/comments`, {
           method: 'POST',
@@ -517,6 +555,10 @@ export const JobsProvider = component$(() => {
         jobsState.addCommentSignal.value = null;
       }
     }
+  });
+
+  useVisibleTask$(() => {
+    jobsState.fetchFavorites$();
   });
 
   useContextProvider(JobsContext, jobsState);
@@ -572,7 +614,7 @@ export const filterJobs = (jobs: any[], page = 1, limit = 1000, filters?: JobFil
       filteredJobs = filteredJobs.filter(job => job.publishDate >= filterDate);
     }
     if (filters.languages?.length) {
-       const langMapping: { [key: string]: string } = {
+      const langMapping: { [key: string]: string } = {
         'italian': 'it', 'italiano': 'it',
         'english': 'en', 'inglese': 'en',
         'spanish': 'es', 'spagnolo': 'es',
@@ -597,14 +639,14 @@ export const filterJobs = (jobs: any[], page = 1, limit = 1000, filters?: JobFil
       filteredJobs = filteredJobs.filter(job => {
         if (!job.language) return true;
         const jobLang = job.language.toLowerCase();
-        return Array.from(targetCodes).some(code => 
+        return Array.from(targetCodes).some(code =>
           jobLang === code || (langMapping[jobLang] && targetCodes.has(langMapping[jobLang]))
         );
       });
     }
   }
   const startIndex = (page - 1) * limit;
-  
+
   // Final geo filtering if coordinates provided
   if (filters?.location_geo && filters.radius_km) {
     const { lat, lng } = filters.location_geo;
@@ -616,8 +658,8 @@ export const filterJobs = (jobs: any[], page = 1, limit = 1000, filters?: JobFil
         return dist <= filters.radius_km!;
       }
       return true; // Keep jobs without geo? Or exclude? User says "sfruttando le coordinate gps presenti". 
-                   // Usually keep others if location name matches? 
-                   // For now, if someone searches by city, we only want those in radius.
+      // Usually keep others if location name matches? 
+      // For now, if someone searches by city, we only want those in radius.
     });
   }
 
@@ -627,8 +669,8 @@ export const filterJobs = (jobs: any[], page = 1, limit = 1000, filters?: JobFil
 export const getPersonalizedJobs = (jobs: JobListing[], userSkills?: string[], userSeniority?: string, userLanguages?: string[], fallbackLanguage?: string) => {
   let filteredJobs = [...jobs];
 
-  const targetLanguages = (userLanguages && userLanguages.length > 0) 
-    ? userLanguages 
+  const targetLanguages = (userLanguages && userLanguages.length > 0)
+    ? userLanguages
     : (fallbackLanguage ? [fallbackLanguage] : []);
 
   // 1. Filter by languages
@@ -658,7 +700,7 @@ export const getPersonalizedJobs = (jobs: JobListing[], userSkills?: string[], u
     filteredJobs = filteredJobs.filter(job => {
       if (!job.language) return true;
       const jobLang = job.language.toLowerCase();
-      return Array.from(targetCodes).some(code => 
+      return Array.from(targetCodes).some(code =>
         jobLang === code || (langMapping[jobLang] && targetCodes.has(langMapping[jobLang]))
       );
     });
@@ -668,7 +710,7 @@ export const getPersonalizedJobs = (jobs: JobListing[], userSkills?: string[], u
   if (userSeniority) {
     const normalizeSeniority = (s: string) => s.toLowerCase().trim();
     const userSen = normalizeSeniority(userSeniority);
-    
+
     filteredJobs = filteredJobs.filter(job => {
       if (!job.seniority || job.seniority === 'unknown') return true; // Keep unknown seniority
       return normalizeSeniority(job.seniority) === userSen;
@@ -677,16 +719,16 @@ export const getPersonalizedJobs = (jobs: JobListing[], userSkills?: string[], u
 
   // 3. Filter by Skills (if specified) - Must match at least one skill
   if (userSkills && userSkills.length > 0) {
-     filteredJobs = filteredJobs.filter(job => {
-        if (!job.skills || job.skills.length === 0) return true; // Keep jobs with no skills specified
-        return job.skills.some(skill => 
-          userSkills.some(userSkill => skill.toLowerCase().includes(userSkill.toLowerCase()))
-        );
-     });
+    filteredJobs = filteredJobs.filter(job => {
+      if (!job.skills || job.skills.length === 0) return true; // Keep jobs with no skills specified
+      return job.skills.some(skill =>
+        userSkills.some(userSkill => skill.toLowerCase().includes(userSkill.toLowerCase()))
+      );
+    });
   }
 
   if (!userSkills?.length && !userSeniority) return filteredJobs;
-  
+
   // 4. Scoring for sort order
   const scoredJobs = filteredJobs.map((job) => {
     let score = 0;
@@ -695,11 +737,11 @@ export const getPersonalizedJobs = (jobs: JobListing[], userSkills?: string[], u
       score += (matchingSkills.length / userSkills.length) * 50;
     }
     if (userSeniority && job.seniority && job.seniority.toLowerCase() === userSeniority.toLowerCase()) score += 30; // Boost for exact seniority match
-    
+
     // Recency boost
     const daysSincePosted = Math.floor((new Date().getTime() - job.publishDate.getTime()) / (1000 * 60 * 60 * 24));
     score += Math.max(0, 10 - daysSincePosted);
-    
+
     return { ...job, score };
   });
 

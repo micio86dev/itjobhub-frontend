@@ -13,12 +13,12 @@ export const CommentsSection = component$<CommentsSectionProps>(({ jobId, onClos
   const auth = useAuth();
   const t = useTranslate();
   const i18n = useI18n();
-  
+
   // Extract values and signals to avoid serialization issues
   const isAuthenticated = auth.isAuthenticated;
   const user = auth.user;
   const addCommentSignal = jobsContext.addCommentSignal;
-  
+
   const state = useStore({
     commentText: '',
     isSubmitting: false
@@ -28,16 +28,16 @@ export const CommentsSection = component$<CommentsSectionProps>(({ jobId, onClos
 
   const handleSubmitComment = $(async (e: Event) => {
     e.preventDefault();
-    
+
     if (!isAuthenticated || !state.commentText.trim()) {
       return;
     }
 
     state.isSubmitting = true;
-    
+
     try {
       await new Promise(resolve => setTimeout(resolve, 500)); // Simulate API call
-      
+
       // Trigger add comment through signal
       addCommentSignal.value = {
         jobId,
@@ -52,6 +52,7 @@ export const CommentsSection = component$<CommentsSectionProps>(({ jobId, onClos
 
       // Close the comments section if callback provided
       if (onClose$) {
+        console.log('Closing comments section...');
         await onClose$();
       }
     } catch {
@@ -76,18 +77,18 @@ export const CommentsSection = component$<CommentsSectionProps>(({ jobId, onClos
     const diffMinutes = Math.floor(diffTime / (1000 * 60));
     const diffHours = Math.floor(diffTime / (1000 * 60 * 60));
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-    
+
     // Use Intl.RelativeTimeFormat for consistent locale-aware formatting
     const rtf = new Intl.RelativeTimeFormat(locale, { numeric: 'auto' });
-    
+
     if (diffSeconds < 60) return rtf.format(0, 'second'); // "now" / "ora"
     if (diffMinutes < 60) return rtf.format(-diffMinutes, 'minute');
     if (diffHours < 24) return rtf.format(-diffHours, 'hour');
     if (diffDays < 7) return rtf.format(-diffDays, 'day');
-    
+
     // For older dates, use date formatter
-    const dtf = new Intl.DateTimeFormat(locale, { 
-      day: 'numeric', 
+    const dtf = new Intl.DateTimeFormat(locale, {
+      day: 'numeric',
       month: 'short',
       hour: '2-digit',
       minute: '2-digit'
@@ -105,9 +106,9 @@ export const CommentsSection = component$<CommentsSectionProps>(({ jobId, onClos
   };
 
   // Get current user initials
-  const userInitials = user?.name 
+  const userInitials = user?.name
     ? getInitials(user.name)
-    : user?.firstName && user?.lastName 
+    : user?.firstName && user?.lastName
       ? `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`.toUpperCase()
       : 'U';
 
@@ -117,15 +118,15 @@ export const CommentsSection = component$<CommentsSectionProps>(({ jobId, onClos
         <h4 class="text-sm font-medium text-gray-900 mb-3">
           {t('comments.title')} ({comments.length})
         </h4>
-        
+
         {/* Comment form */}
         {isAuthenticated ? (
           <form onSubmit$={handleSubmitComment} class="mb-4">
             <div class="flex gap-3">
               <div class="flex-shrink-0">
                 {user?.avatar ? (
-                  <img 
-                    src={user.avatar} 
+                  <img
+                    src={user.avatar}
                     alt={user.name || 'User'}
                     class="w-8 h-8 rounded-full object-cover"
                     width="32"
@@ -139,7 +140,7 @@ export const CommentsSection = component$<CommentsSectionProps>(({ jobId, onClos
                   </div>
                 )}
               </div>
-              
+
               <div class="flex-1">
                 <textarea
                   value={state.commentText}
@@ -148,7 +149,7 @@ export const CommentsSection = component$<CommentsSectionProps>(({ jobId, onClos
                   rows={2}
                   class="w-full p-2 text-sm border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 resize-none"
                 />
-                
+
                 <div class="flex justify-end mt-2">
                   <button
                     type="submit"
@@ -190,8 +191,8 @@ export const CommentsSection = component$<CommentsSectionProps>(({ jobId, onClos
             <div key={comment.id} class="flex gap-3">
               <div class="flex-shrink-0">
                 {comment.author.avatar ? (
-                  <img 
-                    src={comment.author.avatar} 
+                  <img
+                    src={comment.author.avatar}
                     alt={comment.author.name}
                     class="w-6 h-6 rounded-full object-cover"
                     width="24"
@@ -205,7 +206,7 @@ export const CommentsSection = component$<CommentsSectionProps>(({ jobId, onClos
                   </div>
                 )}
               </div>
-              
+
               <div class="flex-1">
                 <div class="bg-gray-50 rounded-lg p-3">
                   <div class="flex items-center justify-between mb-1">
