@@ -1,13 +1,14 @@
-import { component$, $, useStore } from "@builder.io/qwik";
+import { component$, $, useStore, type QRL } from "@builder.io/qwik";
 import { useJobs, getCommentsFromState } from "~/contexts/jobs";
 import { useAuth } from "~/contexts/auth";
 import { useTranslate } from "~/contexts/i18n";
 
 interface CommentsSectionProps {
   jobId: string;
+  onClose$?: QRL<() => void>;
 }
 
-export const CommentsSection = component$<CommentsSectionProps>(({ jobId }) => {
+export const CommentsSection = component$<CommentsSectionProps>(({ jobId, onClose$ }) => {
   const jobsContext = useJobs();
   const auth = useAuth();
   const t = useTranslate();
@@ -23,6 +24,7 @@ export const CommentsSection = component$<CommentsSectionProps>(({ jobId }) => {
   });
 
   const comments = getCommentsFromState(jobsContext.comments, jobId);
+  const demoJobErrorMsg = t('comments.error_demo_job') || "This is a demo job. Comments are disabled.";
 
   const handleSubmitComment = $(async (e: Event) => {
     e.preventDefault();
@@ -30,6 +32,14 @@ export const CommentsSection = component$<CommentsSectionProps>(({ jobId }) => {
     if (!isAuthenticated || !state.commentText.trim()) {
       return;
     }
+
+    // Check for valid MongoDB ObjectId (24 hex characters) - REMOVED to allow testing/other ID formats
+    // The backend will handle validation errors if needed.
+    // const isValidId = /^[0-9a-fA-F]{24}$/.test(jobId);
+    // if (!isValidId) {
+    //   alert(demoJobErrorMsg);
+    //   return;
+    // }
 
     state.isSubmitting = true;
     
@@ -47,6 +57,11 @@ export const CommentsSection = component$<CommentsSectionProps>(({ jobId }) => {
       };
       state.commentText = '';
       state.isSubmitting = false;
+
+      // Close the comments section if callback provided
+      if (onClose$) {
+        await onClose$();
+      }
     } catch {
       state.isSubmitting = false;
     }

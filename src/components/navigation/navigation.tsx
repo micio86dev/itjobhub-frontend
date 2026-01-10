@@ -51,20 +51,30 @@ export const Navigation = component$(() => {
   return (
     <nav class="bg-white dark:bg-gray-900 shadow-sm border-b border-gray-200 dark:border-gray-700">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between h-16">
-          <div class="flex items-center space-x-8">
-            <a href="/" class="text-xl font-bold text-gray-900 dark:text-white">
+        <div class="flex justify-between items-center h-16">
+          <div class="flex items-center min-w-0 flex-1">
+            <a href="/" class="text-xl font-bold text-gray-900 dark:text-white flex-shrink-0">
               {t('nav.brand')}
             </a>
-            <a 
-              href="/jobs" 
-              class="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium"
-            >
-              {t('nav.jobs')}
-            </a>
+            <div class="ml-4 sm:ml-8 flex items-center space-x-1 sm:space-x-4 min-w-0">
+              <a 
+                href="/jobs" 
+                class="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-2 sm:px-3 py-2 rounded-md text-sm font-medium whitespace-nowrap"
+              >
+                {t('nav.jobs')}
+              </a>
+              {user?.role === "admin" && (
+                <a 
+                  href="/admin/stats" 
+                  class="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-2 sm:px-3 py-2 rounded-md text-sm font-medium whitespace-nowrap"
+                >
+                  {t('nav.dashboard')}
+                </a>
+              )}
+            </div>
           </div>
           
-          <div class="flex items-center space-x-4">
+          <div class="flex items-center space-x-1 sm:space-x-4 flex-shrink-0">
             {/* Theme toggle */}
             <button
               onClick$={theme.toggleTheme}
@@ -86,10 +96,10 @@ export const Navigation = component$(() => {
             <div class="relative">
               <button
                 onClick$={toggleLanguageDropdown}
-                class="flex items-center space-x-1 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-2 py-1 rounded-md text-sm font-medium"
+                class="flex items-center space-x-1 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-1 sm:px-2 py-1 rounded-md text-sm font-medium"
               >
                 <span>{currentLanguageObj?.flag}</span>
-                <span class="hidden sm:inline">{currentLanguageObj?.name}</span>
+                <span class="hidden md:inline">{currentLanguageObj?.name}</span>
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                 </svg>
@@ -116,38 +126,35 @@ export const Navigation = component$(() => {
             </div>
 
             {isAuthenticated ? (
-              <>
-                <span class="text-gray-700 dark:text-gray-300 hidden sm:inline">
-                  {t('nav.hello')}, {user?.name || user?.email}
-                </span>
+              <div class="flex items-center space-x-1 sm:space-x-3">
                 <a 
                   href="/profile" 
-                  class="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium"
+                  class="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-2 sm:px-3 py-2 rounded-md text-sm font-medium"
                 >
                   {t('nav.profile')}
                 </a>
                 <button 
                   onClick$={handleLogout}
-                  class="bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-800 text-white px-4 py-2 rounded-md text-sm font-medium"
+                  class="bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-800 text-white px-3 sm:px-4 py-2 rounded-md text-sm font-medium whitespace-nowrap"
                 >
                   {t('nav.logout')}
                 </button>
-              </>
+              </div>
             ) : (
-              <>
+              <div class="flex items-center space-x-1 sm:space-x-3">
                 <a 
                   href="/login" 
-                  class="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium"
+                  class="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-2 sm:px-3 py-2 rounded-md text-sm font-medium"
                 >
                   {t('nav.login')}
                 </a>
                 <a 
                   href="/register" 
-                  class="bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-700 dark:hover:bg-indigo-800 text-white px-4 py-2 rounded-md text-sm font-medium"
+                  class="bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-700 dark:hover:bg-indigo-800 text-white px-3 sm:px-4 py-2 rounded-md text-sm font-medium whitespace-nowrap"
                 >
                   {t('nav.register')}
                 </a>
-              </>
+              </div>
             )}
           </div>
         </div>

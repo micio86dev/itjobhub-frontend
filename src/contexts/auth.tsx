@@ -30,6 +30,10 @@ export interface User {
   profileCompleted?: boolean;
   role?: string;
   language?: string;
+  location_geo?: {
+    type: string;
+    coordinates: number[];
+  };
 }
 
 export interface WizardData {
@@ -91,7 +95,7 @@ export interface AuthState {
 
 export const AuthContext = createContextId<AuthState>('auth-context');
 
-const API_URL = 'http://localhost:3001';
+const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:3001';
 
 export const AuthProvider = component$(() => {
   const nav = useNavigate();
@@ -137,8 +141,8 @@ export const AuthProvider = component$(() => {
         authState.token = token;
         authState.user = JSON.parse(userStr);
         authState.isAuthenticated = true;
-      } catch (e) {
-        console.error('Failed to restore auth state', e);
+      } catch {
+        console.error('Failed to restore auth state');
         localStorage.removeItem('auth_token');
         localStorage.removeItem('auth_user');
       }
@@ -222,7 +226,7 @@ export const AuthProvider = component$(() => {
         const text = await response.text();
         try {
           data = JSON.parse(text);
-        } catch (e) {
+        } catch {
           console.error('Failed to parse response JSON:', text);
           data = { success: false, message: text || 'Unknown error occurred' };
         }

@@ -1,8 +1,8 @@
 import { component$, $, useStore, useTask$ } from "@builder.io/qwik";
 import type { DocumentHead } from "@builder.io/qwik-city";
-import { useJobsActions, useJobs, filterJobs, getPersonalizedJobs } from "~/contexts/jobs";
+import { useJobs, filterJobs, getPersonalizedJobs } from "~/contexts/jobs";
 import { useAuth } from "~/contexts/auth";
-import { useTranslate } from "~/contexts/i18n";
+import { useTranslate, useI18n } from "~/contexts/i18n";
 import { JobCard } from "~/components/jobs/job-card";
 import { CommentsSection } from "~/components/jobs/comments-section";
 import { JobSearch } from "~/components/jobs/job-search";
@@ -13,6 +13,8 @@ interface JobSearchFilters {
   query: string;
   seniority: string;
   availability: string;
+  location: string;
+  location_geo?: { lat: number; lng: number };
   remote: string;
   dateRange: string;
 }
@@ -20,6 +22,7 @@ interface JobSearchFilters {
 export default component$(() => {
   const auth = useAuth();
   const t = useTranslate();
+  const i18n = useI18n();
   
   // Extract values to avoid serialization issues
   const isAuthenticated = auth.isAuthenticated;
@@ -32,7 +35,7 @@ export default component$(() => {
     isLoading: false,
     hasNextPage: true,
     openComments: {} as Record<string, boolean>,
-    showPersonalized: false,
+    showPersonalized: isAuthenticated && user?.profileCompleted,
     searchFilters: null as JobFilters | null,
     hasSearched: false,
     shouldLoadJobs: true,
@@ -50,16 +53,22 @@ export default component$(() => {
     
     let allJobsToShow: JobListing[] = [];
     
-    if (state.searchFilters) {
-      allJobsToShow = filterJobs(jobsState.jobs, 1, 100, state.searchFilters);
-    } else if (state.showPersonalized && isAuthenticated && user?.profileCompleted) {
+    if (state.showPersonalized && user) {
+      // 1. Personalized Feed: Filter by profile (skills, seniority, language)
       allJobsToShow = getPersonalizedJobs(
         jobsState.jobs,
         user.skills || [],
-        user.availability || 'full-time'
+        user.seniority,
+        user.languages || [],
+        i18n.currentLanguage || 'it'
       );
     } else {
-      allJobsToShow = filterJobs(jobsState.jobs, 1, 100);
+      // 2. All Jobs / Search Results: Filter by search params OR default language
+      const filters = state.searchFilters || {
+        languages: user?.languages && user.languages.length > 0 ? user.languages : [i18n.currentLanguage || 'it']
+      };
+      
+      allJobsToShow = filterJobs(jobsState.jobs, 1, 1000, filters as any);
     }
     
     state.totalJobsCount = allJobsToShow.length;
@@ -85,6 +94,9 @@ export default component$(() => {
 
   const toggleComments = $((jobId: string) => {
     state.openComments[jobId] = !state.openComments[jobId];
+    if (state.openComments[jobId]) {
+      jobsState.fetchComments$(jobId);
+    }
   });
 
   const handleSearch = $((filters: JobSearchFilters) => {
@@ -96,6 +108,9 @@ export default component$(() => {
       query: filters.query,
       seniority: filters.seniority,
       availability: filters.availability,
+      location: filters.location,
+      location_geo: filters.location_geo,
+      radius_km: 50, // Default 50km radius
       remote: filters.remote === 'remote' ? true : 
               filters.remote === 'office' ? false : undefined,
       dateRange: filters.dateRange
@@ -127,7 +142,14 @@ export default component$(() => {
         </h1>
 
         {/* Search component */}
-        <JobSearch onSearch$={handleSearch} />
+        <JobSearch 
+          onSearch$={handleSearch} 
+          initialLocation={user?.location || undefined}
+          initialGeo={user?.location_geo?.coordinates && user.location_geo.coordinates.length >= 2 ? {
+            lat: user.location_geo.coordinates[1],
+            lng: user.location_geo.coordinates[0]
+          } : undefined}
+        />
         
         {/* Filter toggle for authenticated users */}
         {canShowPersonalized && (
@@ -233,7 +255,10 @@ export default component$(() => {
               
               {state.openComments[job.id] && (
                 <div class="ml-4 sm:ml-6 mr-4 sm:mr-6">
-                  <CommentsSection jobId={job.id} />
+                  <CommentsSection 
+                    jobId={job.id} 
+                    onClose$={$(() => state.openComments[job.id] = false)}
+                  />
                 </div>
               )}
             </div>

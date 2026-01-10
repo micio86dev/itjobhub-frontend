@@ -1,8 +1,9 @@
 import { component$, $, useStore, type QRL } from "@builder.io/qwik";
 import type { JobListing } from "~/contexts/jobs";
 import { useJobs, getCompanyScoreFromState, getCommentsFromState } from "~/contexts/jobs";
+import { LoginPrompt } from "./login-prompt";
 import { useAuth } from "~/contexts/auth";
-import { useTranslate } from "~/contexts/i18n";
+import { useTranslate, useI18n } from "~/contexts/i18n";
 
 interface JobCardProps {
   job: JobListing;
@@ -14,6 +15,8 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
   const jobsContext = useJobs();
   const auth = useAuth();
   const t = useTranslate();
+  const i18n = useI18n();
+  const lang = i18n.currentLanguage;
   
   // Extract values and signals to avoid serialization issues
   const isAuthenticated = auth.isAuthenticated;
@@ -21,32 +24,64 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
   const dislikeJobSignal = jobsContext.dislikeJobSignal;
   
   const state = useStore({
-    hasLiked: false,
-    hasDisliked: false
+    hasLiked: job.user_reaction === 'LIKE',
+    hasDisliked: job.user_reaction === 'DISLIKE'
   });
 
   const handleLike = $(() => {
-    if (!state.hasLiked) {
-      // Trigger like through signal
-      likeJobSignal.value = { jobId: job.id };
+    if (!isAuthenticated) return;
+    
+    // Toggle like
+    if (state.hasLiked) {
+      likeJobSignal.value = { jobId: job.id, remove: true };
+      state.hasLiked = false;
+    } else {
+      // Add like (potentially swapping)
+      likeJobSignal.value = { 
+        jobId: job.id, 
+        wasDisliked: state.hasDisliked 
+      };
       state.hasLiked = true;
       state.hasDisliked = false;
     }
   });
 
   const handleDislike = $(() => {
-    if (!state.hasDisliked) {
-      // Trigger dislike through signal
-      dislikeJobSignal.value = { jobId: job.id };
+    if (!isAuthenticated) return;
+
+    // Toggle dislike
+    if (state.hasDisliked) {
+      dislikeJobSignal.value = { jobId: job.id, remove: true };
+      state.hasDisliked = false;
+    } else {
+      // Add dislike (potentially swapping)
+      dislikeJobSignal.value = { 
+        jobId: job.id, 
+        wasLiked: state.hasLiked 
+      };
       state.hasDisliked = true;
       state.hasLiked = false;
     }
   });
 
-  // Calculate date diff for rendering
+  // Calculate date diff for rendering using calendar days
+  // Ensure we have a real Date object (Qwik serializes dates in stores/props to strings)
+  const dateObj = new Date(job.publishDate);
   const now = new Date();
-  const diffTime = Math.abs(now.getTime() - job.publishDate.getTime());
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  
+  // Create dates at midnight for accurate day-by-day comparison
+  const todayAtMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const publishDateAtMidnight = new Date(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate());
+  
+  const diffTime = todayAtMidnight.getTime() - publishDateAtMidnight.getTime();
+  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+  
+  const rtf = new Intl.RelativeTimeFormat(lang, { numeric: 'auto' });
+  const dtf = new Intl.DateTimeFormat(lang, { day: 'numeric', month: 'short' });
+
+  const dateDisplay = diffDays < 7 
+    ? rtf.format(-diffDays, 'day') 
+    : dtf.format(dateObj);
   
 
   const companyScore = getCompanyScoreFromState(jobsContext.companies, job.company);
@@ -80,6 +115,7 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
                 <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
                   {job.company}
                 </span>
+
                 <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200">
                   {companyScore}% {t('job.trust_score')}
                 </span>
@@ -90,10 +126,7 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
         
         <div class="text-right">
           <span class="text-xs text-gray-500 dark:text-gray-400">
-            {diffDays === 1 ? t('job.today') : 
-             diffDays === 2 ? t('job.yesterday') :
-             diffDays <= 7 ? `${diffDays - 1} giorni fa` :
-             job.publishDate.toLocaleDateString('it-IT', { day: 'numeric', month: 'short' })}
+            {dateDisplay}
           </span>
           {job.remote && (
             <div class="mt-1">
@@ -125,7 +158,7 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
               job.seniority === 'mid' ? 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200' :
               'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200'
             }`}>
-              {job.seniority === 'mid' ? 'Mid-level' : job.seniority}
+              {t('jobs.' + job.seniority)}
             </span>
           </div>
         </div>
@@ -136,24 +169,21 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
           </span>
           <div class="mt-1">
             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200">
-              {job.availability === 'full-time' ? 'Full-time' : 
-               job.availability === 'part-time' ? 'Part-time' : 'Contract'}
+              {t('jobs.' + job.availability)}
             </span>
           </div>
         </div>
         
-        {job.location && (
-          <div>
-            <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
-              {t('job.location')}
+        <div>
+          <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+            {t('job.location')}
+          </span>
+          <div class="mt-1">
+            <span class="text-sm text-gray-900 dark:text-gray-100">
+               {job.location || t('job.location_not_specified') || '-'}
             </span>
-            <div class="mt-1">
-              <span class="text-sm text-gray-900 dark:text-gray-100">
-                {job.location}
-              </span>
-            </div>
           </div>
-        )}
+        </div>
       </div>
 
       {/* Salary */}
@@ -228,7 +258,7 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
           >
             <span class="text-lg">💬</span>
             <span class="text-sm font-medium">
-              {getCommentsFromState(jobsContext.comments, job.id).length}
+              {job.comments_count !== undefined ? job.comments_count : getCommentsFromState(jobsContext.comments, job.id).length}
             </span>
           </button>
         </div>
@@ -248,20 +278,7 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
       </div>
 
       {/* Login prompt for non-authenticated users */}
-      {!isAuthenticated && (
-        <div class="mt-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-md">
-          <p class="text-xs text-gray-600 dark:text-gray-300 text-center">
-            <a href="/login" class="text-indigo-600 hover:text-indigo-500 font-medium">
-              {t('common.login')}
-            </a>
-            {' '}{t('common.or')}{' '}
-            <a href="/register" class="text-indigo-600 hover:text-indigo-500 font-medium">
-              {t('common.register')}
-            </a>
-            {' '}{t('auth.login_to_interact')}
-          </p>
-        </div>
-      )}
+      {!isAuthenticated && <LoginPrompt />}
     </div>
   );
 });

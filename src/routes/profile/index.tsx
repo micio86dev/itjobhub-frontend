@@ -19,6 +19,7 @@ interface EditFormData {
 export default component$(() => {
   const auth = useAuth();
   const i18n = useI18n();
+  const lang = i18n.currentLanguage;
   const t = useTranslate();
   
   // Extract values to avoid serialization issues
@@ -193,18 +194,18 @@ export default component$(() => {
 
   const formatAvailability = $((availability: string) => {
     switch (availability) {
-      case 'full-time': return t('jobs.full_time');
-      case 'part-time': return t('jobs.part_time');
-      case 'busy': return t('profile.occupied');
+      case 'full-time': return translate('jobs.full_time', lang);
+      case 'part-time': return translate('jobs.part_time', lang);
+      case 'busy': return translate('profile.occupied', lang);
       default: return availability;
     }
   });
 
   const formatSeniority = $((seniority: string) => {
     switch (seniority) {
-      case 'junior': return t('jobs.junior');
-      case 'mid': return t('jobs.mid');
-      case 'senior': return t('jobs.senior');
+      case 'junior': return translate('jobs.junior', lang);
+      case 'mid': return translate('jobs.mid', lang);
+      case 'senior': return translate('jobs.senior', lang);
       default: return seniority;
     }
   });

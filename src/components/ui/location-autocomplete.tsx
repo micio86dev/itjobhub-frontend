@@ -1,9 +1,9 @@
-import { component$, useSignal, useVisibleTask$, $ } from '@builder.io/qwik';
+import { component$, useSignal, useVisibleTask$, PropFunction } from '@builder.io/qwik';
 
 interface Props {
   value: string;
-  onLocationSelect$: (location: string, coordinates: { lat: number; lng: number }) => void;
-  onInput$: (value: string) => void;
+  onLocationSelect$: PropFunction<(location: string, coordinates: { lat: number; lng: number }) => void>;
+  onInput$: PropFunction<(value: string) => void>;
   class?: string; // Accept class prop for styling
 }
 

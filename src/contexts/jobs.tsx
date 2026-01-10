@@ -1,4 +1,5 @@
-import { createContextId, Slot, component$, useStore, useContext, useContextProvider, useSignal, useTask$, Signal } from "@builder.io/qwik";
+import { createContextId, Slot, component$, useStore, useContext, useContextProvider, useSignal, useTask$, Signal, $, QRL } from "@builder.io/qwik";
+import { useAuth } from "./auth";
 
 export interface JobListing {
   id: string;
@@ -6,8 +7,8 @@ export interface JobListing {
   company: string;
   description?: string;
   skills: string[];
-  seniority: 'junior' | 'mid' | 'senior';
-  availability: 'full-time' | 'part-time' | 'contract';
+  seniority: 'junior' | 'mid' | 'senior' | 'unknown';
+  availability: 'full_time' | 'part_time' | 'contract' | 'not_specified';
   location?: string;
   remote?: boolean;
   salary?: string;
@@ -16,6 +17,9 @@ export interface JobListing {
   dislikes: number;
   publishDate: Date;
   companyLogo?: string;
+  language?: string;
+  comments_count?: number;
+  user_reaction?: 'LIKE' | 'DISLIKE' | null;
 }
 
 export interface Comment {
@@ -37,10 +41,14 @@ export interface Company {
 
 export interface LikeJobRequest {
   jobId: string;
+  remove?: boolean;
+  wasDisliked?: boolean;
 }
 
 export interface DislikeJobRequest {
   jobId: string;
+  remove?: boolean;
+  wasLiked?: boolean;
 }
 
 export interface AddCommentRequest {
@@ -57,6 +65,7 @@ export interface JobsState {
   likeJobSignal: Signal<LikeJobRequest | null>;
   dislikeJobSignal: Signal<DislikeJobRequest | null>;
   addCommentSignal: Signal<AddCommentRequest | null>;
+  fetchComments$: QRL<(jobId: string) => Promise<void>>;
 }
 
 export interface JobFilters {
@@ -66,356 +75,339 @@ export interface JobFilters {
   remote?: boolean;
   query?: string;
   dateRange?: string;
+  location_geo?: { lat: number; lng: number };
+  radius_km?: number;
+  languages?: string[];
+  location?: string;
 }
 
 export const JobsContext = createContextId<JobsState>('jobs-context');
 
-// Mock data
-const mockJobs: JobListing[] = [
-  {
-    id: '1',
-    title: 'Senior Full Stack Developer',
-    company: 'Google',
-    description: 'Sviluppa applicazioni web scalabili utilizzando React e Node.js',
-    skills: ['React', 'Node.js', 'TypeScript', 'MongoDB', 'AWS'],
-    seniority: 'senior',
-    availability: 'full-time',
-    location: 'Milano',
-    remote: true,
-    salary: '€80,000 - €120,000',
-    externalLink: 'https://careers.google.com/jobs/123',
-    likes: 45,
-    dislikes: 3,
-    publishDate: new Date(2024, 8, 10),
-    companyLogo: '/logos/google.png'
-  },
-  {
-    id: '2',
-    title: 'Frontend Developer React',
-    company: 'Meta',
-    description: 'Crea interfacce utente moderne con React e TypeScript',
-    skills: ['React', 'TypeScript', 'CSS', 'JavaScript', 'GraphQL'],
-    seniority: 'mid',
-    availability: 'full-time',
-    location: 'Roma',
-    remote: false,
-    salary: '€55,000 - €75,000',
-    externalLink: 'https://careers.meta.com/jobs/456',
-    likes: 32,
-    dislikes: 2,
-    publishDate: new Date(2024, 8, 9),
-  },
-  {
-    id: '3',
-    title: 'Junior Python Developer',
-    company: 'Spotify',
-    skills: ['Python', 'Django', 'PostgreSQL', 'Docker'],
-    seniority: 'junior',
-    availability: 'full-time',
-    location: 'Torino',
-    remote: true,
-    salary: '€35,000 - €45,000',
-    externalLink: 'https://jobs.spotify.com/job/789',
-    likes: 28,
-    dislikes: 1,
-    publishDate: new Date(2024, 8, 8),
-  },
-  {
-    id: '4',
-    title: 'DevOps Engineer',
-    company: 'Amazon',
-    skills: ['AWS', 'Docker', 'Kubernetes', 'Terraform', 'Linux'],
-    seniority: 'mid',
-    availability: 'full-time',
-    location: 'Milano',
-    remote: true,
-    salary: '€60,000 - €85,000',
-    externalLink: 'https://amazon.jobs/en/job/101',
-    likes: 41,
-    dislikes: 4,
-    publishDate: new Date(2024, 8, 7),
-  },
-  {
-    id: '5',
-    title: 'Mobile Developer iOS',
-    company: 'Apple',
-    skills: ['Swift', 'iOS', 'Xcode', 'UIKit', 'SwiftUI'],
-    seniority: 'mid',
-    availability: 'full-time',
-    location: 'Milano',
-    remote: false,
-    externalLink: 'https://jobs.apple.com/job/102',
-    likes: 38,
-    dislikes: 2,
-    publishDate: new Date(2024, 8, 6),
-  },
-  {
-    id: '6',
-    title: 'Backend Developer Node.js',
-    company: 'Netflix',
-    skills: ['Node.js', 'Express', 'MongoDB', 'Redis', 'Docker'],
-    seniority: 'senior',
-    availability: 'full-time',
-    location: 'Roma',
-    remote: true,
-    salary: '€70,000 - €95,000',
-    externalLink: 'https://jobs.netflix.com/job/103',
-    likes: 52,
-    dislikes: 5,
-    publishDate: new Date(2024, 8, 5),
-  },
-  {
-    id: '7',
-    title: 'Data Scientist',
-    company: 'Microsoft',
-    skills: ['Python', 'Machine Learning', 'TensorFlow', 'SQL', 'Power BI'],
-    seniority: 'mid',
-    availability: 'full-time',
-    location: 'Napoli',
-    remote: true,
-    salary: '€65,000 - €90,000',
-    externalLink: 'https://careers.microsoft.com/job/104',
-    likes: 34,
-    dislikes: 3,
-    publishDate: new Date(2024, 8, 4),
-  },
-  {
-    id: '8',
-    title: 'Frontend Developer Vue.js',
-    company: 'Airbnb',
-    skills: ['Vue.js', 'Nuxt.js', 'JavaScript', 'CSS', 'Vuex'],
-    seniority: 'junior',
-    availability: 'part-time',
-    location: 'Firenze',
-    remote: true,
-    salary: '€25,000 - €35,000',
-    externalLink: 'https://careers.airbnb.com/job/105',
-    likes: 19,
-    dislikes: 1,
-    publishDate: new Date(2024, 8, 3),
-  },
-  {
-    id: '9',
-    title: 'Full Stack Developer',
-    company: 'Stripe',
-    skills: ['React', 'Ruby on Rails', 'PostgreSQL', 'Redis', 'AWS'],
-    seniority: 'senior',
-    availability: 'full-time',
-    location: 'Milano',
-    remote: true,
-    salary: '€85,000 - €110,000',
-    externalLink: 'https://stripe.com/jobs/job/106',
-    likes: 47,
-    dislikes: 4,
-    publishDate: new Date(2024, 8, 2),
-  },
-  {
-    id: '10',
-    title: 'Android Developer',
-    company: 'Uber',
-    skills: ['Kotlin', 'Android', 'Java', 'RxJava', 'Retrofit'],
-    seniority: 'mid',
-    availability: 'full-time',
-    location: 'Roma',
-    remote: false,
-    salary: '€50,000 - €70,000',
-    externalLink: 'https://uber.com/careers/job/107',
-    likes: 26,
-    dislikes: 2,
-    publishDate: new Date(2024, 8, 1),
-  },
-  {
-    id: '11',
-    title: 'QA Engineer',
-    company: 'Tesla',
-    skills: ['Selenium', 'Jest', 'Python', 'JavaScript', 'Cypress'],
-    seniority: 'junior',
-    availability: 'full-time',
-    location: 'Bologna',
-    remote: true,
-    salary: '€40,000 - €55,000',
-    externalLink: 'https://tesla.com/careers/job/108',
-    likes: 22,
-    dislikes: 1,
-    publishDate: new Date(2024, 7, 31),
-  },
-  {
-    id: '12',
-    title: 'Cloud Architect',
-    company: 'Adobe',
-    skills: ['AWS', 'Azure', 'GCP', 'Terraform', 'Microservices'],
-    seniority: 'senior',
-    availability: 'full-time',
-    location: 'Milano',
-    remote: true,
-    salary: '€90,000 - €130,000',
-    externalLink: 'https://adobe.com/careers/job/109',
-    likes: 56,
-    dislikes: 6,
-    publishDate: new Date(2024, 7, 30),
-  }
-];
-
-const mockComments: Comment[] = [
-  {
-    id: '1',
-    jobId: '1',
-    author: { name: 'Marco R.', avatar: '/avatars/marco.jpg' },
-    text: 'Ottima posizione! Ho fatto il colloquio la settimana scorsa, molto professionale.',
-    date: new Date(2024, 8, 11, 14, 30)
-  },
-  {
-    id: '2',
-    jobId: '1',
-    author: { name: 'Sara L.' },
-    text: 'Qualcuno sa se richiedono esperienza con AWS o se va bene anche Azure?',
-    date: new Date(2024, 8, 11, 16, 15)
-  },
-  {
-    id: '3',
-    jobId: '2',
-    author: { name: 'Giuseppe M.' },
-    text: 'Meta ha un ottimo ambiente di lavoro. Consiglio vivamente!',
-    date: new Date(2024, 8, 10, 9, 45)
-  }
-];
-
-const mockCompanies: Company[] = [
-  { name: 'Google', trustScore: 95, totalRatings: 1250 },
-  { name: 'Meta', trustScore: 88, totalRatings: 890 },
-  { name: 'Spotify', trustScore: 92, totalRatings: 450 },
-  { name: 'Amazon', trustScore: 78, totalRatings: 2100 },
-  { name: 'Apple', trustScore: 91, totalRatings: 1800 },
-  { name: 'Netflix', trustScore: 89, totalRatings: 650 },
-  { name: 'Microsoft', trustScore: 87, totalRatings: 1500 },
-  { name: 'Airbnb', trustScore: 85, totalRatings: 400 },
-  { name: 'Stripe', trustScore: 93, totalRatings: 300 },
-  { name: 'Uber', trustScore: 76, totalRatings: 800 },
-  { name: 'Tesla', trustScore: 82, totalRatings: 600 },
-  { name: 'Adobe', trustScore: 86, totalRatings: 750 }
-];
-
 export const JobsProvider = component$(() => {
-  // Create signals for actions
   const likeJobSignal = useSignal<LikeJobRequest | null>(null);
   const dislikeJobSignal = useSignal<DislikeJobRequest | null>(null);
   const addCommentSignal = useSignal<AddCommentRequest | null>(null);
 
-  const jobsState: JobsState = useStore<JobsState>({
-    jobs: [], // Start empty
-    comments: [...mockComments],
-    companies: [...mockCompanies],
+  const jobsState = useStore<JobsState>({
+    jobs: [],
+    comments: [],
+    companies: [],
     likeJobSignal,
     dislikeJobSignal,
     addCommentSignal,
+    fetchComments$: $(async () => {}), // Initialize with a no-op QRL
   });
 
-  // Fetch jobs from API
+  const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:3001';
+
+
+  // Assign the method inside useTask to avoid state mutation during render
+  useTask$(() => {
+    jobsState.fetchComments$ = $(async (jobId: string) => {
+      try {
+        const response = await fetch(`${API_URL}/comments/job/${jobId}`);
+        if (!response.ok) throw new Error('Failed to fetch comments');
+        const result = await response.json();
+        if (result.success && result.data.comments) {
+          const fetched = result.data.comments.map((c: any) => ({
+            id: c.id,
+            jobId: jobId,
+            author: {
+              name: `${c.user.first_name} ${c.user.last_name}`,
+              avatar: undefined
+            },
+            text: c.content,
+            date: new Date(c.created_at)
+          }));
+          
+          const others = jobsState.comments.filter(c => c.jobId !== jobId);
+          jobsState.comments = [...others, ...fetched];
+        }
+      } catch (error) {
+        console.error('Error fetching comments:', error);
+      }
+    });
+  });
+  
+  const auth = useAuth();
+
   useTask$(async () => {
+    // We no longer track auth.user?.languages here because we want to load ALL jobs globally
+    // and only filter for personality in the UI/getPersonalizedJobs function.
+    
     try {
       console.log('Fetching jobs from API...');
-      const response = await fetch('http://127.0.0.1:3001/jobs?limit=200');
-      console.log('API Response status:', response.status);
+      const url = new URL(`${API_URL}/jobs`);
+      url.searchParams.append('limit', '1000');
+      
+      const response = await fetch(url.toString());
       
       if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Network response was not ok: ${response.status} ${errorText}`);
+        throw new Error(`Network response was not ok: ${response.status}`);
       }
       
       const result = await response.json();
       
       if (result.success && result.data && result.data.jobs) {
-        jobsState.jobs = result.data.jobs.map((job: any) => ({
-          id: job.id,
-          title: job.title,
-          company: job.company?.name || 'Unknown Company',
-          description: job.description,
-          skills: job.technical_skills && job.technical_skills.length > 0 ? job.technical_skills : job.skills,
-          seniority: (job.seniority || 'mid').toLowerCase(),
-          availability: (job.employment_type || 'full-time').toLowerCase(),
-          location: job.location,
-          remote: job.remote || job.is_remote || false,
-          salary: job.salary_min ? `€${job.salary_min.toLocaleString()}${job.salary_max ? ` - €${job.salary_max.toLocaleString()}` : ''}` : undefined,
-          externalLink: job.link || '#',
-          likes: 0, // Backend might not have this yet
-          dislikes: 0,
-          publishDate: new Date(job.created_at || Date.now()),
-          companyLogo: job.company?.logo_url || job.company?.logo
-        })).sort((a: any, b: any) => b.publishDate.getTime() - a.publishDate.getTime());
+        const processedJobs = result.data.jobs.map((job: any) => {
+          let desc = job.description || "";
+          desc = desc
+            .replace(/^(&nbsp;|\s|\.|\u00A0)+/g, '')
+            .replace(/^(\.\.\.)+/g, '')
+            .trim();
+
+          return {
+            id: job.id,
+            title: job.title,
+            company: job.company?.name || 'Unknown Company',
+            description: desc,
+            skills: job.technical_skills && job.technical_skills.length > 0 ? job.technical_skills : job.skills,
+            seniority: (job.seniority || 'unknown').toLowerCase() as any,
+            availability: (job.employment_type || 'not_specified').toLowerCase().replace('-', '_') as any,
+            location: job.location,
+            remote: job.remote || job.is_remote || false,
+            salary: job.salary_min ? `€${job.salary_min.toLocaleString()}${job.salary_max ? ` - €${job.salary_max.toLocaleString()}` : ''}` : undefined,
+            externalLink: job.link ? (job.link.startsWith('http') ? job.link : `https://${job.link}`) : '#',
+            likes: job.likes || 0,
+            dislikes: job.dislikes || 0,
+            user_reaction: job.user_reaction,
+            comments_count: job.comments_count || 0,
+            publishDate: new Date(job.published_at || job.created_at || Date.now()),
+            companyLogo: job.company?.logo_url || job.company?.logo,
+            language: job.language,
+            location_geo: job.location_geo // Preserving geo data for client-side radius search
+          };
+        });
+        
+        // Update companies store with real data
+        const realCompanies = result.data.jobs
+          .map((j: any) => j.company)
+          .filter((c: any) => c)
+          .map((c: any) => ({
+            name: c.name,
+            trustScore: c.trustScore || 80,
+            totalRatings: c.totalRatings || 0
+          }));
+          
+        // Merge with existing unique companies
+        const existingNames = new Set(jobsState.companies.map(c => c.name));
+        realCompanies.forEach((c: any) => {
+          if (!existingNames.has(c.name)) {
+            jobsState.companies.push(c);
+            existingNames.add(c.name);
+          } else {
+             // Update existing
+             const existing = jobsState.companies.find(ec => ec.name === c.name);
+             if (existing) {
+               existing.trustScore = c.trustScore || 80;
+               existing.totalRatings = c.totalRatings || 0;
+             }
+          }
+        });
+
+        jobsState.jobs = processedJobs.sort((a: any, b: any) => b.publishDate.getTime() - a.publishDate.getTime());
       }
     } catch (error) {
       console.error('Failed to fetch jobs from API:', error);
-      // Fallback to mock data if API fails to keep UI functional
-      jobsState.jobs = [...mockJobs].sort((a, b) => b.publishDate.getTime() - a.publishDate.getTime());
+      jobsState.jobs = [];
     }
   });
 
-  // Handle like job requests
   useTask$(async ({ track }) => {
     const likeReq = track(() => likeJobSignal.value);
     if (likeReq) {
       const job = jobsState.jobs.find((j: JobListing) => j.id === likeReq.jobId);
       if (job) {
-        job.likes++;
-        // Update company trust score
+        // Optimistic update
         const company = jobsState.companies.find((c: Company) => c.name === job.company);
-        if (company) {
-          company.trustScore = Math.min(100, company.trustScore + 0.1);
-          company.totalRatings++;
+        
+        if (likeReq.remove) {
+          job.likes = Math.max(0, job.likes - 1);
+          job.user_reaction = null;
+          if (company) {
+            company.trustScore = Math.max(0, company.trustScore - 0.1);
+            company.totalRatings = Math.max(0, company.totalRatings - 1);
+          }
+        } else {
+          // Add Like
+          job.likes++;
+          job.user_reaction = 'LIKE';
+          // If swapping from dislike
+          if (likeReq.wasDisliked) {
+            job.dislikes = Math.max(0, job.dislikes - 1);
+            if (company) {
+               company.trustScore = Math.min(100, company.trustScore + 0.2); // +0.1 remove dislike, +0.1 add like
+               // totalRatings same
+            }
+          } else {
+            // pure like
+            if (company) {
+              company.trustScore = Math.min(100, company.trustScore + 0.1);
+              company.totalRatings++;
+            }
+          }
+        }
+
+        // API Call
+        try {
+          const token = auth.token;
+          if (token) {
+            if (likeReq.remove) {
+               await fetch(`${API_URL}/likes?jobId=${likeReq.jobId}`, {
+                method: 'DELETE',
+                headers: {
+                  'Authorization': `Bearer ${token}`
+                }
+              });
+            } else {
+              await fetch(`${API_URL}/likes`, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ jobId: likeReq.jobId, type: 'LIKE' })
+              });
+            }
+          }
+        } catch (error) {
+          console.error('Failed to persist like action:', error);
         }
       }
       likeJobSignal.value = null;
     }
   });
 
-  // Handle dislike job requests
   useTask$(async ({ track }) => {
     const dislikeReq = track(() => dislikeJobSignal.value);
     if (dislikeReq) {
       const job = jobsState.jobs.find((j: JobListing) => j.id === dislikeReq.jobId);
       if (job) {
-        job.dislikes++;
-        // Update company trust score
+        // Optimistic update
         const company = jobsState.companies.find((c: Company) => c.name === job.company);
-        if (company) {
-          company.trustScore = Math.max(0, company.trustScore - 0.2);
-          company.totalRatings++;
+        
+        if (dislikeReq.remove) {
+          job.dislikes = Math.max(0, job.dislikes - 1);
+          job.user_reaction = null;
+           if (company) {
+             company.trustScore = Math.min(100, company.trustScore + 0.1);
+             company.totalRatings = Math.max(0, company.totalRatings - 1);
+           }
+        } else {
+          // Add Dislike
+          job.dislikes++;
+          job.user_reaction = 'DISLIKE';
+          // If swapping from like
+          if (dislikeReq.wasLiked) {
+            job.likes = Math.max(0, job.likes - 1);
+            if (company) {
+              company.trustScore = Math.max(0, company.trustScore - 0.2);
+              // totalRatings same
+            }
+          } else {
+            // pure dislike
+            if (company) {
+              company.trustScore = Math.max(0, company.trustScore - 0.1);
+              company.totalRatings++;
+            }
+          }
+        }
+
+        // API Call
+        try {
+          const token = auth.token;
+          if (token) {
+            if (dislikeReq.remove) {
+               await fetch(`${API_URL}/likes?jobId=${dislikeReq.jobId}`, {
+                method: 'DELETE',
+                headers: {
+                  'Authorization': `Bearer ${token}`
+                }
+              });
+            } else {
+              await fetch(`${API_URL}/likes`, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ jobId: dislikeReq.jobId, type: 'DISLIKE' })
+              });
+            }
+          }
+        } catch (error) {
+           console.error('Failed to persist dislike action:', error);
         }
       }
       dislikeJobSignal.value = null;
     }
   });
 
-  // Handle add comment requests
   useTask$(async ({ track }) => {
-    const commentReq = track(() => addCommentSignal.value);
+    const commentReq = track(() => jobsState.addCommentSignal.value);
     if (commentReq) {
-      const newComment: Comment = {
-        id: `comment-${Date.now()}`,
-        jobId: commentReq.jobId,
-        author: commentReq.author,
-        text: commentReq.text,
-        date: new Date()
-      };
-      jobsState.comments.push(newComment);
-      addCommentSignal.value = null;
+      try {
+        const token = auth.token;
+        if (!token) throw new Error("No token found");
+        
+        console.log('Adding comment to job:', commentReq.jobId, 'using token:', token ? 'exists' : 'null');
+        const response = await fetch(`${API_URL}/comments`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            jobId: commentReq.jobId,
+            content: commentReq.text
+          })
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.message || `Failed to add comment: ${response.status}`);
+        }
+
+        const result = await response.json();
+        if (result.success) {
+          jobsState.comments.push({
+            id: result.data.id,
+            jobId: commentReq.jobId,
+            author: commentReq.author,
+            text: commentReq.text,
+            date: new Date(result.data.created_at)
+          });
+        }
+      } catch (error) {
+        console.error('Error adding comment:', error);
+      } finally {
+        jobsState.addCommentSignal.value = null;
+      }
     }
   });
 
   useContextProvider(JobsContext, jobsState);
-
   return <Slot />;
 });
 
-export const useJobs = () => {
-  return useContext(JobsContext);
+export const useJobs = () => useContext(JobsContext);
+
+// Haversine formula to calculate distance between two points in km
+const getDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
+  const R = 6371; // Earth's radius in km
+  const dLat = (lat2 - lat1) * (Math.PI / 180);
+  const dLon = (lon2 - lon1) * (Math.PI / 180);
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
 };
 
-export const filterJobs = (jobs: JobListing[], page = 1, limit = 10, filters?: JobFilters) => {
+export const filterJobs = (jobs: any[], page = 1, limit = 1000, filters?: JobFilters) => {
   let filteredJobs = [...jobs];
-  
   if (filters) {
-    // Text search
     if (filters.query) {
       const query = filters.query.toLowerCase();
       filteredJobs = filteredJobs.filter(job =>
@@ -425,105 +417,168 @@ export const filterJobs = (jobs: JobListing[], page = 1, limit = 10, filters?: J
         (job.description && job.description.toLowerCase().includes(query))
       );
     }
-
-    // Skills filter
     if (filters.skills?.length) {
       filteredJobs = filteredJobs.filter(job =>
-        job.skills && Array.isArray(job.skills) && job.skills.some((skill: string) =>
+        job.skills && job.skills.some((skill: string) =>
           filters.skills!.some((filterSkill: string) =>
             skill.toLowerCase().includes(filterSkill.toLowerCase())
           )
         )
       );
     }
-
-    // Seniority filter
-    if (filters.seniority) {
-      filteredJobs = filteredJobs.filter(job => job.seniority === filters.seniority);
-    }
-
-    // Availability filter
-    if (filters.availability) {
-      filteredJobs = filteredJobs.filter(job => job.availability === filters.availability);
-    }
-
-    // Remote filter
-    if (filters.remote !== undefined) {
-      filteredJobs = filteredJobs.filter(job => job.remote === filters.remote);
-    }
-
-    // Date range filter
+    if (filters.seniority) filteredJobs = filteredJobs.filter(job => job.seniority === filters.seniority);
+    if (filters.availability) filteredJobs = filteredJobs.filter(job => job.availability === filters.availability);
+    if (filters.remote !== undefined) filteredJobs = filteredJobs.filter(job => job.remote === filters.remote);
     if (filters.dateRange) {
-      const now = new Date();
       const filterDate = new Date();
-      
-      switch (filters.dateRange) {
-        case 'today':
-          filterDate.setHours(0, 0, 0, 0);
-          break;
-        case 'week':
-          filterDate.setDate(now.getDate() - 7);
-          break;
-        case 'month':
-          filterDate.setMonth(now.getMonth() - 1);
-          break;
-        case '3months':
-          filterDate.setMonth(now.getMonth() - 3);
-          break;
-        default:
-          filterDate.setFullYear(2000); // Show all
-      }
-      
+      if (filters.dateRange === 'today') filterDate.setHours(0, 0, 0, 0);
+      else if (filters.dateRange === 'week') filterDate.setDate(new Date().getDate() - 7);
+      else if (filters.dateRange === 'month') filterDate.setMonth(new Date().getMonth() - 1);
+      else if (filters.dateRange === '3months') filterDate.setMonth(new Date().getMonth() - 3);
+      else filterDate.setFullYear(2000);
       filteredJobs = filteredJobs.filter(job => job.publishDate >= filterDate);
     }
+    if (filters.languages?.length) {
+       const langMapping: { [key: string]: string } = {
+        'italian': 'it', 'italiano': 'it',
+        'english': 'en', 'inglese': 'en',
+        'spanish': 'es', 'spagnolo': 'es',
+        'french': 'fr', 'francese': 'fr',
+        'german': 'de', 'tedesco': 'de',
+        'portuguese': 'pt', 'portoghese': 'pt',
+        'russian': 'ru', 'russo': 'ru',
+        'chinese': 'zh', 'cinese': 'zh',
+        'japanese': 'ja', 'giapponese': 'ja',
+        'arabic': 'ar', 'arabo': 'ar',
+        'dutch': 'nl', 'olandese': 'nl',
+        'swedish': 'sv', 'svedese': 'sv'
+      };
+
+      const targetCodes = new Set<string>();
+      filters.languages.forEach(l => {
+        const lower = l.toLowerCase();
+        targetCodes.add(lower);
+        if (langMapping[lower]) targetCodes.add(langMapping[lower]);
+      });
+
+      filteredJobs = filteredJobs.filter(job => {
+        if (!job.language) return true;
+        const jobLang = job.language.toLowerCase();
+        return Array.from(targetCodes).some(code => 
+          jobLang === code || (langMapping[jobLang] && targetCodes.has(langMapping[jobLang]))
+        );
+      });
+    }
+  }
+  const startIndex = (page - 1) * limit;
+  
+  // Final geo filtering if coordinates provided
+  if (filters?.location_geo && filters.radius_km) {
+    const { lat, lng } = filters.location_geo;
+    filteredJobs = filteredJobs.filter(job => {
+      // If the job has specific coordinates, use them
+      if (job.location_geo?.coordinates && job.location_geo.coordinates.length >= 2) {
+        const [jobLng, jobLat] = job.location_geo.coordinates;
+        const dist = getDistance(lat, lng, jobLat, jobLng);
+        return dist <= filters.radius_km!;
+      }
+      return true; // Keep jobs without geo? Or exclude? User says "sfruttando le coordinate gps presenti". 
+                   // Usually keep others if location name matches? 
+                   // For now, if someone searches by city, we only want those in radius.
+    });
   }
 
-  const startIndex = (page - 1) * limit;
   return filteredJobs.slice(startIndex, startIndex + limit);
 };
 
-export const getPersonalizedJobs = (jobs: JobListing[], userSkills?: string[], userAvailability?: string) => {
-  if (!userSkills?.length && !userAvailability) {
-    return jobs;
+export const getPersonalizedJobs = (jobs: JobListing[], userSkills?: string[], userSeniority?: string, userLanguages?: string[], fallbackLanguage?: string) => {
+  let filteredJobs = [...jobs];
+
+  const targetLanguages = (userLanguages && userLanguages.length > 0) 
+    ? userLanguages 
+    : (fallbackLanguage ? [fallbackLanguage] : []);
+
+  // 1. Filter by languages
+  if (targetLanguages.length > 0) {
+    const langMapping: { [key: string]: string } = {
+      'italian': 'it', 'italiano': 'it',
+      'english': 'en', 'inglese': 'en',
+      'spanish': 'es', 'spagnolo': 'es',
+      'french': 'fr', 'francese': 'fr',
+      'german': 'de', 'tedesco': 'de',
+      'portuguese': 'pt', 'portoghese': 'pt',
+      'russian': 'ru', 'russo': 'ru',
+      'chinese': 'zh', 'cinese': 'zh',
+      'japanese': 'ja', 'giapponese': 'ja',
+      'arabic': 'ar', 'arabo': 'ar',
+      'dutch': 'nl', 'olandese': 'nl',
+      'swedish': 'sv', 'svedese': 'sv'
+    };
+
+    const targetCodes = new Set<string>();
+    targetLanguages.forEach(l => {
+      const lower = l.toLowerCase();
+      targetCodes.add(lower);
+      if (langMapping[lower]) targetCodes.add(langMapping[lower]);
+    });
+
+    filteredJobs = filteredJobs.filter(job => {
+      if (!job.language) return true;
+      const jobLang = job.language.toLowerCase();
+      return Array.from(targetCodes).some(code => 
+        jobLang === code || (langMapping[jobLang] && targetCodes.has(langMapping[jobLang]))
+      );
+    });
   }
 
-  const scoredJobs = jobs.map((job) => {
-    let score = 0;
+  // 2. Filter by Seniority (if specified)
+  if (userSeniority) {
+    const normalizeSeniority = (s: string) => s.toLowerCase().trim();
+    const userSen = normalizeSeniority(userSeniority);
+    
+    filteredJobs = filteredJobs.filter(job => {
+      if (!job.seniority || job.seniority === 'unknown') return true; // Keep unknown seniority
+      return normalizeSeniority(job.seniority) === userSen;
+    });
+  }
 
-    // Skills matching
+  // 3. Filter by Skills (if specified) - Must match at least one skill
+  if (userSkills && userSkills.length > 0) {
+     filteredJobs = filteredJobs.filter(job => {
+        if (!job.skills || job.skills.length === 0) return true; // Keep jobs with no skills specified
+        return job.skills.some(skill => 
+          userSkills.some(userSkill => skill.toLowerCase().includes(userSkill.toLowerCase()))
+        );
+     });
+  }
+
+  if (!userSkills?.length && !userSeniority) return filteredJobs;
+  
+  // 4. Scoring for sort order
+  const scoredJobs = filteredJobs.map((job) => {
+    let score = 0;
     if (userSkills?.length) {
-      const matchingSkills = job.skills.filter(skill => 
-        userSkills.some(userSkill => 
-          skill.toLowerCase().includes(userSkill.toLowerCase())
-        )
-      );
+      const matchingSkills = job.skills.filter(skill => userSkills.some(userSkill => skill.toLowerCase().includes(userSkill.toLowerCase())));
       score += (matchingSkills.length / userSkills.length) * 50;
     }
-
-    // Availability matching
-    if (userAvailability && job.availability === userAvailability) {
-      score += 25;
-    }
-
-    // Recent posts get bonus
-    const daysSincePosted = Math.floor(
-      (new Date().getTime() - job.publishDate.getTime()) / (1000 * 60 * 60 * 24)
-    );
+    if (userSeniority && job.seniority && job.seniority.toLowerCase() === userSeniority.toLowerCase()) score += 30; // Boost for exact seniority match
+    
+    // Recency boost
+    const daysSincePosted = Math.floor((new Date().getTime() - job.publishDate.getTime()) / (1000 * 60 * 60 * 24));
     score += Math.max(0, 10 - daysSincePosted);
-
+    
     return { ...job, score };
   });
 
-  return scoredJobs
-    .sort((a: JobListing & {score: number}, b: JobListing & {score: number}) => b.score - a.score || b.publishDate.getTime() - a.publishDate.getTime())
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    .map(({ score: _, ...job }: JobListing & {score: number}) => job);
+  return scoredJobs.sort((a: any, b: any) => b.score - a.score || b.publishDate.getTime() - a.publishDate.getTime()).map((j: any) => {
+    const { score, ...job } = j;
+    void score;
+    return job;
+  });
 };
 
 export const getCommentsFromState = (comments: Comment[], jobId: string) => {
-  return comments
-    .filter((comment: Comment) => comment.jobId === jobId)
-    .sort((a: Comment, b: Comment) => b.date.getTime() - a.date.getTime());
+  return comments.filter((comment: Comment) => comment.jobId === jobId).sort((a: Comment, b: Comment) => b.date.getTime() - a.date.getTime());
 };
 
 export const getCompanyScoreFromState = (companies: Company[], companyName: string) => {
@@ -531,31 +586,12 @@ export const getCompanyScoreFromState = (companies: Company[], companyName: stri
   return company ? Math.round(company.trustScore) : 80;
 };
 
-
-
 export const useJobsActions = () => {
   const jobsState = useContext(JobsContext);
-  
-  const getJobs = (page = 1, limit = 10, filters?: JobFilters) => {
-    return filterJobs(jobsState.jobs, page, limit, filters);
-  };
-
-  const getFilteredJobs = (userSkills?: string[], userAvailability?: string) => {
-    return getPersonalizedJobs(jobsState.jobs, userSkills, userAvailability);
-  };
-
-  const getComments = (jobId: string) => {
-    return getCommentsFromState(jobsState.comments, jobId);
-  };
-
-  const getCompanyScore = (companyName: string) => {
-    return getCompanyScoreFromState(jobsState.companies, companyName);
-  };
-
   return {
-    getJobs,
-    getFilteredJobs, 
-    getComments,
-    getCompanyScore
+    getJobs: (page = 1, limit = 10, filters?: JobFilters) => filterJobs(jobsState.jobs, page, limit, filters),
+    getFilteredJobs: (userSkills?: string[], userAvailability?: string) => getPersonalizedJobs(jobsState.jobs, userSkills, userAvailability),
+    getComments: (jobId: string) => getCommentsFromState(jobsState.comments, jobId),
+    getCompanyScore: (companyName: string) => getCompanyScoreFromState(jobsState.companies, companyName)
   };
 };

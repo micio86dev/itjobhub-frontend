@@ -40,7 +40,7 @@ export default component$(() => {
           nav('/');
         }
       } else {
-        form.error = result.error || result.message || translate('auth.register_error', i18n.currentLanguage);
+        form.error = result.error || translate('auth.register_error', i18n.currentLanguage);
       }
       form.loading = false;
       auth.registerResult.value = null; // Clear result
