@@ -16,6 +16,7 @@ interface Stats {
     seniority: { label: string; value: number }[];
     employmentType: { label: string; value: number }[];
     trends: { label: string; value: number }[];
+    topSkills: { label: string; value: number }[];
   };
 }
 
@@ -37,9 +38,11 @@ export default component$(() => {
     try {
       state.isLoading = true;
       const url = new URL(`${import.meta.env.PUBLIC_API_URL}/admin/stats`);
-      if (state.selectedMonth > 0 && state.selectedYear > 0) {
-        url.searchParams.append('month', state.selectedMonth.toString());
+      if (state.selectedYear > 0) {
         url.searchParams.append('year', state.selectedYear.toString());
+      }
+      if (state.selectedMonth > 0) {
+        url.searchParams.append('month', state.selectedMonth.toString());
       }
 
       const response = await request(url.toString(), {
@@ -125,22 +128,24 @@ export default component$(() => {
         </div>
 
         <div class="flex items-center gap-3">
-          <select
-            value={state.selectedMonth}
-            onChange$={(e) => state.selectedMonth = parseInt((e.target as HTMLSelectElement).value)}
-            class="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
-          >
-            <option value="0">{lang === 'it' ? 'Totale' : 'Total'}</option>
-            {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
-              <option key={m} value={m}>
-                {new Date(2000, m - 1).toLocaleString(lang === 'it' ? 'it-IT' : 'en-US', { month: 'long' })}
-              </option>
-            ))}
-          </select>
+          {state.selectedYear > 0 && (
+            <select
+              value={state.selectedMonth}
+              onChange$={(e) => state.selectedMonth = parseInt((e.target as HTMLSelectElement).value)}
+              class="bg-white dark:bg-gray-800 dark:text-white border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
+            >
+              <option value="0">{lang === 'it' ? 'Totale' : 'Total'}</option>
+              {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
+                <option key={m} value={m}>
+                  {new Date(2000, m - 1).toLocaleString(lang === 'it' ? 'it-IT' : 'en-US', { month: 'long' })}
+                </option>
+              ))}
+            </select>
+          )}
           <select
             value={state.selectedYear}
             onChange$={(e) => state.selectedYear = parseInt((e.target as HTMLSelectElement).value)}
-            class="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
+            class="bg-white dark:bg-gray-800 dark:text-white border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
           >
             <option value="0">{lang === 'it' ? 'Sempre' : 'All-time'}</option>
             {Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i).map((y) => (
@@ -239,8 +244,21 @@ export default component$(() => {
 
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Jobs by Seniority */}
+        {/* Jobs by Seniority */}
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
-          <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-6">{t('admin.jobs_by_seniority')}</h3>
+          {(() => {
+            const topSeniority = stats.charts.seniority.length > 0 ? stats.charts.seniority[0] : null;
+            return (
+              <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-6">
+                {t('admin.jobs_by_seniority')}
+                {topSeniority && (
+                  <span class="ml-2 text-sm font-normal text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 px-2 py-1 rounded-full">
+                    Top: <span class="capitalize font-semibold">{topSeniority.label}</span>
+                  </span>
+                )}
+              </h3>
+            );
+          })()}
           <div class="space-y-4">
             {stats.charts.seniority.length > 0 ? (
               stats.charts.seniority.map((item) => {
@@ -298,7 +316,32 @@ export default component$(() => {
           </div>
         </div>
       </div>
-    </div>
+
+      {/* Top Skills Section */}
+      <div class="mb-8 mt-8 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+        <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-6">{t('admin.top_skills') || 'Top Skills'}</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {stats.charts.topSkills && stats.charts.topSkills.length > 0 ? (
+            stats.charts.topSkills.map((item, index) => (
+              <div key={item.label} class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <span class={`flex-shrink-0 w-6 h-6 flex items-center justify-center rounded-full text-xs font-bold ${index < 3 ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300' : 'bg-gray-200 text-gray-700 dark:bg-gray-600 dark:text-gray-300'}`}>
+                    {index + 1}
+                  </span>
+                  <span class="font-medium text-gray-900 dark:text-white">{item.label}</span>
+                </div>
+                <span class="text-indigo-600 dark:text-indigo-400 font-bold">{item.value}</span>
+              </div>
+            ))
+          ) : (
+            <div class="col-span-full text-center py-8 text-gray-500">
+              {t('admin.no_data')}
+            </div>
+          )}
+        </div>
+      </div>
+
+    </div >
   );
 });
 

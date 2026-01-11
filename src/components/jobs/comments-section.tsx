@@ -257,9 +257,9 @@ export const CommentsSection = component$<CommentsSectionProps>(({ jobId, onClos
                     </div>
                   </div>
                 ) : (
-                  <div class="bg-gray-50 rounded-lg p-3 group relative">
+                  <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-3 group relative">
                     <div class="flex items-center justify-between mb-1">
-                      <span class="text-sm font-medium text-gray-900">
+                      <span class="text-sm font-medium text-gray-900 dark:text-gray-100">
                         {comment.author.name}
                       </span>
                       <div class="flex items-center gap-2">
@@ -292,7 +292,7 @@ export const CommentsSection = component$<CommentsSectionProps>(({ jobId, onClos
                         )}
                       </div>
                     </div>
-                    <p class="text-sm text-gray-700 whitespace-pre-wrap">
+                    <p class="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
                       {comment.text}
                     </p>
                   </div>

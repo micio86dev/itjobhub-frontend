@@ -17,18 +17,34 @@ interface JobSearchProps {
   onSearch$: QRL<(filters: JobSearchFilters) => void>;
   initialLocation?: string;
   initialGeo?: { lat: number; lng: number };
+  initialQuery?: string;
+  initialSeniority?: string;
+  initialAvailability?: string;
+  initialRemote?: string;
+  initialDateRange?: string;
+  userHasLanguages?: boolean;
 }
 
-export const JobSearch = component$<JobSearchProps>(({ onSearch$, initialLocation, initialGeo }) => {
+export const JobSearch = component$<JobSearchProps>(({
+  onSearch$,
+  initialLocation,
+  initialGeo,
+  initialQuery,
+  initialSeniority,
+  initialAvailability,
+  initialRemote,
+  initialDateRange,
+  userHasLanguages
+}) => {
   const t = useTranslate();
   const state = useStore<JobSearchFilters>({
-    query: '',
-    seniority: '',
-    availability: '',
+    query: initialQuery || '',
+    seniority: initialSeniority || '',
+    availability: initialAvailability || '',
     location: initialLocation || '',
     location_geo: initialGeo,
-    remote: '',
-    dateRange: ''
+    remote: initialRemote || '',
+    dateRange: initialDateRange || ''
   });
 
   const handleSearch = $(() => {
@@ -181,7 +197,7 @@ export const JobSearch = component$<JobSearchProps>(({ onSearch$, initialLocatio
           >
             {t('jobs.search_btn')}
           </button>
-          
+
           {hasFilters && (
             <button
               onClick$={handleReset}
@@ -195,52 +211,56 @@ export const JobSearch = component$<JobSearchProps>(({ onSearch$, initialLocatio
         </div>
       </div>
 
+
+
       {/* Active filters display */}
       {hasFilters && (
         <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
           <div class="flex flex-wrap items-center gap-2">
             <span class="text-sm text-gray-500 dark:text-gray-400">{t('jobs.active_filters')}</span>
-            
+
             {state.query && (
               <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
                 "{state.query}"
               </span>
             )}
-            
+
             {state.location && (
               <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
                 {state.location}
               </span>
             )}
-            
+
+
+
             {state.seniority && (
               <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                {state.seniority === 'mid' ? t('jobs.mid') : 
-                 state.seniority === 'junior' ? t('jobs.junior') :
-                 state.seniority === 'senior' ? t('jobs.senior') : state.seniority}
+                {state.seniority === 'mid' ? t('jobs.mid') :
+                  state.seniority === 'junior' ? t('jobs.junior') :
+                    state.seniority === 'senior' ? t('jobs.senior') : state.seniority}
               </span>
             )}
-            
+
             {state.availability && (
               <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                {state.availability === 'full-time' ? t('jobs.full_time') : 
-                 state.availability === 'part-time' ? t('jobs.part_time') : 
-                 state.availability === 'contract' ? t('jobs.contract') : state.availability}
+                {state.availability === 'full-time' ? t('jobs.full_time') :
+                  state.availability === 'part-time' ? t('jobs.part_time') :
+                    state.availability === 'contract' ? t('jobs.contract') : state.availability}
               </span>
             )}
-            
+
             {state.remote && (
               <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
                 {state.remote === 'remote' ? t('jobs.remote') : t('jobs.office')}
               </span>
             )}
-            
+
             {state.dateRange && (
               <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
                 {state.dateRange === 'today' ? t('jobs.today') :
-                 state.dateRange === 'week' ? t('jobs.week') :
-                 state.dateRange === 'month' ? t('jobs.month') :
-                 state.dateRange === '3months' ? t('jobs.3months') : state.dateRange}
+                  state.dateRange === 'week' ? t('jobs.week') :
+                    state.dateRange === 'month' ? t('jobs.month') :
+                      state.dateRange === '3months' ? t('jobs.3months') : state.dateRange}
               </span>
             )}
           </div>

@@ -1,6 +1,6 @@
 import { component$, $, useStore, useTask$ } from "@builder.io/qwik";
-import type { DocumentHead } from "@builder.io/qwik-city";
-import { useJobs, getPersonalizedJobs } from "~/contexts/jobs";
+import { type DocumentHead, useLocation } from "@builder.io/qwik-city";
+import { useJobs } from "~/contexts/jobs";
 import { useAuth } from "~/contexts/auth";
 import { useTranslate, useI18n } from "~/contexts/i18n";
 import { JobCard } from "~/components/jobs/job-card";
@@ -24,10 +24,19 @@ export default component$(() => {
   const auth = useAuth();
   const t = useTranslate();
   const i18n = useI18n();
+  const location = useLocation();
 
   // Extract values to avoid serialization issues
   const isAuthenticated = auth.isAuthenticated;
   const user = auth.user;
+
+  // Parse initial filters from URL
+  const urlParams = location.url.searchParams;
+  const initialQuery = urlParams.get('q') || '';
+  const initialRemote = urlParams.get('remote') || '';
+  // We could add others here if needed
+
+  const hasInitialSearch = !!(initialQuery || initialRemote);
 
   const state = useStore({
     displayedJobs: [] as JobListing[],
@@ -36,9 +45,12 @@ export default component$(() => {
     isLoading: false,
     hasNextPage: true,
     openComments: {} as Record<string, boolean>,
-    showPersonalized: isAuthenticated && user?.profileCompleted,
-    searchFilters: null as JobFilters | null,
-    hasSearched: false,
+    showPersonalized: isAuthenticated && user?.profileCompleted && !hasInitialSearch,
+    searchFilters: hasInitialSearch ? {
+      query: initialQuery,
+      remote: initialRemote === 'true' ? true : initialRemote === 'false' ? false : undefined,
+    } as JobFilters : null,
+    hasSearched: hasInitialSearch,
     shouldLoadJobs: true,
     totalJobsCount: 0
   });
@@ -46,39 +58,41 @@ export default component$(() => {
   const jobsState = useJobs();
 
   // Update displayed jobs from server-side paginated context
+  // Update displayed jobs from server-side paginated context
   useTask$(({ track }) => {
-    track(() => state.showPersonalized);
-    track(() => jobsState.jobs); // Track the jobs from context (already paginated)
+    track(() => jobsState.jobs);
     track(() => jobsState.pagination.hasMore);
+    track(() => jobsState.pagination.totalJobs);
 
-    let jobsToShow: JobListing[] = [...jobsState.jobs];
-
-    // Apply client-side personalized filter only if enabled
-    if (state.showPersonalized && user) {
-      // Create safe copies to avoid Qwik proxy issues during filtering
-      const safeJobs = Array.from(jobsState.jobs);
-      const safeSkills = user.skills ? Array.from(user.skills) : [];
-      const safeLanguages = user.languages ? Array.from(user.languages) : [];
-
-      jobsToShow = getPersonalizedJobs(
-        safeJobs,
-        safeSkills,
-        user.seniority,
-        safeLanguages,
-        i18n.currentLanguage || 'it'
-      );
-    }
-
-    state.displayedJobs = jobsToShow;
-
-    // When personalized, show the actual count of matching jobs found locally
-    // Otherwise show the total available on server
-    state.totalJobsCount = state.showPersonalized
-      ? jobsToShow.length
-      : (jobsState.pagination.totalJobs || jobsToShow.length);
-
+    state.displayedJobs = [...jobsState.jobs];
+    state.totalJobsCount = jobsState.pagination.totalJobs;
     state.hasNextPage = jobsState.pagination.hasMore;
     state.isLoading = jobsState.pagination.isLoading;
+  });
+
+  // Initial fetch logic
+  useTask$(async () => {
+    // Gather user language filters first
+    const userLanguages = auth.user?.languages ? Array.from(auth.user.languages) : undefined;
+
+    if (hasInitialSearch) {
+      // Logic for when coming from Home search or having URL params
+      const remoteVal = initialRemote === 'true' ? true : initialRemote === 'false' ? false : undefined;
+
+      const filters: JobFilters = {
+        query: initialQuery,
+        remote: remoteVal,
+        languages: userLanguages,
+      };
+      await jobsState.fetchJobsPage$(1, filters, false);
+    } else if (jobsState.jobs.length === 0) {
+      // Logic for default load (direct navigation to /jobs)
+      // Only fetch if we don't have jobs to avoid double fetching if hydration/SSR already worked
+      // (though here we are client-side mostly)
+      const filters: JobFilters | undefined = userLanguages ? { languages: userLanguages } : undefined;
+      state.searchFilters = filters || null;
+      await jobsState.fetchJobsPage$(1, filters, false);
+    }
   });
 
   const loadMore = $(async () => {
@@ -87,9 +101,30 @@ export default component$(() => {
     }
   });
 
-  const togglePersonalized = $(() => {
+  const togglePersonalized = $(async () => {
     state.showPersonalized = !state.showPersonalized;
     state.page = 1;
+
+    if (state.showPersonalized && user) {
+      // Build filters from user profile
+      const personalFilters: JobFilters = {
+        skills: user.skills ? Array.from(user.skills) : undefined,
+        seniority: user.seniority,
+        languages: user.languages ? Array.from(user.languages) : undefined,
+        // We might want to include location/remote preferences from profile too if available, 
+        // but sticking to skills/seniority for "Feed" to match previous logic
+      };
+      state.searchFilters = personalFilters; // Keep track of current filters
+      await jobsState.fetchJobsPage$(1, personalFilters, false);
+    } else {
+      // Reset to all jobs but keep language filter if applicable
+      const baseFilters: JobFilters | undefined = user?.languages && user.languages.length > 0
+        ? { languages: Array.from(user.languages) }
+        : undefined;
+
+      state.searchFilters = baseFilters || null;
+      await jobsState.fetchJobsPage$(1, baseFilters, false);
+    }
   });
 
   const toggleComments = $((jobId: string) => {
@@ -103,8 +138,13 @@ export default component$(() => {
     const hasFilters = !!(filters.query || filters.seniority || filters.availability ||
       filters.location || filters.remote || filters.dateRange);
 
+    // Forces language filtering if user has spoken languages
+    // forces language filtering if user has spoken languages
+    const userLanguages = (isAuthenticated && user?.languages) ? Array.from(user.languages) : undefined;
+    const shouldFilterByLanguage = userLanguages && userLanguages.length > 0;
+
     // Convert JobSearchFilters to JobFilters for API
-    const convertedFilters: JobFilters | null = hasFilters ? {
+    const convertedFilters: JobFilters | null = (hasFilters || shouldFilterByLanguage) ? {
       query: filters.query,
       seniority: filters.seniority,
       availability: filters.availability,
@@ -113,12 +153,14 @@ export default component$(() => {
       radius_km: 50, // Default 50km radius
       remote: filters.remote === 'remote' ? true :
         filters.remote === 'office' ? false : undefined,
-      dateRange: filters.dateRange
+      dateRange: filters.dateRange,
+      // Always apply strict language filtering if user has languages
+      languages: userLanguages
     } : null;
 
     state.searchFilters = convertedFilters;
     state.hasSearched = hasFilters;
-    state.showPersonalized = false; // Disable personalized when searching
+    state.showPersonalized = false; // Disable personalized toggle visual if explicit search gets done
 
     // Fetch from server with filters
     await jobsState.fetchJobsPage$(1, convertedFilters || undefined, false);
@@ -134,6 +176,7 @@ export default component$(() => {
   // Jobs are loaded automatically through reactive calculations
 
   const canShowPersonalized = isAuthenticated && user?.profileCompleted && !state.hasSearched;
+  const userHasLanguages = !!(isAuthenticated && user?.languages && user.languages.length > 0);
 
   return (
     <div class="max-w-4xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
@@ -151,6 +194,9 @@ export default component$(() => {
             lat: user.location_geo.coordinates[1],
             lng: user.location_geo.coordinates[0]
           } : undefined}
+          initialQuery={initialQuery}
+          initialRemote={initialRemote === 'true' ? 'remote' : initialRemote === 'false' ? 'office' : ''}
+          userHasLanguages={userHasLanguages}
         />
 
         {/* Filter toggle for authenticated users */}

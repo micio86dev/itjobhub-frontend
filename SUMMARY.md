@@ -11,11 +11,12 @@ The IT Job Hub frontend is a high-performance web application designed for devel
 
 ## Key Features
 
-1.  **Job Search & Discovery**: Advanced filtering by skills, seniority, and remote status.
+1.  **Job Search & Discovery**: Advanced filtering by skills (case-insensitive), seniority, and remote status. Uses implicit language filtering based on user profile.
 2.  **Personalized Dashboard**: Tailored job feeds based on user profile and preferences.
 3.  **Community Hub**: Viewing and interacting with comments and ratings on job listings.
 4.  **Profile Builder**: Guided onboarding to help users showcase their IT expertise.
-5.  **Performance**: Near-zero hydration, ensuring instant interaction on page load.
+5.  **Admin Dashboard**: Rich statistical insights including "Top Seniority", user growth, and engagement metrics.
+6.  **Performance**: Near-zero hydration, ensuring instant interaction on page load.
 
 ## Code Quality
 

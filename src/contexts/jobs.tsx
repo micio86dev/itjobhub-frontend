@@ -224,6 +224,8 @@ export const JobsProvider = component$(() => {
         // Add filters to URL
         if (filters?.query) url.searchParams.append('q', filters.query);
         if (filters?.seniority) url.searchParams.append('seniority', filters.seniority);
+        if (filters?.availability) url.searchParams.append('employment_type', filters.availability);
+        if (filters?.dateRange) url.searchParams.append('dateRange', filters.dateRange); // Note: backend needs to support this or client filter
         if (filters?.remote !== undefined) url.searchParams.append('remote', String(filters.remote));
         if (filters?.languages?.length) url.searchParams.append('languages', filters.languages.join(','));
         if (filters?.location_geo) {
@@ -393,13 +395,7 @@ export const JobsProvider = component$(() => {
     });
   });
 
-  // Load initial page on component mount (client-side only)
-  useVisibleTask$(async () => {
-    // Only fetch if we don't have jobs yet
-    if (jobsState.jobs.length === 0) {
-      await jobsState.fetchJobsPage$(1);
-    }
-  });
+
 
   // Refetch current page when auth token changes to get user_reaction
   useVisibleTask$(async ({ track }) => {
@@ -407,7 +403,12 @@ export const JobsProvider = component$(() => {
 
     if (token && jobsState.jobs.length > 0) {
       // Refetch current page with auth to update user_reaction
-      await jobsState.fetchJobsPage$(1, jobsState.currentFilters || undefined, false);
+      // Ensure we maintain language filter if specific filters aren't set
+      let filters = jobsState.currentFilters;
+      if (!filters && auth.user?.languages?.length) {
+        filters = { languages: Array.from(auth.user.languages) };
+      }
+      await jobsState.fetchJobsPage$(1, filters || undefined, false);
     }
   });
 

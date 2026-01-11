@@ -41,6 +41,7 @@
     "admin.likes": "mi piace",
     "admin.jobs_by_seniority": "Annunci per Seniority",
     "admin.jobs_by_employment": "Annunci per Tipo di Impiego",
+    "admin.top_skills": "Skills più richieste",
     "admin.no_data": "Nessun dato disponibile",
     "admin.fetch_error": "Errore nel caricamento delle statistiche",
     "jobs.title": "Annunci di Lavoro",
