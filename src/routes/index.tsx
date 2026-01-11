@@ -1,4 +1,4 @@
-import { component$, useVisibleTask$ } from "@builder.io/qwik";
+import { component$, useVisibleTask$, useSignal } from "@builder.io/qwik";
 import type { DocumentHead } from "@builder.io/qwik-city";
 import { useAuth } from "~/contexts/auth";
 import { useTranslate, translate } from "~/contexts/i18n";
@@ -9,12 +9,18 @@ export default component$(() => {
   const auth = useAuth();
   const t = useTranslate();
   const jobsState = useJobs();
+  const topSkills = useSignal<{ skill: string; count: number }[]>([]);
 
-  // Fetch jobs for "Featured/Recent" section
+  // Fetch jobs and stats
   useVisibleTask$(async () => {
+    const promises = [];
     if (jobsState.jobs.length === 0) {
-      await jobsState.fetchJobsPage$(1);
+      promises.push(jobsState.fetchJobsPage$(1));
     }
+    promises.push(jobsState.fetchTopSkills$(10, new Date().getFullYear()).then(skills => {
+      topSkills.value = skills;
+    }));
+    await Promise.all(promises);
   });
 
   const recentJobs = jobsState.jobs.slice(0, 3); // Top 3 jobs
@@ -59,11 +65,25 @@ export default component$(() => {
                 </button>
               </div>
             </form>
-            <div class="mt-4 text-sm text-indigo-200">
-              <span class="font-medium opacity-80 mr-2">Popular:</span>
-              <a href="/jobs?q=Frontend" class="hover:text-white underline decoration-dashed underline-offset-4 mr-3 transition-colors">Frontend</a>
-              <a href="/jobs?q=Backend" class="hover:text-white underline decoration-dashed underline-offset-4 mr-3 transition-colors">Backend</a>
-              <a href="/jobs?q=Fullstack" class="hover:text-white underline decoration-dashed underline-offset-4 mr-3 transition-colors">Fullstack</a>
+            <div class="mt-4 text-sm text-indigo-200 flex flex-wrap gap-2 items-center justify-center sm:justify-start">
+              <span class="font-medium opacity-80 mr-1">Popular:</span>
+              {topSkills.value.length > 0 ? (
+                topSkills.value.slice(0, 6).map(s => (
+                  <a
+                    key={s.skill}
+                    href={`/jobs?q=${encodeURIComponent(s.skill)}`}
+                    class="hover:text-white underline decoration-dashed underline-offset-4 mr-2 transition-colors"
+                  >
+                    {s.skill}
+                  </a>
+                ))
+              ) : (
+                <>
+                  <a href="/jobs?q=Frontend" class="hover:text-white underline decoration-dashed underline-offset-4 mr-2 transition-colors">Frontend</a>
+                  <a href="/jobs?q=Backend" class="hover:text-white underline decoration-dashed underline-offset-4 mr-2 transition-colors">Backend</a>
+                  <a href="/jobs?q=Fullstack" class="hover:text-white underline decoration-dashed underline-offset-4 mr-2 transition-colors">Fullstack</a>
+                </>
+              )}
               <a href="/jobs?remote=true" class="hover:text-white underline decoration-dashed underline-offset-4 transition-colors">Remote</a>
             </div>
           </div>
@@ -73,7 +93,7 @@ export default component$(() => {
       {/* Stats Section */}
       <section class="bg-indigo-50 dark:bg-gray-800 py-12 border-b border-gray-200 dark:border-gray-700">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center mb-12">
             <div class="p-6">
               <div class="text-4xl font-bold text-indigo-600 dark:text-indigo-400 mb-2">1,200+</div>
               <div class="text-gray-600 dark:text-gray-300 font-medium">Active Jobs</div>
@@ -87,6 +107,36 @@ export default component$(() => {
               <div class="text-gray-600 dark:text-gray-300 font-medium">Developers</div>
             </div>
           </div>
+
+          {/* Top Skills Chart */}
+          {topSkills.value.length > 0 && (
+            <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-xl p-8 transform hover:scale-[1.01] transition-transform duration-300">
+              <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-8 text-center">
+                🔥 {t('home.top_skills_title') || `Top Skills of ${new Date().getFullYear()}`}
+              </h3>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {topSkills.value.slice(0, 10).map((skill, index) => (
+                  <div key={skill.skill} class="relative group">
+                    <div class="flex justify-between mb-2">
+                      <span class="font-semibold text-gray-700 dark:text-gray-200 flex items-center">
+                        <span class="w-6 h-6 rounded-full bg-indigo-100 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-300 flex items-center justify-center text-xs mr-2">
+                          {index + 1}
+                        </span>
+                        {skill.skill}
+                      </span>
+                      <span class="text-sm text-gray-500 dark:text-gray-400 font-medium">{skill.count} jobs</span>
+                    </div>
+                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 overflow-hidden">
+                      <div
+                        class="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 h-3 rounded-full transition-all duration-1000 ease-out group-hover:from-indigo-400 group-hover:to-pink-400"
+                        style={{ width: `${(skill.count / topSkills.value[0].count) * 100}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </section>
 

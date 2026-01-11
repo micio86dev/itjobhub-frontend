@@ -139,7 +139,7 @@ export const CommentsSection = component$<CommentsSectionProps>(({ jobId, onClos
   return (
     <div class="border-t border-gray-100 pt-4 mt-4">
       <div class="mb-4">
-        <h4 class="text-sm font-medium text-gray-900 mb-3">
+        <h4 class="text-sm font-medium text-gray-900 dark:text-gray-100 mb-3">
           {t('comments.title')} ({comments.length})
         </h4>
 

@@ -4,6 +4,7 @@ import { useAuth } from "~/contexts/auth";
 import { useTranslate, translate, useI18n } from "~/contexts/i18n";
 import { request } from "../../../utils/api";
 import { LineChart } from "~/components/admin/charts/line-chart";
+import { JobMap } from "~/components/admin/charts/job-map";
 
 interface Stats {
   overview: {
@@ -16,7 +17,18 @@ interface Stats {
     seniority: { label: string; value: number }[];
     employmentType: { label: string; value: number }[];
     trends: { label: string; value: number }[];
+    trends: { label: string; value: number }[];
     topSkills: { label: string; value: number }[];
+    locations: {
+      id: string;
+      title: string;
+      companyName: string;
+      companyLogo: string | null;
+      salary: string | null;
+      type: string | null;
+      lat: number;
+      lng: number
+    }[];
   };
 }
 
@@ -223,6 +235,20 @@ export default component$(() => {
               {stats.overview.engagement.likes} <span class="text-xs font-normal ml-1">{t('admin.likes')}</span>
             </p>
           </div>
+        </div>
+      </div>
+
+      {/* Job Map Section */}
+      <div class="mb-8 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+        <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-6">Mappa Offerte di Lavoro</h3>
+        <div class="w-full">
+          {stats.charts.locations && stats.charts.locations.length > 0 ? (
+            <JobMap jobs={stats.charts.locations} />
+          ) : (
+            <div class="h-64 flex items-center justify-center bg-gray-50 dark:bg-gray-700 rounded-lg">
+              <p class="text-gray-500">{t('admin.no_data')}</p>
+            </div>
+          )}
         </div>
       </div>
 

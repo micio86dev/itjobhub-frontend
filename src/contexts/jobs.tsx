@@ -91,6 +91,8 @@ export interface JobsState {
   fetchFavorites$: QRL<() => Promise<void>>;
   deleteComment$: QRL<(commentId: string) => Promise<void>>;
   editComment$: QRL<(commentId: string, newContent: string) => Promise<void>>;
+  fetchTopSkills$: QRL<(limit?: number, year?: number) => Promise<{ skill: string; count: number }[]>>;
+  fetchJobById$: QRL<(id: string) => Promise<JobListing | null>>;
 }
 
 export interface JobFilters {
@@ -172,6 +174,8 @@ export const JobsProvider = component$(() => {
     fetchFavorites$: $(async () => { }), // Will be assigned below
     deleteComment$: $(async () => { }), // Will be assigned below
     editComment$: $(async () => { }), // Will be assigned below
+    fetchTopSkills$: $(async () => []), // Will be assigned below
+    fetchJobById$: $(async () => null), // Will be assigned below
   });
 
 
@@ -207,7 +211,7 @@ export const JobsProvider = component$(() => {
 
   const auth = useAuth();
 
-  // Assign pagination methods
+  // Assign pagination and favorite methods inside useTask
   useTask$(() => {
     // fetchJobsPage$: Fetch a specific page of jobs with filters
     jobsState.fetchJobsPage$ = $(async (page: number, filters?: JobFilters, append = false) => {
@@ -225,9 +229,10 @@ export const JobsProvider = component$(() => {
         if (filters?.query) url.searchParams.append('q', filters.query);
         if (filters?.seniority) url.searchParams.append('seniority', filters.seniority);
         if (filters?.availability) url.searchParams.append('employment_type', filters.availability);
-        if (filters?.dateRange) url.searchParams.append('dateRange', filters.dateRange); // Note: backend needs to support this or client filter
+        if (filters?.dateRange) url.searchParams.append('dateRange', filters.dateRange);
         if (filters?.remote !== undefined) url.searchParams.append('remote', String(filters.remote));
         if (filters?.languages?.length) url.searchParams.append('languages', filters.languages.join(','));
+        if (filters?.skills?.length) url.searchParams.append('skills', filters.skills.join(','));
         if (filters?.location_geo) {
           url.searchParams.append('lat', String(filters.location_geo.lat));
           url.searchParams.append('lng', String(filters.location_geo.lng));
@@ -293,6 +298,27 @@ export const JobsProvider = component$(() => {
         jobsState.pagination.hasMore = false;
       } finally {
         jobsState.pagination.isLoading = false;
+      }
+    });
+
+    // fetchJobById$: Fetch a single job by ID
+    jobsState.fetchJobById$ = $(async (id: string) => {
+      try {
+        const headers: Record<string, string> = {};
+        if (auth.token) {
+          headers['Authorization'] = `Bearer ${auth.token}`;
+        }
+
+        const response = await request(`${API_URL}/jobs/${id}`, { headers });
+        if (!response.ok) throw new Error('Failed to fetch job');
+        const result = await response.json();
+        if (result.success && result.data) {
+          return processApiJob(result.data);
+        }
+        return null;
+      } catch (error) {
+        console.error('Error fetching job by id:', error);
+        return null;
       }
     });
 
@@ -395,15 +421,12 @@ export const JobsProvider = component$(() => {
     });
   });
 
-
-
   // Refetch current page when auth token changes to get user_reaction
   useVisibleTask$(async ({ track }) => {
     const token = track(() => auth.token);
 
     if (token && jobsState.jobs.length > 0) {
       // Refetch current page with auth to update user_reaction
-      // Ensure we maintain language filter if specific filters aren't set
       let filters = jobsState.currentFilters;
       if (!filters && auth.user?.languages?.length) {
         filters = { languages: Array.from(auth.user.languages) };
@@ -423,8 +446,6 @@ export const JobsProvider = component$(() => {
       if (allInstances.length > 0) {
         const job = allInstances[0];
         // Optimistic update for ALL instances
-        const company = jobsState.companies.find((c: Company) => c.name === job.company);
-
         if (likeReq.remove) {
           job.likes = Math.max(0, job.likes - 1);
           job.user_reaction = null;
@@ -574,18 +595,6 @@ export const JobsProvider = component$(() => {
 
   useVisibleTask$(async ({ track }) => {
     const dislikeReq = track(() => dislikeJobSignal.value);
-    // ... (rest of dislike logic is unchanged, avoiding large replacement if possible, but context requires full block if I selected it)
-    /* Since I cannot select non-contiguous blocks easily without potentially breaking references, I will assume the previous block ended right before `useVisibleTask` for dislikeReq.
-       Wait, I selected 489 to 667 approx in my previous view. But replace_file_content needs exact target.
-       I will target strictly the deleteComment$ block and the addCommentSignal block separately if needed.
-       The tool documentation says "Specify each edit as a separate ReplacementChunk" for multi_replace_file_content.
-       But I am using replace_file_content.
-       I will use multi_replace_file_content to do both updates safely.
-    */
-  });
-
-  useVisibleTask$(async ({ track }) => {
-    const dislikeReq = track(() => dislikeJobSignal.value);
     if (dislikeReq) {
       const allInstances = [
         ...jobsState.jobs.filter(j => j.id === dislikeReq.jobId),
@@ -595,8 +604,6 @@ export const JobsProvider = component$(() => {
       if (allInstances.length > 0) {
         const job = allInstances[0];
         // Optimistic update for ALL instances
-        const company = jobsState.companies.find((c: Company) => c.name === job.company);
-
         if (dislikeReq.remove) {
           job.dislikes = Math.max(0, job.dislikes - 1);
           job.user_reaction = null;
@@ -666,10 +673,6 @@ export const JobsProvider = component$(() => {
         const token = auth.token;
         if (!token) throw new Error("No token found");
 
-        console.log(`[JobsContext] Adding comment to ${commentReq.jobId}`);
-        console.log(`[JobsContext] Target URL: ${API_URL}/comments`);
-        console.log(`[JobsContext] Token exists: ${!!token}, Length: ${token?.length}`);
-
         const response = await request(`${API_URL}/comments`, {
           method: 'POST',
           headers: {
@@ -692,7 +695,7 @@ export const JobsProvider = component$(() => {
           jobsState.comments.push({
             id: result.data.id,
             jobId: commentReq.jobId,
-            userId: auth.user?.id || '', // Add userId
+            userId: auth.user?.id || '',
             author: commentReq.author,
             text: commentReq.text,
             date: new Date(result.data.created_at)
@@ -720,9 +723,32 @@ export const JobsProvider = component$(() => {
     jobsState.fetchFavorites$();
   });
 
+  // fetchTopSkills$: Fetch top skills public stats
+  useTask$(() => {
+    jobsState.fetchTopSkills$ = $(async (limit: number = 10, year?: number) => {
+      try {
+        let url = `${API_URL}/jobs/stats/skills?limit=${limit}`;
+        if (year) {
+          url += `&year=${year}`;
+        }
+        const response = await request(url);
+        if (!response.ok) throw new Error('Failed to fetch top skills');
+        const result = await response.json();
+        if (result.success && result.data) {
+          return result.data;
+        }
+        return [];
+      } catch (error) {
+        console.error('Error fetching top skills:', error);
+        return [];
+      }
+    });
+  });
+
   useContextProvider(JobsContext, jobsState);
   return <Slot />;
 });
+
 
 export const useJobs = () => useContext(JobsContext);
 

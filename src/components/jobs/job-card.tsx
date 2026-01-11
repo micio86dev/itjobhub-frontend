@@ -1,4 +1,5 @@
 import { component$, $, type QRL } from "@builder.io/qwik";
+import { Link } from "@builder.io/qwik-city";
 import type { JobListing } from "~/contexts/jobs";
 import { useJobs, getCompanyScoreFromState, getCommentsFromState } from "~/contexts/jobs";
 import { LoginPrompt } from "./login-prompt";
@@ -112,8 +113,10 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
               )}
             </div>
             <div>
-              <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-1">
-                {job.title}
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-1 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
+                <Link href={`/jobs/detail/${job.id}`}>
+                  {job.title}
+                </Link>
               </h3>
               <div class="flex items-center gap-2">
                 <span class="text-sm font-medium text-gray-700 dark:text-gray-300">

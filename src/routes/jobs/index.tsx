@@ -110,6 +110,7 @@ export default component$(() => {
       const personalFilters: JobFilters = {
         skills: user.skills ? Array.from(user.skills) : undefined,
         seniority: user.seniority,
+        availability: user.availability,
         languages: user.languages ? Array.from(user.languages) : undefined,
         // We might want to include location/remote preferences from profile too if available, 
         // but sticking to skills/seniority for "Feed" to match previous logic
