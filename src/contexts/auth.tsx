@@ -11,6 +11,7 @@ import {
   Signal,
 } from "@builder.io/qwik";
 import { useNavigate } from "@builder.io/qwik-city";
+import { request } from "../utils/api";
 
 export interface User {
   id: string;
@@ -87,10 +88,10 @@ export interface AuthState {
   updatePersonalInfoSignal: Signal<PersonalInfoUpdate | null>;
   updateAvatarSignal: Signal<AvatarUpdateRequest | null>;
   // Result signals
-  loginResult: Signal<{success: boolean, error?: string} | null>;
-  registerResult: Signal<{success: boolean, error?: string} | null>;
-  profileUpdateResult: Signal<{success: boolean, error?: string} | null>;
-  avatarUpdateResult: Signal<{success: boolean, error?: string} | null>;
+  loginResult: Signal<{ success: boolean, error?: string } | null>;
+  registerResult: Signal<{ success: boolean, error?: string } | null>;
+  profileUpdateResult: Signal<{ success: boolean, error?: string } | null>;
+  avatarUpdateResult: Signal<{ success: boolean, error?: string } | null>;
 }
 
 export const AuthContext = createContextId<AuthState>('auth-context');
@@ -107,12 +108,12 @@ export const AuthProvider = component$(() => {
   const updateProfileSignal = useSignal<WizardData | null>(null);
   const updatePersonalInfoSignal = useSignal<PersonalInfoUpdate | null>(null);
   const updateAvatarSignal = useSignal<AvatarUpdateRequest | null>(null);
-  
+
   // Create result signals
-  const loginResult = useSignal<{success: boolean, error?: string} | null>(null);
-  const registerResult = useSignal<{success: boolean, error?: string} | null>(null);
-  const profileUpdateResult = useSignal<{success: boolean, error?: string} | null>(null);
-  const avatarUpdateResult = useSignal<{success: boolean, error?: string} | null>(null);
+  const loginResult = useSignal<{ success: boolean, error?: string } | null>(null);
+  const registerResult = useSignal<{ success: boolean, error?: string } | null>(null);
+  const profileUpdateResult = useSignal<{ success: boolean, error?: string } | null>(null);
+  const avatarUpdateResult = useSignal<{ success: boolean, error?: string } | null>(null);
 
   const authState = useStore<AuthState>({
     user: null,
@@ -135,7 +136,7 @@ export const AuthProvider = component$(() => {
   useVisibleTask$(() => {
     const token = localStorage.getItem('auth_token');
     const userStr = localStorage.getItem('auth_user');
-    
+
     if (token && userStr) {
       try {
         authState.token = token;
@@ -147,6 +148,17 @@ export const AuthProvider = component$(() => {
         localStorage.removeItem('auth_user');
       }
     }
+
+    // Global listener for 401 errors
+    const handleUnauthorized = () => {
+      if (authState.isAuthenticated) {
+        console.log('AuthContext: Unauthorized event received, logging out...');
+        authState.logoutSignal.value = true;
+      }
+    };
+
+    window.addEventListener('unauthorized', handleUnauthorized);
+    return () => window.removeEventListener('unauthorized', handleUnauthorized);
   });
 
   // Handle login requests
@@ -154,7 +166,7 @@ export const AuthProvider = component$(() => {
     const loginReq = track(() => loginSignal.value);
     if (loginReq) {
       try {
-        const response = await fetch(`${API_URL}/auth/login`, {
+        const response = await request(`${API_URL}/auth/login`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -168,7 +180,7 @@ export const AuthProvider = component$(() => {
 
         if (response.ok && data.success) {
           const { user, token } = data.data;
-          
+
           authState.user = {
             ...user,
             name: `${user.firstName} ${user.lastName}`,
@@ -176,13 +188,13 @@ export const AuthProvider = component$(() => {
           };
           authState.token = token;
           authState.isAuthenticated = true;
-          
+
           // Persist to localStorage
           if (typeof localStorage !== 'undefined') {
             localStorage.setItem('auth_token', token);
             localStorage.setItem('auth_user', JSON.stringify(authState.user));
           }
-          
+
           loginResult.value = { success: true };
         } else {
           loginResult.value = { success: false, error: data.message || 'Login failed' };
@@ -212,7 +224,7 @@ export const AuthProvider = component$(() => {
           lastName
         };
 
-        const response = await fetch(`${API_URL}/auth/register`, {
+        const response = await request(`${API_URL}/auth/register`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -233,7 +245,7 @@ export const AuthProvider = component$(() => {
 
         if (response.status === 201 && data.success) {
           const { user, token } = data.data;
-          
+
           authState.user = {
             ...user,
             name: `${user.firstName} ${user.lastName}`,
@@ -276,7 +288,7 @@ export const AuthProvider = component$(() => {
     const shouldLogout = track(() => logoutSignal.value);
     if (shouldLogout) {
       try {
-        await fetch(`${API_URL}/auth/logout`, {
+        await request(`${API_URL}/auth/logout`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${authState.token}`,
@@ -290,13 +302,13 @@ export const AuthProvider = component$(() => {
         authState.user = null;
         authState.token = null;
         authState.isAuthenticated = false;
-        
+
         if (typeof localStorage !== 'undefined') {
           localStorage.removeItem('auth_token');
           localStorage.removeItem('auth_user');
           nav('/login');
         }
-        
+
         logoutSignal.value = false;
       }
     }
@@ -312,14 +324,14 @@ export const AuthProvider = component$(() => {
       authState.user.seniority = wizardData.seniority || undefined;
       authState.user.availability = wizardData.availability || undefined;
       authState.user.profileCompleted = true;
-      
+
       // Update in localStorage
       if (typeof localStorage !== 'undefined') {
         localStorage.setItem('auth_user', JSON.stringify(authState.user));
       }
 
       try {
-        const response = await fetch(`${API_URL}/users/me/profile`, {
+        const response = await request(`${API_URL}/users/me/profile`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -345,12 +357,12 @@ export const AuthProvider = component$(() => {
         profileUpdateResult.value = { success: false, error: 'Failed to save profile data' };
         // Consider reverting optimistic update here if critical
       }
-      
+
       updateProfileSignal.value = null;
     }
   });
 
-// ... interface definition update in separate block or assume it's done below ...
+  // ... interface definition update in separate block or assume it's done below ...
 
   // Handle personal info update requests
   useTask$(async ({ track }) => {
@@ -362,33 +374,33 @@ export const AuthProvider = component$(() => {
       authState.user.location = personalInfo.location;
       authState.user.birthDate = personalInfo.birthDate;
       authState.user.bio = personalInfo.bio;
-      
+
       // Update in localStorage
       if (typeof localStorage !== 'undefined') {
         localStorage.setItem('auth_user', JSON.stringify(authState.user));
       }
 
       try {
-        await fetch(`${API_URL}/users/me/profile`, {
+        await request(`${API_URL}/users/me/profile`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${authState.token}`
           },
           body: JSON.stringify({
-             bio: personalInfo.bio,
-             name: personalInfo.name,
-             phone: personalInfo.phone,
-             birthDate: personalInfo.birthDate,
-             location: personalInfo.location,
-             locationGeo: personalInfo.coordinates
+            bio: personalInfo.bio,
+            name: personalInfo.name,
+            phone: personalInfo.phone,
+            birthDate: personalInfo.birthDate,
+            location: personalInfo.location,
+            locationGeo: personalInfo.coordinates
           })
         });
       } catch (error) {
         console.error('Failed to update profile on server', error);
         // revert optimistic update?
       }
-      
+
       updatePersonalInfoSignal.value = null;
       profileUpdateResult.value = { success: true };
     }
@@ -400,27 +412,27 @@ export const AuthProvider = component$(() => {
     if (avatarUpdate && authState.user) {
       // Optimistic update
       authState.user.avatar = avatarUpdate.avatar;
-      
+
       // Update in localStorage
       if (typeof localStorage !== 'undefined') {
         localStorage.setItem('auth_user', JSON.stringify(authState.user));
       }
 
       try {
-        await fetch(`${API_URL}/users/me/profile`, {
+        await request(`${API_URL}/users/me/profile`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${authState.token}`
           },
           body: JSON.stringify({
-             avatar: avatarUpdate.avatar
+            avatar: avatarUpdate.avatar
           })
         });
       } catch (error) {
         console.error('Failed to update avatar on server', error);
       }
-      
+
       updateAvatarSignal.value = null;
       avatarUpdateResult.value = { success: true };
     }

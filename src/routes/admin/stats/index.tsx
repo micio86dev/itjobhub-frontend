@@ -2,6 +2,7 @@ import { component$, useStore, useVisibleTask$, useTask$, $ } from "@builder.io/
 import type { DocumentHead } from "@builder.io/qwik-city";
 import { useAuth } from "~/contexts/auth";
 import { useTranslate, translate, useI18n } from "~/contexts/i18n";
+import { request } from "../../../utils/api";
 
 interface Stats {
   overview: {
@@ -21,7 +22,7 @@ export default component$(() => {
   const i18n = useI18n();
   const lang = i18n.currentLanguage;
   const t = useTranslate();
-  
+
   const state = useStore({
     stats: null as Stats | null,
     isLoading: true,
@@ -38,40 +39,40 @@ export default component$(() => {
         url.searchParams.append('month', state.selectedMonth.toString());
         url.searchParams.append('year', state.selectedYear.toString());
       }
-      
-      const response = await fetch(url.toString(), {
+
+      const response = await request(url.toString(), {
         headers: {
           'Authorization': `Bearer ${auth.token}`
         }
       });
-      
+
       if (!response.ok) {
         throw new Error(translate('admin.fetch_error', i18n.currentLanguage));
       }
-      
+
       const data = await response.json();
       if (data.success) {
         state.stats = data.data;
-    } else {
-      state.error = data.message;
+      } else {
+        state.error = data.message;
+      }
+    } catch (err: any) {
+      state.error = err.message;
+    } finally {
+      state.isLoading = false;
     }
-  } catch (err: any) {
-    state.error = err.message;
-  } finally {
-    state.isLoading = false;
-  }
-});
+  });
 
-// React to month/year changes
-useTask$(({ track }) => {
-  track(() => state.selectedMonth);
-  track(() => state.selectedYear);
-  track(() => auth.token);
-  
-  if (auth.isAuthenticated && auth.user?.role === 'admin' && auth.token) {
-    fetchStats();
-  }
-});
+  // React to month/year changes
+  useTask$(({ track }) => {
+    track(() => state.selectedMonth);
+    track(() => state.selectedYear);
+    track(() => auth.token);
+
+    if (auth.isAuthenticated && auth.user?.role === 'admin' && auth.token) {
+      fetchStats();
+    }
+  });
 
   // Check authentication and role on the client
   useVisibleTask$(({ track }) => {
@@ -120,9 +121,9 @@ useTask$(({ track }) => {
           <h1 class="text-3xl font-bold text-gray-900 dark:text-white">{t('admin.dashboard')}</h1>
           <p class="mt-2 text-gray-600 dark:text-gray-400">{t('admin.stats_subtitle')}</p>
         </div>
-        
+
         <div class="flex items-center gap-3">
-          <select 
+          <select
             value={state.selectedMonth}
             onChange$={(e) => state.selectedMonth = parseInt((e.target as HTMLSelectElement).value)}
             class="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
@@ -134,7 +135,7 @@ useTask$(({ track }) => {
               </option>
             ))}
           </select>
-          <select 
+          <select
             value={state.selectedYear}
             onChange$={(e) => state.selectedYear = parseInt((e.target as HTMLSelectElement).value)}
             class="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
@@ -158,7 +159,7 @@ useTask$(({ track }) => {
               </svg>
             </span>
             <span class="text-xs font-semibold text-green-600 bg-green-50 dark:bg-green-900/30 px-2 py-1 rounded">
-               {t('admin.new_growth').replace('{count}', stats.overview.users.new.toString())}
+              {t('admin.new_growth').replace('{count}', stats.overview.users.new.toString())}
             </span>
           </div>
           <h3 class="text-gray-500 dark:text-gray-400 text-sm font-medium">{t('admin.total_users')}</h3>
@@ -174,7 +175,7 @@ useTask$(({ track }) => {
               </svg>
             </span>
             <span class="text-xs font-semibold text-green-600 bg-green-50 dark:bg-green-900/30 px-2 py-1 rounded">
-               {t('admin.new_growth').replace('{count}', stats.overview.jobs.new.toString())}
+              {t('admin.new_growth').replace('{count}', stats.overview.jobs.new.toString())}
             </span>
           </div>
           <h3 class="text-gray-500 dark:text-gray-400 text-sm font-medium">{t('admin.active_jobs')}</h3>
@@ -190,7 +191,7 @@ useTask$(({ track }) => {
               </svg>
             </span>
             <span class="text-xs font-semibold text-green-600 bg-green-50 dark:bg-green-900/30 px-2 py-1 rounded">
-               {t('admin.new_growth').replace('{count}', stats.overview.companies.new.toString())}
+              {t('admin.new_growth').replace('{count}', stats.overview.companies.new.toString())}
             </span>
           </div>
           <h3 class="text-gray-500 dark:text-gray-400 text-sm font-medium">{t('admin.companies')}</h3>
@@ -209,10 +210,10 @@ useTask$(({ track }) => {
           <h3 class="text-gray-500 dark:text-gray-400 text-sm font-medium">{t('admin.engagement')}</h3>
           <div class="flex items-center gap-4">
             <p class="text-2xl font-bold text-gray-900 dark:text-white flex items-center">
-               {stats.overview.engagement.comments} <span class="text-xs font-normal ml-1">{t('admin.comments')}</span>
+              {stats.overview.engagement.comments} <span class="text-xs font-normal ml-1">{t('admin.comments')}</span>
             </p>
             <p class="text-2xl font-bold text-gray-900 dark:text-white flex items-center">
-               {stats.overview.engagement.likes} <span class="text-xs font-normal ml-1">{t('admin.likes')}</span>
+              {stats.overview.engagement.likes} <span class="text-xs font-normal ml-1">{t('admin.likes')}</span>
             </p>
           </div>
         </div>
@@ -226,8 +227,8 @@ useTask$(({ track }) => {
           <div class="space-y-4">
             {stats.charts.seniority.length > 0 ? (
               stats.charts.seniority.map((item) => {
-                const percentage = stats.overview.jobs.total > 0 
-                  ? (item.value / stats.overview.jobs.total) * 100 
+                const percentage = stats.overview.jobs.total > 0
+                  ? (item.value / stats.overview.jobs.total) * 100
                   : 0;
                 return (
                   <div key={item.label} class="space-y-1">
@@ -236,8 +237,8 @@ useTask$(({ track }) => {
                       <span class="font-semibold text-gray-900 dark:text-white">{item.value}</span>
                     </div>
                     <div class="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2">
-                      <div 
-                        class="bg-indigo-600 h-2 rounded-full transition-all duration-500" 
+                      <div
+                        class="bg-indigo-600 h-2 rounded-full transition-all duration-500"
                         style={{ width: `${percentage}%` }}
                       ></div>
                     </div>
@@ -245,7 +246,7 @@ useTask$(({ track }) => {
                 );
               })
             ) : (
-                <p class="text-gray-500 text-sm italic">{t('admin.no_data')}</p>
+              <p class="text-gray-500 text-sm italic">{t('admin.no_data')}</p>
             )}
           </div>
         </div>
@@ -256,8 +257,8 @@ useTask$(({ track }) => {
           <div class="space-y-4">
             {stats.charts.employmentType.length > 0 ? (
               stats.charts.employmentType.map((item) => {
-                const percentage = stats.overview.jobs.total > 0 
-                  ? (item.value / stats.overview.jobs.total) * 100 
+                const percentage = stats.overview.jobs.total > 0
+                  ? (item.value / stats.overview.jobs.total) * 100
                   : 0;
                 return (
                   <div key={item.label} class="space-y-1">
@@ -266,8 +267,8 @@ useTask$(({ track }) => {
                       <span class="font-semibold text-gray-900 dark:text-white">{item.value}</span>
                     </div>
                     <div class="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2">
-                      <div 
-                        class="bg-purple-600 h-2 rounded-full transition-all duration-500" 
+                      <div
+                        class="bg-purple-600 h-2 rounded-full transition-all duration-500"
                         style={{ width: `${percentage}%` }}
                       ></div>
                     </div>
@@ -275,7 +276,7 @@ useTask$(({ track }) => {
                 );
               })
             ) : (
-                <p class="text-gray-500 text-sm italic">{t('admin.no_data')}</p>
+              <p class="text-gray-500 text-sm italic">{t('admin.no_data')}</p>
             )}
           </div>
         </div>

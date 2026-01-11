@@ -21,10 +21,36 @@ export const CommentsSection = component$<CommentsSectionProps>(({ jobId, onClos
 
   const state = useStore({
     commentText: '',
-    isSubmitting: false
+    isSubmitting: false,
+    editingId: null as string | null,
+    editContent: ''
   });
 
   const comments = getCommentsFromState(jobsContext.comments, jobId);
+
+  const startEditing = $((commentId: string, currentText: string) => {
+    state.editingId = commentId;
+    state.editContent = currentText;
+  });
+
+  const cancelEditing = $(() => {
+    state.editingId = null;
+    state.editContent = '';
+  });
+
+  const saveEdit = $(async () => {
+    if (!state.editingId || !state.editContent.trim()) return;
+
+    await jobsContext.editComment$(state.editingId, state.editContent.trim());
+    state.editingId = null;
+    state.editContent = '';
+  });
+
+  const handleDelete = $(async (commentId: string) => {
+    if (confirm(t('comments.confirm_delete') || 'Delete comment?')) { // Simple confirm for now
+      await jobsContext.deleteComment$(commentId);
+    }
+  });
 
   const handleSubmitComment = $(async (e: Event) => {
     e.preventDefault();
@@ -36,8 +62,6 @@ export const CommentsSection = component$<CommentsSectionProps>(({ jobId, onClos
     state.isSubmitting = true;
 
     try {
-      await new Promise(resolve => setTimeout(resolve, 500)); // Simulate API call
-
       // Trigger add comment through signal
       addCommentSignal.value = {
         jobId,
@@ -121,7 +145,7 @@ export const CommentsSection = component$<CommentsSectionProps>(({ jobId, onClos
 
         {/* Comment form */}
         {isAuthenticated ? (
-          <form onSubmit$={handleSubmitComment} class="mb-4">
+          <form onSubmit$={handleSubmitComment} preventdefault:submit class="mb-4">
             <div class="flex gap-3">
               <div class="flex-shrink-0">
                 {user?.avatar ? (
@@ -208,19 +232,71 @@ export const CommentsSection = component$<CommentsSectionProps>(({ jobId, onClos
               </div>
 
               <div class="flex-1">
-                <div class="bg-gray-50 rounded-lg p-3">
-                  <div class="flex items-center justify-between mb-1">
-                    <span class="text-sm font-medium text-gray-900">
-                      {comment.author.name}
-                    </span>
-                    <span class="text-xs text-gray-500">
-                      {formatCommentDate(comment.date)}
-                    </span>
+                {state.editingId === comment.id ? (
+                  <div class="bg-white rounded-lg p-3 border border-indigo-200 shadow-sm">
+                    <textarea
+                      value={state.editContent}
+                      onInput$={(e) => state.editContent = (e.target as HTMLTextAreaElement).value}
+                      class="w-full p-2 text-sm border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 resize-none mb-2"
+                      rows={2}
+                    />
+                    <div class="flex justify-end gap-2">
+                      <button
+                        onClick$={cancelEditing}
+                        class="text-xs px-2 py-1 text-gray-500 hover:text-gray-700"
+                      >
+                        {t('common.cancel')}
+                      </button>
+                      <button
+                        onClick$={saveEdit}
+                        class="text-xs px-2 py-1 bg-indigo-600 text-white rounded hover:bg-indigo-700"
+                        disabled={!state.editContent.trim()}
+                      >
+                        {t('common.save')}
+                      </button>
+                    </div>
                   </div>
-                  <p class="text-sm text-gray-700">
-                    {comment.text}
-                  </p>
-                </div>
+                ) : (
+                  <div class="bg-gray-50 rounded-lg p-3 group relative">
+                    <div class="flex items-center justify-between mb-1">
+                      <span class="text-sm font-medium text-gray-900">
+                        {comment.author.name}
+                      </span>
+                      <div class="flex items-center gap-2">
+                        <span class="text-xs text-gray-500">
+                          {formatCommentDate(comment.date)}
+                        </span>
+                        {(user?.id === comment.userId || user?.role === 'admin') && (
+                          <div class="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            {user?.id === comment.userId && (
+                              <button
+                                onClick$={() => startEditing(comment.id, comment.text)}
+                                class="p-1 text-gray-400 hover:text-indigo-600"
+                                title={t('common.edit')}
+                              >
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                </svg>
+                              </button>
+                            )}
+                            <button
+                              onClick$={() => handleDelete(comment.id)}
+                              class="p-1 text-gray-400 hover:text-red-600"
+                              title={t('common.delete')}
+                            >
+                              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                              </svg>
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    <p class="text-sm text-gray-700 whitespace-pre-wrap">
+                      {comment.text}
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
           ))

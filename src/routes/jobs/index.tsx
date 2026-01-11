@@ -7,6 +7,7 @@ import { JobCard } from "~/components/jobs/job-card";
 import { CommentsSection } from "~/components/jobs/comments-section";
 import { JobSearch } from "~/components/jobs/job-search";
 import { useInfiniteScroll } from "~/hooks/use-infinite-scroll";
+import { ScrollButtons } from "~/components/ui/scroll-buttons";
 import type { JobFilters, JobListing } from "~/contexts/jobs";
 
 interface JobSearchFilters {
@@ -23,11 +24,11 @@ export default component$(() => {
   const auth = useAuth();
   const t = useTranslate();
   const i18n = useI18n();
-  
+
   // Extract values to avoid serialization issues
   const isAuthenticated = auth.isAuthenticated;
   const user = auth.user;
-  
+
   const state = useStore({
     displayedJobs: [] as JobListing[],
     page: 1,
@@ -49,9 +50,9 @@ export default component$(() => {
     track(() => state.showPersonalized);
     track(() => jobsState.jobs); // Track the jobs from context (already paginated)
     track(() => jobsState.pagination.hasMore);
-    
+
     let jobsToShow: JobListing[] = [...jobsState.jobs];
-    
+
     // Apply client-side personalized filter only if enabled
     if (state.showPersonalized && user) {
       jobsToShow = getPersonalizedJobs(
@@ -62,7 +63,7 @@ export default component$(() => {
         i18n.currentLanguage || 'it'
       );
     }
-    
+
     state.displayedJobs = jobsToShow;
     state.totalJobsCount = jobsState.pagination.totalJobs || jobsToShow.length;
     state.hasNextPage = jobsState.pagination.hasMore;
@@ -88,9 +89,9 @@ export default component$(() => {
   });
 
   const handleSearch = $(async (filters: JobSearchFilters) => {
-    const hasFilters = !!(filters.query || filters.seniority || filters.availability || 
-                      filters.location || filters.remote || filters.dateRange);
-    
+    const hasFilters = !!(filters.query || filters.seniority || filters.availability ||
+      filters.location || filters.remote || filters.dateRange);
+
     // Convert JobSearchFilters to JobFilters for API
     const convertedFilters: JobFilters | null = hasFilters ? {
       query: filters.query,
@@ -99,15 +100,15 @@ export default component$(() => {
       location: filters.location,
       location_geo: filters.location_geo,
       radius_km: 50, // Default 50km radius
-      remote: filters.remote === 'remote' ? true : 
-              filters.remote === 'office' ? false : undefined,
+      remote: filters.remote === 'remote' ? true :
+        filters.remote === 'office' ? false : undefined,
       dateRange: filters.dateRange
     } : null;
-    
+
     state.searchFilters = convertedFilters;
     state.hasSearched = hasFilters;
     state.showPersonalized = false; // Disable personalized when searching
-    
+
     // Fetch from server with filters
     await jobsState.fetchJobsPage$(1, convertedFilters || undefined, false);
   });
@@ -132,30 +133,29 @@ export default component$(() => {
         </h1>
 
         {/* Search component */}
-        <JobSearch 
-          onSearch$={handleSearch} 
+        <JobSearch
+          onSearch$={handleSearch}
           initialLocation={user?.location || undefined}
           initialGeo={user?.location_geo?.coordinates && user.location_geo.coordinates.length >= 2 ? {
             lat: user.location_geo.coordinates[1],
             lng: user.location_geo.coordinates[0]
           } : undefined}
         />
-        
+
         {/* Filter toggle for authenticated users */}
         {canShowPersonalized && (
           <div class="flex items-center justify-between mb-6">
             <div class="flex items-center space-x-4">
               <button
                 onClick$={togglePersonalized}
-                class={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                  state.showPersonalized
+                class={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${state.showPersonalized
                     ? 'bg-indigo-600 dark:bg-indigo-700 text-white'
                     : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
-                }`}
+                  }`}
               >
                 {state.showPersonalized ? t('jobs.personalized_feed') : t('jobs.all_jobs')}
               </button>
-              
+
               {state.showPersonalized && (
                 <span class="text-sm text-gray-600 dark:text-gray-400">
                   {t('jobs.skills_based_on')} {user?.skills?.join(', ')}
@@ -210,9 +210,9 @@ export default component$(() => {
 
       {/* Results count */}
       {state.totalJobsCount > 0 && (
-         <div class="mb-4 text-sm font-medium text-gray-600 dark:text-gray-400">
-           {t('jobs.found_count').replace('{count}', state.totalJobsCount.toString())}
-         </div>
+        <div class="mb-4 text-sm font-medium text-gray-600 dark:text-gray-400">
+          {t('jobs.found_count').replace('{count}', state.totalJobsCount.toString())}
+        </div>
       )}
 
       {/* Jobs list */}
@@ -228,7 +228,7 @@ export default component$(() => {
               {t('jobs.no_jobs')}
             </h3>
             <p class="text-gray-500 dark:text-gray-400">
-              {state.showPersonalized 
+              {state.showPersonalized
                 ? t('jobs.no_jobs_personalized')
                 : t('jobs.no_jobs_general')
               }
@@ -237,16 +237,16 @@ export default component$(() => {
         ) : (
           state.displayedJobs.map((job) => (
             <div key={job.id}>
-              <JobCard 
+              <JobCard
                 job={job}
                 onToggleComments$={toggleComments}
                 showComments={!!state.openComments[job.id]}
               />
-              
+
               {state.openComments[job.id] && (
                 <div class="ml-4 sm:ml-6 mr-4 sm:mr-6">
-                  <CommentsSection 
-                    jobId={job.id} 
+                  <CommentsSection
+                    jobId={job.id}
                   />
                 </div>
               )}
@@ -293,6 +293,9 @@ export default component$(() => {
           </p>
         </div>
       )}
+
+      {/* Quick scroll buttons */}
+      <ScrollButtons />
     </div>
   );
 });

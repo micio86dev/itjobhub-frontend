@@ -1,5 +1,6 @@
 import { createContextId, Slot, component$, useStore, useContext, useContextProvider, useSignal, useTask$, useVisibleTask$, Signal, $, QRL } from "@builder.io/qwik";
 import { useAuth } from "./auth";
+import { request } from "../utils/api";
 
 export interface JobListing {
   id: string;
@@ -22,11 +23,15 @@ export interface JobListing {
   comments_count?: number;
   user_reaction?: 'LIKE' | 'DISLIKE' | null;
   is_favorite?: boolean;
+  companyScore?: number;
+  companyLikes?: number;
+  companyDislikes?: number;
 }
 
 export interface Comment {
   id: string;
   jobId: string;
+  userId: string; // Added field
   author: {
     name: string;
     avatar?: string;
@@ -84,6 +89,8 @@ export interface JobsState {
   loadMoreJobs$: QRL<() => Promise<void>>;
   toggleFavorite$: QRL<(jobId: string) => Promise<void>>;
   fetchFavorites$: QRL<() => Promise<void>>;
+  deleteComment$: QRL<(commentId: string) => Promise<void>>;
+  editComment$: QRL<(commentId: string, newContent: string) => Promise<void>>;
 }
 
 export interface JobFilters {
@@ -127,11 +134,15 @@ const processApiJob = (job: any): JobListing => {
     companyLogo: job.company?.logo_url || job.company?.logo,
     language: job.language,
     location_geo: job.location_geo,
-    is_favorite: job.is_favorite || false
+    is_favorite: job.is_favorite || false,
+    companyScore: job.company?.trustScore || 80,
+    companyLikes: job.company?.totalLikes || 0,
+    companyDislikes: job.company?.totalDislikes || 0
   };
 };
 
 export const JobsContext = createContextId<JobsState>('jobs-context');
+const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:3001';
 
 export const JobsProvider = component$(() => {
   const likeJobSignal = useSignal<LikeJobRequest | null>(null);
@@ -159,25 +170,27 @@ export const JobsProvider = component$(() => {
     loadMoreJobs$: $(async () => { }), // Will be assigned below
     toggleFavorite$: $(async () => { }), // Will be assigned below
     fetchFavorites$: $(async () => { }), // Will be assigned below
+    deleteComment$: $(async () => { }), // Will be assigned below
+    editComment$: $(async () => { }), // Will be assigned below
   });
 
-  const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:3001';
 
 
   // Assign the method inside useTask to avoid state mutation during render
   useTask$(() => {
     jobsState.fetchComments$ = $(async (jobId: string) => {
       try {
-        const response = await fetch(`${API_URL}/comments/job/${jobId}`);
+        const response = await request(`${API_URL}/comments/job/${jobId}`);
         if (!response.ok) throw new Error('Failed to fetch comments');
         const result = await response.json();
         if (result.success && result.data.comments) {
           const fetched = result.data.comments.map((c: any) => ({
             id: c.id,
             jobId: jobId,
+            userId: c.user_id, // Map user_id
             author: {
               name: `${c.user.first_name} ${c.user.last_name}`,
-              avatar: undefined
+              avatar: c.user.avatar
             },
             text: c.content,
             date: new Date(c.created_at)
@@ -225,7 +238,7 @@ export const JobsProvider = component$(() => {
           headers['Authorization'] = `Bearer ${auth.token}`;
         }
 
-        const response = await fetch(url.toString(), { headers });
+        const response = await request(url.toString(), { headers });
 
         if (!response.ok) {
           throw new Error(`Network response was not ok: ${response.status}`);
@@ -291,19 +304,29 @@ export const JobsProvider = component$(() => {
 
     // toggleFavorite$: Add/remove job from favorites
     jobsState.toggleFavorite$ = $(async (jobId: string) => {
-      const job = jobsState.jobs.find((j: JobListing) => j.id === jobId);
-      if (!job) return;
+      // Find all instances of this job across state
+      const allInstances = [
+        ...jobsState.jobs.filter(j => j.id === jobId),
+        ...jobsState.favorites.filter(j => j.id === jobId)
+      ];
 
-      const wasFavorite = job.is_favorite;
+      if (allInstances.length === 0) return;
 
-      // Optimistic update
-      job.is_favorite = !wasFavorite;
+      // Get state from the first instance
+      const wasFavorite = allInstances[0].is_favorite;
+
+      // Optimistic update for ALL instances
+      allInstances.forEach(job => {
+        job.is_favorite = !wasFavorite;
+      });
 
       try {
         const token = auth.token;
         if (!token) {
           // Revert on no auth
-          job.is_favorite = wasFavorite;
+          allInstances.forEach(job => {
+            job.is_favorite = wasFavorite;
+          });
           return;
         }
 
@@ -312,17 +335,19 @@ export const JobsProvider = component$(() => {
           // Update local favorites state immediately
           jobsState.favorites = jobsState.favorites.filter(f => f.id !== jobId);
 
-          await fetch(`${API_URL}/favorites?jobId=${jobId}`, {
+          await request(`${API_URL}/favorites?jobId=${jobId}`, {
             method: 'DELETE',
             headers: { 'Authorization': `Bearer ${token}` }
           });
         } else {
           // Add to favorites
-          // We can't easily add to favorites list optimistically because we might not have all fields if we are on a partial view
-          // But since we are likely adding from main list where we have data:
-          jobsState.favorites = [job, ...jobsState.favorites];
+          // Prevent duplication
+          if (!jobsState.favorites.some(f => f.id === jobId)) {
+            const sourceJob = allInstances[0];
+            jobsState.favorites = [sourceJob, ...jobsState.favorites];
+          }
 
-          await fetch(`${API_URL}/favorites`, {
+          await request(`${API_URL}/favorites`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -333,8 +358,10 @@ export const JobsProvider = component$(() => {
         }
       } catch (error) {
         console.error('Failed to toggle favorite:', error);
-        // Revert on error
-        job.is_favorite = wasFavorite;
+        // Revert on error for ALL instances
+        allInstances.forEach(job => {
+          job.is_favorite = wasFavorite;
+        });
       }
     });
 
@@ -344,7 +371,7 @@ export const JobsProvider = component$(() => {
         const token = auth.token;
         if (!token) return;
 
-        const response = await fetch(`${API_URL}/favorites`, {
+        const response = await request(`${API_URL}/favorites`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -387,36 +414,45 @@ export const JobsProvider = component$(() => {
   useVisibleTask$(async ({ track }) => {
     const likeReq = track(() => likeJobSignal.value);
     if (likeReq) {
-      const job = jobsState.jobs.find((j: JobListing) => j.id === likeReq.jobId);
-      if (job) {
-        // Optimistic update
+      const allInstances = [
+        ...jobsState.jobs.filter(j => j.id === likeReq.jobId),
+        ...jobsState.favorites.filter(j => j.id === likeReq.jobId)
+      ];
+
+      if (allInstances.length > 0) {
+        const job = allInstances[0];
+        // Optimistic update for ALL instances
         const company = jobsState.companies.find((c: Company) => c.name === job.company);
 
         if (likeReq.remove) {
           job.likes = Math.max(0, job.likes - 1);
           job.user_reaction = null;
-          if (company) {
-            company.trustScore = Math.max(0, company.trustScore - 0.1);
-            company.totalRatings = Math.max(0, company.totalRatings - 1);
-          }
+          if (job.companyLikes !== undefined) job.companyLikes = Math.max(0, job.companyLikes - 1);
         } else {
           // Add Like
           job.likes++;
           job.user_reaction = 'LIKE';
+          if (job.companyLikes !== undefined) job.companyLikes++;
           // If swapping from dislike
           if (likeReq.wasDisliked) {
             job.dislikes = Math.max(0, job.dislikes - 1);
-            if (company) {
-              company.trustScore = Math.min(100, company.trustScore + 0.2); // +0.1 remove dislike, +0.1 add like
-              // totalRatings same
-            }
-          } else {
-            // pure like
-            if (company) {
-              company.trustScore = Math.min(100, company.trustScore + 0.1);
-              company.totalRatings++;
-            }
+            if (job.companyDislikes !== undefined) job.companyDislikes = Math.max(0, job.companyDislikes - 1);
           }
+        }
+
+        // Update company-wide score on the job
+        if (job.companyLikes !== undefined && job.companyDislikes !== undefined) {
+          const likes = job.companyLikes;
+          const dislikes = job.companyDislikes;
+          const newScore = ((likes + 8) / (likes + dislikes + 10)) * 100;
+
+          allInstances.forEach(j => {
+            j.likes = job.likes;
+            j.user_reaction = job.user_reaction;
+            j.companyLikes = likes;
+            j.companyDislikes = dislikes;
+            j.companyScore = newScore;
+          });
         }
 
         // API Call
@@ -424,14 +460,14 @@ export const JobsProvider = component$(() => {
           const token = auth.token;
           if (token) {
             if (likeReq.remove) {
-              await fetch(`${API_URL}/likes?jobId=${likeReq.jobId}`, {
+              await request(`${API_URL}/likes?jobId=${likeReq.jobId}`, {
                 method: 'DELETE',
                 headers: {
                   'Authorization': `Bearer ${token}`
                 }
               });
             } else {
-              await fetch(`${API_URL}/likes`, {
+              await request(`${API_URL}/likes`, {
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json',
@@ -449,39 +485,144 @@ export const JobsProvider = component$(() => {
     }
   });
 
+  // Assign deleteComment method
+  useTask$(() => {
+    jobsState.deleteComment$ = $(async (commentId: string) => {
+      const comment = jobsState.comments.find(c => c.id === commentId);
+      if (!comment) return;
+      const jobId = comment.jobId;
+
+      // Optimistic update
+      const originalComments = [...jobsState.comments];
+      jobsState.comments = jobsState.comments.filter(c => c.id !== commentId);
+
+      // Decrement count in jobs
+      const jobIndex = jobsState.jobs.findIndex(j => j.id === jobId);
+      if (jobIndex !== -1) {
+        jobsState.jobs[jobIndex].comments_count = Math.max(0, (jobsState.jobs[jobIndex].comments_count || 0) - 1);
+      }
+      // Decrement count in favorites
+      const favIndex = jobsState.favorites.findIndex(j => j.id === jobId);
+      if (favIndex !== -1) {
+        jobsState.favorites[favIndex].comments_count = Math.max(0, (jobsState.favorites[favIndex].comments_count || 0) - 1);
+      }
+
+      try {
+        const token = auth.token;
+        if (!token) throw new Error("Not authorized");
+
+        const response = await request(`${API_URL}/comments/${commentId}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to delete comment');
+        }
+      } catch (error) {
+        console.error('Failed to delete comment:', error);
+        // Revert on error
+        jobsState.comments = originalComments;
+        if (jobIndex !== -1) {
+          jobsState.jobs[jobIndex].comments_count = (jobsState.jobs[jobIndex].comments_count || 0) + 1;
+        }
+        if (favIndex !== -1) {
+          jobsState.favorites[favIndex].comments_count = (jobsState.favorites[favIndex].comments_count || 0) + 1;
+        }
+        alert('Failed to delete comment');
+      }
+    });
+
+    jobsState.editComment$ = $(async (commentId: string, newContent: string) => {
+      // Optimistic update
+      const commentIndex = jobsState.comments.findIndex(c => c.id === commentId);
+      if (commentIndex === -1) return;
+
+      const originalComment = { ...jobsState.comments[commentIndex] };
+      jobsState.comments[commentIndex].text = newContent;
+
+      try {
+        const token = auth.token;
+        if (!token) throw new Error("Not authorized");
+
+        const response = await request(`${API_URL}/comments/${commentId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ content: newContent })
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to edit comment');
+        }
+      } catch (error) {
+        console.error('Failed to edit comment:', error);
+        // Revert on error
+        jobsState.comments[commentIndex] = originalComment;
+        alert('Failed to edit comment');
+      }
+    });
+  });
+
+  useVisibleTask$(async ({ track }) => {
+    const dislikeReq = track(() => dislikeJobSignal.value);
+    // ... (rest of dislike logic is unchanged, avoiding large replacement if possible, but context requires full block if I selected it)
+    /* Since I cannot select non-contiguous blocks easily without potentially breaking references, I will assume the previous block ended right before `useVisibleTask` for dislikeReq.
+       Wait, I selected 489 to 667 approx in my previous view. But replace_file_content needs exact target.
+       I will target strictly the deleteComment$ block and the addCommentSignal block separately if needed.
+       The tool documentation says "Specify each edit as a separate ReplacementChunk" for multi_replace_file_content.
+       But I am using replace_file_content.
+       I will use multi_replace_file_content to do both updates safely.
+    */
+  });
+
   useVisibleTask$(async ({ track }) => {
     const dislikeReq = track(() => dislikeJobSignal.value);
     if (dislikeReq) {
-      const job = jobsState.jobs.find((j: JobListing) => j.id === dislikeReq.jobId);
-      if (job) {
-        // Optimistic update
+      const allInstances = [
+        ...jobsState.jobs.filter(j => j.id === dislikeReq.jobId),
+        ...jobsState.favorites.filter(j => j.id === dislikeReq.jobId)
+      ];
+
+      if (allInstances.length > 0) {
+        const job = allInstances[0];
+        // Optimistic update for ALL instances
         const company = jobsState.companies.find((c: Company) => c.name === job.company);
 
         if (dislikeReq.remove) {
           job.dislikes = Math.max(0, job.dislikes - 1);
           job.user_reaction = null;
-          if (company) {
-            company.trustScore = Math.min(100, company.trustScore + 0.1);
-            company.totalRatings = Math.max(0, company.totalRatings - 1);
-          }
+          if (job.companyDislikes !== undefined) job.companyDislikes = Math.max(0, job.companyDislikes - 1);
         } else {
           // Add Dislike
           job.dislikes++;
           job.user_reaction = 'DISLIKE';
+          if (job.companyDislikes !== undefined) job.companyDislikes++;
           // If swapping from like
           if (dislikeReq.wasLiked) {
             job.likes = Math.max(0, job.likes - 1);
-            if (company) {
-              company.trustScore = Math.max(0, company.trustScore - 0.2);
-              // totalRatings same
-            }
-          } else {
-            // pure dislike
-            if (company) {
-              company.trustScore = Math.max(0, company.trustScore - 0.1);
-              company.totalRatings++;
-            }
+            if (job.companyLikes !== undefined) job.companyLikes = Math.max(0, job.companyLikes - 1);
           }
+        }
+
+        // Update company-wide score on the job
+        if (job.companyLikes !== undefined && job.companyDislikes !== undefined) {
+          const likes = job.companyLikes;
+          const dislikes = job.companyDislikes;
+          const newScore = ((likes + 8) / (likes + dislikes + 10)) * 100;
+
+          allInstances.forEach(j => {
+            j.dislikes = job.dislikes;
+            j.likes = job.likes;
+            j.user_reaction = job.user_reaction;
+            j.companyLikes = likes;
+            j.companyDislikes = dislikes;
+            j.companyScore = newScore;
+          });
         }
 
         // API Call
@@ -489,14 +630,14 @@ export const JobsProvider = component$(() => {
           const token = auth.token;
           if (token) {
             if (dislikeReq.remove) {
-              await fetch(`${API_URL}/likes?jobId=${dislikeReq.jobId}`, {
+              await request(`${API_URL}/likes?jobId=${dislikeReq.jobId}`, {
                 method: 'DELETE',
                 headers: {
                   'Authorization': `Bearer ${token}`
                 }
               });
             } else {
-              await fetch(`${API_URL}/likes`, {
+              await request(`${API_URL}/likes`, {
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json',
@@ -521,8 +662,11 @@ export const JobsProvider = component$(() => {
         const token = auth.token;
         if (!token) throw new Error("No token found");
 
-        console.log('Adding comment to job:', commentReq.jobId, 'using token:', token ? 'exists' : 'null');
-        const response = await fetch(`${API_URL}/comments`, {
+        console.log(`[JobsContext] Adding comment to ${commentReq.jobId}`);
+        console.log(`[JobsContext] Target URL: ${API_URL}/comments`);
+        console.log(`[JobsContext] Token exists: ${!!token}, Length: ${token?.length}`);
+
+        const response = await request(`${API_URL}/comments`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -544,10 +688,22 @@ export const JobsProvider = component$(() => {
           jobsState.comments.push({
             id: result.data.id,
             jobId: commentReq.jobId,
+            userId: auth.user?.id || '', // Add userId
             author: commentReq.author,
             text: commentReq.text,
             date: new Date(result.data.created_at)
           });
+
+          // Increment count in jobs
+          const jobIndex = jobsState.jobs.findIndex(j => j.id === commentReq.jobId);
+          if (jobIndex !== -1) {
+            jobsState.jobs[jobIndex].comments_count = (jobsState.jobs[jobIndex].comments_count || 0) + 1;
+          }
+          // Increment count in favorites
+          const favIndex = jobsState.favorites.findIndex(j => j.id === commentReq.jobId);
+          if (favIndex !== -1) {
+            jobsState.favorites[favIndex].comments_count = (jobsState.favorites[favIndex].comments_count || 0) + 1;
+          }
         }
       } catch (error) {
         console.error('Error adding comment:', error);

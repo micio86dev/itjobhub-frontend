@@ -90,8 +90,6 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
     : dtf.format(dateObj);
 
 
-  const companyScore = getCompanyScoreFromState(jobsContext.companies, job.company);
-
   return (
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6 mb-4 hover:shadow-md transition-shadow">
       {/* Header */}
@@ -123,7 +121,7 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
                 </span>
 
                 <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200">
-                  {companyScore}% {t('job.trust_score')}
+                  {Number(job.companyScore || 80).toLocaleString(undefined, { maximumFractionDigits: 1 })}% {t('job.trust_score')}
                 </span>
               </div>
             </div>
@@ -139,19 +137,19 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
               <button
                 onClick$={handleToggleFavorite}
                 class={`p-1 rounded transition-colors ${job.is_favorite
-                    ? 'text-yellow-500 hover:text-yellow-600'
-                    : 'text-gray-400 hover:text-yellow-500'
+                  ? 'text-yellow-500 hover:text-yellow-600'
+                  : 'text-gray-400 hover:text-yellow-500'
                   }`}
                 title={job.is_favorite ? t('job.remove_favorite') : t('job.add_favorite')}
               >
                 <svg class="w-5 h-5" fill={job.is_favorite ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.382-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
                 </svg>
               </button>
             )}
           </div>
           {job.remote && (
-            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200">
+            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-green-200">
               {t('job.remote_badge')}
             </span>
           )}
@@ -174,8 +172,8 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
           </span>
           <div class="mt-1">
             <span class={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${job.seniority === 'junior' ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200' :
-                job.seniority === 'mid' ? 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200' :
-                  'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200'
+              job.seniority === 'mid' ? 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200' :
+                'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200'
               }`}>
               {t('jobs.' + job.seniority)}
             </span>
@@ -206,18 +204,20 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
       </div>
 
       {/* Salary */}
-      {job.salary && (
-        <div class="mb-4">
-          <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
-            {t('job.salary')}
-          </span>
-          <div class="mt-1">
-            <span class="text-sm font-semibold text-green-600">
-              {job.salary}
+      {
+        job.salary && (
+          <div class="mb-4">
+            <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+              {t('job.salary')}
             </span>
+            <div class="mt-1">
+              <span class="text-sm font-semibold text-green-600">
+                {job.salary}
+              </span>
+            </div>
           </div>
-        </div>
-      )}
+        )
+      }
 
       {/* Skills */}
       <div class="mb-4">
@@ -244,8 +244,8 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
             onClick$={handleLike}
             disabled={!isAuthenticated}
             class={`flex items-center space-x-1 px-2 py-1 rounded transition-colors ${hasLiked
-                ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-200'
-                : 'text-gray-500 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20'
+              ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-200'
+              : 'text-gray-500 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20'
               } ${!isAuthenticated ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
           >
             <span class="text-lg">👍</span>
@@ -256,8 +256,8 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
             onClick$={handleDislike}
             disabled={!isAuthenticated}
             class={`flex items-center space-x-1 px-2 py-1 rounded transition-colors ${hasDisliked
-                ? 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-200'
-                : 'text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20'
+              ? 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-200'
+              : 'text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20'
               } ${!isAuthenticated ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
           >
             <span class="text-lg">👎</span>
@@ -269,8 +269,8 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
             <button
               onClick$={() => onToggleComments$!(job.id)}
               class={`flex items-center space-x-1 px-2 py-1 rounded transition-colors ${showComments
-                  ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200'
-                  : 'text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20'
+                ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200'
+                : 'text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20'
                 } cursor-pointer`}
             >
               <span class="text-lg">💬</span>
@@ -297,6 +297,6 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
 
       {/* Login prompt for non-authenticated users */}
       {!isAuthenticated && <LoginPrompt />}
-    </div>
+    </div >
   );
 });
