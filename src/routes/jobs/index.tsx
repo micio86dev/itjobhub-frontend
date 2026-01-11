@@ -55,17 +55,28 @@ export default component$(() => {
 
     // Apply client-side personalized filter only if enabled
     if (state.showPersonalized && user) {
+      // Create safe copies to avoid Qwik proxy issues during filtering
+      const safeJobs = Array.from(jobsState.jobs);
+      const safeSkills = user.skills ? Array.from(user.skills) : [];
+      const safeLanguages = user.languages ? Array.from(user.languages) : [];
+
       jobsToShow = getPersonalizedJobs(
-        jobsState.jobs,
-        user.skills || [],
+        safeJobs,
+        safeSkills,
         user.seniority,
-        user.languages || [],
+        safeLanguages,
         i18n.currentLanguage || 'it'
       );
     }
 
     state.displayedJobs = jobsToShow;
-    state.totalJobsCount = jobsState.pagination.totalJobs || jobsToShow.length;
+
+    // When personalized, show the actual count of matching jobs found locally
+    // Otherwise show the total available on server
+    state.totalJobsCount = state.showPersonalized
+      ? jobsToShow.length
+      : (jobsState.pagination.totalJobs || jobsToShow.length);
+
     state.hasNextPage = jobsState.pagination.hasMore;
     state.isLoading = jobsState.pagination.isLoading;
   });
@@ -149,8 +160,8 @@ export default component$(() => {
               <button
                 onClick$={togglePersonalized}
                 class={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${state.showPersonalized
-                    ? 'bg-indigo-600 dark:bg-indigo-700 text-white'
-                    : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
+                  ? 'bg-indigo-600 dark:bg-indigo-700 text-white'
+                  : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
                   }`}
               >
                 {state.showPersonalized ? t('jobs.personalized_feed') : t('jobs.all_jobs')}
@@ -211,7 +222,10 @@ export default component$(() => {
       {/* Results count */}
       {state.totalJobsCount > 0 && (
         <div class="mb-4 text-sm font-medium text-gray-600 dark:text-gray-400">
-          {t('jobs.found_count').replace('{count}', state.totalJobsCount.toString())}
+          {state.hasNextPage
+            ? t('jobs.showing_count').replace('{count}', state.totalJobsCount.toString())
+            : t('jobs.found_count').replace('{count}', state.totalJobsCount.toString())
+          }
         </div>
       )}
 

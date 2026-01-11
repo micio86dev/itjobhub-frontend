@@ -496,16 +496,15 @@ export const JobsProvider = component$(() => {
       const originalComments = [...jobsState.comments];
       jobsState.comments = jobsState.comments.filter(c => c.id !== commentId);
 
-      // Decrement count in jobs
-      const jobIndex = jobsState.jobs.findIndex(j => j.id === jobId);
-      if (jobIndex !== -1) {
-        jobsState.jobs[jobIndex].comments_count = Math.max(0, (jobsState.jobs[jobIndex].comments_count || 0) - 1);
-      }
-      // Decrement count in favorites
-      const favIndex = jobsState.favorites.findIndex(j => j.id === jobId);
-      if (favIndex !== -1) {
-        jobsState.favorites[favIndex].comments_count = Math.max(0, (jobsState.favorites[favIndex].comments_count || 0) - 1);
-      }
+      // Update comment count safely handling potential shared references
+      const jobsToUpdate = new Set([
+        ...jobsState.jobs.filter(j => j.id === jobId),
+        ...jobsState.favorites.filter(j => j.id === jobId)
+      ]);
+
+      jobsToUpdate.forEach(job => {
+        job.comments_count = Math.max(0, (job.comments_count || 0) - 1);
+      });
 
       try {
         const token = auth.token;
@@ -525,12 +524,16 @@ export const JobsProvider = component$(() => {
         console.error('Failed to delete comment:', error);
         // Revert on error
         jobsState.comments = originalComments;
-        if (jobIndex !== -1) {
-          jobsState.jobs[jobIndex].comments_count = (jobsState.jobs[jobIndex].comments_count || 0) + 1;
-        }
-        if (favIndex !== -1) {
-          jobsState.favorites[favIndex].comments_count = (jobsState.favorites[favIndex].comments_count || 0) + 1;
-        }
+
+        const jobsToRevert = new Set([
+          ...jobsState.jobs.filter(j => j.id === jobId),
+          ...jobsState.favorites.filter(j => j.id === jobId)
+        ]);
+
+        jobsToRevert.forEach(job => {
+          job.comments_count = (job.comments_count || 0) + 1;
+        });
+
         alert('Failed to delete comment');
       }
     });
@@ -694,16 +697,15 @@ export const JobsProvider = component$(() => {
             date: new Date(result.data.created_at)
           });
 
-          // Increment count in jobs
-          const jobIndex = jobsState.jobs.findIndex(j => j.id === commentReq.jobId);
-          if (jobIndex !== -1) {
-            jobsState.jobs[jobIndex].comments_count = (jobsState.jobs[jobIndex].comments_count || 0) + 1;
-          }
-          // Increment count in favorites
-          const favIndex = jobsState.favorites.findIndex(j => j.id === commentReq.jobId);
-          if (favIndex !== -1) {
-            jobsState.favorites[favIndex].comments_count = (jobsState.favorites[favIndex].comments_count || 0) + 1;
-          }
+          // Increment count safely handling potential shared references
+          const jobsToUpdate = new Set([
+            ...jobsState.jobs.filter(j => j.id === commentReq.jobId),
+            ...jobsState.favorites.filter(j => j.id === commentReq.jobId)
+          ]);
+
+          jobsToUpdate.forEach(job => {
+            job.comments_count = (job.comments_count || 0) + 1;
+          });
         }
       } catch (error) {
         console.error('Error adding comment:', error);

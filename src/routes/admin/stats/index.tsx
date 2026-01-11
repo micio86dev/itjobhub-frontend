@@ -3,6 +3,7 @@ import type { DocumentHead } from "@builder.io/qwik-city";
 import { useAuth } from "~/contexts/auth";
 import { useTranslate, translate, useI18n } from "~/contexts/i18n";
 import { request } from "../../../utils/api";
+import { LineChart } from "~/components/admin/charts/line-chart";
 
 interface Stats {
   overview: {
@@ -14,6 +15,7 @@ interface Stats {
   charts: {
     seniority: { label: string; value: number }[];
     employmentType: { label: string; value: number }[];
+    trends: { label: string; value: number }[];
   };
 }
 
@@ -220,6 +222,21 @@ export default component$(() => {
       </div>
 
       {/* Charts Section */}
+      <div class="mb-8 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+        <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-6">
+          {t('admin.job_trend')} - {state.selectedYear || new Date().getFullYear()}
+        </h3>
+        <div class="w-full">
+          <LineChart
+            data={stats.charts.trends.map(d => ({
+              ...d,
+              label: new Date(2000, parseInt(d.label), 1).toLocaleString(lang === 'it' ? 'it-IT' : 'en-US', { month: 'short' })
+            }))}
+            height={300}
+          />
+        </div>
+      </div>
+
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Jobs by Seniority */}
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
