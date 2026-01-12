@@ -87,9 +87,18 @@ export default component$(() => {
       await jobsState.fetchJobsPage$(1, filters, false);
     } else if (jobsState.jobs.length === 0) {
       // Logic for default load (direct navigation to /jobs)
-      // Only fetch if we don't have jobs to avoid double fetching if hydration/SSR already worked
-      // (though here we are client-side mostly)
-      const filters: JobFilters | undefined = userLanguages ? { languages: userLanguages } : undefined;
+      let filters: JobFilters | undefined = userLanguages ? { languages: userLanguages } : undefined;
+
+      if (state.showPersonalized && user) {
+        filters = {
+          ...filters,
+          skills: user.skills ? Array.from(user.skills) : undefined,
+          seniority: user.seniority,
+          availability: user.availability,
+          looseSeniority: true,
+        };
+      }
+
       state.searchFilters = filters || null;
       await jobsState.fetchJobsPage$(1, filters, false);
     }
@@ -112,6 +121,7 @@ export default component$(() => {
         seniority: user.seniority,
         availability: user.availability,
         languages: user.languages ? Array.from(user.languages) : undefined,
+        looseSeniority: true,
         // We might want to include location/remote preferences from profile too if available, 
         // but sticking to skills/seniority for "Feed" to match previous logic
       };

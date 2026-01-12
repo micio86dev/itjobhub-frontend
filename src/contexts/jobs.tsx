@@ -9,7 +9,7 @@ export interface JobListing {
   description?: string;
   skills: string[];
   seniority: 'junior' | 'mid' | 'senior' | 'unknown';
-  availability: 'full_time' | 'part_time' | 'contract' | 'not_specified';
+  availability: 'full_time' | 'part_time' | 'contract' | 'freelance' | 'not_specified';
   location?: string;
   location_geo?: { coordinates: number[] };
   remote?: boolean;
@@ -106,6 +106,7 @@ export interface JobFilters {
   radius_km?: number;
   languages?: string[];
   location?: string;
+  looseSeniority?: boolean;
 }
 
 // Helper to process raw API job into JobListing (outside component to avoid QRL serialization issues)
@@ -238,6 +239,7 @@ export const JobsProvider = component$(() => {
           url.searchParams.append('lng', String(filters.location_geo.lng));
           url.searchParams.append('radius_km', String(filters.radius_km || 50));
         }
+        if (filters?.looseSeniority) url.searchParams.append('looseSeniority', 'true');
 
         // Include auth token if available
         const headers: Record<string, string> = {};
@@ -905,7 +907,7 @@ export const getPersonalizedJobs = (jobs: JobListing[], userSkills?: string[], u
   // 3. Filter by Skills (if specified) - Must match at least one skill
   if (userSkills && userSkills.length > 0) {
     filteredJobs = filteredJobs.filter(job => {
-      if (!job.skills || job.skills.length === 0) return true; // Keep jobs with no skills specified
+      if (!job.skills || job.skills.length === 0) return false;
       return job.skills.some(skill =>
         userSkills.some(userSkill => skill.toLowerCase().includes(userSkill.toLowerCase()))
       );

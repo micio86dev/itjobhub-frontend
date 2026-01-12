@@ -17,7 +17,8 @@ interface Stats {
     seniority: { label: string; value: number }[];
     employmentType: { label: string; value: number }[];
     trends: { label: string; value: number }[];
-    trends: { label: string; value: number }[];
+    jobsBySource: { label: string; value: number }[];
+
     topSkills: { label: string; value: number }[];
     locations: {
       id: string;
@@ -341,6 +342,38 @@ export default component$(() => {
             )}
           </div>
         </div>
+        {/* Jobs by Source */}
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+          <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-6">
+            {t('admin.jobs_by_source') || 'Annunci per Sorgente'}
+          </h3>
+          <div class="space-y-4">
+            {stats.charts.jobsBySource && stats.charts.jobsBySource.length > 0 ? (
+              stats.charts.jobsBySource.map((item) => {
+                const totalFilteredJobsForSource = stats.charts.jobsBySource.reduce((acc, curr) => acc + curr.value, 0);
+                const percentage = totalFilteredJobsForSource > 0
+                  ? (item.value / totalFilteredJobsForSource) * 100
+                  : 0;
+                return (
+                  <div key={item.label} class="space-y-1">
+                    <div class="flex justify-between text-sm">
+                      <span class="text-gray-700 dark:text-gray-300 capitalize">{item.label}</span>
+                      <span class="font-semibold text-gray-900 dark:text-white">{item.value}</span>
+                    </div>
+                    <div class="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2">
+                      <div
+                        class="bg-blue-600 h-2 rounded-full transition-all duration-500"
+                        style={{ width: `${percentage}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                );
+              })
+            ) : (
+              <p class="text-gray-500 text-sm italic">{t('admin.no_data')}</p>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* Top Skills Section */}
@@ -365,7 +398,7 @@ export default component$(() => {
             </div>
           )}
         </div>
-      </div>
+      </div >
 
     </div >
   );

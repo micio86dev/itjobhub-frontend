@@ -170,6 +170,7 @@ export const JobSearch = component$<JobSearchProps>(({
             <option value="full-time">{t('jobs.full_time')}</option>
             <option value="part-time">{t('jobs.part_time')}</option>
             <option value="contract">{t('jobs.contract')}</option>
+            <option value="freelance">{t('jobs.freelance')}</option>
           </select>
         </div>
 
@@ -245,7 +246,8 @@ export const JobSearch = component$<JobSearchProps>(({
               <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                 {state.availability === 'full-time' ? t('jobs.full_time') :
                   state.availability === 'part-time' ? t('jobs.part_time') :
-                    state.availability === 'contract' ? t('jobs.contract') : state.availability}
+                    state.availability === 'contract' ? t('jobs.contract') :
+                      state.availability === 'freelance' ? t('jobs.freelance') : state.availability}
               </span>
             )}
 
