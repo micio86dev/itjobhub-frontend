@@ -2,7 +2,7 @@ import { component$, $, type QRL } from "@builder.io/qwik";
 import { marked } from "marked";
 import { Link } from "@builder.io/qwik-city";
 import type { JobListing } from "~/contexts/jobs";
-import { useJobs, getCompanyScoreFromState, getCommentsFromState } from "~/contexts/jobs";
+import { useJobs, getCommentsFromState } from "~/contexts/jobs";
 import { LoginPrompt } from "./login-prompt";
 import { useAuth } from "~/contexts/auth";
 import { useTranslate, useI18n } from "~/contexts/i18n";

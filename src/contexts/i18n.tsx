@@ -96,7 +96,6 @@ export const translate = (key: string, language: SupportedLanguage): string => {
     return key;
   }
   const translation =
-    // @ts-ignore
     currentTranslations[key as keyof typeof currentTranslations];
   if (!translation) {
     console.warn(`Translation missing for key "${key}" in language "${language}"`);

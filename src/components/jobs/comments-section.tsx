@@ -1,7 +1,7 @@
 import { component$, $, useStore, type QRL } from "@builder.io/qwik";
 import { useJobs, getCommentsFromState } from "~/contexts/jobs";
 import { useAuth } from "~/contexts/auth";
-import { useTranslate, useI18n } from "~/contexts/i18n";
+import { useTranslate, useI18n, translate } from "~/contexts/i18n";
 
 interface CommentsSectionProps {
   jobId: string;
@@ -47,7 +47,7 @@ export const CommentsSection = component$<CommentsSectionProps>(({ jobId, onClos
   });
 
   const handleDelete = $(async (commentId: string) => {
-    if (confirm(t('comments.confirm_delete') || 'Delete comment?')) { // Simple confirm for now
+    if (confirm(translate('comments.confirm_delete', i18n.currentLanguage) || 'Delete comment?')) { // Simple confirm for now
       await jobsContext.deleteComment$(commentId);
     }
   });

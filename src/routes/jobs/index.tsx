@@ -2,7 +2,7 @@ import { component$, $, useStore, useTask$ } from "@builder.io/qwik";
 import { type DocumentHead, useLocation } from "@builder.io/qwik-city";
 import { useJobs } from "~/contexts/jobs";
 import { useAuth } from "~/contexts/auth";
-import { useTranslate, useI18n } from "~/contexts/i18n";
+import { useTranslate } from "~/contexts/i18n";
 import { JobCard } from "~/components/jobs/job-card";
 import { CommentsSection } from "~/components/jobs/comments-section";
 import { JobSearch } from "~/components/jobs/job-search";
@@ -23,7 +23,6 @@ interface JobSearchFilters {
 export default component$(() => {
   const auth = useAuth();
   const t = useTranslate();
-  const i18n = useI18n();
   const location = useLocation();
 
   // Extract values to avoid serialization issues

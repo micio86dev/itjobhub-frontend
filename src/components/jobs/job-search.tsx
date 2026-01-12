@@ -33,8 +33,8 @@ export const JobSearch = component$<JobSearchProps>(({
   initialSeniority,
   initialAvailability,
   initialRemote,
-  initialDateRange,
-  userHasLanguages
+  initialDateRange
+  // userHasLanguages is currently unused but kept in props for future use
 }) => {
   const t = useTranslate();
   const state = useStore<JobSearchFilters>({

@@ -2,7 +2,7 @@ import { component$, useResource$, Resource, useStore, useTask$, $ } from "@buil
 import { marked } from "marked";
 import { useLocation, Link } from "@builder.io/qwik-city";
 import { useJobs, type JobListing } from "~/contexts/jobs";
-import { useTranslate, useI18n } from "~/contexts/i18n";
+import { useTranslate } from "~/contexts/i18n";
 import { useAuth } from "~/contexts/auth";
 import { CommentsSection } from "~/components/jobs/comments-section";
 
@@ -11,7 +11,6 @@ export default component$(() => {
     const jobsContext = useJobs();
     const auth = useAuth();
     const t = useTranslate();
-    const i18n = useI18n();
 
     const state = useStore({
         job: null as JobListing | null,
@@ -268,7 +267,7 @@ export default component$(() => {
                                                 frameBorder="0"
                                                 style="border:0"
                                                 src={`https://www.google.com/maps/embed/v1/place?key=${import.meta.env.PUBLIC_GOOGLE_MAPS_KEY}&q=${job.location_geo.coordinates[1]},${job.location_geo.coordinates[0]}&zoom=14`}
-                                                allowFullScreen
+                                                allowFullscreen
                                             ></iframe>
                                             <div class="absolute bottom-2 right-2 bg-white/90 dark:bg-gray-800/90 px-2 py-1 rounded text-[10px] text-gray-500 font-medium">
                                                 {job.location}
@@ -327,11 +326,6 @@ export default component$(() => {
                         </div>
                     );
                 }}
-                onError={(err) => (
-                    <div class="p-10 text-center text-red-500 bg-red-50 rounded-xl border border-red-100">
-                        Error loading job details: {err.message}
-                    </div>
-                )}
             />
         </div>
     );
