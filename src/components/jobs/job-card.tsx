@@ -1,4 +1,5 @@
 import { component$, $, type QRL } from "@builder.io/qwik";
+import { marked } from "marked";
 import { Link } from "@builder.io/qwik-city";
 import type { JobListing } from "~/contexts/jobs";
 import { useJobs, getCompanyScoreFromState, getCommentsFromState } from "~/contexts/jobs";
@@ -161,10 +162,10 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
 
       {/* Description */}
       {job.description && (
-        <p
-          class="text-gray-600 dark:text-gray-400 text-sm mb-4 line-clamp-2"
-          dangerouslySetInnerHTML={job.description}
-        ></p>
+        <div
+          class="text-gray-600 dark:text-gray-400 text-sm mb-4 line-clamp-2 prose prose-sm dark:prose-invert"
+          dangerouslySetInnerHTML={marked.parse(job.description) as string}
+        ></div>
       )}
 
       {/* Job Details */}

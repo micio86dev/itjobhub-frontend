@@ -18,7 +18,8 @@ interface Stats {
     employmentType: { label: string; value: number }[];
     trends: { label: string; value: number }[];
     jobsBySource: { label: string; value: number }[];
-
+    jobsByCity: { label: string; value: number }[];
+    jobsByLanguage: { label: string; value: number }[];
     topSkills: { label: string; value: number }[];
     locations: {
       id: string;
@@ -374,6 +375,74 @@ export default component$(() => {
             )}
           </div>
         </div>
+
+        {/* Jobs by City */}
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+          <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-6">
+            {t('admin.jobs_by_city') || 'Annunci per Città'}
+          </h3>
+          <div class="space-y-4">
+            {stats.charts.jobsByCity && stats.charts.jobsByCity.length > 0 ? (
+              stats.charts.jobsByCity.map((item) => {
+                const totalFilteredJobsForCity = stats.charts.jobsByCity.reduce((acc, curr) => acc + curr.value, 0);
+                const percentage = totalFilteredJobsForCity > 0
+                  ? (item.value / totalFilteredJobsForCity) * 100
+                  : 0;
+                return (
+                  <div key={item.label} class="space-y-1">
+                    <div class="flex justify-between text-sm">
+                      <span class="text-gray-700 dark:text-gray-300 capitalize">{item.label}</span>
+                      <span class="font-semibold text-gray-900 dark:text-white">{item.value}</span>
+                    </div>
+                    <div class="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2">
+                      <div
+                        class="bg-emerald-600 h-2 rounded-full transition-all duration-500"
+                        style={{ width: `${percentage}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                );
+              })
+            ) : (
+              <p class="text-gray-500 text-sm italic">{t('admin.no_data')}</p>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
+        {/* Jobs by Language */}
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+          <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-6">
+            {t('admin.jobs_by_language') || 'Annunci per Lingua'}
+          </h3>
+          <div class="space-y-4">
+            {stats.charts.jobsByLanguage && stats.charts.jobsByLanguage.length > 0 ? (
+              stats.charts.jobsByLanguage.map((item) => {
+                const totalFilteredJobsForLang = stats.charts.jobsByLanguage.reduce((acc, curr) => acc + curr.value, 0);
+                const percentage = totalFilteredJobsForLang > 0
+                  ? (item.value / totalFilteredJobsForLang) * 100
+                  : 0;
+                return (
+                  <div key={item.label} class="space-y-1">
+                    <div class="flex justify-between text-sm">
+                      <span class="text-gray-700 dark:text-gray-300 uppercase">{item.label}</span>
+                      <span class="font-semibold text-gray-900 dark:text-white">{item.value}</span>
+                    </div>
+                    <div class="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2">
+                      <div
+                        class="bg-indigo-500 h-2 rounded-full transition-all duration-500"
+                        style={{ width: `${percentage}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                );
+              })
+            ) : (
+              <p class="text-gray-500 text-sm italic">{t('admin.no_data')}</p>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* Top Skills Section */}
@@ -398,9 +467,8 @@ export default component$(() => {
             </div>
           )}
         </div>
-      </div >
-
-    </div >
+      </div>
+    </div>
   );
 });
 

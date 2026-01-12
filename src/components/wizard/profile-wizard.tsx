@@ -24,15 +24,16 @@ const SKILL_SUGGESTIONS = [
   'Git', 'CI/CD', 'Linux', 'Nginx', 'Apache', 'GraphQL', 'REST API'
 ];
 
-export const ProfileWizard = component$<ProfileWizardProps>(({ 
-  initialData, 
-  onComplete$, 
-  onCancel$ 
+export const ProfileWizard = component$<ProfileWizardProps>(({
+  initialData,
+  onComplete$,
+  onCancel$
 }) => {
   const t = useTranslate();
-  
+
   const state = useStore({
     currentStep: 1,
+    isSubmitting: false,
     data: {
       languages: initialData?.languages || [],
       skills: initialData?.skills || [],
@@ -54,6 +55,7 @@ export const ProfileWizard = component$<ProfileWizardProps>(({
   });
 
   const handleComplete = $(() => {
+    state.isSubmitting = true;
     onComplete$(state.data);
   });
 
@@ -66,7 +68,7 @@ export const ProfileWizard = component$<ProfileWizardProps>(({
       default: return false;
     }
   };
-  
+
   return (
     <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 overflow-y-auto">
       <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-lg w-full p-6 my-8">
@@ -74,9 +76,9 @@ export const ProfileWizard = component$<ProfileWizardProps>(({
         <div class="mb-6">
           <div class="flex items-center justify-between mb-2">
             <span class="text-sm font-medium text-gray-900 dark:text-white">
-              {interpolate(t('wizard.step_of'), { 
-                current: state.currentStep.toString(), 
-                total: '4' 
+              {interpolate(t('wizard.step_of'), {
+                current: state.currentStep.toString(),
+                total: '4'
               })}
             </span>
             <span class="text-sm text-gray-500 dark:text-gray-400">
@@ -84,7 +86,7 @@ export const ProfileWizard = component$<ProfileWizardProps>(({
             </span>
           </div>
           <div class="w-full bg-gray-200 rounded-full h-2">
-            <div 
+            <div
               class="bg-indigo-600 h-2 rounded-full transition-all duration-300"
               style={`width: ${(state.currentStep / 4) * 100}%`}
             ></div>
@@ -147,11 +149,10 @@ export const ProfileWizard = component$<ProfileWizardProps>(({
                 ].map((option) => (
                   <label
                     key={option.value}
-                    class={`flex items-start p-3 rounded-lg border-2 cursor-pointer transition-colors ${
-                      state.data.seniority === option.value
-                        ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20'
-                        : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
-                    }`}
+                    class={`flex items-start p-3 rounded-lg border-2 cursor-pointer transition-colors ${state.data.seniority === option.value
+                      ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20'
+                      : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
+                      }`}
                   >
                     <input
                       type="radio"
@@ -189,11 +190,10 @@ export const ProfileWizard = component$<ProfileWizardProps>(({
                 ].map((option) => (
                   <label
                     key={option.value}
-                    class={`flex items-start p-3 rounded-lg border-2 cursor-pointer transition-colors ${
-                      state.data.availability === option.value
-                        ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20'
-                        : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
-                    }`}
+                    class={`flex items-start p-3 rounded-lg border-2 cursor-pointer transition-colors ${state.data.availability === option.value
+                      ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20'
+                      : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
+                      }`}
                   >
                     <input
                       type="radio"
@@ -234,7 +234,7 @@ export const ProfileWizard = component$<ProfileWizardProps>(({
               </button>
             )}
           </div>
-          
+
           <div>
             {state.currentStep < 4 ? (
               <button
@@ -247,10 +247,16 @@ export const ProfileWizard = component$<ProfileWizardProps>(({
             ) : (
               <button
                 onClick$={handleComplete}
-                disabled={!getCanProceed()}
-                class="px-6 py-2 text-sm font-medium text-white bg-green-600 border border-transparent rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={!getCanProceed() || state.isSubmitting}
+                class="inline-flex items-center px-6 py-2 text-sm font-medium text-white bg-green-600 border border-transparent rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {t('wizard.complete')}
+                {state.isSubmitting && (
+                  <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                )}
+                {state.isSubmitting ? t('common.saving') : t('wizard.complete')}
               </button>
             )}
           </div>

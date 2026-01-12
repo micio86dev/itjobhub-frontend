@@ -340,12 +340,10 @@ export const JobsProvider = component$(() => {
         ...jobsState.favorites.filter(j => j.id === jobId)
       ];
 
-      if (allInstances.length === 0) return;
+      // Get state from the first instance, or default to false if job is not in lists
+      const wasFavorite = allInstances.length > 0 ? allInstances[0].is_favorite : false;
 
-      // Get state from the first instance
-      const wasFavorite = allInstances[0].is_favorite;
-
-      // Optimistic update for ALL instances
+      // Optimistic update for ALL instances in state
       allInstances.forEach(job => {
         job.is_favorite = !wasFavorite;
       });
@@ -372,7 +370,7 @@ export const JobsProvider = component$(() => {
         } else {
           // Add to favorites
           // Prevent duplication
-          if (!jobsState.favorites.some(f => f.id === jobId)) {
+          if (allInstances.length > 0 && !jobsState.favorites.some(f => f.id === jobId)) {
             const sourceJob = allInstances[0];
             jobsState.favorites = [sourceJob, ...jobsState.favorites];
           }

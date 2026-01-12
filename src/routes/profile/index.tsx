@@ -21,17 +21,18 @@ export default component$(() => {
   const i18n = useI18n();
   const lang = i18n.currentLanguage;
   const t = useTranslate();
-  
+
   // Extract values to avoid serialization issues
   const isAuthenticated = auth.isAuthenticated;
   const user = auth.user;
-  
+
   const fileInputRef = useSignal<HTMLInputElement | undefined>();
-  
+
   const state = useStore({
     isEditing: false,
     editingSection: '' as 'profile' | 'personal' | '',
     shouldRedirect: false,
+    isSavingPersonal: false,
     message: { type: 'success' as 'success' | 'error', text: '' },
     formData: {
       name: user?.name || '',
@@ -77,11 +78,12 @@ export default component$(() => {
       };
     }
   });
-  
+
   // Watch for profile update results
   useTask$(({ track }) => {
     const result = track(() => auth.profileUpdateResult.value);
     if (result) {
+      state.isSavingPersonal = false;
       if (result.success) {
         state.message = { type: 'success', text: translate('profile.update_success', i18n.currentLanguage) };
       } else {
@@ -148,6 +150,7 @@ export default component$(() => {
   });
 
   const handleSavePersonal = $(() => {
+    state.isSavingPersonal = true;
     // Trigger personal info update through signal
     auth.updatePersonalInfoSignal.value = state.formData;
     state.isEditing = false;
@@ -161,7 +164,7 @@ export default component$(() => {
   const handleAvatarChange = $((event: Event) => {
     const target = event.target as HTMLInputElement;
     const file = target.files?.[0];
-    
+
     if (file && file.type.startsWith('image/')) {
       const reader = new FileReader();
       reader.onload = (e) => {
@@ -184,7 +187,7 @@ export default component$(() => {
       availability: (user?.availability as 'full-time' | 'part-time' | 'busy' | '') || ''
     };
     return (
-      <ProfileWizard 
+      <ProfileWizard
         initialData={initialData}
         onComplete$={handleWizardComplete}
         onCancel$={handleCancelEdit}
@@ -215,11 +218,10 @@ export default component$(() => {
       <div class="bg-white dark:bg-gray-800 shadow rounded-lg">
         {/* Feedback Message */}
         {state.message.text && (
-          <div class={`p-4 rounded-t-lg text-center text-sm font-medium ${
-            state.message.type === 'success' 
-              ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300' 
-              : 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300'
-          }`}>
+          <div class={`p-4 rounded-t-lg text-center text-sm font-medium ${state.message.type === 'success'
+            ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300'
+            : 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300'
+            }`}>
             {state.message.text}
           </div>
         )}
@@ -237,7 +239,7 @@ export default component$(() => {
                     </span>
                   )}
                 </div>
-                <button 
+                <button
                   class="absolute -bottom-1 -right-1 w-6 h-6 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-full flex items-center justify-center border-2 border-white dark:border-gray-800"
                   onClick$={handleAvatarClick}
                   title={t('profile.change_avatar')}
@@ -287,7 +289,7 @@ export default component$(() => {
             <div class="text-center py-12">
               <div class="w-12 h-12 mx-auto mb-4 text-gray-400 dark:text-gray-500">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
               </div>
               <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">
@@ -296,7 +298,7 @@ export default component$(() => {
               <p class="text-gray-500 dark:text-gray-400 mb-4">
                 {t('profile.complete_desc')}
               </p>
-              <button 
+              <button
                 onClick$={handleEditProfile}
                 class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-700 dark:hover:bg-indigo-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-indigo-400"
               >
@@ -311,12 +313,12 @@ export default component$(() => {
                   <h3 class="text-lg font-medium text-gray-900 dark:text-white">
                     {t('profile.personal_info')}
                   </h3>
-                  <button 
+                  <button
                     onClick$={handleEditPersonal}
                     class="inline-flex items-center px-3 py-1 border border-gray-300 dark:border-gray-600 shadow-sm text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-indigo-400"
                   >
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                     </svg>
                     {t('profile.edit_profile')}
                   </button>
@@ -357,12 +359,12 @@ export default component$(() => {
                           value={state.formData.location}
                           onInput$={(val) => state.formData.location = val}
                           onLocationSelect$={(location, coordinates) => {
-                             state.formData.location = location;
-                             // Store coordinates in formData (need to add coordinates to EditFormData interface first)
-                             // Assuming I will add it in a subsequent step or previous step was missed?
-                             // I need to update EditFormData interface in this file too!
-                             // For now I'll cast to any or add it.
-                             (state.formData as any).coordinates = coordinates;
+                            state.formData.location = location;
+                            // Store coordinates in formData (need to add coordinates to EditFormData interface first)
+                            // Assuming I will add it in a subsequent step or previous step was missed?
+                            // I need to update EditFormData interface in this file too!
+                            // For now I'll cast to any or add it.
+                            (state.formData as any).coordinates = coordinates;
                           }}
                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:ring-indigo-500 focus:border-indigo-500 dark:focus:ring-indigo-400 dark:focus:border-indigo-400"
                         />
@@ -394,9 +396,16 @@ export default component$(() => {
                     <div class="flex space-x-3">
                       <button
                         onClick$={handleSavePersonal}
-                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-700 dark:hover:bg-indigo-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-indigo-400"
+                        disabled={state.isSavingPersonal}
+                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-700 dark:hover:bg-indigo-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        {t('profile.save_changes')}
+                        {state.isSavingPersonal && (
+                          <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                        )}
+                        {state.isSavingPersonal ? t('common.saving') : t('profile.save_changes')}
                       </button>
                       <button
                         onClick$={handleCancelEdit}
@@ -444,12 +453,12 @@ export default component$(() => {
                   <h3 class="text-lg font-medium text-gray-900 dark:text-white">
                     {t('profile.professional_info')}
                   </h3>
-                  <button 
+                  <button
                     onClick$={handleEditProfile}
                     class="inline-flex items-center px-3 py-1 border border-gray-300 dark:border-gray-600 shadow-sm text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-indigo-400"
                   >
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                     </svg>
                     {t('profile.edit_profile')}
                   </button>
