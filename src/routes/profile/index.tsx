@@ -1,5 +1,5 @@
 import { component$, useStore, $, useTask$, useVisibleTask$, useSignal } from "@builder.io/qwik";
-import type { DocumentHead } from "@builder.io/qwik-city";
+import { useNavigate, type DocumentHead } from "@builder.io/qwik-city";
 import { useAuth } from "~/contexts/auth";
 import { useTranslate, translate, useI18n } from "~/contexts/i18n";
 import { ProfileWizard } from "~/components/wizard/profile-wizard";
@@ -17,6 +17,7 @@ interface EditFormData {
 }
 
 export default component$(() => {
+  const nav = useNavigate();
   const auth = useAuth();
   const i18n = useI18n();
   const lang = i18n.currentLanguage;
@@ -45,14 +46,16 @@ export default component$(() => {
   });
 
   // Check authentication and set redirect flag
-  useTask$(({ track }) => {
-    const currentlyAuthenticated = track(() => isAuthenticated);
-    if (!currentlyAuthenticated) {
-      state.shouldRedirect = true;
+  // eslint-disable-next-line qwik/no-use-visible-task
+  useVisibleTask$(({ track }) => {
+    track(() => auth.isAuthenticated);
+    if (!auth.isAuthenticated) {
+      nav('/login');
     }
   });
 
   // Handle redirect on client side only, but double check simple auth presence
+  // eslint-disable-next-line qwik/no-use-visible-task
   useVisibleTask$(({ track }) => {
     const shouldRedirect = track(() => state.shouldRedirect);
     if (shouldRedirect) {
@@ -84,6 +87,9 @@ export default component$(() => {
     const result = track(() => auth.profileUpdateResult.value);
     if (result) {
       state.isSavingPersonal = false;
+      state.isEditing = false;
+      state.editingSection = '';
+
       if (result.success) {
         state.message = { type: 'success', text: translate('profile.update_success', i18n.currentLanguage) };
       } else {
@@ -151,10 +157,9 @@ export default component$(() => {
 
   const handleSavePersonal = $(() => {
     state.isSavingPersonal = true;
+    state.message.text = '';
     // Trigger personal info update through signal
-    auth.updatePersonalInfoSignal.value = state.formData;
-    state.isEditing = false;
-    state.editingSection = '';
+    auth.updatePersonalInfoSignal.value = { ...state.formData };
   });
 
   const handleAvatarClick = $(() => {

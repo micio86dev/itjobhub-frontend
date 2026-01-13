@@ -1,10 +1,11 @@
-import { component$, useResource$, Resource, useStore, useTask$, $ } from "@builder.io/qwik";
+import { component$, useResource$, Resource, useStore, useTask$, useVisibleTask$, $ } from "@builder.io/qwik";
 import { marked } from "marked";
 import { useLocation, Link } from "@builder.io/qwik-city";
 import { useJobs, type JobListing } from "~/contexts/jobs";
 import { useTranslate } from "~/contexts/i18n";
 import { useAuth } from "~/contexts/auth";
 import { CommentsSection } from "~/components/jobs/comments-section";
+import { MatchBreakdown } from "~/components/jobs/match-breakdown";
 
 export default component$(() => {
     const loc = useLocation();
@@ -14,6 +15,7 @@ export default component$(() => {
 
     const state = useStore({
         job: null as JobListing | null,
+        matchScore: null as any
     });
 
     const jobResource = useResource$(async ({ track }) => {
@@ -21,6 +23,13 @@ export default component$(() => {
         track(() => auth.token); // Re-fetch when auth changes to get is_favorite status
         const job = await jobsContext.fetchJobById$(loc.params.id);
         state.job = job;
+
+        // Fetch match score if authenticated
+        if (auth.token && job) {
+            const scoreData = await jobsContext.fetchJobMatchScore$(job.id);
+            state.matchScore = scoreData;
+        }
+
         return job;
     });
 
@@ -113,6 +122,15 @@ export default component$(() => {
         }
     });
 
+    // Track VIEW Interaction at top level of component
+    // eslint-disable-next-line qwik/no-use-visible-task
+    useVisibleTask$(({ track }) => {
+        const j = track(() => state.job);
+        if (j) {
+            jobsContext.trackJobInteraction$(j.id, 'VIEW');
+        }
+    });
+
     return (
         <div class="max-w-4xl mx-auto px-4 py-8">
             <Link
@@ -147,6 +165,7 @@ export default component$(() => {
                         );
                     }
 
+
                     const hasLiked = job.user_reaction === 'LIKE';
                     const hasDisliked = job.user_reaction === 'DISLIKE';
 
@@ -160,7 +179,7 @@ export default component$(() => {
                                         <div class="flex items-center gap-6">
                                             <div class="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-white dark:bg-gray-700 shadow-md flex items-center justify-center p-2 border border-gray-100 dark:border-gray-600">
                                                 {job.companyLogo ? (
-                                                    <img src={job.companyLogo} alt={job.company} class="max-w-full max-h-full object-contain" />
+                                                    <img src={job.companyLogo} alt={job.company} width="80" height="80" class="max-w-full max-h-full object-contain" />
                                                 ) : (
                                                     <svg class="w-10 h-10 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
@@ -229,6 +248,7 @@ export default component$(() => {
                                                 href={job.externalLink}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
+                                                onClick$={() => jobsContext.trackJobInteraction$(job.id, 'APPLY')}
                                                 class="px-8 py-3 bg-indigo-600 text-white font-bold rounded-xl shadow-lg shadow-indigo-500/30 hover:bg-indigo-700 hover:scale-[1.02] active:scale-[0.98] transition-all"
                                             >
                                                 {t('job.apply')}
@@ -254,6 +274,23 @@ export default component$(() => {
                                                 💰 {job.salary}
                                             </div>
                                         )}
+                                    </div>
+
+                                    {/* Tracking Stats */}
+                                    <div class="flex items-center gap-4 mt-4 text-xs font-medium text-gray-500 dark:text-gray-400 px-4 md:px-0">
+                                        <span class="flex items-center" title={t('job.views_count')}>
+                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                            </svg>
+                                            {job.views_count || 0} {t('job.views')}
+                                        </span>
+                                        <span class="flex items-center" title={t('job.clicks_count')}>
+                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" />
+                                            </svg>
+                                            {job.clicks_count || 0} {t('job.applications')}
+                                        </span>
                                     </div>
                                 </div>
 
@@ -318,6 +355,15 @@ export default component$(() => {
                                     {job.company} is an established organization in the industry. For more details about their products and culture, visit their official website or social profiles.
                                 </p>
                             </div>
+
+                            {/* Match Breakdown */}
+                            {state.matchScore && (
+                                <MatchBreakdown
+                                    score={state.matchScore.score}
+                                    factors={state.matchScore.factors}
+                                    details={state.matchScore.details}
+                                />
+                            )}
 
                             {/* Comments Section */}
                             <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-8">

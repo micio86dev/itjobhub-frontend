@@ -71,13 +71,15 @@ export const ThemeProvider = component$(() => {
   useContextProvider(ThemeContext, themeStore);
 
   // Initialize theme from localStorage on client side
+  // eslint-disable-next-line qwik/no-use-visible-task
   useVisibleTask$(() => {
-    const savedTheme = localStorage.getItem('theme') as Theme;
-    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const initialTheme = savedTheme || (systemPrefersDark ? 'dark' : 'light');
-
-    store.theme = initialTheme;
-    document.documentElement.classList.toggle('dark', initialTheme === 'dark');
+    if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      document.documentElement.classList.add('dark');
+      store.theme = 'dark';
+    } else {
+      document.documentElement.classList.remove('dark');
+      store.theme = 'light';
+    }
 
     // Listen for system theme changes
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');

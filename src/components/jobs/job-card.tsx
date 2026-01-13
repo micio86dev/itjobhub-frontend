@@ -283,6 +283,26 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
               </span>
             </button>
           )}
+
+          {/* Views and Clicks Counters */}
+          <div class="flex items-center space-x-3 text-xs text-gray-400 dark:text-gray-500 ml-2 border-l border-gray-200 dark:border-gray-700 pl-3">
+            <span class="flex items-center" title={t('job.views_count')}>
+              <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+              {job.views_count || 0}
+            </span>
+            <span class="flex items-center" title={t('job.clicks_count')}>
+              <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" />
+              </svg>
+              {job.clicks_count || 0}
+            </span>
+          </div>
+
+          {/* Apply tracking logic needs to happen on click too, usually on detail page but if we track here too... 
+              Actually user asked to track apply click. The Apply button is here. */}
         </div>
 
         {/* External link */}
@@ -290,6 +310,7 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
           href={job.externalLink}
           target="_blank"
           rel="noopener noreferrer"
+          onClick$={() => jobsContext.trackJobInteraction$(job.id, 'APPLY')}
           class="inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
         >
           <span>{t('job.apply')}</span>

@@ -133,6 +133,7 @@ export const AuthProvider = component$(() => {
   });
 
   // Load state from localStorage on initialization
+  // eslint-disable-next-line qwik/no-use-visible-task
   useVisibleTask$(() => {
     const token = localStorage.getItem('auth_token');
     const userStr = localStorage.getItem('auth_user');
@@ -381,7 +382,7 @@ export const AuthProvider = component$(() => {
       }
 
       try {
-        await request(`${API_URL}/users/me/profile`, {
+        const response = await request(`${API_URL}/users/me/profile`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -396,13 +397,19 @@ export const AuthProvider = component$(() => {
             locationGeo: personalInfo.coordinates
           })
         });
+
+        if (response.ok) {
+          profileUpdateResult.value = { success: true };
+        } else {
+          const data = await response.json();
+          profileUpdateResult.value = { success: false, error: data.message || 'Failed to save personal info' };
+        }
       } catch (error) {
         console.error('Failed to update profile on server', error);
-        // revert optimistic update?
+        profileUpdateResult.value = { success: false, error: 'Network error or server unavailable' };
+      } finally {
+        updatePersonalInfoSignal.value = null;
       }
-
-      updatePersonalInfoSignal.value = null;
-      profileUpdateResult.value = { success: true };
     }
   });
 

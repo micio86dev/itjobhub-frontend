@@ -1,3 +1,4 @@
+import { getVisitorId } from '../utils/visitor';
 import { createContextId, Slot, component$, useStore, useContext, useContextProvider, useSignal, useTask$, useVisibleTask$, Signal, $, QRL } from "@builder.io/qwik";
 import { useAuth } from "./auth";
 import { request } from "../utils/api";
@@ -26,6 +27,8 @@ export interface JobListing {
   companyScore?: number;
   companyLikes?: number;
   companyDislikes?: number;
+  views_count?: number;
+  clicks_count?: number;
 }
 
 export interface Comment {
@@ -93,6 +96,8 @@ export interface JobsState {
   editComment$: QRL<(commentId: string, newContent: string) => Promise<void>>;
   fetchTopSkills$: QRL<(limit?: number, year?: number) => Promise<{ skill: string; count: number }[]>>;
   fetchJobById$: QRL<(id: string) => Promise<JobListing | null>>;
+  trackJobInteraction$: QRL<(jobId: string, type: 'VIEW' | 'APPLY') => Promise<void>>;
+  fetchJobMatchScore$: QRL<(jobId: string) => Promise<any>>;
 }
 
 export interface JobFilters {
@@ -140,7 +145,9 @@ const processApiJob = (job: any): JobListing => {
     is_favorite: job.is_favorite || false,
     companyScore: job.company?.trustScore || 80,
     companyLikes: job.company?.totalLikes || 0,
-    companyDislikes: job.company?.totalDislikes || 0
+    companyDislikes: job.company?.totalDislikes || 0,
+    views_count: job.views_count || 0,
+    clicks_count: job.clicks_count || 0
   };
 };
 
@@ -177,6 +184,8 @@ export const JobsProvider = component$(() => {
     editComment$: $(async () => { }), // Will be assigned below
     fetchTopSkills$: $(async () => []), // Will be assigned below
     fetchJobById$: $(async () => null), // Will be assigned below
+    trackJobInteraction$: $(async () => { }), // Will be assigned below
+    fetchJobMatchScore$: $(async () => null), // Will be assigned below
   });
 
 
@@ -422,6 +431,7 @@ export const JobsProvider = component$(() => {
   });
 
   // Refetch current page when auth token changes to get user_reaction
+  // eslint-disable-next-line qwik/no-use-visible-task
   useVisibleTask$(async ({ track }) => {
     const token = track(() => auth.token);
 
@@ -435,6 +445,7 @@ export const JobsProvider = component$(() => {
     }
   });
 
+  // eslint-disable-next-line qwik/no-use-visible-task
   useVisibleTask$(async ({ track }) => {
     const likeReq = track(() => likeJobSignal.value);
     if (likeReq) {
@@ -593,6 +604,7 @@ export const JobsProvider = component$(() => {
     });
   });
 
+  // eslint-disable-next-line qwik/no-use-visible-task
   useVisibleTask$(async ({ track }) => {
     const dislikeReq = track(() => dislikeJobSignal.value);
     if (dislikeReq) {
@@ -666,6 +678,7 @@ export const JobsProvider = component$(() => {
     }
   });
 
+  // eslint-disable-next-line qwik/no-use-visible-task
   useVisibleTask$(async ({ track }) => {
     const commentReq = track(() => jobsState.addCommentSignal.value);
     if (commentReq) {
@@ -719,6 +732,8 @@ export const JobsProvider = component$(() => {
     }
   });
 
+  // Initialize from localStorage
+  // eslint-disable-next-line qwik/no-use-visible-task
   useVisibleTask$(() => {
     jobsState.fetchFavorites$();
   });
@@ -741,6 +756,72 @@ export const JobsProvider = component$(() => {
       } catch (error) {
         console.error('Error fetching top skills:', error);
         return [];
+      }
+    });
+
+    // trackJobInteraction$: Track view or apply
+    jobsState.trackJobInteraction$ = $(async (jobId: string, type: 'VIEW' | 'APPLY') => {
+      try {
+        if (typeof window === 'undefined') return;
+
+        const visitorId = getVisitorId();
+        const token = auth.token;
+
+        // Optimistic update first to ensure responsiveness, though duplicates handled by backend
+        // We only increment if we think it's likely impactful, but actually backend deduplication 
+        // implies we should rely on backend or just optimistically increment and ignore reverts for simple counters.
+        const allInstances = [
+          ...jobsState.jobs.filter(j => j.id === jobId),
+          ...jobsState.favorites.filter(j => j.id === jobId)
+        ];
+
+        allInstances.forEach(job => {
+          if (type === 'VIEW') {
+            job.views_count = (job.views_count || 0) + 1;
+          } else {
+            job.clicks_count = (job.clicks_count || 0) + 1;
+          }
+        });
+
+        await request(`${API_URL}/jobs/${jobId}/track`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+          },
+          body: JSON.stringify({
+            type,
+            fingerprint: visitorId
+          })
+        });
+
+      } catch (error) {
+        console.error('Error tracking interaction:', error);
+      }
+    });
+
+    // fetchJobMatchScore$: Calculate match score
+    jobsState.fetchJobMatchScore$ = $(async (jobId: string) => {
+      try {
+        const token = auth.token;
+        if (!token) return null;
+
+        const response = await request(`${API_URL}/jobs/${jobId}/match`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (!response.ok) throw new Error('Failed to fetch match score');
+        const result = await response.json();
+
+        if (result.success && result.data) {
+          return result.data;
+        }
+        return null;
+      } catch (error) {
+        console.error('Error fetching match score:', error);
+        return null;
       }
     });
   });

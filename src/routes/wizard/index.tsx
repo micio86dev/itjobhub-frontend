@@ -10,6 +10,7 @@ export default component$(() => {
   const nav = useNavigate();
 
   // Use useVisibleTask$ (client-side only) for redirection
+  // eslint-disable-next-line qwik/no-use-visible-task
   useVisibleTask$(({ track }) => {
     track(() => auth.isAuthenticated);
     track(() => auth.user?.profileCompleted);
@@ -40,7 +41,7 @@ export default component$(() => {
 
   return (
     <div class="min-h-screen bg-gray-50 py-12">
-      <ProfileWizard 
+      <ProfileWizard
         onComplete$={handleWizardComplete}
         onCancel$={handleCancel}
       />

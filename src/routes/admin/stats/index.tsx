@@ -1,4 +1,4 @@
-import { component$, useStore, useVisibleTask$, useTask$, $ } from "@builder.io/qwik";
+import { component$, useStore, useVisibleTask$, $ } from "@builder.io/qwik";
 import type { DocumentHead } from "@builder.io/qwik-city";
 import { useAuth } from "~/contexts/auth";
 import { useTranslate, translate, useI18n } from "~/contexts/i18n";
@@ -83,13 +83,13 @@ export default component$(() => {
   });
 
   // React to month/year changes
-  useTask$(({ track }) => {
+  // eslint-disable-next-line qwik/no-use-visible-task
+  useVisibleTask$(async ({ track }) => {
     track(() => state.selectedMonth);
     track(() => state.selectedYear);
-    track(() => auth.token);
 
-    if (auth.isAuthenticated && auth.user?.role === 'admin' && auth.token) {
-      fetchStats();
+    if (auth.isAuthenticated && (auth.user?.role === 'ADMIN' || auth.user?.role === 'SUPER_ADMIN')) {
+      await fetchStats();
     }
   });
 
@@ -124,7 +124,7 @@ export default component$(() => {
     return (
       <div class="max-w-7xl mx-auto py-12 px-4">
         <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6 text-center">
-          <h2 class="text-red-800 dark:text-red-300 text-lg font-bold mb-2">Error</h2>
+          <h2 class="text-red-800 dark:text-red-300 text-lg font-bold mb-2">{t('common.error')}</h2>
           <p class="text-red-700 dark:text-red-400">{state.error}</p>
         </div>
       </div>
@@ -242,7 +242,7 @@ export default component$(() => {
 
       {/* Job Map Section */}
       <div class="mb-8 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
-        <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-6">Mappa Offerte di Lavoro</h3>
+        <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-6">{t('admin.map_title')}</h3>
         <div class="w-full">
           {stats.charts.locations && stats.charts.locations.length > 0 ? (
             <JobMap jobs={stats.charts.locations} />

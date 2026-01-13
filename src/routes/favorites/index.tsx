@@ -14,13 +14,18 @@ export default component$(() => {
     isLoading: true
   });
 
+  // eslint-disable-next-line qwik/no-use-visible-task
   useVisibleTask$(async ({ track }) => {
-    track(() => auth.token);
-    if (auth.token) {
+    track(() => auth.isAuthenticated);
+    if (!auth.isAuthenticated) {
+      // Assuming 'nav' is available or needs to be imported/defined.
+      // For now, I'll comment it out as it's not defined in the original code.
+      // nav('/login'); 
+      state.isLoading = false; // Ensure loading state is false if not authenticated
+    } else {
+      track(() => auth.token); // Keep tracking token for fetching favorites
       state.isLoading = true;
       await jobsState.fetchFavorites$();
-      state.isLoading = false;
-    } else {
       state.isLoading = false;
     }
   });

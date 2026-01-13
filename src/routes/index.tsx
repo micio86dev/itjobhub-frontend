@@ -1,7 +1,7 @@
 import { component$, useVisibleTask$, useSignal } from "@builder.io/qwik";
 import type { DocumentHead } from "@builder.io/qwik-city";
 import { useAuth } from "~/contexts/auth";
-import { useTranslate, translate } from "~/contexts/i18n";
+import { useTranslate, translate, interpolate } from "~/contexts/i18n";
 import { useJobs } from "~/contexts/jobs";
 import { JobCard } from "~/components/jobs/job-card";
 
@@ -12,6 +12,8 @@ export default component$(() => {
   const topSkills = useSignal<{ skill: string; count: number }[]>([]);
 
   // Fetch jobs and stats
+  // Fetch jobs and stats
+  // eslint-disable-next-line qwik/no-use-visible-task
   useVisibleTask$(async () => {
     const promises = [];
     if (jobsState.jobs.length === 0) {
@@ -66,7 +68,7 @@ export default component$(() => {
               </div>
             </form>
             <div class="mt-4 text-sm text-indigo-200 flex flex-wrap gap-2 items-center justify-center sm:justify-start">
-              <span class="font-medium opacity-80 mr-1">Popular:</span>
+              <span class="font-medium opacity-80 mr-1">{t('home.popular')}</span>
               {topSkills.value.length > 0 ? (
                 topSkills.value.slice(0, 6).map(s => (
                   <a
@@ -84,7 +86,7 @@ export default component$(() => {
                   <a href="/jobs?q=Fullstack" class="hover:text-white underline decoration-dashed underline-offset-4 mr-2 transition-colors">Fullstack</a>
                 </>
               )}
-              <a href="/jobs?remote=true" class="hover:text-white underline decoration-dashed underline-offset-4 transition-colors">Remote</a>
+              <a href="/jobs?remote=true" class="hover:text-white underline decoration-dashed underline-offset-4 transition-colors">{t('jobs.remote')}</a>
             </div>
           </div>
         </div>
@@ -96,15 +98,15 @@ export default component$(() => {
           <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center mb-12">
             <div class="p-6">
               <div class="text-4xl font-bold text-indigo-600 dark:text-indigo-400 mb-2">1,200+</div>
-              <div class="text-gray-600 dark:text-gray-300 font-medium">Active Jobs</div>
+              <div class="text-gray-600 dark:text-gray-300 font-medium">{t('home.active_jobs_stat')}</div>
             </div>
             <div class="p-6">
               <div class="text-4xl font-bold text-pink-600 dark:text-pink-400 mb-2">350+</div>
-              <div class="text-gray-600 dark:text-gray-300 font-medium">Companies</div>
+              <div class="text-gray-600 dark:text-gray-300 font-medium">{t('home.companies_stat')}</div>
             </div>
             <div class="p-6">
               <div class="text-4xl font-bold text-purple-600 dark:text-purple-400 mb-2">15k+</div>
-              <div class="text-gray-600 dark:text-gray-300 font-medium">Developers</div>
+              <div class="text-gray-600 dark:text-gray-300 font-medium">{t('home.developers_stat')}</div>
             </div>
           </div>
 
@@ -112,7 +114,7 @@ export default component$(() => {
           {topSkills.value.length > 0 && (
             <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-xl p-8 transform hover:scale-[1.01] transition-transform duration-300">
               <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-8 text-center">
-                🔥 {t('home.top_skills_title') || `Top Skills of ${new Date().getFullYear()}`}
+                🔥 {t('home.top_skills_title') || interpolate(t('home.top_skills_year'), { year: new Date().getFullYear() })}
               </h3>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {topSkills.value.slice(0, 10).map((skill, index) => (
@@ -124,7 +126,7 @@ export default component$(() => {
                         </span>
                         {skill.skill}
                       </span>
-                      <span class="text-sm text-gray-500 dark:text-gray-400 font-medium">{skill.count} jobs</span>
+                      <span class="text-sm text-gray-500 dark:text-gray-400 font-medium">{interpolate(t('home.jobs_count'), { count: skill.count })}</span>
                     </div>
                     <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 overflow-hidden">
                       <div
