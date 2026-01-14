@@ -11,7 +11,7 @@ export interface JobListing {
   description?: string;
   skills: string[];
   seniority: 'junior' | 'mid' | 'senior' | 'unknown';
-  availability: 'full_time' | 'part_time' | 'contract' | 'freelance' | 'not_specified';
+  availability: 'full_time' | 'part_time' | 'hybrid' | 'contract' | 'freelance' | 'not_specified';
   location?: string;
   location_geo?: { coordinates: number[] };
   remote?: boolean;
@@ -99,6 +99,7 @@ export interface JobsState {
   fetchJobById$: QRL<(id: string) => Promise<JobListing | null>>;
   trackJobInteraction$: QRL<(jobId: string, type: 'VIEW' | 'APPLY') => Promise<void>>;
   fetchJobMatchScore$: QRL<(jobId: string) => Promise<MatchScore | null>>;
+  fetchBatchMatchScores$: QRL<(jobIds: string[]) => Promise<Record<string, { score: number; label: 'excellent' | 'good' | 'fair' | 'low' }>>>;
 }
 
 export interface JobFilters {
@@ -187,6 +188,7 @@ export const JobsProvider = component$(() => {
     fetchJobById$: $(async () => null), // Will be assigned below
     trackJobInteraction$: $(async () => { }), // Will be assigned below
     fetchJobMatchScore$: $(async () => null), // Will be assigned below
+    fetchBatchMatchScores$: $(async () => ({})), // Will be assigned below
   });
 
 
@@ -823,6 +825,34 @@ export const JobsProvider = component$(() => {
       } catch (error) {
         console.error('Error fetching match score:', error);
         return null;
+      }
+    });
+
+    // fetchBatchMatchScores$: Calculate match scores for multiple jobs
+    jobsState.fetchBatchMatchScores$ = $(async (jobIds: string[]) => {
+      try {
+        const token = auth.token;
+        if (!token || !jobIds.length) return {};
+
+        const response = await request(`${API_URL}/jobs/match/batch`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ jobIds })
+        });
+
+        if (!response.ok) throw new Error('Failed to fetch batch match scores');
+        const result = await response.json();
+
+        if (result.success && result.data) {
+          return result.data;
+        }
+        return {};
+      } catch (error) {
+        console.error('Error fetching batch match scores:', error);
+        return {};
       }
     });
   });

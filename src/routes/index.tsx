@@ -10,8 +10,8 @@ export default component$(() => {
   const t = useTranslate();
   const jobsState = useJobs();
   const topSkills = useSignal<{ skill: string; count: number }[]>([]);
+  const matchScores = useSignal<Record<string, { score: number; label: 'excellent' | 'good' | 'fair' | 'low' }>>({});
 
-  // Fetch jobs and stats
   // Fetch jobs and stats
   // eslint-disable-next-line qwik/no-use-visible-task
   useVisibleTask$(async () => {
@@ -23,6 +23,22 @@ export default component$(() => {
       topSkills.value = skills;
     }));
     await Promise.all(promises);
+  });
+
+  // Fetch match scores when authenticated and jobs are loaded
+  // eslint-disable-next-line qwik/no-use-visible-task
+  useVisibleTask$(async ({ track }) => {
+    const token = track(() => auth.token);
+    const jobs = track(() => jobsState.jobs);
+
+    if (token && jobs.length > 0) {
+      // Get scores for the first 3 jobs (displayed on homepage)
+      const recentJobIds = jobs.slice(0, 3).map(job => job.id);
+      const scores = await jobsState.fetchBatchMatchScores$(recentJobIds);
+      matchScores.value = scores;
+    } else {
+      matchScores.value = {};
+    }
   });
 
   const recentJobs = jobsState.jobs.slice(0, 3); // Top 3 jobs
@@ -163,7 +179,7 @@ export default component$(() => {
           <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {jobsState.jobs.length > 0 ? (
               recentJobs.map(job => (
-                <JobCard key={job.id} job={job} />
+                <JobCard key={job.id} job={job} matchScore={matchScores.value[job.id]} />
               ))
             ) : (
               // Skeletons

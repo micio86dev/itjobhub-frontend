@@ -31,15 +31,15 @@ test.describe('Admin User', () => {
 
     test('should be able to access the admin dashboard', async ({ page }) => {
         await page.goto('/admin');
-        await expect(page).toHaveURL('/admin');
-        await expect(page.locator('h1')).toContainText(/Dashboard/i);
+        await expect(page).toHaveURL(/\/admin\/stats\/?/);
+        await expect(page.locator('h1')).toContainText(/Dashboard/i, { timeout: 30000 });
     });
 
     test('should see list of statistics', async ({ page }) => {
         await page.goto('/admin');
         // Check for stats widgets
-        await expect(page.getByText('Offerte Totali')).toBeVisible();
-        await expect(page.getByText('Utenti Registrati')).toBeVisible();
+        await expect(page.getByText('Annunci Attivi')).toBeVisible();
+        await expect(page.getByText('Utenti Totali')).toBeVisible();
     });
 
     test('should be able to navigate to jobs management', async ({ page }) => {

@@ -92,7 +92,7 @@ export default component$(() => {
     track(() => state.selectedMonth);
     track(() => state.selectedYear);
 
-    if (auth.isAuthenticated && (auth.user?.role === 'ADMIN' || auth.user?.role === 'SUPER_ADMIN')) {
+    if (auth.isAuthenticated && (auth.user?.role === 'admin' || auth.user?.role === 'super_admin')) {
       await fetchStats();
     }
   });

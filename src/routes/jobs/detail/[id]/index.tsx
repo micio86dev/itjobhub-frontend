@@ -245,15 +245,29 @@ export default component$(() => {
                                                 </svg>
                                             </button>
 
-                                            <a
-                                                href={job.externalLink}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                onClick$={() => jobsContext.trackJobInteraction$(job.id, 'APPLY')}
-                                                class="px-8 py-3 bg-indigo-600 text-white font-bold rounded-xl shadow-lg shadow-indigo-500/30 hover:bg-indigo-700 hover:scale-[1.02] active:scale-[0.98] transition-all"
-                                            >
-                                                {t('job.apply')}
-                                            </a>
+                                            {auth.isAuthenticated ? (
+                                                <a
+                                                    href={job.externalLink}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    onClick$={() => jobsContext.trackJobInteraction$(job.id, 'APPLY')}
+                                                    class="px-8 py-3 bg-indigo-600 text-white font-bold rounded-xl shadow-lg shadow-indigo-500/30 hover:bg-indigo-700 hover:scale-[1.02] active:scale-[0.98] transition-all"
+                                                >
+                                                    {t('job.apply')}
+                                                </a>
+                                            ) : (
+                                                <div class="flex flex-col items-center gap-1">
+                                                    <span class="px-8 py-3 bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 font-bold rounded-xl cursor-not-allowed">
+                                                        {t('job.apply')}
+                                                    </span>
+                                                    <span class="text-xs text-amber-600 dark:text-amber-400 font-medium text-center max-w-[160px]">
+                                                        <Link href="/login" class="text-indigo-600 dark:text-indigo-400 hover:underline">{t('common.login')}</Link>{' '}
+                                                        {t('common.or').toLowerCase()}{' '}
+                                                        <Link href="/register" class="text-indigo-600 dark:text-indigo-400 hover:underline">{t('common.register').toLowerCase()}</Link>{' '}
+                                                        {t('job.apply_login_required')}
+                                                    </span>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
 

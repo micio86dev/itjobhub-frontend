@@ -11,9 +11,10 @@ interface JobCardProps {
   job: JobListing;
   onToggleComments$?: QRL<(jobId: string) => void>;
   showComments?: boolean;
+  matchScore?: { score: number; label: 'excellent' | 'good' | 'fair' | 'low' };
 }
 
-export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showComments = false }) => {
+export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showComments = false, matchScore }) => {
   const jobsContext = useJobs();
   const auth = useAuth();
   const t = useTranslate();
@@ -119,7 +120,7 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
                   {job.title}
                 </Link>
               </h3>
-              <div class="flex items-center gap-2">
+              <div class="flex items-center gap-2 flex-wrap">
                 <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
                   {job.company}
                 </span>
@@ -127,6 +128,16 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
                 <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200">
                   {Number(job.companyScore || 80).toLocaleString(undefined, { maximumFractionDigits: 1 })}% {t('job.trust_score')}
                 </span>
+
+                {matchScore && (
+                  <span class={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold ${matchScore.label === 'excellent' ? 'bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-200 ring-1 ring-emerald-500/30' :
+                      matchScore.label === 'good' ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200 ring-1 ring-blue-500/30' :
+                        matchScore.label === 'fair' ? 'bg-amber-100 dark:bg-amber-900 text-amber-700 dark:text-amber-200 ring-1 ring-amber-500/30' :
+                          'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 ring-1 ring-gray-500/30'
+                    }`}>
+                    ⚡ {matchScore.score}% {t(`match.${matchScore.label}`)}
+                  </span>
+                )}
               </div>
             </div>
           </div>
@@ -306,18 +317,16 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
         </div>
 
         {/* External link */}
-        <a
-          href={job.externalLink}
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick$={() => jobsContext.trackJobInteraction$(job.id, 'APPLY')}
+        {/* Link to detail page */}
+        <Link
+          href={`/jobs/detail/${job.id}`}
           class="inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
         >
           <span>{t('job.apply')}</span>
           <svg class="ml-1 w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
             <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" />
           </svg>
-        </a>
+        </Link>
       </div>
 
       {/* Login prompt for non-authenticated users */}

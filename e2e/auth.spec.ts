@@ -5,16 +5,16 @@ test.describe('Authentication', () => {
         await page.goto('/register');
 
         const email = `test-${Date.now()}@example.com`;
-        await page.getByLabel('Nome').fill('Test');
-        await page.getByLabel('Cognome').fill('User');
+        await page.getByLabel('Nome completo').fill('Test User');
         await page.getByLabel('Email').fill(email);
         await page.getByLabel('Password', { exact: true }).fill('Password123!');
+        await page.getByLabel('Conferma password').fill('Password123!');
 
         // Depending on form implementation
         await page.getByRole('button', { name: /Registrati/i }).click();
 
-        // Expect redirect to login or dashboard
-        await expect(page).toHaveURL(/.*login|.*dashboard/);
+        // Expect redirect to login, dashboard or wizard
+        await expect(page).toHaveURL(/.*login|.*dashboard|.*wizard/);
     });
 
     test('should allow a user to login', async ({ page }) => {

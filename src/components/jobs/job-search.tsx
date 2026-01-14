@@ -246,8 +246,9 @@ export const JobSearch = component$<JobSearchProps>(({
               <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                 {state.availability === 'full-time' ? t('jobs.full_time') :
                   state.availability === 'part-time' ? t('jobs.part_time') :
-                    state.availability === 'contract' ? t('jobs.contract') :
-                      state.availability === 'freelance' ? t('jobs.freelance') : state.availability}
+                    state.availability === 'hybrid' ? t('jobs.hybrid') :
+                      state.availability === 'contract' ? t('jobs.contract') :
+                        state.availability === 'freelance' ? t('jobs.freelance') : state.availability}
               </span>
             )}
 
