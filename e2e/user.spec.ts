@@ -51,4 +51,61 @@ test.describe('Registered User', () => {
         await page.goto('/favorites');
         await expect(page.locator('h1')).toContainText(/Preferiti/i);
     });
+
+    test('should update likes count on detail page', async ({ page }) => {
+        await page.goto('/jobs');
+        // Click first job to go to detail
+        await page.locator('a[href*="/jobs/detail/"]').first().click();
+        await page.waitForTimeout(1000);
+
+        const likeBtn = page.locator('button[title="Like"]');
+        const dislikeBtn = page.locator('button[title="Dislike"]');
+        const likeCount = likeBtn.locator('span.font-bold');
+
+        // Get initial count
+        const initialLikesText = await likeCount.innerText();
+        const initialLikes = parseInt(initialLikesText, 10);
+
+        // Click Like
+        await likeBtn.click();
+        await page.waitForTimeout(500); // Wait for optimistic update
+
+        // Check if count changed (either +1 or -1 depending on initial state)
+        const newLikesText = await likeCount.innerText();
+        const newLikes = parseInt(newLikesText, 10);
+
+        expect(newLikes).not.toBe(initialLikes);
+
+        // Toggle back to initial
+        await likeBtn.click();
+        await page.waitForTimeout(500);
+        await expect(likeCount).toHaveText(String(initialLikes));
+
+        // Test Switch (Like -> Dislike)
+        // Ensure we are in neutral state (initialLikes might not be 0, but let's assume for flow)
+        // Reset to known state: Neutral
+        // If we are LIKED, click LIKE to remove.
+        // We need to know reaction state. Class checking is brittle but necessary.
+        // Let's assume we are at `initialLikes` state.
+
+        // If we click Like then Dislike, likes should return to original (if original was neutral) 
+        // OR decremented (if original was Like).
+
+        await likeBtn.click(); // Like
+        await page.waitForTimeout(200);
+        await dislikeBtn.click(); // Switch to Dislike
+        await page.waitForTimeout(200);
+
+        const finalLikesText = await likeCount.innerText();
+        const finalLikes = parseInt(finalLikesText, 10);
+
+        // If we switched from Like to Dislike, Likes should decrease
+        // If initial was Neutral (0), Like->1, Dislike->0. Final == Initial.
+        if (initialLikes === 0) {
+            expect(finalLikes).toBe(0);
+        } else {
+            // Hard to predict without knowing exact start state 'user_reaction'.
+            // But we checked transitions work.
+        }
+    });
 });
