@@ -159,7 +159,7 @@ export const ProfileWizard = component$<ProfileWizardProps>(({
                       name="seniority"
                       value={option.value}
                       checked={state.data.seniority === option.value}
-                      onChange$={() => state.data.seniority = option.value as any}
+                      onChange$={() => state.data.seniority = option.value as WizardData['seniority']}
                       class="mt-0.5 h-4 w-4 text-indigo-600 focus:ring-indigo-500"
                     />
                     <div class="ml-3">
@@ -200,7 +200,7 @@ export const ProfileWizard = component$<ProfileWizardProps>(({
                       name="availability"
                       value={option.value}
                       checked={state.data.availability === option.value}
-                      onChange$={() => state.data.availability = option.value as any}
+                      onChange$={() => state.data.availability = option.value as WizardData['availability']}
                       class="mt-0.5 h-4 w-4 text-indigo-600 focus:ring-indigo-500"
                     />
                     <div class="ml-3">

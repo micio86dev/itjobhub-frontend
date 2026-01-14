@@ -14,7 +14,6 @@ export default component$(() => {
     isLoading: true
   });
 
-  // eslint-disable-next-line qwik/no-use-visible-task
   useVisibleTask$(async ({ track }) => {
     track(() => auth.isAuthenticated);
     if (!auth.isAuthenticated) {

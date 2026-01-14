@@ -2,6 +2,7 @@ import { getVisitorId } from '../utils/visitor';
 import { createContextId, Slot, component$, useStore, useContext, useContextProvider, useSignal, useTask$, useVisibleTask$, Signal, $, QRL } from "@builder.io/qwik";
 import { useAuth } from "./auth";
 import { request } from "../utils/api";
+import type { ApiJob, ApiComment, ApiCompany, MatchScore } from "../types/models";
 
 export interface JobListing {
   id: string;
@@ -97,7 +98,7 @@ export interface JobsState {
   fetchTopSkills$: QRL<(limit?: number, year?: number) => Promise<{ skill: string; count: number }[]>>;
   fetchJobById$: QRL<(id: string) => Promise<JobListing | null>>;
   trackJobInteraction$: QRL<(jobId: string, type: 'VIEW' | 'APPLY') => Promise<void>>;
-  fetchJobMatchScore$: QRL<(jobId: string) => Promise<any>>;
+  fetchJobMatchScore$: QRL<(jobId: string) => Promise<MatchScore | null>>;
 }
 
 export interface JobFilters {
@@ -115,7 +116,7 @@ export interface JobFilters {
 }
 
 // Helper to process raw API job into JobListing (outside component to avoid QRL serialization issues)
-const processApiJob = (job: any): JobListing => {
+const processApiJob = (job: ApiJob): JobListing => {
   let desc = job.description || "";
   desc = desc
     .replace(/^(&nbsp;|\s|\.|\u00A0)+/g, '')
@@ -128,8 +129,8 @@ const processApiJob = (job: any): JobListing => {
     company: job.company?.name || 'Unknown Company',
     description: desc,
     skills: job.technical_skills && job.technical_skills.length > 0 ? job.technical_skills : job.skills,
-    seniority: (job.seniority || 'unknown').toLowerCase() as any,
-    availability: (job.employment_type || 'not_specified').toLowerCase().replace('-', '_') as any,
+    seniority: (job.seniority || 'unknown').toLowerCase() as JobListing['seniority'],
+    availability: (job.employment_type || 'not_specified').toLowerCase().replace('-', '_') as JobListing['availability'],
     location: job.location,
     remote: job.remote || job.is_remote || false,
     salary: job.salary_min ? `€${job.salary_min.toLocaleString()}${job.salary_max ? ` - €${job.salary_max.toLocaleString()}` : ''}` : undefined,
@@ -198,7 +199,7 @@ export const JobsProvider = component$(() => {
         if (!response.ok) throw new Error('Failed to fetch comments');
         const result = await response.json();
         if (result.success && result.data.comments) {
-          const fetched = result.data.comments.map((c: any) => ({
+          const fetched = result.data.comments.map((c: ApiComment) => ({
             id: c.id,
             jobId: jobId,
             userId: c.user_id, // Map user_id
@@ -282,16 +283,16 @@ export const JobsProvider = component$(() => {
 
           // Update companies
           const realCompanies = result.data.jobs
-            .map((j: any) => j.company)
-            .filter((c: any) => c)
-            .map((c: any) => ({
+            .map((j: ApiJob) => j.company)
+            .filter((c: ApiCompany | null): c is ApiCompany => c !== null && c !== undefined)
+            .map((c: ApiCompany) => ({
               name: c.name,
               trustScore: c.trustScore || 80,
               totalRatings: c.totalRatings || 0
             }));
 
           const existingNames = new Set(jobsState.companies.map(c => c.name));
-          realCompanies.forEach((c: any) => {
+          realCompanies.forEach((c: { name: string; trustScore: number; totalRatings: number }) => {
             if (!existingNames.has(c.name)) {
               jobsState.companies.push(c);
               existingNames.add(c.name);
@@ -418,7 +419,7 @@ export const JobsProvider = component$(() => {
 
         const result = await response.json();
         if (result.success && result.data) {
-          jobsState.favorites = result.data.map((item: any) => {
+          jobsState.favorites = result.data.map((item: { job: ApiJob }) => {
             const job = processApiJob(item.job);
             job.is_favorite = true; // Ensure favorite status is set
             return job;
@@ -431,7 +432,6 @@ export const JobsProvider = component$(() => {
   });
 
   // Refetch current page when auth token changes to get user_reaction
-  // eslint-disable-next-line qwik/no-use-visible-task
   useVisibleTask$(async ({ track }) => {
     const token = track(() => auth.token);
 
@@ -445,7 +445,6 @@ export const JobsProvider = component$(() => {
     }
   });
 
-  // eslint-disable-next-line qwik/no-use-visible-task
   useVisibleTask$(async ({ track }) => {
     const likeReq = track(() => likeJobSignal.value);
     if (likeReq) {
@@ -604,7 +603,6 @@ export const JobsProvider = component$(() => {
     });
   });
 
-  // eslint-disable-next-line qwik/no-use-visible-task
   useVisibleTask$(async ({ track }) => {
     const dislikeReq = track(() => dislikeJobSignal.value);
     if (dislikeReq) {
@@ -678,7 +676,6 @@ export const JobsProvider = component$(() => {
     }
   });
 
-  // eslint-disable-next-line qwik/no-use-visible-task
   useVisibleTask$(async ({ track }) => {
     const commentReq = track(() => jobsState.addCommentSignal.value);
     if (commentReq) {
@@ -733,7 +730,6 @@ export const JobsProvider = component$(() => {
   });
 
   // Initialize from localStorage
-  // eslint-disable-next-line qwik/no-use-visible-task
   useVisibleTask$(() => {
     jobsState.fetchFavorites$();
   });
@@ -846,7 +842,7 @@ const getDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => 
   return R * c;
 };
 
-export const filterJobs = (jobs: any[], page = 1, limit = 1000, filters?: JobFilters) => {
+export const filterJobs = (jobs: JobListing[], page = 1, limit = 1000, filters?: JobFilters) => {
   let filteredJobs = [...jobs];
   if (filters) {
     if (filters.query) {
@@ -854,14 +850,14 @@ export const filterJobs = (jobs: any[], page = 1, limit = 1000, filters?: JobFil
       filteredJobs = filteredJobs.filter(job =>
         job.title.toLowerCase().includes(query) ||
         job.company.toLowerCase().includes(query) ||
-        (job.skills && Array.isArray(job.skills) && job.skills.some((skill: any) => skill.toLowerCase().includes(query))) ||
+        (job.skills && Array.isArray(job.skills) && job.skills.some((skill) => skill.toLowerCase().includes(query))) ||
         (job.description && job.description.toLowerCase().includes(query))
       );
     }
     if (filters.skills?.length) {
       filteredJobs = filteredJobs.filter(job =>
-        job.skills && job.skills.some((skill: string) =>
-          filters.skills!.some((filterSkill: string) =>
+        job.skills && job.skills.some((skill) =>
+          filters.skills!.some((filterSkill) =>
             skill.toLowerCase().includes(filterSkill.toLowerCase())
           )
         )
@@ -923,9 +919,7 @@ export const filterJobs = (jobs: any[], page = 1, limit = 1000, filters?: JobFil
         const dist = getDistance(lat, lng, jobLat, jobLng);
         return dist <= filters.radius_km!;
       }
-      return true; // Keep jobs without geo? Or exclude? User says "sfruttando le coordinate gps presenti". 
-      // Usually keep others if location name matches? 
-      // For now, if someone searches by city, we only want those in radius.
+      return true;
     });
   }
 
@@ -1011,7 +1005,7 @@ export const getPersonalizedJobs = (jobs: JobListing[], userSkills?: string[], u
     return { ...job, score };
   });
 
-  return scoredJobs.sort((a: any, b: any) => b.score - a.score || b.publishDate.getTime() - a.publishDate.getTime()).map((j: any) => {
+  return scoredJobs.sort((a, b) => b.score - a.score || b.publishDate.getTime() - a.publishDate.getTime()).map((j) => {
     const { score, ...job } = j;
     void score;
     return job;

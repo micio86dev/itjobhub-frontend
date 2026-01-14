@@ -13,7 +13,6 @@ export default component$(() => {
 
   // Fetch jobs and stats
   // Fetch jobs and stats
-  // eslint-disable-next-line qwik/no-use-visible-task
   useVisibleTask$(async () => {
     const promises = [];
     if (jobsState.jobs.length === 0) {

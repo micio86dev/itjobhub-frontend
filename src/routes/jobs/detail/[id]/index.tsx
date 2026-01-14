@@ -2,6 +2,7 @@ import { component$, useResource$, Resource, useStore, useTask$, useVisibleTask$
 import { marked } from "marked";
 import { useLocation, Link } from "@builder.io/qwik-city";
 import { useJobs, type JobListing } from "~/contexts/jobs";
+import type { MatchScore } from "~/types/models";
 import { useTranslate } from "~/contexts/i18n";
 import { useAuth } from "~/contexts/auth";
 import { CommentsSection } from "~/components/jobs/comments-section";
@@ -15,7 +16,7 @@ export default component$(() => {
 
     const state = useStore({
         job: null as JobListing | null,
-        matchScore: null as any
+        matchScore: null as MatchScore | null
     });
 
     const jobResource = useResource$(async ({ track }) => {
@@ -123,7 +124,6 @@ export default component$(() => {
     });
 
     // Track VIEW Interaction at top level of component
-    // eslint-disable-next-line qwik/no-use-visible-task
     useVisibleTask$(({ track }) => {
         const j = track(() => state.job);
         if (j) {

@@ -67,7 +67,8 @@ export default tseslint.config(
   },
   {
     rules: {
-      "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/no-explicit-any": "error",
+      "qwik/no-use-visible-task": "warn", // Configuring as warn since we cleaned up comments but use it correctly
     },
   },
 );

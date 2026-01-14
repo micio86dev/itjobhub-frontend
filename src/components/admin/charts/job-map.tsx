@@ -19,8 +19,8 @@ interface Props {
 
 export const JobMap = component$((props: Props) => {
     const mapContainerRef = useSignal<HTMLDivElement>();
-    const map = useSignal<NoSerialize<any>>(null);
-    const markers = useSignal<NoSerialize<any>[]>([]);
+    const map = useSignal<NoSerialize<GoogleMap> | null>(null);
+    const markers = useSignal<NoSerialize<GoogleMarker>[]>([]);
 
     useVisibleTask$(({ track }) => {
         track(() => props.jobs);
@@ -83,8 +83,8 @@ export const JobMap = component$((props: Props) => {
             if (!map.value) return;
 
             // Clear existing markers
-            markers.value.forEach(m => m.setMap(null));
-            const newMarkers: any[] = [];
+            markers.value.forEach(m => m?.setMap(null));
+            const newMarkers: GoogleMarker[] = [];
 
             props.jobs.forEach(job => {
                 const marker = new window.google.maps.Marker({

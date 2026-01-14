@@ -10,7 +10,6 @@ export default component$(() => {
   const nav = useNavigate();
 
   // Use useVisibleTask$ (client-side only) for redirection
-  // eslint-disable-next-line qwik/no-use-visible-task
   useVisibleTask$(({ track }) => {
     track(() => auth.isAuthenticated);
     track(() => auth.user?.profileCompleted);

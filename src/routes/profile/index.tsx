@@ -46,7 +46,6 @@ export default component$(() => {
   });
 
   // Check authentication and set redirect flag
-  // eslint-disable-next-line qwik/no-use-visible-task
   useVisibleTask$(({ track }) => {
     track(() => auth.isAuthenticated);
     if (!auth.isAuthenticated) {
@@ -55,7 +54,6 @@ export default component$(() => {
   });
 
   // Handle redirect on client side only, but double check simple auth presence
-  // eslint-disable-next-line qwik/no-use-visible-task
   useVisibleTask$(({ track }) => {
     const shouldRedirect = track(() => state.shouldRedirect);
     if (shouldRedirect) {
@@ -369,7 +367,7 @@ export default component$(() => {
                             // Assuming I will add it in a subsequent step or previous step was missed?
                             // I need to update EditFormData interface in this file too!
                             // For now I'll cast to any or add it.
-                            (state.formData as any).coordinates = coordinates;
+                            state.formData.coordinates = coordinates;
                           }}
                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:ring-indigo-500 focus:border-indigo-500 dark:focus:ring-indigo-400 dark:focus:border-indigo-400"
                         />

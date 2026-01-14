@@ -75,15 +75,18 @@ export default component$(() => {
       } else {
         state.error = data.message;
       }
-    } catch (err: any) {
-      state.error = err.message;
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        state.error = err.message;
+      } else {
+        state.error = String(err);
+      }
     } finally {
       state.isLoading = false;
     }
   });
 
   // React to month/year changes
-  // eslint-disable-next-line qwik/no-use-visible-task
   useVisibleTask$(async ({ track }) => {
     track(() => state.selectedMonth);
     track(() => state.selectedYear);

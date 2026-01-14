@@ -10,7 +10,6 @@ interface Props {
 export const LocationAutocomplete = component$((props: Props) => {
   const inputRef = useSignal<HTMLInputElement>();
 
-  // eslint-disable-next-line qwik/no-use-visible-task
   useVisibleTask$(() => {
     const loadGoogleMaps = () => {
       if (typeof window === 'undefined') return;
@@ -79,9 +78,4 @@ export const LocationAutocomplete = component$((props: Props) => {
   );
 });
 
-// Extend window interface to include google
-declare global {
-  interface Window {
-    google: any;
-  }
-}
+

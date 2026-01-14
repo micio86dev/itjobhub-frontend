@@ -133,7 +133,6 @@ export const AuthProvider = component$(() => {
   });
 
   // Load state from localStorage on initialization
-  // eslint-disable-next-line qwik/no-use-visible-task
   useVisibleTask$(() => {
     const token = localStorage.getItem('auth_token');
     const userStr = localStorage.getItem('auth_user');
