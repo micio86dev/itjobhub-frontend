@@ -1,6 +1,8 @@
 import { component$, useResource$, Resource, useStore, useTask$, useVisibleTask$, $ } from "@builder.io/qwik";
 import { marked } from "marked";
-import { useLocation, Link } from "@builder.io/qwik-city";
+import { useLocation, Link, useNavigate } from "@builder.io/qwik-city";
+import { request } from "~/utils/api";
+import { Modal } from "~/components/ui/modal";
 import { useJobs, type JobListing } from "~/contexts/jobs";
 import type { MatchScore } from "~/types/models";
 import { useTranslate } from "~/contexts/i18n";
@@ -13,10 +15,13 @@ export default component$(() => {
     const jobsContext = useJobs();
     const auth = useAuth();
     const t = useTranslate();
+    const nav = useNavigate();
+    const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:3001';
 
     const state = useStore({
         job: null as JobListing | null,
-        matchScore: null as MatchScore | null
+        matchScore: null as MatchScore | null,
+        showDeleteModal: false
     });
 
     const jobResource = useResource$(async ({ track }) => {
@@ -34,11 +39,19 @@ export default component$(() => {
         return job;
     });
 
-    // Track reactions from context (for optimistic updates triggered elsewhere or locally)
     useTask$(({ track }) => {
         const likeReq = track(() => jobsContext.likeJobSignal.value);
         if (likeReq && state.job && likeReq.jobId === state.job.id) {
+            // If the job is in the global state, the context will handle the update
+            // We check by ID to avoid reference issues, although typically they are proxies to the same object
+            const isManagedGlobally = jobsContext.jobs.some(j => j.id === likeReq.jobId) ||
+                jobsContext.favorites.some(f => f.id === likeReq.jobId);
+
+            if (isManagedGlobally) return;
+
             const job = state.job;
+            const currentReaction = job.user_reaction;
+
             if (likeReq.remove) {
                 job.likes = Math.max(0, job.likes - 1);
                 job.user_reaction = null;
@@ -47,7 +60,7 @@ export default component$(() => {
                 job.likes++;
                 job.user_reaction = 'LIKE';
                 if (job.companyLikes !== undefined) job.companyLikes++;
-                if (likeReq.wasDisliked) {
+                if (currentReaction === 'DISLIKE') {
                     job.dislikes = Math.max(0, job.dislikes - 1);
                     if (job.companyDislikes !== undefined) job.companyDislikes = Math.max(0, job.companyDislikes - 1);
                 }
@@ -62,7 +75,15 @@ export default component$(() => {
     useTask$(({ track }) => {
         const dislikeReq = track(() => jobsContext.dislikeJobSignal.value);
         if (dislikeReq && state.job && dislikeReq.jobId === state.job.id) {
+            // If the job is in the global state, the context will handle the update
+            const isManagedGlobally = jobsContext.jobs.some(j => j.id === dislikeReq.jobId) ||
+                jobsContext.favorites.some(f => f.id === dislikeReq.jobId);
+
+            if (isManagedGlobally) return;
+
             const job = state.job;
+            const currentReaction = job.user_reaction;
+
             if (dislikeReq.remove) {
                 job.dislikes = Math.max(0, job.dislikes - 1);
                 job.user_reaction = null;
@@ -71,7 +92,7 @@ export default component$(() => {
                 job.dislikes++;
                 job.user_reaction = 'DISLIKE';
                 if (job.companyDislikes !== undefined) job.companyDislikes++;
-                if (dislikeReq.wasLiked) {
+                if (currentReaction === 'LIKE') {
                     job.likes = Math.max(0, job.likes - 1);
                     if (job.companyLikes !== undefined) job.companyLikes = Math.max(0, job.companyLikes - 1);
                 }
@@ -120,6 +141,27 @@ export default component$(() => {
         // Toggle local state for immediate feedback
         if (state.job) {
             state.job.is_favorite = !state.job.is_favorite;
+        }
+    });
+
+    const handleDeleteJob = $(async () => {
+        if (!state.job || !auth.token) return;
+        try {
+            const res = await request(`${API_URL}/jobs/${state.job.id}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${auth.token}` }
+            });
+
+            if (res.ok) {
+                await nav('/jobs');
+            } else {
+                console.error("Failed to delete job");
+                // Optional: Show error
+            }
+        } catch (e) {
+            console.error(e);
+        } finally {
+            state.showDeleteModal = false;
         }
     });
 
@@ -246,15 +288,25 @@ export default component$(() => {
                                             </button>
 
                                             {auth.isAuthenticated ? (
-                                                <a
-                                                    href={job.externalLink}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    onClick$={() => jobsContext.trackJobInteraction$(job.id, 'APPLY')}
-                                                    class="px-8 py-3 bg-indigo-600 text-white font-bold rounded-xl shadow-lg shadow-indigo-500/30 hover:bg-indigo-700 hover:scale-[1.02] active:scale-[0.98] transition-all"
-                                                >
-                                                    {t('job.apply')}
-                                                </a>
+                                                <>
+                                                    <a
+                                                        href={job.externalLink}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        onClick$={() => jobsContext.trackJobInteraction$(job.id, 'APPLY')}
+                                                        class="px-8 py-3 bg-indigo-600 text-white font-bold rounded-xl shadow-lg shadow-indigo-500/30 hover:bg-indigo-700 hover:scale-[1.02] active:scale-[0.98] transition-all"
+                                                    >
+                                                        {t('job.apply')}
+                                                    </a>
+                                                    {auth.user?.role === 'ADMIN' && (
+                                                        <button
+                                                            onClick$={() => state.showDeleteModal = true}
+                                                            class="px-6 py-3 bg-red-600 text-white font-bold rounded-xl shadow-lg shadow-red-500/30 hover:bg-red-700 hover:scale-[1.02] active:scale-[0.98] transition-all"
+                                                        >
+                                                            Elimina
+                                                        </button>
+                                                    )}
+                                                </>
                                             ) : (
                                                 <div class="flex flex-col items-center gap-1">
                                                     <span class="px-8 py-3 bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 font-bold rounded-xl cursor-not-allowed">
@@ -388,6 +440,18 @@ export default component$(() => {
                     );
                 }}
             />
+
+            <Modal
+                title="Conferma Eliminazione"
+                isOpen={state.showDeleteModal}
+                onClose$={() => state.showDeleteModal = false}
+                onConfirm$={handleDeleteJob}
+                isDestructive={true}
+                confirmText="Elimina"
+                cancelText="Annulla"
+            >
+                <p>Sei sicuro di voler eliminare questo annuncio? Questa azione non può essere annullata.</p>
+            </Modal>
         </div>
     );
 });

@@ -459,6 +459,8 @@ export const JobsProvider = component$(() => {
 
       if (allInstances.length > 0) {
         const job = allInstances[0];
+        const currentReaction = job.user_reaction;
+
         // Optimistic update for ALL instances
         if (likeReq.remove) {
           job.likes = Math.max(0, job.likes - 1);
@@ -470,7 +472,7 @@ export const JobsProvider = component$(() => {
           job.user_reaction = 'LIKE';
           if (job.companyLikes !== undefined) job.companyLikes++;
           // If swapping from dislike
-          if (likeReq.wasDisliked) {
+          if (currentReaction === 'DISLIKE') {
             job.dislikes = Math.max(0, job.dislikes - 1);
             if (job.companyDislikes !== undefined) job.companyDislikes = Math.max(0, job.companyDislikes - 1);
           }
@@ -484,39 +486,41 @@ export const JobsProvider = component$(() => {
 
           allInstances.forEach(j => {
             j.likes = job.likes;
+            j.dislikes = job.dislikes;
             j.user_reaction = job.user_reaction;
             j.companyLikes = likes;
             j.companyDislikes = dislikes;
             j.companyScore = newScore;
           });
         }
-
-        // API Call
-        try {
-          const token = auth.token;
-          if (token) {
-            if (likeReq.remove) {
-              await request(`${API_URL}/likes?jobId=${likeReq.jobId}`, {
-                method: 'DELETE',
-                headers: {
-                  'Authorization': `Bearer ${token}`
-                }
-              });
-            } else {
-              await request(`${API_URL}/likes`, {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                  'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({ jobId: likeReq.jobId, type: 'LIKE' })
-              });
-            }
-          }
-        } catch (error) {
-          console.error('Failed to persist like action:', error);
-        }
       }
+
+      // API Call - Always execute regardless of local state presence
+      try {
+        const token = auth.token;
+        if (token) {
+          if (likeReq.remove) {
+            await request(`${API_URL}/likes?jobId=${likeReq.jobId}`, {
+              method: 'DELETE',
+              headers: {
+                'Authorization': `Bearer ${token}`
+              }
+            });
+          } else {
+            await request(`${API_URL}/likes`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+              },
+              body: JSON.stringify({ jobId: likeReq.jobId, type: 'LIKE' })
+            });
+          }
+        }
+      } catch (error) {
+        console.error('Failed to persist like action:', error);
+      }
+
       likeJobSignal.value = null;
     }
   });
@@ -618,6 +622,8 @@ export const JobsProvider = component$(() => {
 
       if (allInstances.length > 0) {
         const job = allInstances[0];
+        const currentReaction = job.user_reaction;
+
         // Optimistic update for ALL instances
         if (dislikeReq.remove) {
           job.dislikes = Math.max(0, job.dislikes - 1);
@@ -629,7 +635,7 @@ export const JobsProvider = component$(() => {
           job.user_reaction = 'DISLIKE';
           if (job.companyDislikes !== undefined) job.companyDislikes++;
           // If swapping from like
-          if (dislikeReq.wasLiked) {
+          if (currentReaction === 'LIKE') {
             job.likes = Math.max(0, job.likes - 1);
             if (job.companyLikes !== undefined) job.companyLikes = Math.max(0, job.companyLikes - 1);
           }
@@ -650,33 +656,34 @@ export const JobsProvider = component$(() => {
             j.companyScore = newScore;
           });
         }
-
-        // API Call
-        try {
-          const token = auth.token;
-          if (token) {
-            if (dislikeReq.remove) {
-              await request(`${API_URL}/likes?jobId=${dislikeReq.jobId}`, {
-                method: 'DELETE',
-                headers: {
-                  'Authorization': `Bearer ${token}`
-                }
-              });
-            } else {
-              await request(`${API_URL}/likes`, {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                  'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({ jobId: dislikeReq.jobId, type: 'DISLIKE' })
-              });
-            }
-          }
-        } catch (error) {
-          console.error('Failed to persist dislike action:', error);
-        }
       }
+
+      // API Call - Always execute regardless of local state presence
+      try {
+        const token = auth.token;
+        if (token) {
+          if (dislikeReq.remove) {
+            await request(`${API_URL}/likes?jobId=${dislikeReq.jobId}`, {
+              method: 'DELETE',
+              headers: {
+                'Authorization': `Bearer ${token}`
+              }
+            });
+          } else {
+            await request(`${API_URL}/likes`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+              },
+              body: JSON.stringify({ jobId: dislikeReq.jobId, type: 'DISLIKE' })
+            });
+          }
+        }
+      } catch (error) {
+        console.error('Failed to persist dislike action:', error);
+      }
+
       dislikeJobSignal.value = null;
     }
   });
