@@ -32,10 +32,10 @@ Inside your project, you'll see the following directory structure:
 
 ## Add Integrations and deployment
 
-Use the `npm run qwik add` command to add additional integrations. Some examples of integrations includes: Cloudflare, Netlify or Express Server, and the [Static Site Generator (SSG)](https://qwik.dev/qwikcity/guides/static-site-generation/).
+Use the `bun run qwik add` command to add additional integrations. Some examples of integrations includes: Cloudflare, Netlify or Express Server, and the [Static Site Generator (SSG)](https://qwik.dev/qwikcity/guides/static-site-generation/).
 
 ```shell
-npm run qwik add # or `yarn qwik add`
+bun run qwik add
 ```
 
 ## Development
@@ -43,7 +43,7 @@ npm run qwik add # or `yarn qwik add`
 Development mode uses [Vite's development server](https://vitejs.dev/). The `dev` command will server-side render (SSR) the output during development.
 
 ```shell
-npm start # or `yarn start`
+bun run start
 ```
 
 > Note: during dev mode, Vite may request a significant number of `.js` files. This does not represent a Qwik production build.
@@ -53,7 +53,7 @@ npm start # or `yarn start`
 The preview command will create a production build of the client modules, a production build of `src/entry.preview.tsx`, and run a local server. The preview server is only for convenience to preview a production build locally and should not be used as a production server.
 
 ```shell
-npm run preview # or `yarn preview`
+bun run preview
 ```
 
 ## Quality Assurance
@@ -61,33 +61,51 @@ npm run preview # or `yarn preview`
 ### Linting
 We use ESLint to maintain code quality. To run the linter:
 ```bash
-npm run lint
-# or
 bun run lint
 ```
 
 ### Type Checking
 To run a full TypeScript type check:
 ```bash
-npm run build.types
-# or
 bun run build.types
 ```
 
 ### Formatting
 We use Prettier for code formatting.
-- **Check formatting**: `npm run fmt.check`
-- **Fix formatting**: `npm run fmt`
+- **Check formatting**: `bun run fmt.check`
+- **Fix formatting**: `bun run fmt`
 
 ### Testing
-Testing is currently under development. We recommend using **Vitest** for unit tests and **Playwright** for E2E tests.
+### Testing
+
+#### E2E Testing (Playwright)
+We use **Playwright** for End-to-End testing.
+
+**Prerequisites:**
+The backend server must be running on port 3001.
+```bash
+cd ../backend
+bun run dev
+```
+
+**Running Tests:**
+```bash
+# Run all E2E tests
+bun run test.e2e
+
+# Run tests with UI mode
+bun run test.e2e.ui
+
+# View the last HTML report
+bun run test.e2e.report
+```
 
 ## Production
 
 The production build will generate client and server modules by running both client and server build commands. The build command will use Typescript to run a type check on the source code.
 
 ```shell
-npm run build # or `yarn build`
+bun run build
 ```
 
 ## Git Hooks (Husky)
@@ -99,8 +117,6 @@ To install Husky and its hooks (if not automatically installed):
 
 ```shell
 bun run prepare
-# or explicitly
-bun husky init
 ```
 
 ### Pre-commit Hook
