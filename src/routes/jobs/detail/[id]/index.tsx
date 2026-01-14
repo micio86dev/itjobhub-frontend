@@ -42,13 +42,6 @@ export default component$(() => {
     useTask$(({ track }) => {
         const likeReq = track(() => jobsContext.likeJobSignal.value);
         if (likeReq && state.job && likeReq.jobId === state.job.id) {
-            // If the job is in the global state, the context will handle the update
-            // We check by ID to avoid reference issues, although typically they are proxies to the same object
-            const isManagedGlobally = jobsContext.jobs.some(j => j.id === likeReq.jobId) ||
-                jobsContext.favorites.some(f => f.id === likeReq.jobId);
-
-            if (isManagedGlobally) return;
-
             const job = state.job;
             const currentReaction = job.user_reaction;
 
@@ -75,12 +68,6 @@ export default component$(() => {
     useTask$(({ track }) => {
         const dislikeReq = track(() => jobsContext.dislikeJobSignal.value);
         if (dislikeReq && state.job && dislikeReq.jobId === state.job.id) {
-            // If the job is in the global state, the context will handle the update
-            const isManagedGlobally = jobsContext.jobs.some(j => j.id === dislikeReq.jobId) ||
-                jobsContext.favorites.some(f => f.id === dislikeReq.jobId);
-
-            if (isManagedGlobally) return;
-
             const job = state.job;
             const currentReaction = job.user_reaction;
 
