@@ -45,3 +45,8 @@ lerna-debug.log*
 !.yarn/releases
 
 .husky
+
+# Playwright
+test-results/
+playwright-report/
+test_output.txt
