@@ -108,4 +108,54 @@ test.describe('Registered User', () => {
             // But we checked transitions work.
         }
     });
+
+    test('should handle Like -> Remove -> Dislike sequence', async ({ page }) => {
+        await page.goto('/jobs');
+        // Click first job to go to detail
+        await page.locator('a[href*="/jobs/detail/"]').first().click();
+        await page.waitForTimeout(1000);
+
+        const likeBtn = page.locator('button[title="Like"]');
+        const dislikeBtn = page.locator('button[title="Dislike"]');
+        const likeCount = likeBtn.locator('span.font-bold');
+        const dislikeCount = dislikeBtn.locator('span.font-bold');
+
+        // 1. Reset to Neutral (if needed)
+        // We can't easily know state. Let's assume we start Neutral or make it Neutral.
+        // Easiest is to reload page or use API?
+        // Let's just blindly click to toggle until we see desired state? No, flaky.
+        // Assuming test user starts fresh or we rely on previous test having cleaned up?
+        // Best approach: Check class.
+
+        const isLiked = await likeBtn.evaluate((el) => el.classList.contains('bg-green-100'));
+        const isDisliked = await dislikeBtn.evaluate((el) => el.classList.contains('bg-red-100'));
+
+        if (isLiked) await likeBtn.click();
+        if (isDisliked) await dislikeBtn.click();
+
+        await page.waitForTimeout(500);
+
+        // Now Neutral.
+        // Initial Counts
+        const startLikes = parseInt(await likeCount.innerText(), 10);
+        const startDislikes = parseInt(await dislikeCount.innerText(), 10);
+
+        // 2. Click Like
+        await likeBtn.click();
+        await page.waitForTimeout(500);
+        expect(await likeCount.innerText()).toBe(String(startLikes + 1));
+
+        // 3. Click Like (Remove) -> Zero relative change
+        await likeBtn.click();
+        await page.waitForTimeout(500);
+        expect(await likeCount.innerText()).toBe(String(startLikes));
+
+        // 4. Click Dislike
+        await dislikeBtn.click();
+        await page.waitForTimeout(500);
+        // Should be +1 Dislike
+        expect(await dislikeCount.innerText()).toBe(String(startDislikes + 1));
+        // Should be neutral Like
+        expect(await likeCount.innerText()).toBe(String(startLikes));
+    });
 });
