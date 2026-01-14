@@ -7,7 +7,19 @@ test.describe('Registered User', () => {
         await page.waitForTimeout(1000);
         await page.getByLabel('Email').fill('seeker@test.com');
         await page.getByLabel('Password').fill('password123');
+
+        const loginResponsePromise = page.waitForResponse(response =>
+            response.url().includes('/auth/login') && response.request().method() === 'POST'
+        );
+
         await page.getByRole('button', { name: /Accedi/i }).click();
+
+        try {
+            await loginResponsePromise;
+        } catch (e) {
+            console.log('Login response timeout in user spec');
+        }
+
         await expect(page).toHaveURL('/');
     });
 

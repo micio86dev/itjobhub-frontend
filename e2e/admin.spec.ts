@@ -5,9 +5,27 @@ test.describe('Admin User', () => {
         // Login as admin
         await page.goto('/login');
         await page.waitForTimeout(1000);
+
         await page.getByLabel('Email').fill('admin@test.com');
         await page.getByLabel('Password').fill('password123');
+
+        // Capture response
+        const loginResponsePromise = page.waitForResponse(response =>
+            response.url().includes('/auth/login') && response.request().method() === 'POST'
+        );
+
         await page.getByRole('button', { name: /Accedi/i }).click();
+
+        try {
+            const response = await loginResponsePromise;
+            if (response.status() !== 200 && response.status() !== 201) {
+                console.log(`Login Failed Status: ${response.status()}`);
+                console.log(`Login Body: ${await response.text()}`);
+            }
+        } catch (e) {
+            console.log('Login response timeout');
+        }
+
         await expect(page).toHaveURL('/');
     });
 

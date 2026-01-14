@@ -33,7 +33,7 @@ test.describe('Authentication', () => {
 
         // Verify inputs
         await expect(emailInput).toHaveValue('seeker@test.com');
-        await expect(passwordInput).toHaveValue('password');
+        await expect(passwordInput).toHaveValue('password123');
 
         const loginResponsePromise = page.waitForResponse(response => response.url().includes('/auth/login') && response.request().method() === 'POST');
         await page.getByRole('button', { name: /Accedi/i }).click();
