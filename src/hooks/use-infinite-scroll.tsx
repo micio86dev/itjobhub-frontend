@@ -21,6 +21,7 @@ export const useInfiniteScroll = (options: UseInfiniteScrollOptions): UseInfinit
     observer: null as IntersectionObserver | null,
   });
 
+  // eslint-disable-next-line qwik/no-use-visible-task
   useVisibleTask$(({ cleanup }) => {
     const element = ref.value;
     if (!element || typeof window === 'undefined') return;

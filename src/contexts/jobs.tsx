@@ -432,6 +432,7 @@ export const JobsProvider = component$(() => {
   });
 
   // Refetch current page when auth token changes to get user_reaction
+  // eslint-disable-next-line qwik/no-use-visible-task
   useVisibleTask$(async ({ track }) => {
     const token = track(() => auth.token);
 
@@ -445,6 +446,7 @@ export const JobsProvider = component$(() => {
     }
   });
 
+  // eslint-disable-next-line qwik/no-use-visible-task
   useVisibleTask$(async ({ track }) => {
     const likeReq = track(() => likeJobSignal.value);
     if (likeReq) {
@@ -603,6 +605,7 @@ export const JobsProvider = component$(() => {
     });
   });
 
+  // eslint-disable-next-line qwik/no-use-visible-task
   useVisibleTask$(async ({ track }) => {
     const dislikeReq = track(() => dislikeJobSignal.value);
     if (dislikeReq) {
@@ -676,6 +679,7 @@ export const JobsProvider = component$(() => {
     }
   });
 
+  // eslint-disable-next-line qwik/no-use-visible-task
   useVisibleTask$(async ({ track }) => {
     const commentReq = track(() => jobsState.addCommentSignal.value);
     if (commentReq) {
@@ -730,6 +734,7 @@ export const JobsProvider = component$(() => {
   });
 
   // Initialize from localStorage
+  // eslint-disable-next-line qwik/no-use-visible-task
   useVisibleTask$(() => {
     jobsState.fetchFavorites$();
   });

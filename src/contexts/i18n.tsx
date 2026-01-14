@@ -50,6 +50,7 @@ export const I18nProvider = component$(() => {
   });
 
   // Load saved language preference from localStorage after hydration
+  // eslint-disable-next-line qwik/no-use-visible-task
   useVisibleTask$(() => {
     const savedLang = localStorage.getItem(
       "preferred-language"

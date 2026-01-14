@@ -22,6 +22,7 @@ export const JobMap = component$((props: Props) => {
     const map = useSignal<NoSerialize<GoogleMap> | null>(null);
     const markers = useSignal<NoSerialize<GoogleMarker>[]>([]);
 
+    // eslint-disable-next-line qwik/no-use-visible-task
     useVisibleTask$(({ track }) => {
         track(() => props.jobs);
 

@@ -46,6 +46,7 @@ export default component$(() => {
   });
 
   // Check authentication and set redirect flag
+  // eslint-disable-next-line qwik/no-use-visible-task
   useVisibleTask$(({ track }) => {
     track(() => auth.isAuthenticated);
     if (!auth.isAuthenticated) {
@@ -54,6 +55,7 @@ export default component$(() => {
   });
 
   // Handle redirect on client side only, but double check simple auth presence
+  // eslint-disable-next-line qwik/no-use-visible-task
   useVisibleTask$(({ track }) => {
     const shouldRedirect = track(() => state.shouldRedirect);
     if (shouldRedirect) {

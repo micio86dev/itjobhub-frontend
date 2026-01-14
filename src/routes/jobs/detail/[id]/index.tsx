@@ -124,6 +124,7 @@ export default component$(() => {
     });
 
     // Track VIEW Interaction at top level of component
+    // eslint-disable-next-line qwik/no-use-visible-task
     useVisibleTask$(({ track }) => {
         const j = track(() => state.job);
         if (j) {

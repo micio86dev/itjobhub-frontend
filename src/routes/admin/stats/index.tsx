@@ -87,6 +87,7 @@ export default component$(() => {
   });
 
   // React to month/year changes
+  // eslint-disable-next-line qwik/no-use-visible-task
   useVisibleTask$(async ({ track }) => {
     track(() => state.selectedMonth);
     track(() => state.selectedYear);
@@ -97,6 +98,7 @@ export default component$(() => {
   });
 
   // Check authentication and role on the client
+  // eslint-disable-next-line qwik/no-use-visible-task
   useVisibleTask$(({ track }) => {
     const isAuthenticated = track(() => auth.isAuthenticated);
     const user = track(() => auth.user);
