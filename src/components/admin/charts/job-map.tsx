@@ -88,8 +88,8 @@ export const JobMap = component$((props: Props) => {
 
             props.jobs.forEach(job => {
                 const marker = new window.google.maps.Marker({
+                    map: map.value as GoogleMap,
                     position: { lat: job.lat, lng: job.lng },
-                    map: map.value,
                     title: job.title,
                     animation: window.google.maps.Animation.DROP
                 });
@@ -128,7 +128,7 @@ export const JobMap = component$((props: Props) => {
                 marker.addListener("click", () => {
                     infoWindow.open({
                         anchor: marker,
-                        map: map.value,
+                        map: map.value as GoogleMap,
                     });
                     if (props.onMarkerClick$) {
                         props.onMarkerClick$(job.id);

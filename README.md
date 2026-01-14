@@ -89,3 +89,28 @@ The production build will generate client and server modules by running both cli
 ```shell
 npm run build # or `yarn build`
 ```
+
+## Git Hooks (Husky)
+
+This project uses [Husky](https://typicode.github.io/husky/) to enforce code quality with pre-commit hooks.
+
+### Installation
+To install Husky and its hooks (if not automatically installed):
+
+```shell
+bun run prepare
+# or explicitly
+bun husky init
+```
+
+### Pre-commit Hook
+Husky is configured to run automatically before you commit.
+- **Action**: Runs `bun lint`.
+- **Behavior**: If linting fails, the commit is **blocked**. You must fix the lint errors before committing.
+
+### Testing the Hook
+To verify the hook works:
+1. Make a change that violates lint rules (e.g. use `any`).
+2. Try to commit: `git commit -m "test"`.
+3. The commit should fail.
+4. Fix the issue and commit again.

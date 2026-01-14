@@ -21,63 +21,63 @@ declare global {
             };
         };
     }
-}
 
-interface GoogleMapOptions {
-    center: { lat: number; lng: number };
-    zoom: number;
-    styles?: unknown[];
-}
+    interface GoogleMapOptions {
+        center: { lat: number; lng: number };
+        zoom: number;
+        styles?: unknown[];
+    }
 
-interface GoogleMarkerOptions {
-    position: { lat: number; lng: number };
-    map: GoogleMap | null;
-    title?: string;
-    animation?: number;
-}
+    interface GoogleMarkerOptions {
+        position: { lat: number; lng: number };
+        map: GoogleMap | null;
+        title?: string;
+        animation?: number;
+    }
 
-interface GoogleInfoWindowOptions {
-    content: string;
-}
+    interface GoogleInfoWindowOptions {
+        content: string;
+    }
 
-interface GoogleMap {
-    setCenter: (latLng: { lat: number; lng: number }) => void;
-    setZoom: (zoom: number) => void;
-    fitBounds: (bounds: GoogleLatLngBounds) => void;
-}
+    interface GoogleMap {
+        setCenter: (latLng: { lat: number; lng: number }) => void;
+        setZoom: (zoom: number) => void;
+        fitBounds: (bounds: GoogleLatLngBounds) => void;
+    }
 
-interface GoogleMarker {
-    setMap: (map: GoogleMap | null) => void;
-    getPosition: () => { lat: () => number; lng: () => number };
-    addListener: (event: string, handler: (...args: unknown[]) => void) => void;
-}
+    interface GoogleMarker {
+        setMap: (map: GoogleMap | null) => void;
+        getPosition: () => { lat: () => number; lng: () => number };
+        addListener: (event: string, handler: (...args: unknown[]) => void) => void;
+    }
 
-interface GoogleAutocompleteOptions {
-    types?: string[];
-    fields?: string[];
-}
+    interface GoogleAutocompleteOptions {
+        types?: string[];
+        fields?: string[];
+    }
 
-interface GoogleAutocomplete {
-    addListener: (event: string, handler: () => void) => void;
-    getPlace: () => GooglePlaceResult;
-}
+    interface GoogleAutocomplete {
+        addListener: (event: string, handler: () => void) => void;
+        getPlace: () => GooglePlaceResult;
+    }
 
-interface GooglePlaceResult {
-    formatted_address?: string;
-    geometry?: {
-        location: {
-            lat: () => number;
-            lng: () => number;
+    interface GooglePlaceResult {
+        formatted_address?: string;
+        geometry?: {
+            location: {
+                lat: () => number;
+                lng: () => number;
+            };
         };
-    };
-}
+    }
 
-interface GoogleInfoWindow {
-    open: (options: { anchor?: GoogleMarker; map: GoogleMap }) => void;
-    setContent: (content: string) => void;
-    close: () => void;
-}
+    interface GoogleInfoWindow {
+        open: (options: { anchor?: GoogleMarker; map: GoogleMap }) => void;
+        setContent: (content: string) => void;
+        close: () => void;
+    }
 
-interface GoogleLatLngBounds {
-    extend: (latLng: { lat: number; lng: number }) => void;
+    interface GoogleLatLngBounds {
+        extend: (latLng: { lat: number; lng: number }) => void;
+    }
 }

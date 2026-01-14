@@ -62,13 +62,18 @@ export interface ApiComment {
 export interface MatchScore {
     score: number;
     factors: {
-        skills: number;
-        seniority: number;
-        location: number;
-        salary: number;
+        skillsMatch: number;
+        seniorityMatch: number;
+        locationMatch: number;
+        trustScore: number;
+        timeliness: number;
+        competition: number;
+        applicationRate: number;
     };
     details: {
-        matchingSkills: string[];
+        matchedSkills: string[];
         missingSkills: string[];
+        seniorityGap: string;
+        locationStatus: string;
     };
 }
