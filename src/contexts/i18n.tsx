@@ -7,9 +7,9 @@ import {
   useContextProvider,
   useSignal,
   useTask$,
-  useVisibleTask$,
   Signal,
   noSerialize,
+  isBrowser,
 } from "@builder.io/qwik";
 
 import it from "../locales/it.json";
@@ -50,18 +50,20 @@ export const I18nProvider = component$(() => {
   });
 
   // Load saved language preference from localStorage after hydration
-  // eslint-disable-next-line qwik/no-use-visible-task
-  useVisibleTask$(() => {
-    const savedLang = localStorage.getItem(
-      "preferred-language"
-    ) as SupportedLanguage;
-    if (
-      savedLang &&
-      savedLang in translations &&
-      savedLang !== i18nState.currentLanguage
-    ) {
-      console.log("Loading saved language from localStorage:", savedLang);
-      i18nState.currentLanguage = savedLang;
+  // Load saved language preference from localStorage after hydration
+  useTask$(() => {
+    if (isBrowser) {
+      const savedLang = localStorage.getItem(
+        "preferred-language"
+      ) as SupportedLanguage;
+      if (
+        savedLang &&
+        savedLang in translations &&
+        savedLang !== i18nState.currentLanguage
+      ) {
+        console.log("Loading saved language from localStorage:", savedLang);
+        i18nState.currentLanguage = savedLang;
+      }
     }
   });
 

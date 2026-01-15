@@ -7,8 +7,8 @@ import {
   useContextProvider,
   useSignal,
   useTask$,
-  useVisibleTask$,
   Signal,
+  isBrowser,
 } from "@builder.io/qwik";
 import { useNavigate } from "@builder.io/qwik-city";
 import { request } from "../utils/api";
@@ -133,33 +133,34 @@ export const AuthProvider = component$(() => {
   });
 
   // Load state from localStorage on initialization
-  // eslint-disable-next-line qwik/no-use-visible-task
-  useVisibleTask$(() => {
-    const token = localStorage.getItem('auth_token');
-    const userStr = localStorage.getItem('auth_user');
+  useTask$(() => {
+    if (isBrowser) {
+      const token = localStorage.getItem('auth_token');
+      const userStr = localStorage.getItem('auth_user');
 
-    if (token && userStr) {
-      try {
-        authState.token = token;
-        authState.user = JSON.parse(userStr);
-        authState.isAuthenticated = true;
-      } catch {
-        console.error('Failed to restore auth state');
-        localStorage.removeItem('auth_token');
-        localStorage.removeItem('auth_user');
+      if (token && userStr) {
+        try {
+          authState.token = token;
+          authState.user = JSON.parse(userStr);
+          authState.isAuthenticated = true;
+        } catch {
+          console.error('Failed to restore auth state');
+          localStorage.removeItem('auth_token');
+          localStorage.removeItem('auth_user');
+        }
       }
+
+      // Global listener for 401 errors
+      const handleUnauthorized = () => {
+        if (authState.isAuthenticated) {
+          console.log('AuthContext: Unauthorized event received, logging out...');
+          authState.logoutSignal.value = true;
+        }
+      };
+
+      window.addEventListener('unauthorized', handleUnauthorized);
+      return () => window.removeEventListener('unauthorized', handleUnauthorized);
     }
-
-    // Global listener for 401 errors
-    const handleUnauthorized = () => {
-      if (authState.isAuthenticated) {
-        console.log('AuthContext: Unauthorized event received, logging out...');
-        authState.logoutSignal.value = true;
-      }
-    };
-
-    window.addEventListener('unauthorized', handleUnauthorized);
-    return () => window.removeEventListener('unauthorized', handleUnauthorized);
   });
 
   // Handle login requests

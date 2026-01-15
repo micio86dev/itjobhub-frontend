@@ -1,4 +1,4 @@
-import { component$, useStore, useTask$, $, useVisibleTask$ } from "@builder.io/qwik";
+import { component$, useStore, useTask$, $, isBrowser } from "@builder.io/qwik";
 import { type DocumentHead } from "@builder.io/qwik-city";
 import { useAuth } from "~/contexts/auth";
 import { useTranslate, translate, useI18n } from "~/contexts/i18n";
@@ -98,19 +98,20 @@ export default component$(() => {
   });
 
   // Check authentication and role on the client
-  // eslint-disable-next-line qwik/no-use-visible-task
-  useVisibleTask$(({ track }) => {
+  useTask$(({ track }) => {
     const isAuthenticated = track(() => auth.isAuthenticated);
     const user = track(() => auth.user);
 
-    if (isAuthenticated && user) {
-      if (user.role !== 'admin') {
-        window.location.href = '/';
-      }
-    } else {
-      const storageToken = localStorage.getItem('auth_token');
-      if (!storageToken) {
-        window.location.href = '/login';
+    if (isBrowser) {
+      if (isAuthenticated && user) {
+        if (user.role !== 'admin') {
+          window.location.href = '/';
+        }
+      } else {
+        const storageToken = localStorage.getItem('auth_token');
+        if (!storageToken) {
+          window.location.href = '/login';
+        }
       }
     }
   });

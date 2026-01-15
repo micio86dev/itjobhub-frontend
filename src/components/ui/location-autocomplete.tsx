@@ -1,4 +1,4 @@
-import { component$, useSignal, useVisibleTask$, PropFunction } from '@builder.io/qwik';
+import { component$, useSignal, useTask$, PropFunction, isBrowser } from '@builder.io/qwik';
 
 interface Props {
   value: string;
@@ -10,58 +10,61 @@ interface Props {
 export const LocationAutocomplete = component$((props: Props) => {
   const inputRef = useSignal<HTMLInputElement>();
 
-  // eslint-disable-next-line qwik/no-use-visible-task
-  useVisibleTask$(() => {
-    const loadGoogleMaps = () => {
-      if (typeof window === 'undefined') return;
+  useTask$(({ track }) => {
+    track(() => inputRef.value);
 
-      if (window.google?.maps?.places) {
-        initAutocomplete();
-        return;
-      }
+    if (isBrowser) {
+      const loadGoogleMaps = () => {
+        if (typeof window === 'undefined') return;
 
-      if (!document.getElementById('google-maps-script')) {
-        const script = document.createElement('script');
-        script.id = 'google-maps-script';
-        const apiKey = import.meta.env.PUBLIC_GOOGLE_MAPS_KEY;
-        if (!apiKey) {
-          console.error("Google Maps API key is missing. set PUBLIC_GOOGLE_MAPS_KEY in .env");
+        if (window.google?.maps?.places) {
+          initAutocomplete();
           return;
         }
-        script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
-        script.async = true;
-        script.onload = () => initAutocomplete();
-        document.head.appendChild(script);
-      } else {
-        // Script already exists but maybe not loaded yet, or multiple calls
-        const checkGoogle = setInterval(() => {
-          if (window.google?.maps?.places) {
-            clearInterval(checkGoogle);
-            initAutocomplete();
+
+        if (!document.getElementById('google-maps-script')) {
+          const script = document.createElement('script');
+          script.id = 'google-maps-script';
+          const apiKey = import.meta.env.PUBLIC_GOOGLE_MAPS_KEY;
+          if (!apiKey) {
+            console.error("Google Maps API key is missing. set PUBLIC_GOOGLE_MAPS_KEY in .env");
+            return;
           }
-        }, 100);
-      }
-    };
-
-    const initAutocomplete = () => {
-      if (!inputRef.value) return;
-
-      const autocomplete = new window.google.maps.places.Autocomplete(inputRef.value, {
-        types: ['(cities)'],
-      });
-
-      autocomplete.addListener('place_changed', () => {
-        const place = autocomplete.getPlace();
-        if (place.geometry && place.geometry.location) {
-          const lat = place.geometry.location.lat();
-          const lng = place.geometry.location.lng();
-          const formattedAddress = place.formatted_address || '';
-          props.onLocationSelect$(formattedAddress, { lat, lng });
+          script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
+          script.async = true;
+          script.onload = () => initAutocomplete();
+          document.head.appendChild(script);
+        } else {
+          // Script already exists but maybe not loaded yet, or multiple calls
+          const checkGoogle = setInterval(() => {
+            if (window.google?.maps?.places) {
+              clearInterval(checkGoogle);
+              initAutocomplete();
+            }
+          }, 100);
         }
-      });
-    };
+      };
 
-    loadGoogleMaps();
+      const initAutocomplete = () => {
+        if (!inputRef.value) return;
+
+        const autocomplete = new window.google.maps.places.Autocomplete(inputRef.value, {
+          types: ['(cities)'],
+        });
+
+        autocomplete.addListener('place_changed', () => {
+          const place = autocomplete.getPlace();
+          if (place.geometry && place.geometry.location) {
+            const lat = place.geometry.location.lat();
+            const lng = place.geometry.location.lng();
+            const formattedAddress = place.formatted_address || '';
+            props.onLocationSelect$(formattedAddress, { lat, lng });
+          }
+        });
+      };
+
+      loadGoogleMaps();
+    }
   });
 
   return (

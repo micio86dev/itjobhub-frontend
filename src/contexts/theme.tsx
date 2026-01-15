@@ -1,4 +1,4 @@
-import { component$, createContextId, useContextProvider, useContext, useStore, $, useTask$, useVisibleTask$, Slot, useSignal } from "@builder.io/qwik";
+import { component$, createContextId, useContextProvider, useContext, useStore, $, useTask$, Slot, useSignal, isBrowser } from "@builder.io/qwik";
 import type { Signal } from "@builder.io/qwik";
 
 export type Theme = 'light' | 'dark';
@@ -71,32 +71,33 @@ export const ThemeProvider = component$(() => {
   useContextProvider(ThemeContext, themeStore);
 
   // Initialize theme from localStorage on client side
-  // eslint-disable-next-line qwik/no-use-visible-task
-  useVisibleTask$(() => {
-    if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-      document.documentElement.classList.add('dark');
-      store.theme = 'dark';
-    } else {
-      document.documentElement.classList.remove('dark');
-      store.theme = 'light';
-    }
-
-    // Listen for system theme changes
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    const handleChange = (e: MediaQueryListEvent) => {
-      if (!localStorage.getItem('theme')) {
-        const newTheme = e.matches ? 'dark' : 'light';
-        store.theme = newTheme;
-        document.documentElement.classList.toggle('dark', newTheme === 'dark');
+  useTask$(() => {
+    if (isBrowser) {
+      if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark');
+        store.theme = 'dark';
+      } else {
+        document.documentElement.classList.remove('dark');
+        store.theme = 'light';
       }
-    };
 
-    mediaQuery.addEventListener('change', handleChange);
+      // Listen for system theme changes
+      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      const handleChange = (e: MediaQueryListEvent) => {
+        if (!localStorage.getItem('theme')) {
+          const newTheme = e.matches ? 'dark' : 'light';
+          store.theme = newTheme;
+          document.documentElement.classList.toggle('dark', newTheme === 'dark');
+        }
+      };
 
-    // Cleanup in case this runs multiple times
-    return () => {
-      mediaQuery.removeEventListener('change', handleChange);
-    };
+      mediaQuery.addEventListener('change', handleChange);
+
+      // Cleanup in case this runs multiple times
+      return () => {
+        mediaQuery.removeEventListener('change', handleChange);
+      };
+    }
   });
 
   return <Slot />;
