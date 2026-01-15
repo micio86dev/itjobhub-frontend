@@ -77,7 +77,7 @@ export default component$(() => {
                   type="submit"
                   class="bg-indigo-600 text-white px-8 py-3 rounded-md font-semibold hover:bg-indigo-700 transition-colors duration-200 hidden sm:block"
                 >
-                  {t('home.search_button') || 'Cerca'}
+                  {t('home.search_button')}
                 </button>
               </div>
             </form>
@@ -128,7 +128,7 @@ export default component$(() => {
           {topSkills.value.length > 0 && (
             <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-xl p-8 transform hover:scale-[1.01] transition-transform duration-300">
               <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-8 text-center">
-                🔥 {t('home.top_skills_title') || interpolate(t('home.top_skills_year'), { year: new Date().getFullYear() })}
+                🔥 {t('home.top_skills_title')}
               </h3>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {topSkills.value.slice(0, 10).map((skill, index) => (
@@ -162,14 +162,14 @@ export default component$(() => {
           <div class="flex justify-between items-end mb-10">
             <div>
               <h2 class="text-3xl font-bold text-gray-900 dark:text-gray-100">
-                {t('home.recent_jobs_title') || 'Nuove Offerte'}
+                {t('home.recent_jobs_title')}
               </h2>
               <p class="mt-2 text-gray-600 dark:text-gray-400">
-                {t('home.recent_jobs_subtitle') || 'Scopri le ultime opportunità inserite'}
+                {t('home.recent_jobs_subtitle')}
               </p>
             </div>
             <a href="/jobs" class="hidden sm:flex items-center text-indigo-600 hover:text-indigo-700 font-medium transition-colors">
-              {t('home.view_all_jobs') || 'Vedi tutti'}
+              {t('home.view_all_jobs')}
               <svg class="w-5 h-5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
             </a>
           </div>
@@ -189,7 +189,7 @@ export default component$(() => {
 
           <div class="mt-10 text-center sm:hidden">
             <a href="/jobs" class="inline-flex items-center justify-center px-6 py-3 border border-gray-300 text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-700 dark:hover:bg-gray-700 transition-colors">
-              {t('home.view_all_jobs') || 'Vedi tutti i lavori'}
+              {t('home.view_all_jobs')}
             </a>
           </div>
         </div>
@@ -199,7 +199,7 @@ export default component$(() => {
       <section class="py-16 bg-gray-50 dark:bg-black/20">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div class="text-center mb-16">
-            <h2 class="text-3xl font-bold text-gray-900 dark:text-gray-100">{t('home.why_us_title') || 'Perché IT Job Hub?'}</h2>
+            <h2 class="text-3xl font-bold text-gray-900 dark:text-gray-100">{t('home.why_us_title')}</h2>
           </div>
           <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
             <div class="text-center group p-6 rounded-2xl hover:bg-white dark:hover:bg-gray-800 transition-all duration-300 hover:shadow-xl">
@@ -257,15 +257,12 @@ export default component$(() => {
   );
 });
 
-export const head: DocumentHead = () => {
-  const t = (key: string) => translate(key, 'it');
-  return {
-    title: t('meta.index_title'),
-    meta: [
-      {
-        name: "description",
-        content: t('meta.index_description'),
-      },
-    ],
-  };
+export const head: DocumentHead = {
+  title: 'ITJobHub - Find your ideal IT job',
+  meta: [
+    {
+      name: "description",
+      content: 'The platform to find your dream job in the IT world. Exclusive opportunities, professional growth and remote jobs.',
+    },
+  ],
 };

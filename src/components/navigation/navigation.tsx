@@ -44,11 +44,11 @@ export const Navigation = component$(() => {
   });
 
   const languages = [
-    { code: 'it' as SupportedLanguage, name: 'Italiano', flag: '🇮🇹' },
-    { code: 'en' as SupportedLanguage, name: 'English', flag: '🇺🇸' },
-    { code: 'es' as SupportedLanguage, name: 'Español', flag: '🇪🇸' },
-    { code: 'de' as SupportedLanguage, name: 'Deutsch', flag: '🇩🇪' },
-    { code: 'fr' as SupportedLanguage, name: 'Français', flag: '🇫🇷' }
+    { code: 'it' as SupportedLanguage, name: t('lang.italian'), flag: '🇮🇹' },
+    { code: 'en' as SupportedLanguage, name: t('lang.english'), flag: '🇺🇸' },
+    { code: 'es' as SupportedLanguage, name: t('lang.spanish'), flag: '🇪🇸' },
+    { code: 'de' as SupportedLanguage, name: t('lang.german'), flag: '🇩🇪' },
+    { code: 'fr' as SupportedLanguage, name: t('lang.french'), flag: '🇫🇷' }
   ];
 
   const currentLanguageObj = languages.find(lang => lang.code === currentLanguage);
@@ -186,7 +186,7 @@ export const Navigation = component$(() => {
                 class="bg-white dark:bg-gray-900 h-10 w-10 inline-flex items-center justify-center rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
                 aria-expanded="false"
               >
-                <span class="sr-only">Open main menu</span>
+                <span class="sr-only">{t('nav.open_menu')}</span>
                 {/* Icon when menu is closed */}
                 {!state.isMenuOpen ? (
                   <svg class="block h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">

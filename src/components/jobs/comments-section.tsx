@@ -1,7 +1,9 @@
 import { component$, $, useStore, type QRL } from "@builder.io/qwik";
 import { useJobs, getCommentsFromState } from "~/contexts/jobs";
 import { useAuth } from "~/contexts/auth";
-import { useTranslate, useI18n, translate } from "~/contexts/i18n";
+import { useTranslate, useI18n } from "~/contexts/i18n";
+
+import { Modal } from "~/components/ui/modal";
 
 interface CommentsSectionProps {
   jobId: string;
@@ -21,7 +23,9 @@ export const CommentsSection = component$<CommentsSectionProps>(({ jobId, onClos
     commentText: '',
     isSubmitting: false,
     editingId: null as string | null,
-    editContent: ''
+    editContent: '',
+    showDeleteModal: false,
+    commentToDelete: null as string | null
   });
 
   const comments = getCommentsFromState(jobsContext.comments, jobId);
@@ -44,9 +48,16 @@ export const CommentsSection = component$<CommentsSectionProps>(({ jobId, onClos
     state.editContent = '';
   });
 
-  const handleDelete = $(async (commentId: string) => {
-    if (confirm(translate('comments.confirm_delete', i18n.currentLanguage) || 'Delete comment?')) { // Simple confirm for now
-      await jobsContext.deleteComment$(commentId);
+  const handleDelete = $((commentId: string) => {
+    state.commentToDelete = commentId;
+    state.showDeleteModal = true;
+  });
+
+  const confirmDelete = $(async () => {
+    if (state.commentToDelete) {
+      await jobsContext.deleteComment$(state.commentToDelete);
+      state.showDeleteModal = false;
+      state.commentToDelete = null;
     }
   });
 
@@ -64,7 +75,7 @@ export const CommentsSection = component$<CommentsSectionProps>(({ jobId, onClos
       addCommentSignal.value = {
         jobId,
         author: {
-          name: auth.user?.name || `${auth.user?.firstName || ''} ${auth.user?.lastName || ''}`.trim() || 'Anonymous User',
+          name: auth.user?.name || `${auth.user?.firstName || ''} ${auth.user?.lastName || ''}`.trim() || t('comments.anonymous_user'),
           avatar: auth.user?.avatar
         },
         text: state.commentText.trim()
@@ -92,7 +103,7 @@ export const CommentsSection = component$<CommentsSectionProps>(({ jobId, onClos
   };
   const locale = localeMap[i18n.currentLanguage] || 'it-IT';
 
-  const formatCommentDate = (date: Date) => {
+  const formatCommentDate = $((date: Date) => {
     const now = new Date();
     const diffTime = now.getTime() - date.getTime();
     const diffSeconds = Math.floor(diffTime / 1000);
@@ -116,7 +127,7 @@ export const CommentsSection = component$<CommentsSectionProps>(({ jobId, onClos
       minute: '2-digit'
     });
     return dtf.format(date);
-  };
+  });
 
   // Helper to get initials from name (first letter of first name + first letter of last name)
   const getInitials = (name: string) => {
@@ -149,7 +160,7 @@ export const CommentsSection = component$<CommentsSectionProps>(({ jobId, onClos
                 {auth.user?.avatar ? (
                   <img
                     src={auth.user.avatar}
-                    alt={auth.user.name || 'User'}
+                    alt={auth.user.name || t('nav.profile')}
                     class="w-8 h-8 rounded-full object-cover"
                     width="32"
                     height="32"
@@ -306,6 +317,21 @@ export const CommentsSection = component$<CommentsSectionProps>(({ jobId, onClos
           ))
         )}
       </div>
+
+      <Modal
+        title={t('job.confirm_delete_title')}
+        isOpen={state.showDeleteModal}
+        onClose$={() => {
+          state.showDeleteModal = false;
+          state.commentToDelete = null;
+        }}
+        onConfirm$={confirmDelete}
+        isDestructive={true}
+        confirmText={t('common.delete')}
+        cancelText={t('common.cancel')}
+      >
+        <p>{t('comments.confirm_delete')}</p>
+      </Modal>
     </div>
   );
 });

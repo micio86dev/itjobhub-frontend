@@ -127,7 +127,7 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
               {job.companyLogo ? (
                 <img
                   src={job.companyLogo}
-                  alt={`${job.company} logo`}
+                  alt={job.company}
                   class="w-full h-full rounded object-cover"
                   width="32"
                   height="32"
@@ -284,7 +284,7 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
           <button
             onClick$={handleLike}
             disabled={!auth.isAuthenticated}
-            title="Like"
+            title={t('job.like')}
             data-testid="like-button"
             class={`flex items-center space-x-1 px-2 py-1 rounded transition-colors ${job.user_reaction === 'LIKE'
               ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-200'
@@ -298,7 +298,7 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
           <button
             onClick$={handleDislike}
             disabled={!auth.isAuthenticated}
-            title="Dislike"
+            title={t('job.dislike')}
             data-testid="dislike-button"
             class={`flex items-center space-x-1 px-2 py-1 rounded transition-colors ${job.user_reaction === 'DISLIKE'
               ? 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-200'

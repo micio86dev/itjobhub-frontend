@@ -152,7 +152,7 @@ export default component$(() => {
               onChange$={(e) => state.selectedMonth = parseInt((e.target as HTMLSelectElement).value)}
               class="bg-white dark:bg-gray-800 dark:text-white border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
             >
-              <option value="0">{lang === 'it' ? 'Totale' : 'Total'}</option>
+              <option value="0">{t('admin.total')}</option>
               {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
                 <option key={m} value={m}>
                   {new Date(2000, m - 1).toLocaleString(lang === 'it' ? 'it-IT' : 'en-US', { month: 'long' })}
@@ -165,7 +165,7 @@ export default component$(() => {
             onChange$={(e) => state.selectedYear = parseInt((e.target as HTMLSelectElement).value)}
             class="bg-white dark:bg-gray-800 dark:text-white border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
           >
-            <option value="0">{lang === 'it' ? 'Sempre' : 'All-time'}</option>
+            <option value="0">{t('admin.all_time')}</option>
             {Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i).map((y) => (
               <option key={y} value={y.toString()}>{y.toString()}</option>
             ))}
@@ -477,5 +477,11 @@ export default component$(() => {
 });
 
 export const head: DocumentHead = {
-  title: 'Admin Statistics - ITJobHub',
+  title: 'Admin Dashboard - IT Job Hub',
+  meta: [
+    {
+      name: "description",
+      content: 'Admin statistics and analytics dashboard',
+    },
+  ],
 };

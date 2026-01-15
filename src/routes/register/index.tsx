@@ -227,11 +227,11 @@ export default component$(() => {
 });
 
 export const head: DocumentHead = {
-  title: 'Registrati - ITJobHub',
+  title: 'Sign Up - ITJobHub',
   meta: [
     {
       name: "description",
-      content: 'Crea il tuo account ITJobHub',
+      content: 'Create your ITJobHub account',
     },
   ],
 };
