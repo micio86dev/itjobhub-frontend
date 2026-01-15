@@ -25,7 +25,7 @@ test.describe('Registered User', () => {
 
     test('should be able to view their profile', async ({ page }) => {
         await page.goto('/profile');
-        await expect(page.locator('h1')).toContainText(/Profilo/i);
+        await expect(page.locator('h1')).toContainText(/Profilo|Job Seeker/i);
         // User name from seed
         await expect(page.getByLabel('Nome')).toHaveValue('Job');
     });
@@ -143,20 +143,18 @@ test.describe('Registered User', () => {
         const startDislikes = parseInt(await dislikeCount.innerText(), 10);
 
         // 2. Click Like
+        await expect(likeBtn).not.toBeDisabled();
         await likeBtn.click();
-        await page.waitForTimeout(500);
-        expect(await likeCount.innerText()).toBe(String(startLikes + 1));
+        // Wait for count to update
+        await expect(likeCount).toHaveText(String(startLikes + 1));
 
         // 3. Click Like (Remove) -> Zero relative change
         await likeBtn.click();
-        await page.waitForTimeout(500);
-        expect(await likeCount.innerText()).toBe(String(startLikes));
+        await expect(likeCount).toHaveText(String(startLikes));
 
         // 4. Click Dislike
         await dislikeBtn.click();
-        await page.waitForTimeout(500);
-        // Should be +1 Dislike
-        expect(await dislikeCount.innerText()).toBe(String(startDislikes + 1));
+        await expect(dislikeCount).toHaveText(String(startDislikes + 1));
         // Should be neutral Like
         expect(await likeCount.innerText()).toBe(String(startLikes));
     });

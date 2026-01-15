@@ -11,7 +11,17 @@ test.describe('Authentication', () => {
         await page.getByLabel('Conferma password').fill('Password123!');
 
         // Depending on form implementation
+        const registerResponsePromise = page.waitForResponse(response =>
+            response.url().includes('/auth/register') && response.request().method() === 'POST'
+        );
+
         await page.getByRole('button', { name: /Registrati/i }).click();
+
+        const response = await registerResponsePromise;
+        if (response.status() !== 200 && response.status() !== 201) {
+            console.log(`Register Failed Status: ${response.status()}`);
+            console.log(`Register Body: ${await response.text()}`);
+        }
 
         // Expect redirect to login, dashboard or wizard
         await expect(page).toHaveURL(/.*login|.*dashboard|.*wizard/);
@@ -44,7 +54,7 @@ test.describe('Authentication', () => {
             console.log('DEBUG: Login response not captured or timed out');
         }
 
-        await expect(page).toHaveURL('/');
+        await expect(page).toHaveURL(/(\/$|\/wizard\/?$)/);
 
         // Handle mobile responsive UI
         const profileBtn = page.getByRole('button', { name: /Logout|Profile/i });

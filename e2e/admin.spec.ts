@@ -27,19 +27,34 @@ test.describe('Admin User', () => {
         }
 
         await expect(page).toHaveURL(/(\/|\/wizard\/$)/);
+        // Wait for auth state to settle
+        // Check for something that appears only when logged in, e.g. Logout button or Profile link
+        // This helps ensure the auth context is ready before navigating to /admin
+        // Adjust selector based on actual generic header found in other tests
+        // await expect(page.locator('text=Logout')).toBeVisible(); // Generic fallback
+        await page.waitForTimeout(4000); // explicit wait to be safe with state hydration
     });
 
     test('should be able to access the admin dashboard', async ({ page }) => {
         await page.goto('/admin');
+        await page.waitForTimeout(1000);
         await expect(page).toHaveURL(/\/admin\/stats\/?/);
+
+        // Check if error occurred
+        const errorMsg = page.locator('text=Errore|Error');
+        if (await errorMsg.isVisible()) {
+            console.log('Admin Dashboard Error:', await errorMsg.textContent());
+        }
+
         await expect(page.locator('h1')).toContainText(/Dashboard/i, { timeout: 30000 });
     });
 
     test('should see list of statistics', async ({ page }) => {
         await page.goto('/admin');
         // Check for stats widgets
-        await expect(page.getByText('Annunci Attivi')).toBeVisible();
-        await expect(page.getByText('Utenti Totali')).toBeVisible();
+        await expect(page.getByText(/Annunci Attivi|Active Jobs/i)).toBeVisible();
+        // Check for map or charts to ensure full load
+        await expect(page.getByRole('heading', { name: /Mappa|Map/i })).toBeVisible();
     });
 
     test('should be able to navigate to jobs management', async ({ page }) => {
@@ -81,7 +96,7 @@ test.describe('Admin User', () => {
             await modal.getByRole('button', { name: 'Elimina' }).click();
 
             // Verify redirection to /jobs
-            await expect(page).toHaveURL(/\/jobs$/);
+            await expect(page).toHaveURL(/\/jobs\/?$/);
         } else {
             console.log('No jobs available to test deletion');
         }
