@@ -1,14 +1,33 @@
 import { component$, $, useStore, useTask$ } from "@builder.io/qwik";
-import { type DocumentHead, useLocation } from "@builder.io/qwik-city";
+import { type DocumentHead, useLocation, routeLoader$ } from "@builder.io/qwik-city";
 import { useJobs } from "~/contexts/jobs";
 import { useAuth } from "~/contexts/auth";
-import { useTranslate } from "~/contexts/i18n";
+import { useTranslate, type SupportedLanguage } from "~/contexts/i18n";
 import { JobCard } from "~/components/jobs/job-card";
 import { CommentsSection } from "~/components/jobs/comments-section";
 import { JobSearch } from "~/components/jobs/job-search";
 import { useInfiniteScroll } from "~/hooks/use-infinite-scroll";
 import { ScrollButtons } from "~/components/ui/scroll-buttons";
 import type { JobFilters, JobListing } from "~/contexts/jobs";
+
+// Import translations for server-side DocumentHead
+import it from "~/locales/it.json";
+import en from "~/locales/en.json";
+import es from "~/locales/es.json";
+import de from "~/locales/de.json";
+import fr from "~/locales/fr.json";
+
+const translations = { it, en, es, de, fr };
+
+export const useHeadMeta = routeLoader$(({ cookie }) => {
+  const savedLang = cookie.get('preferred-language')?.value as SupportedLanguage || 'it';
+  const lang = savedLang in translations ? savedLang : 'it';
+  const t = translations[lang];
+  return {
+    title: t['meta.jobs_title'] || 'Annunci di Lavoro - ITJobHub',
+    description: t['meta.jobs_description'] || 'Scopri le migliori opportunità di lavoro nel settore IT.'
+  };
+});
 
 interface JobSearchFilters {
   query: string;
@@ -374,12 +393,15 @@ export default component$(() => {
   );
 });
 
-export const head: DocumentHead = {
-  title: 'Annunci di Lavoro - ITJobHub',
-  meta: [
-    {
-      name: "description",
-      content: 'Scopri le migliori opportunità di lavoro nel settore IT. Annunci personalizzati, like, commenti e molto altro.',
-    },
-  ],
+export const head: DocumentHead = ({ resolveValue }) => {
+  const meta = resolveValue(useHeadMeta);
+  return {
+    title: meta.title,
+    meta: [
+      {
+        name: "description",
+        content: meta.description,
+      },
+    ],
+  };
 };

@@ -1,9 +1,31 @@
 import { component$, useTask$, useSignal } from "@builder.io/qwik";
 import type { DocumentHead } from "@builder.io/qwik-city";
+import { routeLoader$ } from "@builder.io/qwik-city";
 import { useAuth } from "~/contexts/auth";
-import { useTranslate, translate, interpolate } from "~/contexts/i18n";
+import { useTranslate, translate, interpolate, type SupportedLanguage } from "~/contexts/i18n";
 import { useJobs } from "~/contexts/jobs";
 import { JobCard } from "~/components/jobs/job-card";
+import { OrganizationSchema, WebSiteSchema } from "~/components/seo/json-ld";
+
+// Import translations for server-side DocumentHead
+import it from "~/locales/it.json";
+import en from "~/locales/en.json";
+import es from "~/locales/es.json";
+import de from "~/locales/de.json";
+import fr from "~/locales/fr.json";
+
+const translations = { it, en, es, de, fr };
+
+// Route loader to get translated meta for DocumentHead
+export const useHeadMeta = routeLoader$(({ cookie }) => {
+  const savedLang = cookie.get('preferred-language')?.value as SupportedLanguage || 'it';
+  const lang = savedLang in translations ? savedLang : 'it';
+  const t = translations[lang];
+  return {
+    title: t['meta.index_title'] || 'ITJobHub - Find your ideal IT job',
+    description: t['meta.index_description'] || 'The platform to find your dream job in the IT world.'
+  };
+});
 
 export default component$(() => {
   const auth = useAuth();
@@ -43,6 +65,10 @@ export default component$(() => {
 
   return (
     <div class="flex flex-col min-h-screen">
+      {/* JSON-LD Structured Data for SEO */}
+      <OrganizationSchema />
+      <WebSiteSchema />
+
       {/* Hero Section */}
       <section class="relative bg-gradient-to-br from-indigo-900 via-purple-800 to-pink-700 text-white py-24 sm:py-32">
         <div class="absolute inset-0 overflow-hidden">
@@ -257,12 +283,15 @@ export default component$(() => {
   );
 });
 
-export const head: DocumentHead = {
-  title: 'ITJobHub - Find your ideal IT job',
-  meta: [
-    {
-      name: "description",
-      content: 'The platform to find your dream job in the IT world. Exclusive opportunities, professional growth and remote jobs.',
-    },
-  ],
+export const head: DocumentHead = ({ resolveValue }) => {
+  const meta = resolveValue(useHeadMeta);
+  return {
+    title: meta.title,
+    meta: [
+      {
+        name: "description",
+        content: meta.description,
+      },
+    ],
+  };
 };

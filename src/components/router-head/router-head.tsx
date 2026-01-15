@@ -1,24 +1,88 @@
 import { component$ } from "@builder.io/qwik";
 import { useDocumentHead, useLocation } from "@builder.io/qwik-city";
+import { useI18n, type SupportedLanguage } from "~/contexts/i18n";
+
+// Base URL for production - update this when deploying
+const SITE_URL = "https://itjobhub.com";
+
+// Supported languages for hreflang
+const SUPPORTED_LANGUAGES: SupportedLanguage[] = ["it", "en", "es", "de", "fr"];
+
+// Language to locale mapping for Open Graph
+const LOCALE_MAP: Record<SupportedLanguage, string> = {
+  it: "it_IT",
+  en: "en_US",
+  es: "es_ES",
+  de: "de_DE",
+  fr: "fr_FR",
+};
 
 /**
  * The RouterHead component is placed inside of the document `<head>` element.
+ * It handles SEO meta tags, hreflang, Open Graph, and Twitter Cards.
  */
 export const RouterHead = component$(() => {
   const head = useDocumentHead();
   const loc = useLocation();
+  const i18n = useI18n();
+
+  const currentLang = i18n.currentLanguage;
+  const currentUrl = loc.url.href;
+  const pathname = loc.url.pathname;
+
+  // Build canonical URL (without language prefix for now, as routing is cookie-based)
+  const canonicalUrl = `${SITE_URL}${pathname}`;
 
   return (
     <>
       <title>{head.title}</title>
 
-      <link rel="canonical" href={loc.url.href} />
-      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+      {/* Canonical URL */}
+      <link rel="canonical" href={canonicalUrl} />
 
-      {head.meta.map((m) => (
-        <meta key={m.key} {...m} />
+      {/* Language attribute for the document */}
+      <meta httpEquiv="content-language" content={currentLang} />
+
+      {/* hreflang tags for all supported languages */}
+      {SUPPORTED_LANGUAGES.map((lang) => (
+        <link
+          key={lang}
+          rel="alternate"
+          hreflang={lang}
+          href={`${SITE_URL}${pathname}`}
+        />
       ))}
+      {/* x-default hreflang for language selector / default */}
+      <link rel="alternate" hreflang="x-default" href={`${SITE_URL}${pathname}`} />
+
+      {/* Open Graph tags */}
+      <meta property="og:type" content="website" />
+      <meta property="og:site_name" content="ITJobHub" />
+      <meta property="og:title" content={head.title} />
+      <meta property="og:url" content={canonicalUrl} />
+      <meta property="og:locale" content={LOCALE_MAP[currentLang]} />
+      {SUPPORTED_LANGUAGES.filter(l => l !== currentLang).map((lang) => (
+        <meta key={lang} property="og:locale:alternate" content={LOCALE_MAP[lang]} />
+      ))}
+
+      {/* Twitter Card tags */}
+      <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:title" content={head.title} />
+
+      {/* Iterate over DocumentHead meta tags */}
+      {head.meta.map((m) => {
+        // Also add Open Graph and Twitter equivalents for description
+        if (m.name === "description") {
+          return (
+            <>
+              <meta key={m.key} {...m} />
+              <meta key={`og-${m.key}`} property="og:description" content={m.content} />
+              <meta key={`tw-${m.key}`} name="twitter:description" content={m.content} />
+            </>
+          );
+        }
+        return <meta key={m.key} {...m} />;
+      })}
 
       {head.links.map((l) => (
         <link key={l.key} {...l} />

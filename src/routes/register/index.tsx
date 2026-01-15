@@ -73,8 +73,9 @@ export default component$(() => {
 
   const handleSocialLogin = $((provider: 'google' | 'linkedin' | 'github') => {
     form.loading = true;
-    // Trigger social login through signal
-    auth.socialLoginSignal.value = { provider };
+    // Redirect to backend OAuth URL
+    const apiUrl = import.meta.env.PUBLIC_API_URL || 'http://localhost:3001';
+    window.location.href = `${apiUrl}/auth/oauth/${provider}`;
   });
 
   return (

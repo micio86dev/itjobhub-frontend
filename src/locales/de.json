@@ -275,5 +275,11 @@
     "home.top_skills_year": "Top Skills von {year}",
     "home.jobs_count": "{count} Stellen",
     "admin.map_title": "Job-Karte",
-    "common.error": "Fehler"
+    "common.error": "Fehler",
+    "auth.oauth_processing": "Authentifizierung läuft...",
+    "auth.oauth_please_wait": "Bitte warten Sie, während wir Ihre Zugangsdaten überprüfen",
+    "auth.oauth_success": "Authentifizierung erfolgreich!",
+    "auth.oauth_redirecting": "Weiterleitung...",
+    "auth.oauth_error": "Authentifizierung fehlgeschlagen",
+    "auth.oauth_try_again": "Zurück zur Anmeldung"
 }

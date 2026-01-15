@@ -1,0 +1,16 @@
+# ITJobHub - Robots.txt
+# https://itjobhub.com
+
+User-agent: *
+Allow: /
+
+# Disallow admin and auth pages
+Disallow: /admin/
+Disallow: /auth/
+
+# Allow search engines to crawl job pages
+Allow: /jobs/
+Allow: /jobs/*
+
+# Sitemap location
+Sitemap: https://itjobhub.com/sitemap.xml

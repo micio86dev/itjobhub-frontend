@@ -288,5 +288,11 @@
     "home.top_skills_year": "Top Skills del {year}",
     "home.jobs_count": "{count} annunci",
     "admin.map_title": "Mappa Offerte di Lavoro",
-    "common.error": "Errore"
+    "common.error": "Errore",
+    "auth.oauth_processing": "Autenticazione in corso...",
+    "auth.oauth_please_wait": "Attendere prego, stiamo verificando le tue credenziali",
+    "auth.oauth_success": "Autenticazione riuscita!",
+    "auth.oauth_redirecting": "Reindirizzamento in corso...",
+    "auth.oauth_error": "Autenticazione fallita",
+    "auth.oauth_try_again": "Torna al login"
 }

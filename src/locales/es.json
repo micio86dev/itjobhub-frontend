@@ -280,5 +280,11 @@
     "home.top_skills_year": "Habilidades Top de {year}",
     "home.jobs_count": "{count} ofertas",
     "admin.map_title": "Mapa de Empleos",
-    "common.error": "Error"
+    "common.error": "Error",
+    "auth.oauth_processing": "Autenticando...",
+    "auth.oauth_please_wait": "Por favor espere mientras verificamos sus credenciales",
+    "auth.oauth_success": "¡Autenticación exitosa!",
+    "auth.oauth_redirecting": "Redirigiendo...",
+    "auth.oauth_error": "Autenticación fallida",
+    "auth.oauth_try_again": "Volver al inicio de sesión"
 }

@@ -288,5 +288,11 @@
     "home.top_skills_year": "Top Skills of {year}",
     "home.jobs_count": "{count} jobs",
     "admin.map_title": "Job Map",
-    "common.error": "Error"
+    "common.error": "Error",
+    "auth.oauth_processing": "Authenticating...",
+    "auth.oauth_please_wait": "Please wait while we verify your credentials",
+    "auth.oauth_success": "Authentication successful!",
+    "auth.oauth_redirecting": "Redirecting...",
+    "auth.oauth_error": "Authentication failed",
+    "auth.oauth_try_again": "Back to login"
 }

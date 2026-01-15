@@ -280,5 +280,11 @@
     "home.top_skills_year": "Top Compétences de {year}",
     "home.jobs_count": "{count} offres",
     "admin.map_title": "Carte des Emplois",
-    "common.error": "Erreur"
+    "common.error": "Erreur",
+    "auth.oauth_processing": "Authentification en cours...",
+    "auth.oauth_please_wait": "Veuillez patienter pendant que nous vérifions vos identifiants",
+    "auth.oauth_success": "Authentification réussie !",
+    "auth.oauth_redirecting": "Redirection...",
+    "auth.oauth_error": "Échec de l'authentification",
+    "auth.oauth_try_again": "Retour à la connexion"
 }

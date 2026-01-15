@@ -1,9 +1,28 @@
 import { component$, useStore, $, useTask$, useStylesScoped$ } from "@builder.io/qwik";
-import { useNavigate } from "@builder.io/qwik-city";
+import { useNavigate, routeLoader$ } from "@builder.io/qwik-city";
 import type { DocumentHead } from "@builder.io/qwik-city";
 import { useAuth } from "~/contexts/auth";
-import { useTranslate, translate, useI18n } from "~/contexts/i18n";
+import { useTranslate, translate, useI18n, type SupportedLanguage } from "~/contexts/i18n";
 import styles from "./index.css?inline";
+
+// Import translations for server-side DocumentHead
+import it from "~/locales/it.json";
+import en from "~/locales/en.json";
+import es from "~/locales/es.json";
+import de from "~/locales/de.json";
+import fr from "~/locales/fr.json";
+
+const translations = { it, en, es, de, fr };
+
+export const useHeadMeta = routeLoader$(({ cookie }) => {
+  const savedLang = cookie.get('preferred-language')?.value as SupportedLanguage || 'it';
+  const lang = savedLang in translations ? savedLang : 'it';
+  const t = translations[lang];
+  return {
+    title: t['meta.login_title'] || 'Login - ITJobHub',
+    description: t['meta.login_description'] || 'Sign in to your ITJobHub account'
+  };
+});
 
 interface LoginForm {
   email: string;
@@ -64,8 +83,9 @@ export default component$(() => {
   const handleSocialLogin = $((provider: 'google' | 'linkedin' | 'github') => {
     form.loading = true;
     form.provider = provider;
-    // Trigger social login through signal
-    auth.socialLoginSignal.value = { provider };
+    // Redirect to backend OAuth URL
+    const apiUrl = import.meta.env.PUBLIC_API_URL || 'http://localhost:3001';
+    window.location.href = `${apiUrl}/auth/oauth/${provider}`;
   });
 
   return (
@@ -219,12 +239,15 @@ export default component$(() => {
   );
 });
 
-export const head: DocumentHead = {
-  title: 'Login - ITJobHub',
-  meta: [
-    {
-      name: "description",
-      content: 'Sign in to your ITJobHub account',
-    },
-  ],
+export const head: DocumentHead = ({ resolveValue }) => {
+  const meta = resolveValue(useHeadMeta);
+  return {
+    title: meta.title,
+    meta: [
+      {
+        name: "description",
+        content: meta.description,
+      },
+    ],
+  };
 };

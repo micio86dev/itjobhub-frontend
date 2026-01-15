@@ -118,7 +118,7 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
 
 
   return (
-    <div class="job-card bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6 mb-4 hover:shadow-md transition-shadow">
+    <div class="job-card bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6 mb-4 hover:shadow-md transition-shadow" data-testid="job-card">
       {/* Header */}
       <div class="flex items-start justify-between mb-4">
         <div class="flex-1">

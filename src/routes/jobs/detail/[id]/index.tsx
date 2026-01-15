@@ -9,6 +9,7 @@ import { useTranslate, interpolate } from "~/contexts/i18n";
 import { useAuth } from "~/contexts/auth";
 import { CommentsSection } from "~/components/jobs/comments-section";
 import { MatchBreakdown } from "~/components/jobs/match-breakdown";
+import { JobPostingSchema } from "~/components/seo/json-ld";
 import styles from "./index.css?inline";
 
 export default component$(() => {
@@ -194,6 +195,23 @@ export default component$(() => {
                     }
                     return (
                         <div class="mainContent">
+                            {/* JobPosting JSON-LD for SEO */}
+                            <JobPostingSchema
+                                title={job.title}
+                                description={job.description?.replace(/<[^>]*>/g, '').substring(0, 500) || job.title}
+                                datePosted={job.publishDate instanceof Date ? job.publishDate.toISOString() : new Date().toISOString()}
+                                employmentType={job.availability || 'full_time'}
+                                hiringOrganization={{
+                                    name: job.company,
+                                    logo: job.companyLogo,
+                                }}
+                                jobLocation={job.location ? {
+                                    addressLocality: job.location,
+                                    addressCountry: 'IT'
+                                } : undefined}
+                                isRemote={job.remote}
+                                skills={job.skills}
+                            />
                             {/* Main Content Card */}
                             <div class="jobCard">
                                 {/* Hero Header */}
