@@ -27,44 +27,69 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
   const dislikeJobSignal = jobsContext.dislikeJobSignal;
 
   // Use job.user_reaction directly from props/context for reactive state
-  const hasLiked = job.user_reaction === 'LIKE';
-  const hasDisliked = job.user_reaction === 'DISLIKE';
+
 
   const handleLike = $(() => {
     if (!isAuthenticated) return;
 
-    // Check current reaction state at time of click (not captured at render)
     const currentlyLiked = job.user_reaction === 'LIKE';
     const currentlyDisliked = job.user_reaction === 'DISLIKE';
 
-    // Toggle like
+    // Optimistic local update
     if (currentlyLiked) {
+      job.likes = Math.max(0, job.likes - 1);
+      job.user_reaction = null;
+      if (job.companyLikes !== undefined) job.companyLikes = Math.max(0, job.companyLikes - 1);
       likeJobSignal.value = { jobId: job.id, remove: true };
     } else {
-      // Add like (potentially swapping)
+      job.likes++;
+      job.user_reaction = 'LIKE';
+      if (job.companyLikes !== undefined) job.companyLikes++;
+      if (currentlyDisliked) {
+        job.dislikes = Math.max(0, job.dislikes - 1);
+        if (job.companyDislikes !== undefined) job.companyDislikes = Math.max(0, job.companyDislikes - 1);
+      }
       likeJobSignal.value = {
         jobId: job.id,
         wasDisliked: currentlyDisliked
       };
+    }
+
+    // Update company trust score
+    if (job.companyLikes !== undefined && job.companyDislikes !== undefined) {
+      job.companyScore = ((job.companyLikes + 8) / (job.companyLikes + job.companyDislikes + 10)) * 100;
     }
   });
 
   const handleDislike = $(() => {
     if (!isAuthenticated) return;
 
-    // Check current reaction state at time of click (not captured at render)
     const currentlyLiked = job.user_reaction === 'LIKE';
     const currentlyDisliked = job.user_reaction === 'DISLIKE';
 
-    // Toggle dislike
+    // Optimistic local update
     if (currentlyDisliked) {
+      job.dislikes = Math.max(0, job.dislikes - 1);
+      job.user_reaction = null;
+      if (job.companyDislikes !== undefined) job.companyDislikes = Math.max(0, job.companyDislikes - 1);
       dislikeJobSignal.value = { jobId: job.id, remove: true };
     } else {
-      // Add dislike (potentially swapping)
+      job.dislikes++;
+      job.user_reaction = 'DISLIKE';
+      if (job.companyDislikes !== undefined) job.companyDislikes++;
+      if (currentlyLiked) {
+        job.likes = Math.max(0, job.likes - 1);
+        if (job.companyLikes !== undefined) job.companyLikes = Math.max(0, job.companyLikes - 1);
+      }
       dislikeJobSignal.value = {
         jobId: job.id,
         wasLiked: currentlyLiked
       };
+    }
+
+    // Update company trust score
+    if (job.companyLikes !== undefined && job.companyDislikes !== undefined) {
+      job.companyScore = ((job.companyLikes + 8) / (job.companyLikes + job.companyDislikes + 10)) * 100;
     }
   });
 
@@ -94,7 +119,7 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
 
 
   return (
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6 mb-4 hover:shadow-md transition-shadow">
+    <div class="job-card bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6 mb-4 hover:shadow-md transition-shadow">
       {/* Header */}
       <div class="flex items-start justify-between mb-4">
         <div class="flex-1">
@@ -131,9 +156,9 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
 
                 {matchScore && (
                   <span class={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold ${matchScore.label === 'excellent' ? 'bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-200 ring-1 ring-emerald-500/30' :
-                      matchScore.label === 'good' ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200 ring-1 ring-blue-500/30' :
-                        matchScore.label === 'fair' ? 'bg-amber-100 dark:bg-amber-900 text-amber-700 dark:text-amber-200 ring-1 ring-amber-500/30' :
-                          'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 ring-1 ring-gray-500/30'
+                    matchScore.label === 'good' ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200 ring-1 ring-blue-500/30' :
+                      matchScore.label === 'fair' ? 'bg-amber-100 dark:bg-amber-900 text-amber-700 dark:text-amber-200 ring-1 ring-amber-500/30' :
+                        'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 ring-1 ring-gray-500/30'
                     }`}>
                     ⚡ {matchScore.score}% {t(`match.${matchScore.label}`)}
                   </span>
@@ -156,6 +181,7 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
                   : 'text-gray-400 hover:text-yellow-500'
                   }`}
                 title={job.is_favorite ? t('job.remove_favorite') : t('job.add_favorite')}
+                aria-label={job.is_favorite ? t('job.remove_favorite') : t('job.add_favorite')}
               >
                 <svg class="w-5 h-5" fill={job.is_favorite ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.382-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
@@ -258,25 +284,29 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
           <button
             onClick$={handleLike}
             disabled={!isAuthenticated}
-            class={`flex items-center space-x-1 px-2 py-1 rounded transition-colors ${hasLiked
+            title="Like"
+            data-testid="like-button"
+            class={`flex items-center space-x-1 px-2 py-1 rounded transition-colors ${job.user_reaction === 'LIKE'
               ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-200'
               : 'text-gray-500 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20'
               } ${!isAuthenticated ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
           >
             <span class="text-lg">👍</span>
-            <span class="text-sm font-medium">{job.likes}</span>
+            <span class="text-sm font-medium" data-testid="like-count">{job.likes}</span>
           </button>
 
           <button
             onClick$={handleDislike}
             disabled={!isAuthenticated}
-            class={`flex items-center space-x-1 px-2 py-1 rounded transition-colors ${hasDisliked
+            title="Dislike"
+            data-testid="dislike-button"
+            class={`flex items-center space-x-1 px-2 py-1 rounded transition-colors ${job.user_reaction === 'DISLIKE'
               ? 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-200'
               : 'text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20'
               } ${!isAuthenticated ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
           >
             <span class="text-lg">👎</span>
-            <span class="text-sm font-medium">{job.dislikes}</span>
+            <span class="text-sm font-medium" data-testid="dislike-count">{job.dislikes}</span>
           </button>
 
           {/* Comments button - Only show if toggle function is provided */}

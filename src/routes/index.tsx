@@ -1,4 +1,4 @@
-import { component$, useVisibleTask$, useSignal } from "@builder.io/qwik";
+import { component$, useTask$, useSignal } from "@builder.io/qwik";
 import type { DocumentHead } from "@builder.io/qwik-city";
 import { useAuth } from "~/contexts/auth";
 import { useTranslate, translate, interpolate } from "~/contexts/i18n";
@@ -13,8 +13,7 @@ export default component$(() => {
   const matchScores = useSignal<Record<string, { score: number; label: 'excellent' | 'good' | 'fair' | 'low' }>>({});
 
   // Fetch jobs and stats
-  // eslint-disable-next-line qwik/no-use-visible-task
-  useVisibleTask$(async () => {
+  useTask$(async () => {
     const promises = [];
     if (jobsState.jobs.length === 0) {
       promises.push(jobsState.fetchJobsPage$(1));
@@ -26,8 +25,7 @@ export default component$(() => {
   });
 
   // Fetch match scores when authenticated and jobs are loaded
-  // eslint-disable-next-line qwik/no-use-visible-task
-  useVisibleTask$(async ({ track }) => {
+  useTask$(async ({ track }) => {
     const token = track(() => auth.token);
     const jobs = track(() => jobsState.jobs);
 

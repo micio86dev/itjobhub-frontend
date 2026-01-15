@@ -1,5 +1,5 @@
-import { component$, useResource$, Resource, useStore, useTask$, useVisibleTask$, $ } from "@builder.io/qwik";
-import { marked } from "marked";
+import { component$, useStore, useTask$, isBrowser, useResource$, Resource, $ } from "@builder.io/qwik";
+
 import { useLocation, Link, useNavigate } from "@builder.io/qwik-city";
 import { request } from "~/utils/api";
 import { Modal } from "~/components/ui/modal";
@@ -39,95 +39,89 @@ export default component$(() => {
         return job;
     });
 
-    useTask$(({ track }) => {
-        const likeReq = track(() => jobsContext.likeJobSignal.value);
-        if (likeReq && state.job && likeReq.jobId === state.job.id) {
-            const job = state.job;
-            const currentReaction = job.user_reaction;
-
-            if (likeReq.remove) {
-                job.likes = Math.max(0, job.likes - 1);
-                job.user_reaction = null;
-                if (job.companyLikes !== undefined) job.companyLikes = Math.max(0, job.companyLikes - 1);
-            } else {
-                job.likes++;
-                job.user_reaction = 'LIKE';
-                if (job.companyLikes !== undefined) job.companyLikes++;
-                if (currentReaction === 'DISLIKE') {
-                    job.dislikes = Math.max(0, job.dislikes - 1);
-                    if (job.companyDislikes !== undefined) job.companyDislikes = Math.max(0, job.companyDislikes - 1);
-                }
-            }
-            // Update company trust score
-            if (job.companyLikes !== undefined && job.companyDislikes !== undefined) {
-                job.companyScore = ((job.companyLikes + 8) / (job.companyLikes + job.companyDislikes + 10)) * 100;
-            }
-        }
-    });
-
-    useTask$(({ track }) => {
-        const dislikeReq = track(() => jobsContext.dislikeJobSignal.value);
-        if (dislikeReq && state.job && dislikeReq.jobId === state.job.id) {
-            const job = state.job;
-            const currentReaction = job.user_reaction;
-
-            if (dislikeReq.remove) {
-                job.dislikes = Math.max(0, job.dislikes - 1);
-                job.user_reaction = null;
-                if (job.companyDislikes !== undefined) job.companyDislikes = Math.max(0, job.companyDislikes - 1);
-            } else {
-                job.dislikes++;
-                job.user_reaction = 'DISLIKE';
-                if (job.companyDislikes !== undefined) job.companyDislikes++;
-                if (currentReaction === 'LIKE') {
-                    job.likes = Math.max(0, job.likes - 1);
-                    if (job.companyLikes !== undefined) job.companyLikes = Math.max(0, job.companyLikes - 1);
-                }
-            }
-            // Update company trust score
-            if (job.companyLikes !== undefined && job.companyDislikes !== undefined) {
-                job.companyScore = ((job.companyLikes + 8) / (job.companyLikes + job.companyDislikes + 10)) * 100;
-            }
-        }
-    });
-
     // Handle Local Actions
     const handleLike = $(() => {
-        if (!auth.isAuthenticated || !state.job) return;
-        const currentlyLiked = state.job.user_reaction === 'LIKE';
-        const currentlyDisliked = state.job.user_reaction === 'DISLIKE';
 
+        if (!auth.isAuthenticated || !state.job) return;
+        const job = state.job;
+        const currentlyLiked = job.user_reaction === 'LIKE';
+        const currentlyDisliked = job.user_reaction === 'DISLIKE';
+
+
+
+        // Optimistic update
         if (currentlyLiked) {
-            jobsContext.likeJobSignal.value = { jobId: state.job.id, remove: true };
+            job.likes = Math.max(0, job.likes - 1);
+            job.user_reaction = null;
+            if (job.companyLikes !== undefined) job.companyLikes = Math.max(0, job.companyLikes - 1);
+            jobsContext.likeJobSignal.value = { jobId: job.id, remove: true };
         } else {
+            job.likes++;
+            job.user_reaction = 'LIKE';
+            if (job.companyLikes !== undefined) job.companyLikes++;
+            if (currentlyDisliked) {
+                job.dislikes = Math.max(0, job.dislikes - 1);
+                if (job.companyDislikes !== undefined) job.companyDislikes = Math.max(0, job.companyDislikes - 1);
+            }
             jobsContext.likeJobSignal.value = {
-                jobId: state.job.id,
+                jobId: job.id,
                 wasDisliked: currentlyDisliked
             };
+        }
+
+
+
+        // Update company trust score
+        if (job.companyLikes !== undefined && job.companyDislikes !== undefined) {
+            job.companyScore = ((job.companyLikes + 8) / (job.companyLikes + job.companyDislikes + 10)) * 100;
         }
     });
 
     const handleDislike = $(() => {
-        if (!auth.isAuthenticated || !state.job) return;
-        const currentlyLiked = state.job.user_reaction === 'LIKE';
-        const currentlyDisliked = state.job.user_reaction === 'DISLIKE';
 
+        if (!auth.isAuthenticated || !state.job) return;
+        const job = state.job;
+        const currentlyLiked = job.user_reaction === 'LIKE';
+        const currentlyDisliked = job.user_reaction === 'DISLIKE';
+
+
+
+        // Optimistic update
         if (currentlyDisliked) {
-            jobsContext.dislikeJobSignal.value = { jobId: state.job.id, remove: true };
+            job.dislikes = Math.max(0, job.dislikes - 1);
+            job.user_reaction = null;
+            if (job.companyDislikes !== undefined) job.companyDislikes = Math.max(0, job.companyDislikes - 1);
+            jobsContext.dislikeJobSignal.value = { jobId: job.id, remove: true };
         } else {
+            job.dislikes++;
+            job.user_reaction = 'DISLIKE';
+            if (job.companyDislikes !== undefined) job.companyDislikes++;
+            if (currentlyLiked) {
+                job.likes = Math.max(0, job.likes - 1);
+                if (job.companyLikes !== undefined) job.companyLikes = Math.max(0, job.companyLikes - 1);
+            }
             jobsContext.dislikeJobSignal.value = {
-                jobId: state.job.id,
+                jobId: job.id,
                 wasLiked: currentlyLiked
             };
+        }
+
+
+
+        // Update company trust score
+        if (job.companyLikes !== undefined && job.companyDislikes !== undefined) {
+            job.companyScore = ((job.companyLikes + 8) / (job.companyLikes + job.companyDislikes + 10)) * 100;
         }
     });
 
     const handleToggleFavorite = $(async () => {
+
         if (!auth.isAuthenticated || !state.job) return;
         await jobsContext.toggleFavorite$(state.job.id);
         // Toggle local state for immediate feedback
         if (state.job) {
             state.job.is_favorite = !state.job.is_favorite;
+
         }
     });
 
@@ -153,10 +147,9 @@ export default component$(() => {
     });
 
     // Track VIEW Interaction at top level of component
-    // eslint-disable-next-line qwik/no-use-visible-task
-    useVisibleTask$(({ track }) => {
+    useTask$(({ track }) => {
         const j = track(() => state.job);
-        if (j) {
+        if (j && isBrowser) {
             jobsContext.trackJobInteraction$(j.id, 'VIEW');
         }
     });
@@ -194,11 +187,6 @@ export default component$(() => {
                             </div>
                         );
                     }
-
-
-                    const hasLiked = job.user_reaction === 'LIKE';
-                    const hasDisliked = job.user_reaction === 'DISLIKE';
-
                     return (
                         <div class="space-y-6">
                             {/* Main Content Card */}
@@ -239,37 +227,41 @@ export default component$(() => {
                                                     onClick$={handleLike}
                                                     disabled={!auth.isAuthenticated}
                                                     title="Like"
-                                                    class={`p-2 rounded-lg transition-all flex items-center gap-1 ${hasLiked
+                                                    data-testid="like-button"
+                                                    class={`p-2 rounded-lg transition-all flex items-center gap-1 ${job.user_reaction === 'LIKE'
                                                         ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-200 shadow-sm'
                                                         : 'text-gray-500 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400'
-                                                        } ${!auth.isAuthenticated ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                                        } ${!auth.isAuthenticated ? 'opacity-50 cursor-not-allowed' : ''} `}
                                                 >
                                                     <span class="text-xl">👍</span>
-                                                    <span class="text-sm font-bold">{job.likes}</span>
+                                                    <span class="text-sm font-bold" data-testid="like-count">{job.likes}</span>
                                                 </button>
                                                 <button
                                                     onClick$={handleDislike}
                                                     disabled={!auth.isAuthenticated}
                                                     title="Dislike"
-                                                    class={`p-2 rounded-lg transition-all flex items-center gap-1 ${hasDisliked
+                                                    data-testid="dislike-button"
+                                                    class={`p-2 rounded-lg transition-all flex items-center gap-1 ${job.user_reaction === 'DISLIKE'
                                                         ? 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-200 shadow-sm'
                                                         : 'text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400'
-                                                        } ${!auth.isAuthenticated ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                                        } ${!auth.isAuthenticated ? 'opacity-50 cursor-not-allowed' : ''} `}
                                                 >
                                                     <span class="text-xl">👎</span>
-                                                    <span class="text-sm font-bold">{job.dislikes}</span>
+                                                    <span class="text-sm font-bold" data-testid="dislike-count">{job.dislikes}</span>
                                                 </button>
                                             </div>
 
                                             <button
                                                 onClick$={handleToggleFavorite}
                                                 disabled={!auth.isAuthenticated}
+                                                data-testid="favorite-button"
                                                 class={`p-3 rounded-xl border transition-all ${job.is_favorite
-                                                    ? 'bg-yellow-50 border-yellow-200 text-yellow-500 shadow-sm'
+                                                    ? 'bg-yellow-50 dark:bg-yellow-900/30 border-yellow-200 dark:border-yellow-700 text-yellow-500 shadow-sm'
                                                     : 'bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-400 hover:border-yellow-300 hover:text-yellow-400'
-                                                    } ${!auth.isAuthenticated ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                                    } ${!auth.isAuthenticated ? 'opacity-50 cursor-not-allowed' : ''} `}
+                                                title={job.is_favorite ? t('job.remove_favorite') : t('job.add_favorite')}
                                             >
-                                                <svg xmlns="http://www.w3.org/2000/svg" class={`h-6 w-6 ${job.is_favorite ? 'fill-current' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class={`h-6 w-6 ${job.is_favorite ? 'fill-current' : ''} `} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.382-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
                                                 </svg>
                                             </button>
@@ -282,6 +274,7 @@ export default component$(() => {
                                                         rel="noopener noreferrer"
                                                         onClick$={() => jobsContext.trackJobInteraction$(job.id, 'APPLY')}
                                                         class="px-8 py-3 bg-indigo-600 text-white font-bold rounded-xl shadow-lg shadow-indigo-500/30 hover:bg-indigo-700 hover:scale-[1.02] active:scale-[0.98] transition-all"
+                                                        data-testid="apply-button"
                                                     >
                                                         {t('job.apply')}
                                                     </a>
@@ -289,13 +282,14 @@ export default component$(() => {
                                                         <button
                                                             onClick$={() => state.showDeleteModal = true}
                                                             class="px-6 py-3 bg-red-600 text-white font-bold rounded-xl shadow-lg shadow-red-500/30 hover:bg-red-700 hover:scale-[1.02] active:scale-[0.98] transition-all"
+                                                            data-testid="delete-button"
                                                         >
                                                             Elimina
                                                         </button>
                                                     )}
                                                 </>
                                             ) : (
-                                                <div class="flex flex-col items-center gap-1">
+                                                <div class="flex flex-col items-center gap-1" data-testid="apply-login-container">
                                                     <span class="px-8 py-3 bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 font-bold rounded-xl cursor-not-allowed">
                                                         {t('job.apply')}
                                                     </span>
@@ -367,33 +361,34 @@ export default component$(() => {
                                     </div>
                                 )}
 
-                                {/* Description Section */}
-                                <div class="p-8 md:p-10 border-t border-gray-100 dark:border-gray-700">
-                                    <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
-                                        <span class="w-1.5 h-6 bg-indigo-600 rounded-full mr-3"></span>
-                                        {t('job.description_title')}
-                                    </h3>
-                                    <div
-                                        class="prose dark:prose-invert max-w-none text-gray-700 dark:text-gray-300 leading-relaxed"
-                                        dangerouslySetInnerHTML={marked.parse(job.description || "") as string}
-                                    />
-                                </div>
-
-                                {/* Skills Section */}
-                                {job.skills && job.skills.length > 0 && (
-                                    <div class="p-8 md:p-10 border-t border-gray-100 dark:border-gray-700 bg-gray-50/30 dark:bg-gray-900/10">
-                                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-6">
-                                            {t('job.skills_title')}
+                                <div class="px-8 pb-10">
+                                    <div class="prose prose-indigo max-w-none dark:prose-invert">
+                                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
+                                            <span class="w-1.5 h-8 bg-indigo-600 rounded-full mr-3"></span>
+                                            {t('job.description_title')}
                                         </h3>
-                                        <div class="flex flex-wrap gap-2">
-                                            {job.skills.map((skill) => (
-                                                <span key={skill} class="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-400 shadow-sm">
-                                                    {skill}
-                                                </span>
-                                            ))}
-                                        </div>
+                                        <div
+                                            class="text-gray-700 dark:text-gray-300 leading-relaxed space-y-4"
+                                            dangerouslySetInnerHTML={job.description}
+                                        ></div>
                                     </div>
-                                )}
+                                </div>     {/* Skills Section */}
+                                {
+                                    job.skills && job.skills.length > 0 && (
+                                        <div class="p-8 md:p-10 border-t border-gray-100 dark:border-gray-700 bg-gray-50/30 dark:bg-gray-900/10">
+                                            <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-6">
+                                                {t('job.skills_title')}
+                                            </h3>
+                                            <div class="flex flex-wrap gap-2">
+                                                {job.skills.map((skill) => (
+                                                    <span key={skill} class="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-400 shadow-sm">
+                                                        {skill}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )
+                                }
                             </div>
 
                             {/* Company Info Box */}
@@ -411,13 +406,15 @@ export default component$(() => {
                             </div>
 
                             {/* Match Breakdown */}
-                            {state.matchScore && (
-                                <MatchBreakdown
-                                    score={state.matchScore.score}
-                                    factors={state.matchScore.factors}
-                                    details={state.matchScore.details}
-                                />
-                            )}
+                            {
+                                state.matchScore && (
+                                    <MatchBreakdown
+                                        score={state.matchScore.score}
+                                        factors={state.matchScore.factors}
+                                        details={state.matchScore.details}
+                                    />
+                                )
+                            }
 
                             {/* Comments Section */}
                             <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-8">
@@ -428,7 +425,7 @@ export default component$(() => {
                 }}
             />
 
-            <Modal
+            < Modal
                 title="Conferma Eliminazione"
                 isOpen={state.showDeleteModal}
                 onClose$={() => state.showDeleteModal = false}
@@ -438,7 +435,7 @@ export default component$(() => {
                 cancelText="Annulla"
             >
                 <p>Sei sicuro di voler eliminare questo annuncio? Questa azione non può essere annullata.</p>
-            </Modal>
-        </div>
+            </Modal >
+        </div >
     );
 });

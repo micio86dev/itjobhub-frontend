@@ -1,11 +1,12 @@
-import { component$, useStore, useVisibleTask$, $ } from "@builder.io/qwik";
-import type { DocumentHead } from "@builder.io/qwik-city";
+import { component$, useStore, useTask$, $, useVisibleTask$ } from "@builder.io/qwik";
+import { type DocumentHead } from "@builder.io/qwik-city";
 import { useAuth } from "~/contexts/auth";
 import { useTranslate, translate, useI18n } from "~/contexts/i18n";
 import { request } from "../../../utils/api";
 import { LineChart } from "~/components/admin/charts/line-chart";
 import { JobMap } from "~/components/admin/charts/job-map";
 
+// ... interfaces ... (same)
 interface Stats {
   overview: {
     users: { total: number; new: number };
@@ -87,8 +88,7 @@ export default component$(() => {
   });
 
   // React to month/year changes
-  // eslint-disable-next-line qwik/no-use-visible-task
-  useVisibleTask$(async ({ track }) => {
+  useTask$(async ({ track }) => {
     track(() => state.selectedMonth);
     track(() => state.selectedYear);
 
@@ -106,10 +106,8 @@ export default component$(() => {
     if (isAuthenticated && user) {
       if (user.role !== 'admin') {
         window.location.href = '/';
-        return;
       }
     } else {
-      // If not authenticated, check if we're still waiting for hydration
       const storageToken = localStorage.getItem('auth_token');
       if (!storageToken) {
         window.location.href = '/login';

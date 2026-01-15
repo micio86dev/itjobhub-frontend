@@ -110,15 +110,17 @@ test.describe('Registered User', () => {
     });
 
     test('should handle Like -> Remove -> Dislike sequence', async ({ page }) => {
+        page.on('console', msg => console.log('BROWSER:', msg.text()));
+        // Navigate to detail page
         await page.goto('/jobs');
         // Click first job to go to detail
         await page.locator('a[href*="/jobs/detail/"]').first().click();
         await page.waitForTimeout(1000);
 
-        const likeBtn = page.locator('button[title="Like"]');
-        const dislikeBtn = page.locator('button[title="Dislike"]');
-        const likeCount = likeBtn.locator('span.font-bold');
-        const dislikeCount = dislikeBtn.locator('span.font-bold');
+        const likeBtn = page.getByTestId('like-button');
+        const dislikeBtn = page.getByTestId('dislike-button');
+        const likeCount = page.getByTestId('like-count');
+        const dislikeCount = page.getByTestId('dislike-count');
 
         // 1. Reset to Neutral (if needed)
         // We can't easily know state. Let's assume we start Neutral or make it Neutral.
@@ -127,8 +129,8 @@ test.describe('Registered User', () => {
         // Assuming test user starts fresh or we rely on previous test having cleaned up?
         // Best approach: Check class.
 
-        const isLiked = await likeBtn.evaluate((el) => el.classList.contains('bg-green-100'));
-        const isDisliked = await dislikeBtn.evaluate((el) => el.classList.contains('bg-red-100'));
+        const isLiked = (await likeBtn.getAttribute('class'))?.includes('bg-green-100');
+        const isDisliked = (await dislikeBtn.getAttribute('class'))?.includes('bg-red-100');
 
         if (isLiked) await likeBtn.click();
         if (isDisliked) await dislikeBtn.click();

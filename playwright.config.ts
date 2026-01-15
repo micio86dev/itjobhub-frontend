@@ -24,6 +24,9 @@ export default defineConfig({
 
         // Screenshot on failure
         screenshot: 'only-on-failure',
+
+        // Locale
+        locale: 'it-IT',
     },
     projects: [
         // Desktop Chrome

@@ -23,9 +23,6 @@ export const LocationAutocomplete = component$((props: Props) => {
       if (!document.getElementById('google-maps-script')) {
         const script = document.createElement('script');
         script.id = 'google-maps-script';
-        // USE ENV VARIABLE FOR API KEY IN PRODUCTION! For now placeholder or user provided key.
-        // Assuming user will provide or I use a placeholder.
-        // I'll use a placeholder key, user needs to replace it.
         const apiKey = import.meta.env.PUBLIC_GOOGLE_MAPS_KEY;
         if (!apiKey) {
           console.error("Google Maps API key is missing. set PUBLIC_GOOGLE_MAPS_KEY in .env");

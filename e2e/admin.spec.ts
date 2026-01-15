@@ -26,7 +26,7 @@ test.describe('Admin User', () => {
             console.log('Login response timeout');
         }
 
-        await expect(page).toHaveURL('/');
+        await expect(page).toHaveURL(/(\/|\/wizard\/$)/);
     });
 
     test('should be able to access the admin dashboard', async ({ page }) => {

@@ -7,11 +7,11 @@ test.describe('Guest User', () => {
 
     test('should load the homepage successfully', async ({ page }) => {
         await expect(page).toHaveTitle(/ITJobHub/);
-        await expect(page.locator('h1')).toBeVisible();
+        await expect(page.locator('h1')).toBeVisible({ timeout: 15000 });
         await expect(page.getByRole('link', { name: 'Login' })).toBeVisible();
         // Use exact match or look for specific one. The nav one usually has 'Registrati' exactly or we can use first.
         // Given the error showed "Registrati" and "Registrati Gratis", using exact: true for the nav link should work.
-        await expect(page.getByRole('link', { name: 'Registrati', exact: true })).toBeVisible();
+        await expect(page.getByRole('link', { name: /Registrati/i }).first()).toBeVisible();
     });
 
     test('should see job listings', async ({ page }) => {

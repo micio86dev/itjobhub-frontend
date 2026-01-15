@@ -1,4 +1,4 @@
-import { component$, useStore, $, useTask$, useVisibleTask$, useSignal } from "@builder.io/qwik";
+import { component$, useStore, $, useTask$, useSignal, isBrowser } from "@builder.io/qwik";
 import { useNavigate, type DocumentHead } from "@builder.io/qwik-city";
 import { useAuth } from "~/contexts/auth";
 import { useTranslate, translate, useI18n } from "~/contexts/i18n";
@@ -46,19 +46,17 @@ export default component$(() => {
   });
 
   // Check authentication and set redirect flag
-  // eslint-disable-next-line qwik/no-use-visible-task
-  useVisibleTask$(({ track }) => {
+  useTask$(({ track }) => {
     track(() => auth.isAuthenticated);
-    if (!auth.isAuthenticated) {
+    if (isBrowser && !auth.isAuthenticated) {
       nav('/login');
     }
   });
 
   // Handle redirect on client side only, but double check simple auth presence
-  // eslint-disable-next-line qwik/no-use-visible-task
-  useVisibleTask$(({ track }) => {
+  useTask$(({ track }) => {
     const shouldRedirect = track(() => state.shouldRedirect);
-    if (shouldRedirect) {
+    if (shouldRedirect && isBrowser) {
       // Double check if we really need to redirect, maybe auth state is still loading
       const token = localStorage.getItem('auth_token');
       if (!token) {

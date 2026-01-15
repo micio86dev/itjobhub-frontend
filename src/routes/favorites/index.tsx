@@ -1,4 +1,4 @@
-import { component$, useVisibleTask$, useStore } from "@builder.io/qwik";
+import { component$, useTask$, useStore } from "@builder.io/qwik";
 import { type DocumentHead } from "@builder.io/qwik-city";
 import { useJobs } from "~/contexts/jobs";
 import { useAuth } from "~/contexts/auth";
@@ -14,8 +14,7 @@ export default component$(() => {
     isLoading: true
   });
 
-  // eslint-disable-next-line qwik/no-use-visible-task
-  useVisibleTask$(async ({ track }) => {
+  useTask$(async ({ track }) => {
     track(() => auth.isAuthenticated);
     if (!auth.isAuthenticated) {
       // Assuming 'nav' is available or needs to be imported/defined.

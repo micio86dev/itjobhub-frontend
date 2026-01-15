@@ -1,5 +1,5 @@
 import { getVisitorId } from '../utils/visitor';
-import { createContextId, Slot, component$, useStore, useContext, useContextProvider, useSignal, useTask$, useVisibleTask$, Signal, $, QRL } from "@builder.io/qwik";
+import { createContextId, Slot, component$, useStore, useContext, useContextProvider, useSignal, useTask$, Signal, $, QRL, isBrowser } from "@builder.io/qwik";
 import { useAuth } from "./auth";
 import { request } from "../utils/api";
 import type { ApiJob, ApiComment, ApiCompany, MatchScore } from "../types/models";
@@ -434,11 +434,10 @@ export const JobsProvider = component$(() => {
   });
 
   // Refetch current page when auth token changes to get user_reaction
-  // eslint-disable-next-line qwik/no-use-visible-task
-  useVisibleTask$(async ({ track }) => {
+  useTask$(async ({ track }) => {
     const token = track(() => auth.token);
 
-    if (token && jobsState.jobs.length > 0) {
+    if (isBrowser && token && jobsState.jobs.length > 0) {
       // Refetch current page with auth to update user_reaction
       let filters = jobsState.currentFilters;
       if (!filters && auth.user?.languages?.length) {
@@ -448,37 +447,39 @@ export const JobsProvider = component$(() => {
     }
   });
 
-  // eslint-disable-next-line qwik/no-use-visible-task
-  useVisibleTask$(async ({ track }) => {
-    const likeReq = track(() => likeJobSignal.value);
-    if (likeReq) {
+  // Like observer
+  useTask$(async ({ track }) => {
+    const action = track(() => likeJobSignal.value);
+    if (action && isBrowser) {
+      const { jobId, remove } = action;
       const allInstances = [
-        ...jobsState.jobs.filter(j => j.id === likeReq.jobId),
-        ...jobsState.favorites.filter(j => j.id === likeReq.jobId)
+        ...jobsState.jobs.filter(j => j.id === jobId),
+        ...jobsState.favorites.filter(j => j.id === jobId)
       ];
 
       if (allInstances.length > 0) {
         const job = allInstances[0];
         const currentReaction = job.user_reaction;
 
-        // Optimistic update for ALL instances
-        if (likeReq.remove) {
-          job.likes = Math.max(0, job.likes - 1);
-          job.user_reaction = null;
-          if (job.companyLikes !== undefined) job.companyLikes = Math.max(0, job.companyLikes - 1);
+        if (remove) {
+          if (currentReaction === 'LIKE') {
+            job.likes = Math.max(0, job.likes - 1);
+            job.user_reaction = null;
+            if (job.companyLikes !== undefined) job.companyLikes = Math.max(0, job.companyLikes - 1);
+          }
         } else {
-          // Add Like
-          job.likes++;
-          job.user_reaction = 'LIKE';
-          if (job.companyLikes !== undefined) job.companyLikes++;
-          // If swapping from dislike
-          if (currentReaction === 'DISLIKE') {
-            job.dislikes = Math.max(0, job.dislikes - 1);
-            if (job.companyDislikes !== undefined) job.companyDislikes = Math.max(0, job.companyDislikes - 1);
+          if (currentReaction !== 'LIKE') {
+            job.likes++;
+            job.user_reaction = 'LIKE';
+            if (job.companyLikes !== undefined) job.companyLikes++;
+            if (currentReaction === 'DISLIKE') {
+              job.dislikes = Math.max(0, job.dislikes - 1);
+              if (job.companyDislikes !== undefined) job.companyDislikes = Math.max(0, job.companyDislikes - 1);
+            }
           }
         }
 
-        // Update company-wide score on the job
+        // Update company-wide score
         if (job.companyLikes !== undefined && job.companyDislikes !== undefined) {
           const likes = job.companyLikes;
           const dislikes = job.companyDislikes;
@@ -495,16 +496,14 @@ export const JobsProvider = component$(() => {
         }
       }
 
-      // API Call - Always execute regardless of local state presence
+      // API Call
       try {
         const token = auth.token;
         if (token) {
-          if (likeReq.remove) {
-            await request(`${API_URL}/likes?jobId=${likeReq.jobId}`, {
+          if (remove) {
+            await request(`${API_URL}/likes?jobId=${jobId}`, {
               method: 'DELETE',
-              headers: {
-                'Authorization': `Bearer ${token}`
-              }
+              headers: { 'Authorization': `Bearer ${token}` }
             });
           } else {
             await request(`${API_URL}/likes`, {
@@ -513,15 +512,88 @@ export const JobsProvider = component$(() => {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
               },
-              body: JSON.stringify({ jobId: likeReq.jobId, type: 'LIKE' })
+              body: JSON.stringify({ jobId, type: 'LIKE' })
             });
           }
         }
       } catch (error) {
-        console.error('Failed to persist like action:', error);
+        console.error('Failed to persist action:', error);
+      }
+    }
+  });
+
+  // Dislike observer
+  useTask$(async ({ track }) => {
+    const action = track(() => dislikeJobSignal.value);
+    if (action && isBrowser) {
+      const { jobId, remove } = action;
+      const allInstances = [
+        ...jobsState.jobs.filter(j => j.id === jobId),
+        ...jobsState.favorites.filter(j => j.id === jobId)
+      ];
+
+      if (allInstances.length > 0) {
+        const job = allInstances[0];
+        const currentReaction = job.user_reaction;
+
+        if (remove) {
+          if (currentReaction === 'DISLIKE') {
+            job.dislikes = Math.max(0, job.dislikes - 1);
+            job.user_reaction = null;
+            if (job.companyDislikes !== undefined) job.companyDislikes = Math.max(0, job.companyDislikes - 1);
+          }
+        } else {
+          if (currentReaction !== 'DISLIKE') {
+            job.dislikes++;
+            job.user_reaction = 'DISLIKE';
+            if (job.companyDislikes !== undefined) job.companyDislikes++;
+            if (currentReaction === 'LIKE') {
+              job.likes = Math.max(0, job.likes - 1);
+              if (job.companyLikes !== undefined) job.companyLikes = Math.max(0, job.companyLikes - 1);
+            }
+          }
+        }
+
+        // Update company-wide score
+        if (job.companyLikes !== undefined && job.companyDislikes !== undefined) {
+          const likes = job.companyLikes;
+          const dislikes = job.companyDislikes;
+          const newScore = ((likes + 8) / (likes + dislikes + 10)) * 100;
+
+          allInstances.forEach(j => {
+            j.likes = job.likes;
+            j.dislikes = job.dislikes;
+            j.user_reaction = job.user_reaction;
+            j.companyLikes = likes;
+            j.companyDislikes = dislikes;
+            j.companyScore = newScore;
+          });
+        }
       }
 
-      likeJobSignal.value = null;
+      // API Call
+      try {
+        const token = auth.token;
+        if (token) {
+          if (remove) {
+            await request(`${API_URL}/likes?jobId=${jobId}`, {
+              method: 'DELETE',
+              headers: { 'Authorization': `Bearer ${token}` }
+            });
+          } else {
+            await request(`${API_URL}/likes`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+              },
+              body: JSON.stringify({ jobId, type: 'DISLIKE' })
+            });
+          }
+        }
+      } catch (error) {
+        console.error('Failed to persist action:', error);
+      }
     }
   });
 
@@ -611,87 +683,11 @@ export const JobsProvider = component$(() => {
     });
   });
 
-  // eslint-disable-next-line qwik/no-use-visible-task
-  useVisibleTask$(async ({ track }) => {
-    const dislikeReq = track(() => dislikeJobSignal.value);
-    if (dislikeReq) {
-      const allInstances = [
-        ...jobsState.jobs.filter(j => j.id === dislikeReq.jobId),
-        ...jobsState.favorites.filter(j => j.id === dislikeReq.jobId)
-      ];
 
-      if (allInstances.length > 0) {
-        const job = allInstances[0];
-        const currentReaction = job.user_reaction;
 
-        // Optimistic update for ALL instances
-        if (dislikeReq.remove) {
-          job.dislikes = Math.max(0, job.dislikes - 1);
-          job.user_reaction = null;
-          if (job.companyDislikes !== undefined) job.companyDislikes = Math.max(0, job.companyDislikes - 1);
-        } else {
-          // Add Dislike
-          job.dislikes++;
-          job.user_reaction = 'DISLIKE';
-          if (job.companyDislikes !== undefined) job.companyDislikes++;
-          // If swapping from like
-          if (currentReaction === 'LIKE') {
-            job.likes = Math.max(0, job.likes - 1);
-            if (job.companyLikes !== undefined) job.companyLikes = Math.max(0, job.companyLikes - 1);
-          }
-        }
-
-        // Update company-wide score on the job
-        if (job.companyLikes !== undefined && job.companyDislikes !== undefined) {
-          const likes = job.companyLikes;
-          const dislikes = job.companyDislikes;
-          const newScore = ((likes + 8) / (likes + dislikes + 10)) * 100;
-
-          allInstances.forEach(j => {
-            j.dislikes = job.dislikes;
-            j.likes = job.likes;
-            j.user_reaction = job.user_reaction;
-            j.companyLikes = likes;
-            j.companyDislikes = dislikes;
-            j.companyScore = newScore;
-          });
-        }
-      }
-
-      // API Call - Always execute regardless of local state presence
-      try {
-        const token = auth.token;
-        if (token) {
-          if (dislikeReq.remove) {
-            await request(`${API_URL}/likes?jobId=${dislikeReq.jobId}`, {
-              method: 'DELETE',
-              headers: {
-                'Authorization': `Bearer ${token}`
-              }
-            });
-          } else {
-            await request(`${API_URL}/likes`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-              },
-              body: JSON.stringify({ jobId: dislikeReq.jobId, type: 'DISLIKE' })
-            });
-          }
-        }
-      } catch (error) {
-        console.error('Failed to persist dislike action:', error);
-      }
-
-      dislikeJobSignal.value = null;
-    }
-  });
-
-  // eslint-disable-next-line qwik/no-use-visible-task
-  useVisibleTask$(async ({ track }) => {
+  useTask$(async ({ track }) => {
     const commentReq = track(() => jobsState.addCommentSignal.value);
-    if (commentReq) {
+    if (commentReq && isBrowser) {
       try {
         const token = auth.token;
         if (!token) throw new Error("No token found");
@@ -743,9 +739,10 @@ export const JobsProvider = component$(() => {
   });
 
   // Initialize from localStorage
-  // eslint-disable-next-line qwik/no-use-visible-task
-  useVisibleTask$(() => {
-    jobsState.fetchFavorites$();
+  useTask$(() => {
+    if (isBrowser) {
+      jobsState.fetchFavorites$();
+    }
   });
 
   // fetchTopSkills$: Fetch top skills public stats

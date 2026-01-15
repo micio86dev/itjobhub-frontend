@@ -1,4 +1,4 @@
-import { useStore, useSignal, useVisibleTask$, type QRL, type Signal } from "@builder.io/qwik";
+import { useStore, useSignal, useTask$, type QRL, type Signal, isBrowser } from "@builder.io/qwik";
 
 interface UseInfiniteScrollOptions {
   threshold?: number;
@@ -21,30 +21,30 @@ export const useInfiniteScroll = (options: UseInfiniteScrollOptions): UseInfinit
     observer: null as IntersectionObserver | null,
   });
 
-  // eslint-disable-next-line qwik/no-use-visible-task
-  useVisibleTask$(({ cleanup }) => {
-    const element = ref.value;
-    if (!element || typeof window === 'undefined') return;
+  useTask$(({ track, cleanup }) => {
+    const element = track(() => ref.value);
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const [entry] = entries;
-        if (entry.isIntersecting && hasNextPage && !isLoading) {
-          loadMore$();
+    if (isBrowser && element) {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          const [entry] = entries;
+          if (entry.isIntersecting && hasNextPage && !isLoading) {
+            loadMore$();
+          }
+        },
+        {
+          threshold,
+          rootMargin,
         }
-      },
-      {
-        threshold,
-        rootMargin,
-      }
-    );
+      );
 
-    observer.observe(element);
-    state.observer = observer;
+      observer.observe(element);
+      state.observer = observer;
 
-    cleanup(() => {
-      observer.disconnect();
-    });
+      cleanup(() => {
+        observer.disconnect();
+      });
+    }
   });
 
   return {

@@ -1,4 +1,4 @@
-import { component$, $, useVisibleTask$ } from "@builder.io/qwik";
+import { component$, $, useTask$, isBrowser } from "@builder.io/qwik";
 import { useNavigate } from "@builder.io/qwik-city";
 import type { DocumentHead } from "@builder.io/qwik-city";
 import { useAuth } from "~/contexts/auth";
@@ -9,16 +9,17 @@ export default component$(() => {
   const auth = useAuth();
   const nav = useNavigate();
 
-  // Use useVisibleTask$ (client-side only) for redirection
-  // eslint-disable-next-line qwik/no-use-visible-task
-  useVisibleTask$(({ track }) => {
+  // Use useTask$ for redirection
+  useTask$(({ track }) => {
     track(() => auth.isAuthenticated);
     track(() => auth.user?.profileCompleted);
 
-    if (!auth.isAuthenticated) {
-      void nav('/login');
-    } else if (auth.user?.profileCompleted) {
-      void nav('/');
+    if (isBrowser) {
+      if (!auth.isAuthenticated) {
+        void nav('/login');
+      } else if (auth.user?.profileCompleted) {
+        void nav('/');
+      }
     }
   });
 
