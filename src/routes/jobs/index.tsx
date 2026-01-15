@@ -58,6 +58,7 @@ export default component$(() => {
     track(() => jobsState.jobs);
     track(() => jobsState.pagination.hasMore);
     track(() => jobsState.pagination.totalJobs);
+    track(() => jobsState.pagination.isLoading);
 
     state.displayedJobs = [...jobsState.jobs];
     state.totalJobsCount = jobsState.pagination.totalJobs;
@@ -183,8 +184,6 @@ export default component$(() => {
 
   // Infinite scroll setup
   const { ref: infiniteScrollRef } = useInfiniteScroll({
-    hasNextPage: state.hasNextPage,
-    isLoading: state.isLoading,
     loadMore$: loadMore,
   });
 

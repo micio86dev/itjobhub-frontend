@@ -246,6 +246,7 @@
     "profile.update_error": "Errore durante l'aggiornamento del profilo",
     "profile.avatar_success": "Avatar aggiornato con successo",
     "profile.avatar_error": "Errore durante l'aggiornamento dell'avatar",
+    "profile.avatar_too_big": "L'immagine è troppo grande (max 5MB)",
     "validation.error": "Errore di validazione",
     "time.now": "Ora",
     "time.minutes_ago": "{n} min fa",

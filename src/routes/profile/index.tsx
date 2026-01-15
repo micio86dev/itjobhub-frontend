@@ -49,15 +49,11 @@ export default component$(() => {
     }
   });
 
-  // Handle redirect on client side only, but double check simple auth presence
+  // Handle redirect on client side only
   useTask$(({ track }) => {
     const shouldRedirect = track(() => state.shouldRedirect);
-    if (shouldRedirect && isBrowser) {
-      // Double check if we really need to redirect, maybe auth state is still loading
-      const token = localStorage.getItem('auth_token');
-      if (!token) {
-        window.location.href = '/login';
-      }
+    if (shouldRedirect && isBrowser && !auth.isAuthenticated) {
+      nav('/login');
     }
   });
 
@@ -165,6 +161,17 @@ export default component$(() => {
     const file = target.files?.[0];
 
     if (file && file.type.startsWith('image/')) {
+      // Check file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        state.message = {
+          type: 'error',
+          text: translate('profile.avatar_too_big', i18n.currentLanguage)
+        };
+        // Reset input
+        if (fileInputRef.value) fileInputRef.value.value = '';
+        return;
+      }
+
       const reader = new FileReader();
       reader.onload = (e) => {
         const result = e.target?.result as string;
@@ -173,8 +180,15 @@ export default component$(() => {
           auth.updateAvatarSignal.value = { avatar: result };
         }
       };
+      reader.onerror = (e) => {
+        console.error("FileReader error:", e);
+        state.message = { type: 'error', text: translate('profile.avatar_error', i18n.currentLanguage) };
+      };
       reader.readAsDataURL(file);
     }
+
+    // Reset input value to allow selecting the same file again
+    if (fileInputRef.value) fileInputRef.value.value = '';
   });
 
   // Show wizard if editing profile data

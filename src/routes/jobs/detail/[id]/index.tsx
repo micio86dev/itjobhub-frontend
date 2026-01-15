@@ -68,9 +68,6 @@ export default component$(() => {
                 wasDisliked: currentlyDisliked
             };
         }
-
-
-
         // Update company trust score
         if (job.companyLikes !== undefined && job.companyDislikes !== undefined) {
             job.companyScore = ((job.companyLikes + 8) / (job.companyLikes + job.companyDislikes + 10)) * 100;
@@ -105,9 +102,6 @@ export default component$(() => {
                 wasLiked: currentlyLiked
             };
         }
-
-
-
         // Update company trust score
         if (job.companyLikes !== undefined && job.companyDislikes !== undefined) {
             job.companyScore = ((job.companyLikes + 8) / (job.companyLikes + job.companyDislikes + 10)) * 100;
@@ -115,13 +109,12 @@ export default component$(() => {
     });
 
     const handleToggleFavorite = $(async () => {
-
         if (!auth.isAuthenticated || !state.job) return;
         await jobsContext.toggleFavorite$(state.job.id);
+
         // Toggle local state for immediate feedback
         if (state.job) {
             state.job.is_favorite = !state.job.is_favorite;
-
         }
     });
 

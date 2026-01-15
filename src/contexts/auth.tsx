@@ -94,6 +94,25 @@ export interface AuthState {
   avatarUpdateResult: Signal<{ success: boolean, error?: string } | null>;
 }
 
+export interface BackendUser {
+  id: string;
+  email: string;
+  firstName?: string;
+  lastName?: string;
+  role?: string;
+  phone?: string;
+  location?: string;
+  birthDate?: string;
+  avatar?: string;
+  profile?: {
+    languages?: string[];
+    skills?: string[];
+    seniority?: 'junior' | 'mid' | 'senior';
+    availability?: 'full-time' | 'part-time' | 'busy';
+    bio?: string;
+  };
+}
+
 export const AuthContext = createContextId<AuthState>('auth-context');
 
 const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:3001';
@@ -133,6 +152,20 @@ export const AuthProvider = component$((props: { initialUser?: User | null, init
     avatarUpdateResult
   });
 
+  // Sync state with props (important for SSR and route navigation)
+  useTask$(({ track }) => {
+    const initialUser = track(() => props.initialUser);
+    const initialToken = track(() => props.initialToken);
+
+    if (initialUser !== undefined) {
+      authState.user = initialUser;
+    }
+    if (initialToken !== undefined) {
+      authState.token = initialToken;
+      authState.isAuthenticated = !!initialToken;
+    }
+  });
+
   // Handle unauthorized event
   const handleUnauthorized = $(() => {
     if (authState.isAuthenticated) {
@@ -140,6 +173,28 @@ export const AuthProvider = component$((props: { initialUser?: User | null, init
     }
   });
   useOnWindow('unauthorized', handleUnauthorized);
+
+  // Helper to map backend user to frontend User
+  const mapUser = $((bu: BackendUser): User => {
+    return {
+      id: bu.id,
+      email: bu.email,
+      firstName: bu.firstName,
+      lastName: bu.lastName,
+      name: `${bu.firstName || ''} ${bu.lastName || ''}`.trim(),
+      role: bu.role,
+      languages: bu.profile?.languages || [],
+      skills: bu.profile?.skills || [],
+      seniority: bu.profile?.seniority,
+      availability: bu.profile?.availability,
+      bio: bu.profile?.bio,
+      profileCompleted: !!bu.profile,
+      phone: bu.phone,
+      location: bu.location,
+      birthDate: bu.birthDate,
+      avatar: bu.avatar
+    };
+  });
 
   // Handle login requests
   useTask$(async ({ track }) => {
@@ -160,19 +215,14 @@ export const AuthProvider = component$((props: { initialUser?: User | null, init
       const data = await response.json();
 
       if (response.ok && data.success) {
-        const { user, token } = data.data;
+        const { user: bu, token } = data.data;
 
-        authState.user = {
-          ...user,
-          name: `${user.firstName} ${user.lastName}`,
-          profileCompleted: user.profileCompleted ?? false
-        };
+        authState.user = await mapUser(bu);
         authState.token = token;
         authState.isAuthenticated = true;
 
         if (typeof document !== 'undefined') {
           setCookie('auth_token', token);
-          setCookie('auth_user', JSON.stringify(authState.user));
         }
 
         loginResult.value = { success: true };
@@ -214,51 +264,35 @@ export const AuthProvider = component$((props: { initialUser?: User | null, init
         body: JSON.stringify(payload),
       });
 
-      let data;
       const text = await response.text();
+      let data;
       try {
         data = JSON.parse(text);
       } catch {
-        console.error('Failed to parse response JSON:', text);
-        data = { success: false, message: text || 'Unknown error occurred' };
+        data = { success: false, message: 'Invalid response from server' };
       }
 
       if (response.status === 201 && data.success) {
-        const { user, token } = data.data;
+        const { user: bu, token } = data.data;
 
-        authState.user = {
-          ...user,
-          name: `${user.firstName} ${user.lastName}`,
-          profileCompleted: false
-        };
+        authState.user = await mapUser(bu);
         authState.token = token;
         authState.isAuthenticated = true;
 
         if (typeof document !== 'undefined') {
           setCookie('auth_token', token);
-          setCookie('auth_user', JSON.stringify(authState.user));
         }
 
         registerResult.value = { success: true };
       } else {
-        console.error('Registration failed response:', data);
         registerResult.value = { success: false, error: data.message || 'Registration failed' };
       }
     } catch (error) {
-      console.error('Registration error detailed:', error);
+      console.error('Registration error:', error);
       registerResult.value = { success: false, error: 'Network error or server unavailable' };
     } finally {
       registerSignal.value = null;
     }
-  });
-
-  // Handle social login requests
-  useTask$(async ({ track }) => {
-    const socialReq = track(() => socialLoginSignal.value);
-    if (!socialReq) return;
-
-    console.log('Social login not fully implemented yet', socialReq);
-    socialLoginSignal.value = null;
   });
 
   // Handle logout requests
@@ -284,7 +318,6 @@ export const AuthProvider = component$((props: { initialUser?: User | null, init
 
       if (typeof document !== 'undefined') {
         deleteCookie('auth_token');
-        deleteCookie('auth_user');
         nav('/login');
       }
 
@@ -297,16 +330,6 @@ export const AuthProvider = component$((props: { initialUser?: User | null, init
     const wizardData = track(() => updateProfileSignal.value);
     if (!wizardData || !authState.user) return;
 
-    authState.user.languages = wizardData.languages;
-    authState.user.skills = wizardData.skills;
-    authState.user.seniority = wizardData.seniority || undefined;
-    authState.user.availability = wizardData.availability || undefined;
-    authState.user.profileCompleted = true;
-
-    if (typeof document !== 'undefined') {
-      setCookie('auth_user', JSON.stringify(authState.user));
-    }
-
     try {
       const response = await request(`${API_URL}/users/me/profile`, {
         method: 'PUT',
@@ -315,6 +338,7 @@ export const AuthProvider = component$((props: { initialUser?: User | null, init
           'Authorization': `Bearer ${authState.token}`,
           'Accept-Language': authState.user?.language || 'it',
         },
+        credentials: 'include',
         body: JSON.stringify({
           languages: wizardData.languages,
           skills: wizardData.skills,
@@ -324,6 +348,16 @@ export const AuthProvider = component$((props: { initialUser?: User | null, init
       });
 
       if (response.ok) {
+        const data = await response.json();
+        // Update user in sync with backend response
+        const backendProfile = data.data;
+        if (authState.user) {
+          authState.user.languages = backendProfile.languages;
+          authState.user.skills = backendProfile.skills;
+          authState.user.seniority = backendProfile.seniority;
+          authState.user.availability = backendProfile.availability;
+          authState.user.profileCompleted = true;
+        }
         profileUpdateResult.value = { success: true };
       } else {
         const data = await response.json();
@@ -342,23 +376,22 @@ export const AuthProvider = component$((props: { initialUser?: User | null, init
     const personalInfo = track(() => updatePersonalInfoSignal.value);
     if (!personalInfo || !authState.user) return;
 
-    authState.user.name = personalInfo.name;
-    authState.user.phone = personalInfo.phone;
-    authState.user.location = personalInfo.location;
-    authState.user.birthDate = personalInfo.birthDate;
-    authState.user.bio = personalInfo.bio;
-
-    if (typeof document !== 'undefined') {
-      setCookie('auth_user', JSON.stringify(authState.user));
-    }
-
     try {
+      // Optimistic update
+      const prevUser = { ...authState.user };
+      authState.user.name = personalInfo.name;
+      authState.user.phone = personalInfo.phone;
+      authState.user.location = personalInfo.location;
+      authState.user.birthDate = personalInfo.birthDate;
+      authState.user.bio = personalInfo.bio;
+
       const response = await request(`${API_URL}/users/me/profile`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${authState.token}`
         },
+        credentials: 'include',
         body: JSON.stringify({
           bio: personalInfo.bio,
           name: personalInfo.name,
@@ -373,6 +406,8 @@ export const AuthProvider = component$((props: { initialUser?: User | null, init
         profileUpdateResult.value = { success: true };
       } else {
         const data = await response.json();
+        // Revert on failure
+        authState.user = prevUser;
         profileUpdateResult.value = { success: false, error: data.message || 'Failed to save personal info' };
       }
     } catch (error) {
@@ -388,25 +423,25 @@ export const AuthProvider = component$((props: { initialUser?: User | null, init
     const avatarUpdate = track(() => updateAvatarSignal.value);
     if (!avatarUpdate || !authState.user) return;
 
-    authState.user.avatar = avatarUpdate.avatar;
-
-    if (typeof document !== 'undefined') {
-      setCookie('auth_user', JSON.stringify(authState.user));
-    }
-
     try {
-      await request(`${API_URL}/users/me/profile`, {
+      const response = await request(`${API_URL}/users/me/profile`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${authState.token}`
         },
+        credentials: 'include',
         body: JSON.stringify({
           avatar: avatarUpdate.avatar
         })
       });
 
-      avatarUpdateResult.value = { success: true };
+      if (response.ok) {
+        authState.user.avatar = avatarUpdate.avatar;
+        avatarUpdateResult.value = { success: true };
+      } else {
+        avatarUpdateResult.value = { success: false, error: 'Failed to update avatar' };
+      }
     } catch (error) {
       console.error('Failed to update avatar on server', error);
       avatarUpdateResult.value = { success: false, error: 'Network error or server unavailable' };

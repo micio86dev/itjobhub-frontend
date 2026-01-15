@@ -1,34 +1,33 @@
-import { useStore, useSignal, useTask$, type QRL, type Signal, isBrowser } from "@builder.io/qwik";
+import { useStore, useSignal, useVisibleTask$, type QRL, type Signal } from "@builder.io/qwik";
 
 interface UseInfiniteScrollOptions {
   threshold?: number;
   rootMargin?: string;
-  hasNextPage: boolean;
-  isLoading: boolean;
   loadMore$: QRL<() => void>;
 }
 
 interface UseInfiniteScrollReturn {
   ref: Signal<HTMLElement | undefined>;
-  isLoading: boolean;
 }
 
 export const useInfiniteScroll = (options: UseInfiniteScrollOptions): UseInfiniteScrollReturn => {
-  const { threshold = 1.0, rootMargin = '100px', hasNextPage, isLoading, loadMore$ } = options;
+  const { threshold = 0, rootMargin = '100px', loadMore$ } = options;
   const ref = useSignal<HTMLElement>();
 
   const state = useStore({
     observer: null as IntersectionObserver | null,
   });
 
-  useTask$(({ track, cleanup }) => {
+  // eslint-disable-next-line qwik/no-use-visible-task
+  useVisibleTask$(({ track, cleanup }) => {
     const element = track(() => ref.value);
 
-    if (isBrowser && element) {
+    // No need for isBrowser check inside useVisibleTask as it only runs in browser
+    if (element) {
       const observer = new IntersectionObserver(
         (entries) => {
           const [entry] = entries;
-          if (entry.isIntersecting && hasNextPage && !isLoading) {
+          if (entry.isIntersecting) {
             loadMore$();
           }
         },
@@ -49,6 +48,5 @@ export const useInfiniteScroll = (options: UseInfiniteScrollOptions): UseInfinit
 
   return {
     ref,
-    isLoading,
   };
 };

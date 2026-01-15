@@ -6,22 +6,56 @@ import { I18nProvider } from "~/contexts/i18n";
 import { ThemeProvider } from "~/contexts/theme";
 import { Navigation } from "~/components/navigation/navigation";
 
-export const useAuthLoader = routeLoader$(({ cookie }) => {
+export const useAuthLoader = routeLoader$(async ({ cookie }) => {
   const token = cookie.get('auth_token')?.value;
-  const userStr = cookie.get('auth_user')?.value;
 
-  let user: User | null = null;
-  if (userStr) {
-    try {
-      user = JSON.parse(decodeURIComponent(userStr));
-    } catch {
-      console.error('Failed to parse auth_user cookie');
+  if (!token) return { token: null, user: null };
+
+  try {
+    // Determine API URL (handle both local and production if needed)
+    // In Qwik loaders we use process.env for server-side env vars
+    const API_URL = process.env.PUBLIC_API_URL || 'http://localhost:3001';
+
+    const response = await fetch(`${API_URL}/users/me`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    if (response.ok) {
+      const result = await response.json();
+      if (result.success) {
+        const bu = result.data;
+        // Map backend user to frontend User interface
+        const user: User = {
+          id: bu.id,
+          email: bu.email,
+          firstName: bu.firstName,
+          lastName: bu.lastName,
+          name: `${bu.firstName} ${bu.lastName}`,
+          role: bu.role,
+          phone: bu.phone,
+          location: bu.location,
+          birthDate: bu.birthDate,
+          bio: bu.bio,
+          avatar: bu.avatar,
+          languages: bu.profile?.languages || [],
+          skills: bu.profile?.skills || [],
+          seniority: bu.profile?.seniority,
+          availability: bu.profile?.availability,
+          // A profile is completed if it exists
+          profileCompleted: !!bu.profile
+        };
+        return { token, user };
+      }
     }
+  } catch (e) {
+    console.error('[SSR] Failed to fetch user data:', e);
   }
 
   return {
     token: token || null,
-    user: user
+    user: null
   };
 });
 

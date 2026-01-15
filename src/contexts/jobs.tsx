@@ -501,7 +501,7 @@ export const JobsProvider = component$(() => {
         const token = auth.token;
         if (token) {
           if (remove) {
-            await request(`${API_URL}/likes?jobId=${jobId}`, {
+            await request(`${API_URL}/likes?jobId=${jobId}&type=LIKE`, {
               method: 'DELETE',
               headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -576,7 +576,7 @@ export const JobsProvider = component$(() => {
         const token = auth.token;
         if (token) {
           if (remove) {
-            await request(`${API_URL}/likes?jobId=${jobId}`, {
+            await request(`${API_URL}/likes?jobId=${jobId}&type=DISLIKE`, {
               method: 'DELETE',
               headers: { 'Authorization': `Bearer ${token}` }
             });
