@@ -21,8 +21,7 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
   const i18n = useI18n();
   const lang = i18n.currentLanguage;
 
-  // Extract values and signals to avoid serialization issues
-  const isAuthenticated = auth.isAuthenticated;
+  // Extract signals to avoid serialization issues
   const likeJobSignal = jobsContext.likeJobSignal;
   const dislikeJobSignal = jobsContext.dislikeJobSignal;
 
@@ -30,7 +29,7 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
 
 
   const handleLike = $(() => {
-    if (!isAuthenticated) return;
+    if (!auth.isAuthenticated) return;
 
     const currentlyLiked = job.user_reaction === 'LIKE';
     const currentlyDisliked = job.user_reaction === 'DISLIKE';
@@ -62,7 +61,7 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
   });
 
   const handleDislike = $(() => {
-    if (!isAuthenticated) return;
+    if (!auth.isAuthenticated) return;
 
     const currentlyLiked = job.user_reaction === 'LIKE';
     const currentlyDisliked = job.user_reaction === 'DISLIKE';
@@ -94,7 +93,7 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
   });
 
   const handleToggleFavorite = $(async () => {
-    if (!isAuthenticated) return;
+    if (!auth.isAuthenticated) return;
     await jobsContext.toggleFavorite$(job.id);
   });
 
@@ -141,7 +140,7 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
             </div>
             <div>
               <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-1 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
-                <Link href={`/jobs/detail/${job.id}`}>
+                <Link href={`/jobs/detail/${job.id}`} data-testid="job-card-link">
                   {job.title}
                 </Link>
               </h3>
@@ -173,13 +172,14 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
             <span class="text-xs text-gray-500 dark:text-gray-400">
               {dateDisplay}
             </span>
-            {isAuthenticated && (
+            {auth.isAuthenticated && (
               <button
                 onClick$={handleToggleFavorite}
                 class={`p-1 rounded transition-colors ${job.is_favorite
                   ? 'text-yellow-500 hover:text-yellow-600'
                   : 'text-gray-400 hover:text-yellow-500'
                   }`}
+                data-testid="favorite-button"
                 title={job.is_favorite ? t('job.remove_favorite') : t('job.add_favorite')}
                 aria-label={job.is_favorite ? t('job.remove_favorite') : t('job.add_favorite')}
               >
@@ -283,13 +283,13 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
           {/* Like/Dislike buttons */}
           <button
             onClick$={handleLike}
-            disabled={!isAuthenticated}
+            disabled={!auth.isAuthenticated}
             title="Like"
             data-testid="like-button"
             class={`flex items-center space-x-1 px-2 py-1 rounded transition-colors ${job.user_reaction === 'LIKE'
               ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-200'
               : 'text-gray-500 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20'
-              } ${!isAuthenticated ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+              } ${!auth.isAuthenticated ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
           >
             <span class="text-lg">👍</span>
             <span class="text-sm font-medium" data-testid="like-count">{job.likes}</span>
@@ -297,13 +297,13 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
 
           <button
             onClick$={handleDislike}
-            disabled={!isAuthenticated}
+            disabled={!auth.isAuthenticated}
             title="Dislike"
             data-testid="dislike-button"
             class={`flex items-center space-x-1 px-2 py-1 rounded transition-colors ${job.user_reaction === 'DISLIKE'
               ? 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-200'
               : 'text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20'
-              } ${!isAuthenticated ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+              } ${!auth.isAuthenticated ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
           >
             <span class="text-lg">👎</span>
             <span class="text-sm font-medium" data-testid="dislike-count">{job.dislikes}</span>
@@ -360,7 +360,7 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
       </div>
 
       {/* Login prompt for non-authenticated users */}
-      {!isAuthenticated && <LoginPrompt />}
+      {!auth.isAuthenticated && <LoginPrompt />}
     </div >
   );
 });

@@ -5,14 +5,14 @@ test.describe('Registered User', () => {
         // Login as a seeker
         await page.goto('/login');
         await page.waitForTimeout(1000);
-        await page.getByLabel('Email').fill('seeker@test.com');
-        await page.getByLabel('Password').fill('password123');
+        await page.getByTestId('email-input').fill('seeker@test.com');
+        await page.getByTestId('password-input').fill('password123');
 
         const loginResponsePromise = page.waitForResponse(response =>
             response.url().includes('/auth/login') && response.request().method() === 'POST'
         );
 
-        await page.getByRole('button', { name: /Accedi/i }).click();
+        await page.getByTestId('login-submit').click();
 
         try {
             await loginResponsePromise;
@@ -27,21 +27,21 @@ test.describe('Registered User', () => {
         await page.goto('/profile');
         await expect(page.locator('h1')).toContainText(/Profilo|Job Seeker/i);
         // User name from seed
-        await expect(page.getByLabel('Nome')).toHaveValue('Job');
+        await expect(page.getByTestId('profile-name')).toHaveValue('Job');
     });
 
     test('should be able to update their profile', async ({ page }) => {
         await page.goto('/profile');
-        await page.getByLabel('Bio').fill('Updated bio from e2e test');
-        await page.getByRole('button', { name: /Salva/i }).click();
+        await page.getByTestId('profile-bio').fill('Updated bio from e2e test');
+        await page.getByTestId('profile-save').click();
         // Expect success message or toast
         // await expect(page.getByText('Profile updated')).toBeVisible(); // Adjust based on UI
     });
 
     test('should be able to favorite a job', async ({ page }) => {
         await page.goto('/');
-        const firstJobCard = page.locator('.job-card').first();
-        const favoriteBtn = firstJobCard.locator('button[aria-label="Aggiungi ai preferiti"]').first(); // Adjust selector
+        const firstJobCard = page.getByTestId('job-card').first();
+        const favoriteBtn = firstJobCard.getByTestId('favorite-button').first();
 
         // Check initial state, if not favorited, click it
         // This is flaky if state persists, but for now just check interaction exists
@@ -55,12 +55,12 @@ test.describe('Registered User', () => {
     test('should update likes count on detail page', async ({ page }) => {
         await page.goto('/jobs');
         // Click first job to go to detail
-        await page.locator('a[href*="/jobs/detail/"]').first().click();
+        await page.getByTestId('job-card-link').first().click();
         await page.waitForTimeout(1000);
 
-        const likeBtn = page.locator('button[title="Like"]');
-        const dislikeBtn = page.locator('button[title="Dislike"]');
-        const likeCount = likeBtn.locator('span.font-bold');
+        const likeBtn = page.getByTestId('like-button');
+        const dislikeBtn = page.getByTestId('dislike-button');
+        const likeCount = page.getByTestId('like-count');
 
         // Get initial count
         const initialLikesText = await likeCount.innerText();
@@ -114,7 +114,7 @@ test.describe('Registered User', () => {
         // Navigate to detail page
         await page.goto('/jobs');
         // Click first job to go to detail
-        await page.locator('a[href*="/jobs/detail/"]').first().click();
+        await page.getByTestId('job-card-link').first().click();
         await page.waitForTimeout(1000);
 
         const likeBtn = page.getByTestId('like-button');

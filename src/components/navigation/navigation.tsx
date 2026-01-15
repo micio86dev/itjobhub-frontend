@@ -10,8 +10,6 @@ export const Navigation = component$(() => {
   const t = useTranslate();
 
   // Extract values and signals to avoid serialization issues
-  const isAuthenticated = auth.isAuthenticated;
-  const user = auth.user;
   const currentLanguage = i18n.currentLanguage;
   const logoutSignal = auth.logoutSignal;
   const setLanguageSignal = i18n.setLanguageSignal;
@@ -74,7 +72,7 @@ export const Navigation = component$(() => {
               >
                 {t('nav.jobs')}
               </a>
-              {user?.role === "admin" && (
+              {auth.user?.role === "admin" && (
                 <a
                   href="/admin/stats"
                   class="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-2 sm:px-3 py-2 rounded-md text-sm font-medium whitespace-nowrap"
@@ -82,7 +80,7 @@ export const Navigation = component$(() => {
                   {t('nav.dashboard')}
                 </a>
               )}
-              {isAuthenticated && (
+              {auth.isAuthenticated && (
                 <a
                   href="/favorites"
                   class="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-2 sm:px-3 py-2 rounded-md text-sm font-medium whitespace-nowrap"
@@ -147,7 +145,7 @@ export const Navigation = component$(() => {
 
             {/* Desktop Auth Buttons */}
             <div class="hidden md:flex items-center space-x-1 sm:space-x-3">
-              {isAuthenticated ? (
+              {auth.isAuthenticated ? (
                 <>
                   <a
                     href="/profile"
@@ -216,7 +214,7 @@ export const Navigation = component$(() => {
             >
               {t('nav.jobs')}
             </a>
-            {user?.role === "admin" && (
+            {auth.user?.role === "admin" && (
               <a
                 href="/admin/stats"
                 class="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-800 block px-3 py-2 rounded-md text-base font-medium"
@@ -224,7 +222,7 @@ export const Navigation = component$(() => {
                 {t('nav.dashboard')}
               </a>
             )}
-            {isAuthenticated && (
+            {auth.isAuthenticated && (
               <a
                 href="/favorites"
                 class="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-800 block px-3 py-2 rounded-md text-base font-medium"
@@ -234,7 +232,7 @@ export const Navigation = component$(() => {
             )}
 
             <div class="border-t border-gray-200 dark:border-gray-700 pt-4 pb-3">
-              {isAuthenticated ? (
+              {auth.isAuthenticated ? (
                 <div class="mt-3 px-2 space-y-1">
                   <a
                     href="/profile"

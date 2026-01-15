@@ -23,10 +23,6 @@ export default component$(() => {
   const lang = i18n.currentLanguage;
   const t = useTranslate();
 
-  // Extract values to avoid serialization issues
-  const isAuthenticated = auth.isAuthenticated;
-  const user = auth.user;
-
   const fileInputRef = useSignal<HTMLInputElement | undefined>();
 
   const state = useStore({
@@ -36,12 +32,12 @@ export default component$(() => {
     isSavingPersonal: false,
     message: { type: 'success' as 'success' | 'error', text: '' },
     formData: {
-      name: user?.name || '',
-      email: user?.email || '',
-      phone: user?.phone || '',
-      location: user?.location || '',
-      birthDate: user?.birthDate || '',
-      bio: user?.bio || ''
+      name: auth.user?.name || '',
+      email: auth.user?.email || '',
+      phone: auth.user?.phone || '',
+      location: auth.user?.location || '',
+      birthDate: auth.user?.birthDate || '',
+      bio: auth.user?.bio || ''
     } as EditFormData
   });
 
@@ -67,7 +63,7 @@ export default component$(() => {
 
   // Update form data when user changes
   useTask$(({ track }) => {
-    const currentUser = track(() => user);
+    const currentUser = track(() => auth.user);
     if (currentUser) {
       state.formData = {
         name: currentUser.name || '',
@@ -118,7 +114,7 @@ export default component$(() => {
   });
 
   // Return early if not authenticated to prevent rendering
-  if (!isAuthenticated) {
+  if (!auth.isAuthenticated) {
     return null;
   }
 
@@ -144,12 +140,12 @@ export default component$(() => {
     state.editingSection = '';
     // Reset form data
     state.formData = {
-      name: user?.name || '',
-      email: user?.email || '',
-      phone: user?.phone || '',
-      location: user?.location || '',
-      birthDate: user?.birthDate || '',
-      bio: user?.bio || ''
+      name: auth.user?.name || '',
+      email: auth.user?.email || '',
+      phone: auth.user?.phone || '',
+      location: auth.user?.location || '',
+      birthDate: auth.user?.birthDate || '',
+      bio: auth.user?.bio || ''
     };
   });
 
@@ -184,10 +180,10 @@ export default component$(() => {
   // Show wizard if editing profile data
   if (state.isEditing && state.editingSection === 'profile') {
     const initialData: Partial<WizardData> = {
-      languages: user?.languages || [],
-      skills: user?.skills || [],
-      seniority: (user?.seniority as 'junior' | 'mid' | 'senior' | '') || '',
-      availability: (user?.availability as 'full-time' | 'part-time' | 'busy' | '') || ''
+      languages: auth.user?.languages || [],
+      skills: auth.user?.skills || [],
+      seniority: (auth.user?.seniority as 'junior' | 'mid' | 'senior' | '') || '',
+      availability: (auth.user?.availability as 'full-time' | 'part-time' | 'busy' | '') || ''
     };
     return (
       <ProfileWizard
@@ -234,11 +230,11 @@ export default component$(() => {
             <div class="flex items-center">
               <div class="relative">
                 <div class="w-20 h-20 bg-indigo-500 dark:bg-indigo-600 rounded-full flex items-center justify-center overflow-hidden">
-                  {user?.avatar ? (
-                    <img src={user.avatar} alt="Avatar" class="w-full h-full object-cover" width="80" height="80" />
+                  {auth.user?.avatar ? (
+                    <img src={auth.user.avatar} alt="Avatar" class="w-full h-full object-cover" width="80" height="80" />
                   ) : (
                     <span class="text-2xl font-bold text-white">
-                      {user?.name?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase()}
+                      {auth.user?.name?.charAt(0).toUpperCase() || auth.user?.email?.charAt(0).toUpperCase()}
                     </span>
                   )}
                 </div>
@@ -262,21 +258,21 @@ export default component$(() => {
               </div>
               <div class="ml-4">
                 <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
-                  {user?.name || t('profile.title')}
+                  {auth.user?.name || t('profile.title')}
                 </h1>
                 <p class="text-sm text-gray-500 dark:text-gray-400">
-                  {user?.email}
+                  {auth.user?.email}
                 </p>
-                {user?.location && (
+                {auth.user?.location && (
                   <p class="text-sm text-gray-500 dark:text-gray-400 flex items-center mt-1">
                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
-                    {user.location}
+                    {auth.user.location}
                   </p>
                 )}
-                {user?.profileCompleted && (
+                {auth.user?.profileCompleted && (
                   <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-300 mt-1">
                     {t('profile.completed')}
                   </span>
@@ -288,7 +284,7 @@ export default component$(() => {
 
         {/* Profile content */}
         <div class="px-4 py-5 sm:p-6">
-          {!user?.profileCompleted ? (
+          {!auth.user?.profileCompleted ? (
             <div class="text-center py-12">
               <div class="w-12 h-12 mx-auto mb-4 text-gray-400 dark:text-gray-500">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -338,6 +334,7 @@ export default component$(() => {
                           type="text"
                           value={state.formData.name}
                           onInput$={(e) => state.formData.name = (e.target as HTMLInputElement).value}
+                          data-testid="profile-name"
                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:ring-indigo-500 focus:border-indigo-500 dark:focus:ring-indigo-400 dark:focus:border-indigo-400"
                         />
                       </div>
@@ -392,6 +389,7 @@ export default component$(() => {
                         value={state.formData.bio}
                         onInput$={(e) => state.formData.bio = (e.target as HTMLTextAreaElement).value}
                         rows={4}
+                        data-testid="profile-bio"
                         class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:ring-indigo-500 focus:border-indigo-500 dark:focus:ring-indigo-400 dark:focus:border-indigo-400"
                         placeholder={t('profile.complete_desc')}
                       />
@@ -400,6 +398,7 @@ export default component$(() => {
                       <button
                         onClick$={handleSavePersonal}
                         disabled={state.isSavingPersonal}
+                        data-testid="profile-save"
                         class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-700 dark:hover:bg-indigo-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         {state.isSavingPersonal && (
@@ -422,28 +421,28 @@ export default component$(() => {
                   <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">{t('profile.name_label')}</dt>
-                      <dd class="mt-1 text-sm text-gray-900 dark:text-white">{user.name || '-'}</dd>
+                      <dd class="mt-1 text-sm text-gray-900 dark:text-white">{auth.user?.name || '-'}</dd>
                     </div>
                     <div>
                       <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">{t('profile.email_label')}</dt>
-                      <dd class="mt-1 text-sm text-gray-900 dark:text-white">{user.email || '-'}</dd>
+                      <dd class="mt-1 text-sm text-gray-900 dark:text-white">{auth.user?.email || '-'}</dd>
                     </div>
                     <div>
                       <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">{t('profile.phone_label')}</dt>
-                      <dd class="mt-1 text-sm text-gray-900 dark:text-white">{user.phone || '-'}</dd>
+                      <dd class="mt-1 text-sm text-gray-900 dark:text-white">{auth.user?.phone || '-'}</dd>
                     </div>
                     <div>
                       <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">{t('profile.location_label')}</dt>
-                      <dd class="mt-1 text-sm text-gray-900 dark:text-white">{user.location || '-'}</dd>
+                      <dd class="mt-1 text-sm text-gray-900 dark:text-white">{auth.user?.location || '-'}</dd>
                     </div>
                     <div>
                       <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">{t('profile.birth_date_label')}</dt>
-                      <dd class="mt-1 text-sm text-gray-900 dark:text-white">{user.birthDate || '-'}</dd>
+                      <dd class="mt-1 text-sm text-gray-900 dark:text-white">{auth.user?.birthDate || '-'}</dd>
                     </div>
-                    {user.bio && (
+                    {auth.user?.bio && (
                       <div class="md:col-span-2">
                         <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">{t('profile.bio_label')}</dt>
-                        <dd class="mt-1 text-sm text-gray-900 dark:text-white">{user.bio}</dd>
+                        <dd class="mt-1 text-sm text-gray-900 dark:text-white">{auth.user.bio}</dd>
                       </div>
                     )}
                   </div>
@@ -474,7 +473,7 @@ export default component$(() => {
                       {t('profile.languages_title')}
                     </h4>
                     <div class="flex flex-wrap gap-2">
-                      {user.languages?.map((lang) => (
+                      {auth.user?.languages?.map((lang) => (
                         <span
                           key={lang}
                           class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-300"
@@ -491,7 +490,7 @@ export default component$(() => {
                       {t('profile.skills_title')}
                     </h4>
                     <div class="flex flex-wrap gap-2">
-                      {user.skills?.map((skill) => (
+                      {auth.user?.skills?.map((skill) => (
                         <span
                           key={skill}
                           class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-300"
@@ -511,7 +510,7 @@ export default component$(() => {
                       <div class="flex items-center">
                         <div class="w-3 h-3 bg-indigo-500 dark:bg-indigo-400 rounded-full mr-3"></div>
                         <span class="text-sm font-medium text-gray-900 dark:text-white capitalize">
-                          {formatSeniority(user.seniority || '')}
+                          {formatSeniority(auth.user?.seniority || '')}
                         </span>
                       </div>
                     </div>
@@ -523,7 +522,7 @@ export default component$(() => {
                       <div class="flex items-center">
                         <div class="w-3 h-3 bg-green-500 dark:bg-green-400 rounded-full mr-3"></div>
                         <span class="text-sm font-medium text-gray-900 dark:text-white capitalize">
-                          {formatAvailability(user.availability || '')}
+                          {formatAvailability(auth.user?.availability || '')}
                         </span>
                       </div>
                     </div>

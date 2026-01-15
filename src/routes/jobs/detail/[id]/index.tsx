@@ -278,7 +278,7 @@ export default component$(() => {
                                                     >
                                                         {t('job.apply')}
                                                     </a>
-                                                    {auth.user?.role === 'ADMIN' && (
+                                                    {auth.user?.role === 'admin' && (
                                                         <button
                                                             onClick$={() => state.showDeleteModal = true}
                                                             class="px-6 py-3 bg-red-600 text-white font-bold rounded-xl shadow-lg shadow-red-500/30 hover:bg-red-700 hover:scale-[1.02] active:scale-[0.98] transition-all"

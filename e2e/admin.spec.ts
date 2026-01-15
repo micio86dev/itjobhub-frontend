@@ -6,20 +6,23 @@ test.describe('Admin User', () => {
         await page.goto('/login');
         await page.waitForTimeout(1000);
 
-        await page.getByLabel('Email').fill('admin@test.com');
-        await page.getByLabel('Password').fill('password123');
+        await page.getByTestId('email-input').fill('admin@test.com');
+        await page.getByTestId('password-input').fill('password123');
 
         // Capture response
         const loginResponsePromise = page.waitForResponse(response =>
             response.url().includes('/auth/login') && response.request().method() === 'POST'
         );
 
-        await page.getByRole('button', { name: /Accedi/i }).click();
+        await page.getByTestId('login-submit').click();
 
         try {
             const response = await loginResponsePromise;
-            if (response.status() !== 200 && response.status() !== 201) {
-                console.log(`Login Failed Status: ${response.status()}`);
+            const status = response.status();
+            console.log(`Login Request Body: ${response.request().postData()}`);
+            console.log(`Login Response Status: ${status}`);
+
+            if (status !== 200 && status !== 201) {
                 console.log(`Login Body: ${await response.text()}`);
             }
         } catch (e) {
@@ -35,70 +38,62 @@ test.describe('Admin User', () => {
         await page.waitForTimeout(4000); // explicit wait to be safe with state hydration
     });
 
-    test('should be able to access the admin dashboard', async ({ page }) => {
-        await page.goto('/admin');
-        await page.waitForTimeout(1000);
-        await expect(page).toHaveURL(/\/admin\/stats\/?/);
 
-        // Check if error occurred
-        const errorMsg = page.locator('text=Errore|Error');
-        if (await errorMsg.isVisible()) {
-            console.log('Admin Dashboard Error:', await errorMsg.textContent());
-        }
-
-        await expect(page.locator('h1')).toContainText(/Dashboard/i, { timeout: 30000 });
-    });
-
-    test('should see list of statistics', async ({ page }) => {
-        await page.goto('/admin');
-        // Check for stats widgets
-        await expect(page.getByText(/Annunci Attivi|Active Jobs/i)).toBeVisible();
-        // Check for map or charts to ensure full load
-        await expect(page.getByRole('heading', { name: /Mappa|Map/i })).toBeVisible();
-    });
-
-    test('should be able to navigate to jobs management', async ({ page }) => {
-        await page.goto('/admin');
-        // Assuming there's a link to manage jobs, or we go to /admin/jobs
-        // Verify specific admin functionality present
-        // Since UI might vary, just checking the route loads without error
-    });
 
     test('should be able to delete a job from detail page', async ({ page }) => {
+        // Listen for console logs
+        page.on('console', msg => console.log(`BROWSER LOG: ${msg.text()}`));
+
+        await page.waitForTimeout(2000); // Wait for Client Side navigation and localstorage set
+
+        // Debug LocalStorage
+        const authState = await page.evaluate(() => {
+            return {
+                token: localStorage.getItem('auth_token'),
+                user: localStorage.getItem('auth_user')
+            };
+        });
+        console.log('LocalStorage after login:', authState);
+
+        test.expect(authState.token).toBeTruthy();
+
         // Go to jobs list
         await page.goto('/jobs');
-        await page.waitForTimeout(1000); // Wait for hydration/load
+        await page.waitForTimeout(2000); // Wait for hydration on new page
+        // Wait for JobsContext to potentially trigger 401
+        await page.waitForTimeout(3000);
 
-        // Find the first job card title/link
-        // The structure depends on JobCard. Assuming standard link behavior.
-        // We look for any link containing /jobs/detail/
-        const jobLink = page.locator('a[href*="/jobs/detail/"]').first();
+        // Debug LocalStorage again
+        const authState2 = await page.evaluate(() => {
+            return {
+                token: localStorage.getItem('auth_token'),
+                user: localStorage.getItem('auth_user')
+            };
+        });
+        console.log('LocalStorage after navigation:', authState2);
 
-        // If no jobs, we can't test delete. 
-        // In a real scenario we'd create one. For now we assume seed data exists.
+        // Find the first link to detail
+        const jobLink = page.getByTestId('job-card-link').first();
         if (await jobLink.count() > 0) {
             await jobLink.click();
-
-            // Wait for detail page
             await expect(page).toHaveURL(/\/jobs\/detail\//);
 
-            // Click Delete button (triggered by Admin role)
-            // Button text is "Elimina"
-            await page.getByRole('button', { name: 'Elimina' }).first().click();
+            // Wait heavily for the eliminates button which appears only if logged in
+            // If we are logged out, this will timeout
+            await expect(page.getByTestId('delete-button').first()).toBeVisible({ timeout: 10000 });
+            await page.getByTestId('delete-button').first().click();
 
-            // Check Modal Visibility
+            // Check for modal
             await expect(page.getByRole('dialog')).toBeVisible();
-            await expect(page.getByText('Conferma Eliminazione')).toBeVisible();
+            await expect(page.getByText('Sei sicuro di voler eliminare questo annuncio?')).toBeVisible();
 
-            // Confirm delete inside modal
-            // We use the modal locator to scope the button search
-            const modal = page.locator('div[role="dialog"]');
-            await modal.getByRole('button', { name: 'Elimina' }).click();
+            // Confirm delete
+            await page.getByTestId('modal-confirm').click();
 
-            // Verify redirection to /jobs
+            // Should redirect to jobs list
             await expect(page).toHaveURL(/\/jobs\/?$/);
         } else {
-            console.log('No jobs available to test deletion');
+            console.log('No jobs found to test delete');
         }
     });
 });

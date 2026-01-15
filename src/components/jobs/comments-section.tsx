@@ -14,9 +14,7 @@ export const CommentsSection = component$<CommentsSectionProps>(({ jobId, onClos
   const t = useTranslate();
   const i18n = useI18n();
 
-  // Extract values and signals to avoid serialization issues
-  const isAuthenticated = auth.isAuthenticated;
-  const user = auth.user;
+  // Extract signals only
   const addCommentSignal = jobsContext.addCommentSignal;
 
   const state = useStore({
@@ -55,7 +53,7 @@ export const CommentsSection = component$<CommentsSectionProps>(({ jobId, onClos
   const handleSubmitComment = $(async (e: Event) => {
     e.preventDefault();
 
-    if (!isAuthenticated || !state.commentText.trim()) {
+    if (!auth.isAuthenticated || !state.commentText.trim()) {
       return;
     }
 
@@ -66,8 +64,8 @@ export const CommentsSection = component$<CommentsSectionProps>(({ jobId, onClos
       addCommentSignal.value = {
         jobId,
         author: {
-          name: user?.name || `${user?.firstName || ''} ${user?.lastName || ''}`.trim() || 'Anonymous User',
-          avatar: user?.avatar
+          name: auth.user?.name || `${auth.user?.firstName || ''} ${auth.user?.lastName || ''}`.trim() || 'Anonymous User',
+          avatar: auth.user?.avatar
         },
         text: state.commentText.trim()
       };
@@ -130,10 +128,10 @@ export const CommentsSection = component$<CommentsSectionProps>(({ jobId, onClos
   };
 
   // Get current user initials
-  const userInitials = user?.name
-    ? getInitials(user.name)
-    : user?.firstName && user?.lastName
-      ? `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`.toUpperCase()
+  const userInitials = auth.user?.name
+    ? getInitials(auth.user.name)
+    : auth.user?.firstName && auth.user?.lastName
+      ? `${auth.user.firstName.charAt(0)}${auth.user.lastName.charAt(0)}`.toUpperCase()
       : 'U';
 
   return (
@@ -144,14 +142,14 @@ export const CommentsSection = component$<CommentsSectionProps>(({ jobId, onClos
         </h4>
 
         {/* Comment form */}
-        {isAuthenticated ? (
+        {auth.isAuthenticated ? (
           <form onSubmit$={handleSubmitComment} preventdefault:submit class="mb-4">
             <div class="flex gap-3">
               <div class="flex-shrink-0">
-                {user?.avatar ? (
+                {auth.user?.avatar ? (
                   <img
-                    src={user.avatar}
-                    alt={user.name || 'User'}
+                    src={auth.user.avatar}
+                    alt={auth.user.name || 'User'}
                     class="w-8 h-8 rounded-full object-cover"
                     width="32"
                     height="32"
@@ -272,9 +270,9 @@ export const CommentsSection = component$<CommentsSectionProps>(({ jobId, onClos
                         <span class="text-xs text-gray-500">
                           {formatCommentDate(comment.date)}
                         </span>
-                        {(user?.id === comment.userId || user?.role === 'admin') && (
+                        {(auth.user?.id === comment.userId || auth.user?.role === 'admin') && (
                           <div class="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                            {user?.id === comment.userId && (
+                            {auth.user?.id === comment.userId && (
                               <button
                                 onClick$={() => startEditing(comment.id, comment.text)}
                                 class="p-1 text-gray-400 hover:text-indigo-600"

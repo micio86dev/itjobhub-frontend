@@ -5,14 +5,14 @@ test.describe('Company User / Admin Job Posting', () => {
         // Login as admin (who acts as company for now in tests)
         await page.goto('/login');
         await page.waitForTimeout(1000);
-        await page.getByLabel('Email').fill('admin@test.com');
-        await page.getByLabel('Password').fill('password123');
+        await page.getByTestId('email-input').fill('admin@test.com');
+        await page.getByTestId('password-input').fill('password123');
 
         const loginResponsePromise = page.waitForResponse(response =>
             response.url().includes('/auth/login') && response.request().method() === 'POST'
         );
 
-        await page.getByRole('button', { name: /Accedi/i }).click();
+        await page.getByTestId('login-submit').click();
 
         try {
             await loginResponsePromise;

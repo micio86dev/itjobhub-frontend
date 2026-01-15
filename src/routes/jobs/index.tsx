@@ -25,10 +25,6 @@ export default component$(() => {
   const t = useTranslate();
   const location = useLocation();
 
-  // Extract values to avoid serialization issues
-  const isAuthenticated = auth.isAuthenticated;
-  const user = auth.user;
-
   // Parse initial filters from URL
   const urlParams = location.url.searchParams;
   const initialQuery = urlParams.get('q') || '';
@@ -44,7 +40,7 @@ export default component$(() => {
     isLoading: false,
     hasNextPage: true,
     openComments: {} as Record<string, boolean>,
-    showPersonalized: isAuthenticated && user?.profileCompleted && !hasInitialSearch,
+    showPersonalized: auth.isAuthenticated && auth.user?.profileCompleted && !hasInitialSearch,
     searchFilters: hasInitialSearch ? {
       query: initialQuery,
       remote: initialRemote === 'true' ? true : initialRemote === 'false' ? false : undefined,
@@ -70,7 +66,16 @@ export default component$(() => {
   });
 
   // Initial fetch logic
-  useTask$(async () => {
+  useTask$(async ({ track }) => {
+    track(() => auth.isAuthenticated);
+    track(() => auth.user);
+
+    // Update personalization state based on auth availability
+    // This ensures that when auth is restored on client, we switch to personalized view
+    if (auth.isAuthenticated && auth.user?.profileCompleted && !hasInitialSearch) {
+      state.showPersonalized = true;
+    }
+
     // Gather user language filters first
     const userLanguages = auth.user?.languages ? Array.from(auth.user.languages) : undefined;
 
@@ -88,12 +93,12 @@ export default component$(() => {
       // Logic for default load (direct navigation to /jobs)
       let filters: JobFilters | undefined = userLanguages ? { languages: userLanguages } : undefined;
 
-      if (state.showPersonalized && user) {
+      if (state.showPersonalized && auth.user) {
         filters = {
           ...filters,
-          skills: user.skills ? Array.from(user.skills) : undefined,
-          seniority: user.seniority,
-          availability: user.availability,
+          skills: auth.user.skills ? Array.from(auth.user.skills) : undefined,
+          seniority: auth.user.seniority,
+          availability: auth.user.availability,
           looseSeniority: true,
         };
       }
@@ -113,13 +118,13 @@ export default component$(() => {
     state.showPersonalized = !state.showPersonalized;
     state.page = 1;
 
-    if (state.showPersonalized && user) {
+    if (state.showPersonalized && auth.user) {
       // Build filters from user profile
       const personalFilters: JobFilters = {
-        skills: user.skills ? Array.from(user.skills) : undefined,
-        seniority: user.seniority,
-        availability: user.availability,
-        languages: user.languages ? Array.from(user.languages) : undefined,
+        skills: auth.user.skills ? Array.from(auth.user.skills) : undefined,
+        seniority: auth.user.seniority,
+        availability: auth.user.availability,
+        languages: auth.user.languages ? Array.from(auth.user.languages) : undefined,
         looseSeniority: true,
         // We might want to include location/remote preferences from profile too if available, 
         // but sticking to skills/seniority for "Feed" to match previous logic
@@ -128,8 +133,8 @@ export default component$(() => {
       await jobsState.fetchJobsPage$(1, personalFilters, false);
     } else {
       // Reset to all jobs but keep language filter if applicable
-      const baseFilters: JobFilters | undefined = user?.languages && user.languages.length > 0
-        ? { languages: Array.from(user.languages) }
+      const baseFilters: JobFilters | undefined = auth.user?.languages && auth.user.languages.length > 0
+        ? { languages: Array.from(auth.user.languages) }
         : undefined;
 
       state.searchFilters = baseFilters || null;
@@ -150,7 +155,7 @@ export default component$(() => {
 
     // Forces language filtering if user has spoken languages
     // forces language filtering if user has spoken languages
-    const userLanguages = (isAuthenticated && user?.languages) ? Array.from(user.languages) : undefined;
+    const userLanguages = (auth.isAuthenticated && auth.user?.languages) ? Array.from(auth.user.languages) : undefined;
     const shouldFilterByLanguage = userLanguages && userLanguages.length > 0;
 
     // Convert JobSearchFilters to JobFilters for API
@@ -185,8 +190,8 @@ export default component$(() => {
 
   // Jobs are loaded automatically through reactive calculations
 
-  const canShowPersonalized = isAuthenticated && user?.profileCompleted && !state.hasSearched;
-  const userHasLanguages = !!(isAuthenticated && user?.languages && user.languages.length > 0);
+  const canShowPersonalized = auth.isAuthenticated && auth.user?.profileCompleted && !state.hasSearched;
+  const userHasLanguages = !!(auth.isAuthenticated && auth.user?.languages && auth.user.languages.length > 0);
 
   return (
     <div class="max-w-4xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
@@ -199,10 +204,10 @@ export default component$(() => {
         {/* Search component */}
         <JobSearch
           onSearch$={handleSearch}
-          initialLocation={user?.location || undefined}
-          initialGeo={user?.location_geo?.coordinates && user.location_geo.coordinates.length >= 2 ? {
-            lat: user.location_geo.coordinates[1],
-            lng: user.location_geo.coordinates[0]
+          initialLocation={auth.user?.location || undefined}
+          initialGeo={auth.user?.location_geo?.coordinates && auth.user.location_geo.coordinates.length >= 2 ? {
+            lat: auth.user.location_geo.coordinates[1],
+            lng: auth.user.location_geo.coordinates[0]
           } : undefined}
           initialQuery={initialQuery}
           initialRemote={initialRemote === 'true' ? 'remote' : initialRemote === 'false' ? 'office' : ''}
@@ -225,7 +230,7 @@ export default component$(() => {
 
               {state.showPersonalized && (
                 <span class="text-sm text-gray-600 dark:text-gray-400">
-                  {t('jobs.skills_based_on')} {user?.skills?.join(', ')}
+                  {t('jobs.skills_based_on')} {auth.user?.skills?.join(', ')}
                 </span>
               )}
             </div>
@@ -233,7 +238,7 @@ export default component$(() => {
         )}
 
         {/* Info for non-authenticated users */}
-        {!isAuthenticated && (
+        {!auth.isAuthenticated && (
           <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-md p-4 mb-6">
             <div class="flex">
               <div class="flex-shrink-0">
@@ -254,7 +259,7 @@ export default component$(() => {
         )}
 
         {/* Info for authenticated users without completed profile */}
-        {isAuthenticated && !user?.profileCompleted && (
+        {auth.isAuthenticated && !auth.user?.profileCompleted && (
           <div class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-md p-4 mb-6">
             <div class="flex">
               <div class="flex-shrink-0">

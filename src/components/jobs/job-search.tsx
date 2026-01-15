@@ -78,6 +78,7 @@ export const JobSearch = component$<JobSearchProps>(({
               type="text"
               value={state.query}
               onInput$={(e) => state.query = (e.target as HTMLInputElement).value}
+              data-testid="search-query"
               placeholder={t('jobs.search_placeholder')}
               class="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:ring-indigo-500 focus:border-indigo-500 dark:focus:ring-indigo-400 dark:focus:border-indigo-400"
               onKeyDown$={(e) => {
@@ -147,6 +148,7 @@ export const JobSearch = component$<JobSearchProps>(({
           <select
             value={state.seniority}
             onChange$={(e) => state.seniority = (e.target as HTMLSelectElement).value}
+            data-testid="search-seniority"
             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:ring-indigo-500 focus:border-indigo-500 dark:focus:ring-indigo-400 dark:focus:border-indigo-400"
           >
             <option value="">{t('jobs.all_levels')}</option>
@@ -164,6 +166,7 @@ export const JobSearch = component$<JobSearchProps>(({
           <select
             value={state.availability}
             onChange$={(e) => state.availability = (e.target as HTMLSelectElement).value}
+            data-testid="search-availability"
             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:ring-indigo-500 focus:border-indigo-500 dark:focus:ring-indigo-400 dark:focus:border-indigo-400"
           >
             <option value="">{t('jobs.all_types')}</option>
@@ -182,6 +185,7 @@ export const JobSearch = component$<JobSearchProps>(({
           <select
             value={state.remote}
             onChange$={(e) => state.remote = (e.target as HTMLSelectElement).value}
+            data-testid="search-remote"
             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:ring-indigo-500 focus:border-indigo-500 dark:focus:ring-indigo-400 dark:focus:border-indigo-400"
           >
             <option value="">{t('jobs.all_modes')}</option>
@@ -194,6 +198,7 @@ export const JobSearch = component$<JobSearchProps>(({
         <div class="flex items-end gap-2">
           <button
             onClick$={handleSearch}
+            data-testid="search-submit"
             class="flex-1 px-4 py-2 bg-indigo-600 dark:bg-indigo-700 text-white rounded-md hover:bg-indigo-700 dark:hover:bg-indigo-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-colors"
           >
             {t('jobs.search_btn')}

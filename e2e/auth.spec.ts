@@ -5,17 +5,17 @@ test.describe('Authentication', () => {
         await page.goto('/register');
 
         const email = `test-${Date.now()}@example.com`;
-        await page.getByLabel('Nome completo').fill('Test User');
-        await page.getByLabel('Email').fill(email);
-        await page.getByLabel('Password', { exact: true }).fill('Password123!');
-        await page.getByLabel('Conferma password').fill('Password123!');
+        await page.getByTestId('name-input').fill('Test User');
+        await page.getByTestId('email-input').fill(email);
+        await page.getByTestId('password-input').fill('password123');
+        await page.getByTestId('confirm-password-input').fill('password123');
 
         // Depending on form implementation
         const registerResponsePromise = page.waitForResponse(response =>
             response.url().includes('/auth/register') && response.request().method() === 'POST'
         );
 
-        await page.getByRole('button', { name: /Registrati/i }).click();
+        await page.getByTestId('register-submit').click();
 
         const response = await registerResponsePromise;
         if (response.status() !== 200 && response.status() !== 201) {
@@ -35,8 +35,8 @@ test.describe('Authentication', () => {
         await page.goto('/login');
         await page.waitForTimeout(1000); // Increased wait for stability
 
-        const emailInput = page.getByLabel('Email');
-        const passwordInput = page.getByLabel('Password');
+        const emailInput = page.getByTestId('email-input');
+        const passwordInput = page.getByTestId('password-input');
 
         await emailInput.fill('seeker@test.com');
         await passwordInput.fill('password123');
@@ -46,7 +46,7 @@ test.describe('Authentication', () => {
         await expect(passwordInput).toHaveValue('password123');
 
         const loginResponsePromise = page.waitForResponse(response => response.url().includes('/auth/login') && response.request().method() === 'POST');
-        await page.getByRole('button', { name: /Accedi/i }).click();
+        await page.getByTestId('login-submit').click();
 
         try {
             await loginResponsePromise;

@@ -16,18 +16,18 @@ test.describe('Guest User', () => {
 
     test('should see job listings', async ({ page }) => {
         // Wait for jobs to load
-        await expect(page.locator('.job-card').first()).toBeVisible();
+        await expect(page.getByTestId('job-card').first()).toBeVisible();
     });
 
     test('should be able to search for jobs', async ({ page }) => {
-        const searchInput = page.getByPlaceholder('Cerca lavoro...');
+        const searchInput = page.getByTestId('search-query');
         await searchInput.fill('developer');
         await searchInput.press('Enter');
 
         // URL should handle query param or client side filter
         // For now we assume the list updates or URL changes
         // This depends on specific implementation, adjusting expectation
-        await expect(page.locator('.job-card').first()).toBeVisible();
+        await expect(page.getByTestId('job-card').first()).toBeVisible();
     });
 
     test('should not see protected routes', async ({ page }) => {
