@@ -25,3 +25,10 @@ The IT Job Hub frontend is a high-performance web application designed for devel
 - **ESLint/Prettier**: Enforced coding standards and formatting.
 - **Type Safety**: Fully typed with TypeScript to catch errors at compile time.
 - **Responsive**: Mobile-first design principles applied consistently.
+
+## Recent Changes
+
+### 2026-01-16: Job Deletion Modal Fix
+- Fixed "p0 is not a function" error when clicking the delete button on job detail pages
+- Properly implemented QRL function serialization for modal close handler
+- Verified authorization: delete button only visible to admin users

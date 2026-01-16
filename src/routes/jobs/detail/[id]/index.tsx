@@ -182,6 +182,10 @@ export default component$(() => {
         state.showDeleteModal = true;
     });
 
+    const handleCloseDeleteModal = $(() => {
+        state.showDeleteModal = false;
+    });
+
     return (
         <div class="container">
             <Link href="/jobs" class="group flex items-center gap-2 w-fit px-3 py-2 -ml-3 text-sm font-bold text-gray-600 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-xl hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all duration-300 mb-8">
@@ -307,7 +311,7 @@ export default component$(() => {
             <Modal
                 title={t("job.confirm_delete_title")}
                 isOpen={state.showDeleteModal}
-                onClose$={() => (state.showDeleteModal = false)}
+                onClose$={handleCloseDeleteModal}
                 onConfirm$={handleDeleteJob}
                 isDestructive={true}
                 confirmText={t("job.delete")}
