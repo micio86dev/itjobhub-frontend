@@ -286,5 +286,7 @@
     "auth.oauth_success": "Authentification réussie !",
     "auth.oauth_redirecting": "Redirection...",
     "auth.oauth_error": "Échec de l'authentification",
-    "auth.oauth_try_again": "Retour à la connexion"
+    "auth.oauth_try_again": "Retour à la connexion",
+    "footer.all_rights_reserved": "Tous droits réservés",
+    "footer.developed_by": "Développé par"
 }

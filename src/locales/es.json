@@ -286,5 +286,7 @@
     "auth.oauth_success": "¡Autenticación exitosa!",
     "auth.oauth_redirecting": "Redirigiendo...",
     "auth.oauth_error": "Autenticación fallida",
-    "auth.oauth_try_again": "Volver al inicio de sesión"
+    "auth.oauth_try_again": "Volver al inicio de sesión",
+    "footer.all_rights_reserved": "Todos los derechos reservados",
+    "footer.developed_by": "Desarrollado por"
 }

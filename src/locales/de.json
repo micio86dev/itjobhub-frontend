@@ -281,5 +281,7 @@
     "auth.oauth_success": "Authentifizierung erfolgreich!",
     "auth.oauth_redirecting": "Weiterleitung...",
     "auth.oauth_error": "Authentifizierung fehlgeschlagen",
-    "auth.oauth_try_again": "Zurück zur Anmeldung"
+    "auth.oauth_try_again": "Zurück zur Anmeldung",
+    "footer.all_rights_reserved": "Alle Rechte vorbehalten",
+    "footer.developed_by": "Entwickelt von"
 }

@@ -294,5 +294,7 @@
     "auth.oauth_success": "Autenticazione riuscita!",
     "auth.oauth_redirecting": "Reindirizzamento in corso...",
     "auth.oauth_error": "Autenticazione fallita",
-    "auth.oauth_try_again": "Torna al login"
+    "auth.oauth_try_again": "Torna al login",
+    "footer.all_rights_reserved": "Tutti i diritti riservati",
+    "footer.developed_by": "Sviluppato da"
 }

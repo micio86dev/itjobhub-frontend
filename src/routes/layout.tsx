@@ -5,6 +5,7 @@ import { JobsProvider } from "~/contexts/jobs";
 import { I18nProvider } from "~/contexts/i18n";
 import { ThemeProvider } from "~/contexts/theme";
 import { Navigation } from "~/components/navigation/navigation";
+import { Footer } from "~/components/footer/footer";
 
 export const useAuthLoader = routeLoader$(async ({ cookie }) => {
   const token = cookie.get('auth_token')?.value;
@@ -67,10 +68,13 @@ export default component$(() => {
       <I18nProvider>
         <AuthProvider initialToken={authData.value.token} initialUser={authData.value.user}>
           <JobsProvider>
-            <Navigation />
-            <main class="min-h-screen bg-gray-50 dark:bg-gray-900">
-              <Slot />
-            </main>
+            <div class="flex flex-col min-h-screen">
+              <Navigation />
+              <main class="flex-grow bg-gray-50 dark:bg-gray-900">
+                <Slot />
+              </main>
+              <Footer />
+            </div>
           </JobsProvider>
         </AuthProvider>
       </I18nProvider>
