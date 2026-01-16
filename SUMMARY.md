@@ -28,6 +28,11 @@ The IT Job Hub frontend is a high-performance web application designed for devel
 
 ## Recent Changes
 
+### 2026-01-16: Comment Deletion Fix
+- Fixed "p0 is not a function" error when deleting comments on job detail pages
+- Properly wrapped QRL function calls with $() for both delete and edit actions
+- Ensured correct Qwik Runtime Lazy-loaded function invocation patterns
+
 ### 2026-01-16: Job Deletion Modal Fix
 - Fixed "p0 is not a function" error when clicking the delete button on job detail pages
 - Properly implemented QRL function serialization for modal close handler

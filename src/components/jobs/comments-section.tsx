@@ -332,9 +332,9 @@ export const CommentsSection = component$<CommentsSectionProps>(
                               <div class="comment-actions">
                                 {auth.user?.id === comment.userId && (
                                   <button
-                                    onClick$={() =>
+                                    onClick$={$(() =>
                                       startEditing(comment.id, comment.text)
-                                    }
+                                    )}
                                     class="action-btn-edit"
                                     title={t("common.edit")}
                                   >
@@ -354,7 +354,7 @@ export const CommentsSection = component$<CommentsSectionProps>(
                                   </button>
                                 )}
                                 <button
-                                  onClick$={() => handleDelete(comment.id)}
+                                  onClick$={$(() => handleDelete(comment.id))}
                                   class="action-btn-delete"
                                   title={t("common.delete")}
                                 >
