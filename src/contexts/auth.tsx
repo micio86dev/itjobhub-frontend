@@ -30,6 +30,7 @@ export interface User {
   skills?: string[];
   seniority?: "junior" | "mid" | "senior";
   availability?: "full-time" | "part-time" | "busy";
+  workModes?: string[];
   profileCompleted?: boolean;
   role?: string;
   language?: string;
@@ -44,6 +45,7 @@ export interface WizardData {
   skills: string[];
   seniority: "junior" | "mid" | "senior" | "";
   availability: "full-time" | "part-time" | "busy" | "";
+  workModes: string[];
 }
 
 export interface LoginRequest {
@@ -109,6 +111,7 @@ export interface BackendUser {
     skills?: string[];
     seniority?: "junior" | "mid" | "senior";
     availability?: "full-time" | "part-time" | "busy";
+    workModes?: string[];
     bio?: string;
   };
 }
@@ -199,6 +202,7 @@ export const AuthProvider = component$(
         skills: bu.profile?.skills || [],
         seniority: bu.profile?.seniority,
         availability: bu.profile?.availability,
+        workModes: bu.profile?.workModes || [],
         bio: bu.profile?.bio,
         profileCompleted: !!bu.profile,
         phone: bu.phone,
@@ -364,6 +368,7 @@ export const AuthProvider = component$(
             skills: wizardData.skills,
             seniority: wizardData.seniority,
             availability: wizardData.availability,
+            workModes: wizardData.workModes,
           }),
         });
 
@@ -375,7 +380,9 @@ export const AuthProvider = component$(
             authState.user.languages = backendProfile.languages;
             authState.user.skills = backendProfile.skills;
             authState.user.seniority = backendProfile.seniority;
+            authState.user.seniority = backendProfile.seniority;
             authState.user.availability = backendProfile.availability;
+            authState.user.workModes = backendProfile.workModes;
             authState.user.profileCompleted = true;
           }
           profileUpdateResult.value = { success: true };
