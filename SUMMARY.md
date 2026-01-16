@@ -32,3 +32,9 @@ The IT Job Hub frontend is a high-performance web application designed for devel
 - Fixed "p0 is not a function" error when clicking the delete button on job detail pages
 - Properly implemented QRL function serialization for modal close handler
 - Verified authorization: delete button only visible to admin users
+
+### 2026-01-16: Apply Button Styling Enhancement
+- Enhanced apply button design in job cards with modern gradient background
+- Added smooth hover effects with scale transformation and shadow transitions
+- Implemented dark mode support with adjusted colors and glowing shadows
+- Improved visual hierarchy to make the CTA more prominent

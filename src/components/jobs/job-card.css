@@ -299,5 +299,19 @@
 }
 
 .apply-btn {
-  @apply inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors;
+  @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 
+         text-sm font-semibold rounded-lg
+         text-white bg-gradient-to-r from-indigo-600 to-indigo-700
+         hover:from-indigo-700 hover:to-indigo-800
+         focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500
+         shadow-sm hover:shadow-md
+         transition-all duration-200
+         transform hover:scale-105 active:scale-100;
+}
+
+:global(.dark) .apply-btn {
+  @apply from-indigo-500 to-indigo-600
+         hover:from-indigo-600 hover:to-indigo-700
+         focus:ring-offset-gray-900
+         shadow-indigo-500/20 hover:shadow-indigo-500/40;
 }
