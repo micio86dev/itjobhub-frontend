@@ -1,6 +1,6 @@
 import { component$ } from "@builder.io/qwik";
 import { useDocumentHead, useLocation } from "@builder.io/qwik-city";
-import { useI18n, type SupportedLanguage } from "~/contexts/i18n";
+import type { SupportedLanguage } from "~/contexts/i18n";
 
 // Base URL for production - update this when deploying
 const SITE_URL = "https://itjobhub.com";
@@ -20,13 +20,18 @@ const LOCALE_MAP: Record<SupportedLanguage, string> = {
 /**
  * The RouterHead component is placed inside of the document `<head>` element.
  * It handles SEO meta tags, hreflang, Open Graph, and Twitter Cards.
+ * 
+ * Note: This component cannot use useI18n() because it's rendered in root.tsx
+ * inside <head>, before the I18nProvider (which is in layout.tsx inside RouterOutlet).
+ * We use Italian as the default language for SEO purposes.
  */
 export const RouterHead = component$(() => {
   const head = useDocumentHead();
   const loc = useLocation();
-  const i18n = useI18n();
 
-  const currentLang = i18n.currentLanguage;
+  // Default to Italian for SEO - the actual user language is handled client-side
+  // via the I18nProvider in layout.tsx
+  const currentLang: SupportedLanguage = "it";
   const currentUrl = loc.url.href;
   const pathname = loc.url.pathname;
 

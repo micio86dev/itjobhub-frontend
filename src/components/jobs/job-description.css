@@ -1,0 +1,15 @@
+.descriptionSection {
+  @apply px-8 pb-10;
+}
+
+.descriptionTitle {
+  @apply text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center;
+}
+
+.descriptionBar {
+  @apply w-1.5 h-8 bg-indigo-600 rounded-full mr-3;
+}
+
+.descriptionContent {
+  @apply text-gray-700 dark:text-gray-300 leading-relaxed space-y-4;
+}

@@ -1,0 +1,27 @@
+.companyInfoBox {
+  @apply bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-8;
+}
+
+.companyInfoHeader {
+  @apply flex items-center justify-between mb-6;
+}
+
+.companyInfoTitle {
+  @apply text-lg font-bold text-gray-900 dark:text-white;
+}
+
+.trustScore {
+  @apply flex items-center bg-yellow-50 dark:bg-yellow-900/20 px-3 py-1 rounded-lg border border-yellow-100 dark:border-yellow-800;
+}
+
+.trustStar {
+  @apply text-yellow-600 dark:text-yellow-500 font-bold mr-1;
+}
+
+.trustValue {
+  @apply text-sm font-bold text-gray-700 dark:text-gray-300;
+}
+
+.companyAboutText {
+  @apply text-gray-600 dark:text-gray-400 leading-relaxed;
+}
