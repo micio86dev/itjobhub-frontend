@@ -229,7 +229,7 @@ export default component$(() => {
 
           <div class="mt-6 grid grid-cols-3 gap-3">
             <button
-              onClick$={() => handleSocialLogin("google")}
+              onClick$={$(() => handleSocialLogin("google"))}
               class="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
             >
               <svg class="h-5 w-5" viewBox="0 0 24 24">
@@ -254,7 +254,7 @@ export default component$(() => {
             </button>
 
             <button
-              onClick$={() => handleSocialLogin("linkedin")}
+              onClick$={$(() => handleSocialLogin("linkedin"))}
               class="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
             >
               <svg class="h-5 w-5" fill="#0A66C2" viewBox="0 0 24 24">
@@ -264,7 +264,7 @@ export default component$(() => {
             </button>
 
             <button
-              onClick$={() => handleSocialLogin("github")}
+              onClick$={$(() => handleSocialLogin("github"))}
               class="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
             >
               <svg class="h-5 w-5" fill="#181717" viewBox="0 0 24 24">

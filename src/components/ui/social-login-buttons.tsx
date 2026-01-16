@@ -1,4 +1,4 @@
-import { component$, type QRL } from "@builder.io/qwik";
+import { component$, $, type QRL } from "@builder.io/qwik";
 
 interface SocialLoginButtonsProps {
   onLogin$: QRL<(provider: "google" | "linkedin" | "github") => void>;
@@ -12,7 +12,7 @@ export const SocialLoginButtons = component$<SocialLoginButtonsProps>(
       <div class="socialGrid">
         {/* Google */}
         <button
-          onClick$={() => onLogin$("google")}
+          onClick$={$(() => onLogin$("google"))}
           disabled={loading}
           class="socialButton"
           aria-label="Login with Google"
@@ -60,7 +60,7 @@ export const SocialLoginButtons = component$<SocialLoginButtonsProps>(
 
         {/* LinkedIn */}
         <button
-          onClick$={() => onLogin$("linkedin")}
+          onClick$={$(() => onLogin$("linkedin"))}
           disabled={loading}
           class="socialButton"
           aria-label="Login with LinkedIn"
@@ -93,7 +93,7 @@ export const SocialLoginButtons = component$<SocialLoginButtonsProps>(
 
         {/* GitHub */}
         <button
-          onClick$={() => onLogin$("github")}
+          onClick$={$(() => onLogin$("github"))}
           disabled={loading}
           class="socialButton"
           aria-label="Login with GitHub"

@@ -358,7 +358,7 @@ export const JobCard = component$<JobCardProps>(
             {/* Comments button - Only show if toggle function is provided */}
             {onToggleComments$ && (
               <button
-                onClick$={() => onToggleComments$(job.id)}
+                onClick$={$(() => onToggleComments$(job.id))}
                 class={`comments-btn ${showComments ? "comments-btn-active" : "comments-btn-inactive"
                   }`}
               >

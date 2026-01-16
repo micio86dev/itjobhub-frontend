@@ -72,7 +72,7 @@ export const TagInput = component$<TagInputProps>(
                 {tag}
                 <button
                   type="button"
-                  onClick$={() => removeTag(tag)}
+                  onClick$={$(() => removeTag(tag))}
                   class="ml-1 inline-flex items-center justify-center w-4 h-4 rounded-full text-indigo-400 hover:bg-indigo-200 hover:text-indigo-600"
                 >
                   <svg class="w-2 h-2" fill="currentColor" viewBox="0 0 8 8">
@@ -98,7 +98,7 @@ export const TagInput = component$<TagInputProps>(
             {state.filteredSuggestions.map((suggestion) => (
               <li
                 key={suggestion}
-                onClick$={() => selectSuggestion(suggestion)}
+                onClick$={$(() => selectSuggestion(suggestion))}
                 class="px-3 py-2 text-sm cursor-pointer hover:bg-gray-100"
               >
                 {suggestion}

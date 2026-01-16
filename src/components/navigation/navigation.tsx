@@ -163,12 +163,11 @@ export const Navigation = component$(() => {
                     {languages.map((lang) => (
                       <button
                         key={lang.code}
-                        onClick$={() => selectLanguage(lang.code)}
-                        class={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 ${
-                          lang.code === currentLanguage
+                        onClick$={$(() => selectLanguage(lang.code))}
+                        class={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 ${lang.code === currentLanguage
                             ? "bg-indigo-50 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300"
                             : "text-gray-700 dark:text-gray-300"
-                        }`}
+                          }`}
                       >
                         <span class="mr-2">{lang.flag}</span>
                         {lang.name}
