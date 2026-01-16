@@ -88,14 +88,13 @@ test.describe('Guest User', () => {
             await expect(page).toHaveURL(/\/jobs\/detail\//);
             await ensurePageReady(page);
 
-            // Guest should see a message about logging in to apply
-            const loginPrompt = page.locator('text=/accedi|login|registrati.*candidarti/i');
-            const applyBtnDisabled = page.locator(`${SELECTORS.applyButton}:disabled`);
+            // Guest should see a message about logging in for full features
+            const loginPrompt = page.locator('.loginHint');
+            const applyBtn = page.locator(SELECTORS.applyButton);
 
-            const hasPrompt = await loginPrompt.isVisible({ timeout: 3000 }).catch(() => false);
-            const isDisabled = await applyBtnDisabled.count() > 0;
-
-            expect(hasPrompt || isDisabled).toBeTruthy();
+            await expect(applyBtn).toBeVisible();
+            await expect(applyBtn).toHaveAttribute('target', '_blank');
+            await expect(loginPrompt).toBeVisible();
         }
     });
 
