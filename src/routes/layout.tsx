@@ -44,6 +44,7 @@ export const useAuthLoader = routeLoader$(async ({ cookie }) => {
           skills: bu.profile?.skills || [],
           seniority: bu.profile?.seniority,
           availability: bu.profile?.availability,
+          workModes: bu.profile?.workModes || [],
           // A profile is completed if it exists
           profileCompleted: !!bu.profile,
         };
