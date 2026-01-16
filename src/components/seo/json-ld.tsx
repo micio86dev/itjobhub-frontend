@@ -1,7 +1,7 @@
 import { component$ } from "@builder.io/qwik";
 
 // Base URL for production
-const SITE_URL = "https://itjobhub.com";
+const SITE_URL = import.meta.env.PUBLIC_SITE_URL;
 
 interface OrganizationSchemaProps {
     name?: string;

@@ -375,10 +375,15 @@ export const JobsProvider = component$(() => {
           // Update local favorites state immediately
           jobsState.favorites = jobsState.favorites.filter(f => f.id !== jobId);
 
-          await request(`${API_URL}/favorites?jobId=${jobId}`, {
+          const res = await request(`${API_URL}/favorites?jobId=${jobId}`, {
             method: 'DELETE',
             headers: { 'Authorization': `Bearer ${token}` }
           });
+
+          if (!res.ok && res.status !== 404) {
+            throw new Error("Failed to remove favorite");
+          }
+
         } else {
           // Add to favorites
           // Prevent duplication
@@ -387,7 +392,7 @@ export const JobsProvider = component$(() => {
             jobsState.favorites = [sourceJob, ...jobsState.favorites];
           }
 
-          await request(`${API_URL}/favorites`, {
+          const res = await request(`${API_URL}/favorites`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -395,6 +400,12 @@ export const JobsProvider = component$(() => {
             },
             body: JSON.stringify({ jobId })
           });
+
+          // If 409 Conflict, it means it's already a favorite, which is what we want.
+          // Ignore the error and keep the optimistic update.
+          if (!res.ok && res.status !== 409) {
+            throw new Error("Failed to add favorite");
+          }
         }
       } catch (error) {
         console.error('Failed to toggle favorite:', error);

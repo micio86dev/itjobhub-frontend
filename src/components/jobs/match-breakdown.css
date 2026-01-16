@@ -1,0 +1,63 @@
+.container {
+  @apply bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-8;
+}
+
+.title {
+  @apply text-xl font-bold text-gray-900 dark:text-white mb-6;
+}
+
+.score-container {
+  @apply flex items-center gap-6 mb-8;
+}
+
+.score-circle {
+  @apply w-24 h-24 rounded-full flex items-center justify-center text-3xl font-bold border-4;
+}
+
+.score-text {
+  @apply text-lg font-bold;
+}
+
+.score-subtitle {
+  @apply text-sm text-gray-500 dark:text-gray-400;
+}
+
+.factors-list {
+  @apply space-y-4;
+}
+
+.factor-header {
+  @apply flex justify-between mb-1;
+}
+
+.factor-label {
+  @apply text-sm font-medium text-gray-700 dark:text-gray-300;
+}
+
+.factor-sublabel {
+  @apply text-xs text-gray-500;
+}
+
+.progress-bar-bg {
+  @apply w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2;
+}
+
+.progress-bar-fill {
+  @apply bg-indigo-600 h-2 rounded-full;
+}
+
+.grid-container {
+  @apply grid grid-cols-2 gap-4 mt-4;
+}
+
+.grid-item {
+  @apply bg-gray-50 dark:bg-gray-900/50 p-3 rounded-lg text-center;
+}
+
+.grid-label {
+  @apply text-xs text-gray-500 uppercase;
+}
+
+.grid-value {
+  @apply font-bold text-indigo-600 dark:text-indigo-400;
+}

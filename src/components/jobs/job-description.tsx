@@ -1,6 +1,8 @@
 import { component$, useStylesScoped$ } from "@builder.io/qwik";
 import styles from "./job-description.css?inline";
 import { useTranslate } from "~/contexts/i18n";
+import { marked } from "marked";
+import DOMPurify from "dompurify";
 
 interface JobDescriptionProps {
     description: string;
@@ -9,6 +11,8 @@ interface JobDescriptionProps {
 export const JobDescription = component$<JobDescriptionProps>(({ description }) => {
     useStylesScoped$(styles);
     const t = useTranslate();
+
+    const htmlContent = DOMPurify.sanitize(marked.parse(description, { async: false }) as string);
 
     return (
         <div class="descriptionSection">
@@ -19,7 +23,7 @@ export const JobDescription = component$<JobDescriptionProps>(({ description }) 
                 </h3>
                 <div
                     class="descriptionContent"
-                    dangerouslySetInnerHTML={description}
+                    dangerouslySetInnerHTML={htmlContent}
                 ></div>
             </div>
         </div>

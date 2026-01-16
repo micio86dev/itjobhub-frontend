@@ -1,4 +1,5 @@
-import { component$ } from '@builder.io/qwik';
+import { component$, useStylesScoped$ } from '@builder.io/qwik';
+import styles from './match-breakdown.css?inline';
 import { useTranslate, interpolate } from '~/contexts/i18n';
 
 interface MatchFactors {
@@ -23,6 +24,7 @@ interface MatchBreakdownProps {
 }
 
 export const MatchBreakdown = component$<MatchBreakdownProps>(({ score, factors, details }) => {
+    useStylesScoped$(styles);
     const t = useTranslate();
 
     const getScoreColor = (score: number) => {
@@ -40,81 +42,81 @@ export const MatchBreakdown = component$<MatchBreakdownProps>(({ score, factors,
     };
 
     return (
-        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-8">
-            <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-6">
+        <div class="container">
+            <h3 class="title">
                 {t('match.title')}
             </h3>
 
-            <div class="flex items-center gap-6 mb-8">
-                <div class={`w-24 h-24 rounded-full flex items-center justify-center text-3xl font-bold border-4 ${getScoreColor(score)} border-current ${getBgColor(score)}`}>
+            <div class="score-container">
+                <div class={`score-circle ${getScoreColor(score)} border-current ${getBgColor(score)}`}>
                     {score}%
                 </div>
                 <div>
-                    <h4 class={`text-lg font-bold ${getScoreColor(score)}`}>
+                    <h4 class={`score-text ${getScoreColor(score)}`}>
                         {score >= 75 ? t('match.excellent') : score >= 50 ? t('match.good') : score >= 30 ? t('match.fair') : t('match.low')}
                     </h4>
-                    <p class="text-sm text-gray-500 dark:text-gray-400">
+                    <p class="score-subtitle">
                         {t('match.subtitle')}
                     </p>
                 </div>
             </div>
 
-            <div class="space-y-4">
+            <div class="factors-list">
                 {/* Skills */}
                 <div>
-                    <div class="flex justify-between mb-1">
-                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{t('match.skills')} ({Math.round(factors.skillsMatch)}%)</span>
-                        <span class="text-xs text-gray-500">
+                    <div class="factor-header">
+                        <span class="factor-label">{t('match.skills')} ({Math.round(factors.skillsMatch)}%)</span>
+                        <span class="factor-sublabel">
                             {interpolate(t('match.matched_missing'), {
                                 matched: details.matchedSkills.length,
                                 missing: details.missingSkills.length
                             })}
                         </span>
                     </div>
-                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                        <div class="bg-indigo-600 h-2 rounded-full" style={{ width: `${factors.skillsMatch}%` }}></div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style={{ width: `${factors.skillsMatch}%` }}></div>
                     </div>
                 </div>
 
                 {/* Seniority */}
                 <div>
-                    <div class="flex justify-between mb-1">
-                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{t('match.seniority')} ({Math.round(factors.seniorityMatch)}%)</span>
-                        <span class="text-xs text-gray-500 capitalize">{details.seniorityGap.replace('_', ' ')}</span>
+                    <div class="factor-header">
+                        <span class="factor-label">{t('match.seniority')} ({Math.round(factors.seniorityMatch)}%)</span>
+                        <span class="factor-sublabel capitalize">{details.seniorityGap.replace('_', ' ')}</span>
                     </div>
-                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                        <div class="bg-indigo-600 h-2 rounded-full" style={{ width: `${factors.seniorityMatch}%` }}></div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style={{ width: `${factors.seniorityMatch}%` }}></div>
                     </div>
                 </div>
 
                 {/* Location */}
                 <div>
-                    <div class="flex justify-between mb-1">
-                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{t('match.location')} ({Math.round(factors.locationMatch)}%)</span>
-                        <span class="text-xs text-gray-500 capitalize">{details.locationStatus}</span>
+                    <div class="factor-header">
+                        <span class="factor-label">{t('match.location')} ({Math.round(factors.locationMatch)}%)</span>
+                        <span class="factor-sublabel capitalize">{details.locationStatus}</span>
                     </div>
-                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                        <div class="bg-indigo-600 h-2 rounded-full" style={{ width: `${factors.locationMatch}%` }}></div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style={{ width: `${factors.locationMatch}%` }}></div>
                     </div>
                 </div>
 
                 {/* Other Factors Grid */}
-                <div class="grid grid-cols-2 gap-4 mt-4">
-                    <div class="bg-gray-50 dark:bg-gray-900/50 p-3 rounded-lg text-center">
-                        <div class="text-xs text-gray-500 uppercase">{t('match.trust')}</div>
-                        <div class="font-bold text-indigo-600 dark:text-indigo-400">{Math.round(factors.trustScore)}%</div>
+                <div class="grid-container">
+                    <div class="grid-item">
+                        <div class="grid-label">{t('match.trust')}</div>
+                        <div class="grid-value">{Math.round(factors.trustScore)}%</div>
                     </div>
-                    <div class="bg-gray-50 dark:bg-gray-900/50 p-3 rounded-lg text-center">
-                        <div class="text-xs text-gray-500 uppercase">{t('match.early_bird')}</div>
-                        <div class="font-bold text-indigo-600 dark:text-indigo-400">{Math.round(factors.timeliness)}%</div>
+                    <div class="grid-item">
+                        <div class="grid-label">{t('match.early_bird')}</div>
+                        <div class="grid-value">{Math.round(factors.timeliness)}%</div>
                     </div>
-                    <div class="bg-gray-50 dark:bg-gray-900/50 p-3 rounded-lg text-center">
-                        <div class="text-xs text-gray-500 uppercase">{t('match.competition')}</div>
-                        <div class="font-bold text-indigo-600 dark:text-indigo-400">{Math.round(factors.competition)}%</div>
+                    <div class="grid-item">
+                        <div class="grid-label">{t('match.competition')}</div>
+                        <div class="grid-value">{Math.round(factors.competition)}%</div>
                     </div>
-                    <div class="bg-gray-50 dark:bg-gray-900/50 p-3 rounded-lg text-center">
-                        <div class="text-xs text-gray-500 uppercase">{t('match.app_rate')}</div>
-                        <div class="font-bold text-indigo-600 dark:text-indigo-400">{Math.round(factors.applicationRate)}%</div>
+                    <div class="grid-item">
+                        <div class="grid-label">{t('match.app_rate')}</div>
+                        <div class="grid-value">{Math.round(factors.applicationRate)}%</div>
                     </div>
                 </div>
             </div>

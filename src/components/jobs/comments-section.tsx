@@ -1,4 +1,5 @@
-import { component$, $, useStore, type QRL } from "@builder.io/qwik";
+import { component$, $, useStore, type QRL, useStylesScoped$ } from "@builder.io/qwik";
+import styles from "./comments-section.css?inline";
 import { useJobs, getCommentsFromState } from "~/contexts/jobs";
 import { useAuth } from "~/contexts/auth";
 import { useTranslate, useI18n } from "~/contexts/i18n";
@@ -11,6 +12,7 @@ interface CommentsSectionProps {
 }
 
 export const CommentsSection = component$<CommentsSectionProps>(({ jobId, onClose$ }) => {
+  useStylesScoped$(styles);
   const jobsContext = useJobs();
   const auth = useAuth();
   const t = useTranslate();
@@ -146,53 +148,53 @@ export const CommentsSection = component$<CommentsSectionProps>(({ jobId, onClos
       : 'U';
 
   return (
-    <div class="border-t border-gray-100 pt-4 mt-4">
-      <div class="mb-4">
-        <h4 class="text-sm font-medium text-gray-900 dark:text-gray-100 mb-3">
+    <div class="comments-container">
+      <div class="comments-header-container">
+        <h4 class="comments-title">
           {t('comments.title')} ({comments.length})
         </h4>
 
         {/* Comment form */}
         {auth.isAuthenticated ? (
-          <form onSubmit$={handleSubmitComment} preventdefault:submit class="mb-4">
-            <div class="flex gap-3">
-              <div class="flex-shrink-0">
+          <form onSubmit$={handleSubmitComment} preventdefault:submit class="comment-form">
+            <div class="form-flex">
+              <div class="avatar-container">
                 {auth.user?.avatar ? (
                   <img
                     src={auth.user.avatar}
                     alt={auth.user.name || t('nav.profile')}
-                    class="w-8 h-8 rounded-full object-cover"
+                    class="avatar-image"
                     width="32"
                     height="32"
                   />
                 ) : (
-                  <div class="w-8 h-8 bg-indigo-500 rounded-full flex items-center justify-center">
-                    <span class="text-xs font-medium text-white">
+                  <div class="avatar-placeholder">
+                    <span class="avatar-initials">
                       {userInitials}
                     </span>
                   </div>
                 )}
               </div>
 
-              <div class="flex-1">
+              <div class="form-body">
                 <textarea
                   value={state.commentText}
                   onInput$={(e) => state.commentText = (e.target as HTMLTextAreaElement).value}
                   placeholder={t('comments.placeholder')}
                   rows={2}
-                  class="w-full p-2 text-sm border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 resize-none"
+                  class="comment-textarea"
                 />
 
-                <div class="flex justify-end mt-2">
+                <div class="form-actions">
                   <button
                     type="submit"
                     disabled={!state.commentText.trim() || state.isSubmitting}
-                    class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                    class="submit-btn"
                   >
                     {state.isSubmitting && (
-                      <svg class="animate-spin -ml-0.5 mr-1.5 h-3 w-3 text-white" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      <svg class="loading-spinner" fill="none" viewBox="0 0 24 24">
+                        <circle class="spinner-circle" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="spinner-path" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                       </svg>
                     )}
                     {state.isSubmitting ? t('comments.submitting') : t('comments.submit')}
@@ -202,9 +204,9 @@ export const CommentsSection = component$<CommentsSectionProps>(({ jobId, onClos
             </div>
           </form>
         ) : (
-          <div class="mb-4 p-3 bg-gray-50 rounded-md">
-            <p class="text-sm text-gray-600 text-center">
-              <a href="/login" class="text-indigo-600 hover:text-indigo-500 font-medium">
+          <div class="login-prompt">
+            <p class="login-text">
+              <a href="/login" class="login-link">
                 {t('common.login')}
               </a>
               {' '}{t('comments.login_to_comment')}
@@ -214,57 +216,57 @@ export const CommentsSection = component$<CommentsSectionProps>(({ jobId, onClos
       </div>
 
       {/* Comments list */}
-      <div class="space-y-4">
+      <div class="comments-list">
         {comments.length === 0 ? (
-          <div class="text-center py-6">
-            <div class="text-gray-400 mb-2">
-              <svg class="mx-auto h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div class="no-comments-container">
+            <div class="no-comments-icon-container">
+              <svg class="no-comments-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
               </svg>
             </div>
-            <p class="text-sm text-gray-500">{t('comments.no_comments')}</p>
-            <p class="text-xs text-gray-400">{t('comments.be_first')}</p>
+            <p class="no-comments-text">{t('comments.no_comments')}</p>
+            <p class="be-first-text">{t('comments.be_first')}</p>
           </div>
         ) : (
           comments.map((comment) => (
-            <div key={comment.id} class="flex gap-3">
-              <div class="flex-shrink-0">
+            <div key={comment.id} class="comment-item">
+              <div class="comment-avatar-container">
                 {comment.author.avatar ? (
                   <img
                     src={comment.author.avatar}
                     alt={comment.author.name}
-                    class="w-6 h-6 rounded-full object-cover"
+                    class="comment-avatar-image"
                     width="24"
                     height="24"
                   />
                 ) : (
-                  <div class="w-6 h-6 bg-gradient-to-br from-indigo-400 to-purple-500 rounded-full flex items-center justify-center">
-                    <span class="text-xs font-medium text-white">
+                  <div class="comment-avatar-placeholder">
+                    <span class="avatar-initials">
                       {getInitials(comment.author.name)}
                     </span>
                   </div>
                 )}
               </div>
 
-              <div class="flex-1">
+              <div class="comment-body">
                 {state.editingId === comment.id ? (
-                  <div class="bg-white rounded-lg p-3 border border-indigo-200 shadow-sm">
+                  <div class="edit-container">
                     <textarea
                       value={state.editContent}
                       onInput$={(e) => state.editContent = (e.target as HTMLTextAreaElement).value}
-                      class="w-full p-2 text-sm border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 resize-none mb-2"
+                      class="edit-textarea"
                       rows={2}
                     />
-                    <div class="flex justify-end gap-2">
+                    <div class="edit-actions">
                       <button
                         onClick$={cancelEditing}
-                        class="text-xs px-2 py-1 text-gray-500 hover:text-gray-700"
+                        class="cancel-btn"
                       >
                         {t('common.cancel')}
                       </button>
                       <button
                         onClick$={saveEdit}
-                        class="text-xs px-2 py-1 bg-indigo-600 text-white rounded hover:bg-indigo-700"
+                        class="save-btn"
                         disabled={!state.editContent.trim()}
                       >
                         {t('common.save')}
@@ -272,34 +274,34 @@ export const CommentsSection = component$<CommentsSectionProps>(({ jobId, onClos
                     </div>
                   </div>
                 ) : (
-                  <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-3 group relative">
-                    <div class="flex items-center justify-between mb-1">
-                      <span class="text-sm font-medium text-gray-900 dark:text-gray-100">
+                  <div class="comment-content-container">
+                    <div class="comment-header">
+                      <span class="comment-author">
                         {comment.author.name}
                       </span>
-                      <div class="flex items-center gap-2">
-                        <span class="text-xs text-gray-500">
+                      <div class="comment-meta">
+                        <span class="comment-date">
                           {formatCommentDate(comment.date)}
                         </span>
                         {(auth.user?.id === comment.userId || auth.user?.role === 'admin') && (
-                          <div class="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <div class="comment-actions">
                             {auth.user?.id === comment.userId && (
                               <button
                                 onClick$={() => startEditing(comment.id, comment.text)}
-                                class="p-1 text-gray-400 hover:text-indigo-600"
+                                class="action-btn-edit"
                                 title={t('common.edit')}
                               >
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg class="action-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                 </svg>
                               </button>
                             )}
                             <button
                               onClick$={() => handleDelete(comment.id)}
-                              class="p-1 text-gray-400 hover:text-red-600"
+                              class="action-btn-delete"
                               title={t('common.delete')}
                             >
-                              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <svg class="action-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                               </svg>
                             </button>
@@ -307,7 +309,7 @@ export const CommentsSection = component$<CommentsSectionProps>(({ jobId, onClos
                         )}
                       </div>
                     </div>
-                    <p class="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
+                    <p class="comment-text">
                       {comment.text}
                     </p>
                   </div>

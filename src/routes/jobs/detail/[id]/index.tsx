@@ -157,6 +157,10 @@ export default component$(() => {
         }
     });
 
+    const handleShowDeleteModal = $(() => {
+        state.showDeleteModal = true;
+    });
+
     return (
         <div class="container">
             <Link href="/jobs" class="backLink">
@@ -216,7 +220,7 @@ export default component$(() => {
                                     onLike$={handleLike}
                                     onDislike$={handleDislike}
                                     onToggleFavorite$={handleToggleFavorite}
-                                    onDelete$={() => state.showDeleteModal = true}
+                                    onDelete$={handleShowDeleteModal}
                                     onApplyClick$={handleApplyClick}
                                 />
 

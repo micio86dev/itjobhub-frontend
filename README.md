@@ -38,6 +38,16 @@ Use the `bun run qwik add` command to add additional integrations. Some examples
 bun run qwik add
 ```
 
+
+## Environment Variables
+
+This project uses environment variables for configuration. Create a `.env` file in the root directory (based on `.env.example`).
+
+| Variable | Description | Default / Example |
+|----------|-------------|-------------------|
+| `PUBLIC_API_URL` | URL of the backend API | `http://localhost:3001` |
+| `PUBLIC_SITE_URL` | Base URL of the frontend (used for SEO/Canonical) | `https://itjobhub.com` |
+
 ## Development
 
 Development mode uses [Vite's development server](https://vitejs.dev/). The `dev` command will server-side render (SSR) the output during development.

@@ -1,4 +1,5 @@
-import { component$, $, type QRL } from "@builder.io/qwik";
+import { component$, $, type QRL, useStylesScoped$ } from "@builder.io/qwik";
+import styles from "./job-card.css?inline";
 import { marked } from "marked";
 import { Link } from "@builder.io/qwik-city";
 import type { JobListing } from "~/contexts/jobs";
@@ -15,6 +16,7 @@ interface JobCardProps {
 }
 
 export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showComments = false, matchScore }) => {
+  useStylesScoped$(styles);
   const jobsContext = useJobs();
   const auth = useAuth();
   const t = useTranslate();
@@ -118,46 +120,46 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
 
 
   return (
-    <div class="job-card bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6 mb-4 hover:shadow-md transition-shadow" data-testid="job-card">
+    <div class="job-card" data-testid="job-card">
       {/* Header */}
-      <div class="flex items-start justify-between mb-4">
-        <div class="flex-1">
-          <div class="flex items-center gap-3 mb-2">
-            <div class="w-8 h-8 rounded flex items-center justify-center bg-gray-100 dark:bg-gray-700 flex-shrink-0">
+      <div class="header">
+        <div class="header-content">
+          <div class="company-info">
+            <div class="logo-container">
               {job.companyLogo ? (
                 <img
                   src={job.companyLogo}
                   alt={job.company}
-                  class="w-full h-full rounded object-cover"
+                  class="logo-image"
                   width="32"
                   height="32"
                 />
               ) : (
-                <svg class="w-5 h-5 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="logo-placeholder" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                 </svg>
               )}
             </div>
             <div>
-              <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-1 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
+              <h3 class="job-title">
                 <Link href={`/jobs/detail/${job.id}`} data-testid="job-card-link">
                   {job.title}
                 </Link>
               </h3>
-              <div class="flex items-center gap-2 flex-wrap">
-                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
+              <div class="meta-row">
+                <span class="company-name">
                   {job.company}
                 </span>
 
-                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200">
+                <span class="trust-badge">
                   {Number(job.companyScore || 80).toLocaleString(undefined, { maximumFractionDigits: 1 })}% {t('job.trust_score')}
                 </span>
 
                 {matchScore && (
-                  <span class={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold ${matchScore.label === 'excellent' ? 'bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-200 ring-1 ring-emerald-500/30' :
-                    matchScore.label === 'good' ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200 ring-1 ring-blue-500/30' :
-                      matchScore.label === 'fair' ? 'bg-amber-100 dark:bg-amber-900 text-amber-700 dark:text-amber-200 ring-1 ring-amber-500/30' :
-                        'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 ring-1 ring-gray-500/30'
+                  <span class={`match-badge ${matchScore.label === 'excellent' ? 'match-excellent' :
+                    matchScore.label === 'good' ? 'match-good' :
+                      matchScore.label === 'fair' ? 'match-fair' :
+                        'match-low'
                     }`}>
                     ⚡ {matchScore.score}% {t(`match.${matchScore.label}`)}
                   </span>
@@ -167,17 +169,17 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
           </div>
         </div>
 
-        <div class="text-right flex flex-col items-end gap-1">
-          <div class="flex items-center gap-2">
-            <span class="text-xs text-gray-500 dark:text-gray-400">
+        <div class="action-column">
+          <div class="date-display">
+            <span>
               {dateDisplay}
             </span>
             {auth.isAuthenticated && (
               <button
                 onClick$={handleToggleFavorite}
-                class={`p-1 rounded transition-colors ${job.is_favorite
-                  ? 'text-yellow-500 hover:text-yellow-600'
-                  : 'text-gray-400 hover:text-yellow-500'
+                class={`favorite-btn ${job.is_favorite
+                  ? 'favorite-active'
+                  : 'favorite-inactive'
                   }`}
                 data-testid="favorite-button"
                 title={job.is_favorite ? t('job.remove_favorite') : t('job.add_favorite')}
@@ -190,7 +192,7 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
             )}
           </div>
           {job.remote && (
-            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-green-200">
+            <span class="remote-badge">
               {t('job.remote_badge')}
             </span>
           )}
@@ -200,21 +202,21 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
       {/* Description */}
       {job.description && (
         <div
-          class="text-gray-600 dark:text-gray-400 text-sm mb-4 line-clamp-2 prose prose-sm dark:prose-invert"
+          class="description"
           dangerouslySetInnerHTML={marked.parse(job.description) as string}
         ></div>
       )}
 
       {/* Job Details */}
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+      <div class="details-grid">
         <div>
-          <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+          <span class="detail-label">
             {t('job.seniority')}
           </span>
-          <div class="mt-1">
-            <span class={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${job.seniority === 'junior' ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200' :
-              job.seniority === 'mid' ? 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200' :
-                'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200'
+          <div class="detail-value-container">
+            <span class={`badge-base ${job.seniority === 'junior' ? 'badge-green' :
+              job.seniority === 'mid' ? 'badge-yellow' :
+                'badge-red'
               }`}>
               {t('jobs.' + job.seniority)}
             </span>
@@ -222,22 +224,22 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
         </div>
 
         <div>
-          <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+          <span class="detail-label">
             {t('job.availability')}
           </span>
-          <div class="mt-1">
-            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200">
+          <div class="detail-value-container">
+            <span class="badge-base badge-indigo">
               {t('jobs.' + job.availability)}
             </span>
           </div>
         </div>
 
         <div>
-          <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+          <span class="detail-label">
             {t('job.location')}
           </span>
-          <div class="mt-1">
-            <span class="text-sm text-gray-900 dark:text-gray-100">
+          <div class="detail-value-container">
+            <span class="location-text">
               {job.location || t('job.location_not_specified') || '-'}
             </span>
           </div>
@@ -248,11 +250,11 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
       {
         job.salary && (
           <div class="mb-4">
-            <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+            <span class="detail-label">
               {t('job.salary')}
             </span>
-            <div class="mt-1">
-              <span class="text-sm font-semibold text-green-600">
+            <div class="detail-value-container">
+              <span class="salary-text">
                 {job.salary}
               </span>
             </div>
@@ -261,15 +263,15 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
       }
 
       {/* Skills */}
-      <div class="mb-4">
-        <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2 block">
+      <div class="skills-container">
+        <span class="detail-label mb-2 block">
           {t('job.skills_required')}
         </span>
-        <div class="flex flex-wrap gap-2">
+        <div class="skills-list">
           {job.skills.map((skill) => (
             <span
               key={skill}
-              class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200"
+              class="badge-base badge-gray"
             >
               {skill}
             </span>
@@ -278,18 +280,18 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
       </div>
 
       {/* Actions */}
-      <div class="flex items-center justify-between pt-4 border-t border-gray-100 dark:border-gray-700">
-        <div class="flex items-center space-x-4">
+      <div class="footer-actions">
+        <div class="reaction-buttons">
           {/* Like/Dislike buttons */}
           <button
             onClick$={handleLike}
             disabled={!auth.isAuthenticated}
             title={t('job.like')}
             data-testid="like-button"
-            class={`flex items-center space-x-1 px-2 py-1 rounded transition-colors ${job.user_reaction === 'LIKE'
-              ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-200'
-              : 'text-gray-500 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20'
-              } ${!auth.isAuthenticated ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+            class={`reaction-btn ${job.user_reaction === 'LIKE'
+              ? 'reaction-btn-like-active'
+              : 'reaction-btn-like-inactive'
+              }`}
           >
             <span class="text-lg">👍</span>
             <span class="text-sm font-medium" data-testid="like-count">{job.likes}</span>
@@ -300,10 +302,10 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
             disabled={!auth.isAuthenticated}
             title={t('job.dislike')}
             data-testid="dislike-button"
-            class={`flex items-center space-x-1 px-2 py-1 rounded transition-colors ${job.user_reaction === 'DISLIKE'
-              ? 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-200'
-              : 'text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20'
-              } ${!auth.isAuthenticated ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+            class={`reaction-btn ${job.user_reaction === 'DISLIKE'
+              ? 'reaction-btn-dislike-active'
+              : 'reaction-btn-dislike-inactive'
+              }`}
           >
             <span class="text-lg">👎</span>
             <span class="text-sm font-medium" data-testid="dislike-count">{job.dislikes}</span>
@@ -313,10 +315,10 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
           {onToggleComments$ && (
             <button
               onClick$={() => onToggleComments$!(job.id)}
-              class={`flex items-center space-x-1 px-2 py-1 rounded transition-colors ${showComments
-                ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200'
-                : 'text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20'
-                } cursor-pointer`}
+              class={`comments-btn ${showComments
+                ? 'comments-btn-active'
+                : 'comments-btn-inactive'
+                }`}
             >
               <span class="text-lg">💬</span>
               <span class="text-sm font-medium">
@@ -326,7 +328,7 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
           )}
 
           {/* Views and Clicks Counters */}
-          <div class="flex items-center space-x-3 text-xs text-gray-400 dark:text-gray-500 ml-2 border-l border-gray-200 dark:border-gray-700 pl-3">
+          <div class="stats-container">
             <span class="flex items-center" title={t('job.views_count')}>
               <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -350,7 +352,7 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
         {/* Link to detail page */}
         <Link
           href={`/jobs/detail/${job.id}`}
-          class="inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
+          class="apply-btn"
         >
           <span>{t('job.apply')}</span>
           <svg class="ml-1 w-3 h-3" fill="currentColor" viewBox="0 0 20 20">

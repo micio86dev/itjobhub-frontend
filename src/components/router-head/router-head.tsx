@@ -3,7 +3,7 @@ import { useDocumentHead, useLocation } from "@builder.io/qwik-city";
 import type { SupportedLanguage } from "~/contexts/i18n";
 
 // Base URL for production - update this when deploying
-const SITE_URL = "https://itjobhub.com";
+const SITE_URL = import.meta.env.PUBLIC_SITE_URL;
 
 // Supported languages for hreflang
 const SUPPORTED_LANGUAGES: SupportedLanguage[] = ["it", "en", "es", "de", "fr"];

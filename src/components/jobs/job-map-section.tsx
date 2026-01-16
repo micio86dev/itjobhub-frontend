@@ -16,7 +16,6 @@ export const JobMapSection = component$<JobMapSectionProps>(({ location, coordin
                 <iframe
                     width="100%"
                     height="100%"
-                    frameBorder="0"
                     style="border:0"
                     src={`https://www.google.com/maps/embed/v1/place?key=${googleMapsKey}&q=${coordinates[1]},${coordinates[0]}&zoom=14`}
                     allowFullscreen
