@@ -55,3 +55,8 @@ The IT Job Hub frontend is a high-performance web application designed for devel
 - Fixed issue where 'Apply' button lost styling due to Qwik Link component scope isolation
 - Implemented `.job-card :global(.apply-btn)` selector pattern to ensure styles reach the inner anchor tag of the Link component
 - Verified persistence of style in both light and dark modes
+
+### 2026-01-16: Fix 'p0 is not a function' on Delete Actions
+- Resolved `TypeError: p0 is not a function` when clicking "Delete" button in Job Detail page and Confirm Modal
+- Wrapped `onDelete$` and `onConfirm$`/`onClose$` prop invocations in `$(() => prop.invoke())` explicit QRL pattern
+- Updated `src/components/jobs/job-header.tsx` and `src/components/ui/modal.tsx` to handle QRL props safely
