@@ -229,6 +229,7 @@ export default component$(() => {
       availability:
         (auth.user?.availability as "full-time" | "part-time" | "busy" | "") ||
         "",
+      workModes: auth.user?.workModes || [],
     };
     return (
       <ProfileWizard
@@ -705,6 +706,23 @@ export default component$(() => {
                           {formatAvailability(auth.user?.availability || "")}
                         </span>
                       </div>
+                    </div>
+                  </div>
+
+                  {/* Work Modes */}
+                  <div>
+                    <h4 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3">
+                      {t("profile.work_modes_title")}
+                    </h4>
+                    <div class="flex flex-wrap gap-2">
+                      {auth.user?.workModes?.map((mode) => (
+                        <span
+                          key={mode}
+                          class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-amber-100 dark:bg-amber-900/20 text-amber-800 dark:text-amber-300"
+                        >
+                          {t(`wizard.${mode}_label`)}
+                        </span>
+                      ))}
                     </div>
                   </div>
                 </div>

@@ -60,3 +60,10 @@ The IT Job Hub frontend is a high-performance web application designed for devel
 - Resolved `TypeError: p0 is not a function` when clicking "Delete" button in Job Detail page and Confirm Modal
 - Wrapped `onDelete$` and `onConfirm$`/`onClose$` prop invocations in `$(() => prop.invoke())` explicit QRL pattern
 - Updated `src/components/jobs/job-header.tsx` and `src/components/ui/modal.tsx` to handle QRL props safely
+
+### 2026-01-16: Profile Wizard Work Mode Persistence Fix
+- Fixed issue where selected work modes (Remote, Hybrid, On-site) were not correctly persisted or displayed in the profile wizard when reopening it
+- Corrected backend response in `GET /users/:id/profile` to include `workModes` field
+- Updated `ProfileWizard` initialization in `profile/index.tsx` to correctly pass existing `workModes` from `auth.user`
+- Added missing work mode translations for all supported languages (IT, EN, FR, ES, DE)
+- Enhanced profile page to display active work mode preferences in the professional information section
