@@ -5,7 +5,7 @@ import {
   useTask$,
   useStylesScoped$,
 } from "@builder.io/qwik";
-import { useNavigate, routeLoader$ } from "@builder.io/qwik-city";
+import { useNavigate, routeLoader$, useLocation } from "@builder.io/qwik-city";
 import type { DocumentHead } from "@builder.io/qwik-city";
 import { useAuth } from "~/contexts/auth";
 import {
@@ -50,6 +50,7 @@ export default component$(() => {
   useStylesScoped$(styles);
   const auth = useAuth();
   const nav = useNavigate();
+  const loc = useLocation();
   const i18n = useI18n();
   const t = useTranslate();
 
@@ -66,8 +67,11 @@ export default component$(() => {
     const result = track(() => auth.loginResult.value);
     if (result) {
       if (result.success) {
-        // Redirect to wizard if profile not completed, otherwise to home
-        if (!auth.user?.profileCompleted) {
+        const returnUrl = loc.url.searchParams.get("returnUrl");
+        // Redirect to wizard if profile not completed, otherwise to home or returnUrl
+        if (returnUrl) {
+          nav(returnUrl);
+        } else if (!auth.user?.profileCompleted) {
           nav("/wizard");
         } else {
           nav("/");

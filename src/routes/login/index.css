@@ -63,11 +63,15 @@
 }
 
 .submitButton {
-  @apply relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed;
+  @apply relative w-full flex justify-center items-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200;
+}
+
+:global(.dark) .submitButton {
+  @apply bg-indigo-500 hover:bg-indigo-600 focus:ring-indigo-400;
 }
 
 .spinner {
-  @apply animate-spin -ml-1 mr-2 h-4 w-4 text-white;
+  @apply animate-spin -ml-1 mr-2 h-4 w-4 text-white inline-block;
 }
 
 .spinnerBase {

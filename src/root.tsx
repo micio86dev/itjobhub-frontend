@@ -41,6 +41,24 @@ export default component$(() => {
             href={`${import.meta.env.BASE_URL}manifest.json`}
           />
         )}
+
+        {/* Initialize theme immediately to prevent flash */}
+        <script
+          dangerouslySetInnerHTML={`
+            (function() {
+              try {
+                var theme = localStorage.getItem("theme");
+                var supportDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches === true;
+                if (theme === "dark" || (!theme && supportDarkMode)) {
+                  document.documentElement.classList.add("dark");
+                } else {
+                  document.documentElement.classList.remove("dark");
+                }
+              } catch (e) {}
+            })();
+          `}
+        />
+
         <RouterHead />
       </head>
       <body>

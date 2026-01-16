@@ -62,7 +62,11 @@
 }
 
 .card {
-  @apply bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden border border-gray-100 dark:border-gray-700;
+  @apply bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100;
+}
+
+:global(.dark) .card {
+  @apply bg-gray-800 border-gray-700;
 }
 
 .jobCard {

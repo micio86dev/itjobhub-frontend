@@ -9,20 +9,20 @@ interface ProfileWizardProps {
   onCancel$?: QRL<() => void>;
 }
 
-// Language names in English (universal across languages)
-const LANGUAGE_SUGGESTIONS = [
-  "Italian",
-  "English",
-  "French",
-  "Spanish",
-  "German",
-  "Portuguese",
-  "Russian",
-  "Chinese",
-  "Japanese",
-  "Arabic",
-  "Dutch",
-  "Swedish",
+// Language translation keys (will be translated based on user's browser language)
+const LANGUAGE_SUGGESTION_KEYS = [
+  "lang.italian",
+  "lang.english",
+  "lang.french",
+  "lang.spanish",
+  "lang.german",
+  "lang.portuguese",
+  "lang.russian",
+  "lang.chinese",
+  "lang.japanese",
+  "lang.arabic",
+  "lang.dutch",
+  "lang.swedish",
 ];
 
 const SKILL_SUGGESTIONS = [
@@ -82,11 +82,12 @@ export const ProfileWizard = component$<ProfileWizardProps>(
         skills: initialData?.skills || [],
         seniority: initialData?.seniority || "",
         availability: initialData?.availability || "",
+        workModes: initialData?.workModes || [],
       } as WizardData,
     });
 
     const nextStep = $(() => {
-      if (state.currentStep < 4) {
+      if (state.currentStep < 5) {
         state.currentStep++;
       }
     });
@@ -111,6 +112,8 @@ export const ProfileWizard = component$<ProfileWizardProps>(
         case 3:
           return state.data.seniority !== "";
         case 4:
+          return state.data.workModes.length > 0;
+        case 5:
           return state.data.availability !== "";
         default:
           return false;
@@ -126,17 +129,17 @@ export const ProfileWizard = component$<ProfileWizardProps>(
               <span class="text-sm font-medium text-gray-900 dark:text-white">
                 {interpolate(t("wizard.step_of"), {
                   current: state.currentStep.toString(),
-                  total: "4",
+                  total: "5",
                 })}
               </span>
               <span class="text-sm text-gray-500 dark:text-gray-400">
-                {Math.round((state.currentStep / 4) * 100)}%
+                {Math.round((state.currentStep / 5) * 100)}%
               </span>
             </div>
             <div class="w-full bg-gray-200 rounded-full h-2">
               <div
                 class="bg-indigo-600 h-2 rounded-full transition-all duration-300"
-                style={`width: ${(state.currentStep / 4) * 100}%`}
+                style={`width: ${(state.currentStep / 5) * 100}%`}
               ></div>
             </div>
           </div>
@@ -155,7 +158,7 @@ export const ProfileWizard = component$<ProfileWizardProps>(
                   value={state.data.languages}
                   onChange$={(languages) => (state.data.languages = languages)}
                   placeholder="Aggiungi una lingua..."
-                  suggestions={LANGUAGE_SUGGESTIONS}
+                  suggestions={LANGUAGE_SUGGESTION_KEYS.map((key) => t(key))}
                 />
               </div>
             </div>
@@ -209,11 +212,10 @@ export const ProfileWizard = component$<ProfileWizardProps>(
                   ].map((option) => (
                     <label
                       key={option.value}
-                      class={`flex items-start p-3 rounded-lg border-2 cursor-pointer transition-colors ${
-                        state.data.seniority === option.value
-                          ? "border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20"
-                          : "border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600"
-                      }`}
+                      class={`flex items-start p-3 rounded-lg border-2 cursor-pointer transition-colors ${state.data.seniority === option.value
+                        ? "border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20"
+                        : "border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600"
+                        }`}
                     >
                       <input
                         type="radio"
@@ -221,8 +223,8 @@ export const ProfileWizard = component$<ProfileWizardProps>(
                         value={option.value}
                         checked={state.data.seniority === option.value}
                         onChange$={() =>
-                          (state.data.seniority =
-                            option.value as WizardData["seniority"])
+                        (state.data.seniority =
+                          option.value as WizardData["seniority"])
                         }
                         class="mt-0.5 h-4 w-4 text-indigo-600 focus:ring-indigo-500"
                       />
@@ -242,6 +244,74 @@ export const ProfileWizard = component$<ProfileWizardProps>(
           )}
 
           {state.currentStep === 4 && (
+            <div class="space-y-4">
+              <div>
+                <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                  {t("wizard.work_modes_step")}
+                </h2>
+                <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                  {t("wizard.work_modes_desc")}
+                </p>
+                <div class="space-y-3">
+                  {[
+                    {
+                      value: "remote",
+                      labelKey: "wizard.remote_label",
+                      descKey: "wizard.remote_desc",
+                    },
+                    {
+                      value: "hybrid",
+                      labelKey: "wizard.hybrid_label",
+                      descKey: "wizard.hybrid_desc",
+                    },
+                    {
+                      value: "onsite",
+                      labelKey: "wizard.onsite_label",
+                      descKey: "wizard.onsite_desc",
+                    },
+                  ].map((option) => (
+                    <label
+                      key={option.value}
+                      class={`flex items-start p-3 rounded-lg border-2 cursor-pointer transition-colors ${state.data.workModes.includes(option.value)
+                        ? "border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20"
+                        : "border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600"
+                        }`}
+                    >
+                      <input
+                        type="checkbox"
+                        name="workModes"
+                        value={option.value}
+                        checked={state.data.workModes.includes(option.value)}
+                        onChange$={() => {
+                          if (state.data.workModes.includes(option.value)) {
+                            state.data.workModes = state.data.workModes.filter(
+                              (m) => m !== option.value
+                            );
+                          } else {
+                            state.data.workModes = [
+                              ...state.data.workModes,
+                              option.value,
+                            ];
+                          }
+                        }}
+                        class="mt-0.5 h-4 w-4 text-indigo-600 focus:ring-indigo-500 rounded"
+                      />
+                      <div class="ml-3">
+                        <div class="font-medium text-gray-900 dark:text-white">
+                          {t(option.labelKey)}
+                        </div>
+                        <div class="text-sm text-gray-500 dark:text-gray-400">
+                          {t(option.descKey)}
+                        </div>
+                      </div>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {state.currentStep === 5 && (
             <div class="space-y-4">
               <div>
                 <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">
@@ -270,11 +340,10 @@ export const ProfileWizard = component$<ProfileWizardProps>(
                   ].map((option) => (
                     <label
                       key={option.value}
-                      class={`flex items-start p-3 rounded-lg border-2 cursor-pointer transition-colors ${
-                        state.data.availability === option.value
-                          ? "border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20"
-                          : "border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600"
-                      }`}
+                      class={`flex items-start p-3 rounded-lg border-2 cursor-pointer transition-colors ${state.data.availability === option.value
+                        ? "border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20"
+                        : "border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600"
+                        }`}
                     >
                       <input
                         type="radio"
@@ -282,8 +351,8 @@ export const ProfileWizard = component$<ProfileWizardProps>(
                         value={option.value}
                         checked={state.data.availability === option.value}
                         onChange$={() =>
-                          (state.data.availability =
-                            option.value as WizardData["availability"])
+                        (state.data.availability =
+                          option.value as WizardData["availability"])
                         }
                         class="mt-0.5 h-4 w-4 text-indigo-600 focus:ring-indigo-500"
                       />
@@ -324,7 +393,7 @@ export const ProfileWizard = component$<ProfileWizardProps>(
             </div>
 
             <div>
-              {state.currentStep < 4 ? (
+              {state.currentStep < 5 ? (
                 <button
                   onClick$={nextStep}
                   disabled={!getCanProceed()}

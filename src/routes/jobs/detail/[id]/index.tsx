@@ -39,6 +39,7 @@ export default component$(() => {
         job: null as JobListing | null,
         matchScore: null as MatchScore | null,
         showDeleteModal: false,
+        isDeleting: false,
     });
 
     const jobResource = useResource$(async ({ track }) => {
@@ -146,6 +147,7 @@ export default component$(() => {
 
     const handleDeleteJob = $(async () => {
         if (!state.job || !auth.token) return;
+        state.isDeleting = true;
         try {
             const res = await request(`${API_URL}/jobs/${state.job.id}`, {
                 method: "DELETE",
@@ -160,6 +162,7 @@ export default component$(() => {
         } catch (e) {
             console.error(e);
         } finally {
+            state.isDeleting = false;
             state.showDeleteModal = false;
         }
     });
@@ -167,14 +170,20 @@ export default component$(() => {
     const handleApplyClick = $(() => {
         if (state.job) {
             jobsContext.trackJobInteraction$(state.job.id, "APPLY");
+            // Optimistic local update
+            state.job.clicks_count = (state.job.clicks_count || 0) + 1;
         }
     });
 
     // Track VIEW Interaction at top level of component
     useTask$(({ track }) => {
-        const j = track(() => state.job);
-        if (j && isBrowser) {
-            jobsContext.trackJobInteraction$(j.id, "VIEW");
+        const jobId = track(() => state.job?.id);
+        if (jobId && isBrowser) {
+            jobsContext.trackJobInteraction$(jobId, "VIEW");
+            // Optimistic local update
+            if (state.job) {
+                state.job.views_count = (state.job.views_count || 0) + 1;
+            }
         }
     });
 
@@ -314,6 +323,7 @@ export default component$(() => {
                 onClose$={handleCloseDeleteModal}
                 onConfirm$={handleDeleteJob}
                 isDestructive={true}
+                isLoading={state.isDeleting}
                 confirmText={t("job.delete")}
                 cancelText={t("common.cancel")}
             >

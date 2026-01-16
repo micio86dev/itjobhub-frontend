@@ -1,5 +1,9 @@
 .companyInfoBox {
-  @apply bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 p-8;
+  @apply bg-white rounded-2xl shadow-xl border border-gray-100 p-8;
+}
+
+:global(.dark) .companyInfoBox {
+  @apply bg-gray-800 border-gray-700;
 }
 
 

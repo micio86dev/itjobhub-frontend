@@ -1,4 +1,4 @@
-import { component$, $, useStore, useTask$ } from "@builder.io/qwik";
+import { component$, $, useStore, useTask$, isBrowser } from "@builder.io/qwik";
 import {
   type DocumentHead,
   useLocation,
@@ -140,6 +140,44 @@ export default component$(() => {
       let filters: JobFilters | undefined = userLanguages
         ? { languages: userLanguages }
         : undefined;
+
+      // Determine default location
+      let defaultLocation: string | undefined = undefined;
+      let defaultGeo: { lat: number; lng: number } | undefined = undefined;
+
+      if (auth.user) {
+        if (auth.user.location) {
+          defaultLocation = auth.user.location;
+        }
+        if (auth.user.location_geo?.coordinates) {
+          defaultGeo = {
+            lat: auth.user.location_geo.coordinates[1],
+            lng: auth.user.location_geo.coordinates[0],
+          };
+        }
+      }
+
+      // Try GPS if no profile location
+      if (!defaultLocation && isBrowser && navigator.geolocation) {
+        try {
+          const pos = await new Promise<GeolocationPosition>((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 5000 });
+          });
+          defaultGeo = {
+            lat: pos.coords.latitude,
+            lng: pos.coords.longitude,
+          };
+        } catch (e) {
+          // GPS denied or failed, ignore
+        }
+      }
+
+      if (defaultLocation || defaultGeo) {
+        filters = filters || {};
+        filters.location = defaultLocation;
+        filters.location_geo = defaultGeo;
+        filters.radius_km = 50;
+      }
 
       if (state.showPersonalized && auth.user) {
         filters = {

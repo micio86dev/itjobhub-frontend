@@ -46,16 +46,24 @@
   @apply w-full p-2 text-sm border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 resize-none;
 }
 
+:global(.dark) .comment-textarea {
+  @apply bg-gray-700 border-gray-600 text-white placeholder-gray-400;
+}
+
 .form-actions {
   @apply flex justify-end mt-2;
 }
 
 .submit-btn {
-  @apply inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed;
+  @apply inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200;
+}
+
+:global(.dark) .submit-btn {
+  @apply bg-indigo-500 hover:bg-indigo-600 focus:ring-indigo-400;
 }
 
 .loading-spinner {
-  @apply animate-spin -ml-0.5 mr-1.5 h-3 w-3 text-white;
+  @apply animate-spin -ml-0.5 mr-1.5 h-3 w-3 text-white inline-block;
 }
 
 .spinner-circle {
@@ -70,12 +78,24 @@
   @apply mb-4 p-3 bg-gray-50 rounded-md;
 }
 
+:global(.dark) .login-prompt {
+  @apply bg-gray-700;
+}
+
 .login-text {
   @apply text-sm text-gray-600 text-center;
 }
 
+:global(.dark) .login-text {
+  @apply text-gray-300;
+}
+
 .login-link {
   @apply text-indigo-600 hover:text-indigo-500 font-medium;
+}
+
+:global(.dark) .login-link {
+  @apply text-indigo-400 hover:text-indigo-300;
 }
 
 .comments-list {
@@ -126,8 +146,16 @@
   @apply bg-white rounded-lg p-3 border border-indigo-200 shadow-sm;
 }
 
+:global(.dark) .edit-container {
+  @apply bg-gray-700 border-indigo-500;
+}
+
 .edit-textarea {
   @apply w-full p-2 text-sm border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 resize-none mb-2;
+}
+
+:global(.dark) .edit-textarea {
+  @apply bg-gray-800 border-gray-600 text-white placeholder-gray-400;
 }
 
 .edit-actions {
@@ -138,8 +166,16 @@
   @apply text-xs px-2 py-1 text-gray-500 hover:text-gray-700;
 }
 
+:global(.dark) .cancel-btn {
+  @apply text-gray-400 hover:text-gray-200;
+}
+
 .save-btn {
-  @apply text-xs px-2 py-1 bg-indigo-600 text-white rounded hover:bg-indigo-700;
+  @apply text-xs px-2 py-1 bg-indigo-600 text-white rounded hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200;
+}
+
+:global(.dark) .save-btn {
+  @apply bg-indigo-500 hover:bg-indigo-600;
 }
 
 .comment-content-container {

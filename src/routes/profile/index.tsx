@@ -6,7 +6,7 @@ import {
   useSignal,
   isBrowser,
 } from "@builder.io/qwik";
-import { useNavigate, type DocumentHead } from "@builder.io/qwik-city";
+import { useNavigate, type DocumentHead, useLocation } from "@builder.io/qwik-city";
 import { useAuth } from "~/contexts/auth";
 import { useTranslate, translate, useI18n } from "~/contexts/i18n";
 import { ProfileWizard } from "~/components/wizard/profile-wizard";
@@ -48,11 +48,13 @@ export default component$(() => {
     } as EditFormData,
   });
 
+  const loc = useLocation();
+
   // Check authentication and set redirect flag
   useTask$(({ track }) => {
     track(() => auth.isAuthenticated);
     if (isBrowser && !auth.isAuthenticated) {
-      nav("/login");
+      nav(`/login?returnUrl=${loc.url.pathname}`);
     }
   });
 
@@ -269,11 +271,10 @@ export default component$(() => {
         {/* Feedback Message */}
         {state.message.text && (
           <div
-            class={`p-4 rounded-t-lg text-center text-sm font-medium ${
-              state.message.type === "success"
-                ? "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300"
-                : "bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300"
-            }`}
+            class={`p-4 rounded-t-lg text-center text-sm font-medium ${state.message.type === "success"
+              ? "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300"
+              : "bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300"
+              }`}
           >
             {state.message.text}
           </div>
@@ -388,12 +389,14 @@ export default component$(() => {
               <p class="text-gray-500 dark:text-gray-400 mb-4">
                 {t("profile.complete_desc")}
               </p>
-              <button
-                onClick$={handleEditProfile}
-                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-700 dark:hover:bg-indigo-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-indigo-400"
-              >
-                {t("profile.complete_profile")}
-              </button>
+              <div class="flex justify-center">
+                <button
+                  onClick$={handleEditProfile}
+                  class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-700 dark:hover:bg-indigo-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-indigo-400"
+                >
+                  {t("profile.complete_profile")}
+                </button>
+              </div>
             </div>
           ) : (
             <div class="space-y-8">
@@ -435,9 +438,9 @@ export default component$(() => {
                           type="text"
                           value={state.formData.name}
                           onInput$={(e) =>
-                            (state.formData.name = (
-                              e.target as HTMLInputElement
-                            ).value)
+                          (state.formData.name = (
+                            e.target as HTMLInputElement
+                          ).value)
                           }
                           data-testid="profile-name"
                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:ring-indigo-500 focus:border-indigo-500 dark:focus:ring-indigo-400 dark:focus:border-indigo-400"
@@ -451,9 +454,9 @@ export default component$(() => {
                           type="tel"
                           value={state.formData.phone}
                           onInput$={(e) =>
-                            (state.formData.phone = (
-                              e.target as HTMLInputElement
-                            ).value)
+                          (state.formData.phone = (
+                            e.target as HTMLInputElement
+                          ).value)
                           }
                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:ring-indigo-500 focus:border-indigo-500 dark:focus:ring-indigo-400 dark:focus:border-indigo-400"
                         />
@@ -486,9 +489,9 @@ export default component$(() => {
                           type="date"
                           value={state.formData.birthDate}
                           onInput$={(e) =>
-                            (state.formData.birthDate = (
-                              e.target as HTMLInputElement
-                            ).value)
+                          (state.formData.birthDate = (
+                            e.target as HTMLInputElement
+                          ).value)
                           }
                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:ring-indigo-500 focus:border-indigo-500 dark:focus:ring-indigo-400 dark:focus:border-indigo-400"
                         />
@@ -501,9 +504,9 @@ export default component$(() => {
                       <textarea
                         value={state.formData.bio}
                         onInput$={(e) =>
-                          (state.formData.bio = (
-                            e.target as HTMLTextAreaElement
-                          ).value)
+                        (state.formData.bio = (
+                          e.target as HTMLTextAreaElement
+                        ).value)
                         }
                         rows={4}
                         data-testid="profile-bio"
@@ -641,14 +644,23 @@ export default component$(() => {
                       {t("profile.languages_title")}
                     </h4>
                     <div class="flex flex-wrap gap-2">
-                      {auth.user?.languages?.map((lang) => (
-                        <span
-                          key={lang}
-                          class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-300"
-                        >
-                          {lang}
-                        </span>
-                      ))}
+                      {auth.user?.languages?.map((lang) => {
+                        // Try to translate the language name
+                        // If the language is stored as "Italian", we need to find the matching key
+                        const langKey = `lang.${lang.toLowerCase()}`;
+                        const translatedLang = t(langKey);
+                        // If translation returns the key itself, use the original value
+                        const displayLang = translatedLang === langKey ? lang : translatedLang;
+
+                        return (
+                          <span
+                            key={lang}
+                            class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-300"
+                          >
+                            {displayLang}
+                          </span>
+                        );
+                      })}
                     </div>
                   </div>
 
