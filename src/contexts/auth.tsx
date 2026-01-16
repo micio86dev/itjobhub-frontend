@@ -261,16 +261,11 @@ export const AuthProvider = component$(
       if (!registerReq) return;
 
       try {
-        const nameParts = (registerReq.name || "").split(" ");
-        const firstName = registerReq.firstName || nameParts[0] || "User";
-        const lastName =
-          registerReq.lastName || nameParts.slice(1).join(" ") || "New";
-
         const payload = {
           email: registerReq.email,
           password: registerReq.password,
-          firstName,
-          lastName,
+          firstName: registerReq.firstName || "User",
+          lastName: registerReq.lastName || "New",
         };
 
         const response = await request(`${API_URL}/auth/register`, {

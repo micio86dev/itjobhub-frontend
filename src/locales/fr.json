@@ -145,6 +145,8 @@
   "auth.password": "Mot de passe",
   "auth.confirm_password": "Confirmez le mot de passe",
   "auth.name": "Nom complet",
+  "auth.first_name": "Prénom",
+  "auth.last_name": "Nom de famille",
   "auth.login_btn": "Se connecter",
   "auth.register_btn": "S'inscrire",
   "auth.login_required": "Connexion requise",

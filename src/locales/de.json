@@ -145,6 +145,8 @@
   "auth.password": "Passwort",
   "auth.confirm_password": "Passwort bestätigen",
   "auth.name": "Vollständiger Name",
+  "auth.first_name": "Vorname",
+  "auth.last_name": "Nachname",
   "auth.login_btn": "Anmelden",
   "auth.register_btn": "Registrieren",
   "auth.login_required": "Anmeldung erforderlich",

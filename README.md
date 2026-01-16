@@ -30,6 +30,21 @@ Inside your project, you'll see the following directory structure:
 
 - `public`: Any static assets, like images, can be placed in the public directory. Please see the [Vite public directory](https://vitejs.dev/guide/assets.html#the-public-directory) for more info.
 
+## UI Components & Styling
+
+### Component Architecture
+- **Scoped CSS**: Each component has its own CSS file using Qwik's scoped styling system
+- **Semantic Classes**: We use semantic CSS class names instead of inline Tailwind classes for better maintainability
+- **Dark Mode**: Full dark mode support using `:global(.dark)` selectors
+
+### Key Components
+- **SocialLoginButtons** (`src/components/ui/social-login-buttons.tsx`): Premium-styled authentication buttons for Google, LinkedIn, and GitHub with:
+  - Smooth hover animations and transitions
+  - Loading states with spinners
+  - Full dark mode support
+  - Responsive design (grid on desktop, stack on mobile)
+  - Focus states for accessibility
+
 ## Add Integrations and deployment
 
 Use the `bun run qwik add` command to add additional integrations. Some examples of integrations includes: Cloudflare, Netlify or Express Server, and the [Static Site Generator (SSG)](https://qwik.dev/qwikcity/guides/static-site-generation/).

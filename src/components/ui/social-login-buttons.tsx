@@ -1,4 +1,5 @@
-import { component$, $, type QRL } from "@builder.io/qwik";
+import { component$, $, type QRL, useStylesScoped$ } from "@builder.io/qwik";
+import styles from "./social-login-buttons.css?inline";
 
 interface SocialLoginButtonsProps {
   onLogin$: QRL<(provider: "google" | "linkedin" | "github") => void>;
@@ -8,6 +9,7 @@ interface SocialLoginButtonsProps {
 
 export const SocialLoginButtons = component$<SocialLoginButtonsProps>(
   ({ onLogin$, loading, activeProvider }) => {
+    useStylesScoped$(styles);
     return (
       <div class="socialGrid">
         {/* Google */}

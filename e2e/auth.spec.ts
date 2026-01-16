@@ -9,7 +9,8 @@ test.describe('Authentication', () => {
 
             const email = `test-${Date.now()}@example.com`;
 
-            await page.locator(SELECTORS.nameInput).fill('Test User');
+            await page.locator(SELECTORS.firstNameInput).fill('Test');
+            await page.locator(SELECTORS.lastNameInput).fill('User');
             await page.locator(SELECTORS.emailInput).fill(email);
             await page.locator(SELECTORS.passwordInput).fill('password123');
             await page.locator(SELECTORS.confirmPasswordInput).fill('password123');
@@ -32,7 +33,8 @@ test.describe('Authentication', () => {
             await ensurePageReady(page);
 
             // Use existing seeker email
-            await page.locator(SELECTORS.nameInput).fill('Duplicate User');
+            await page.locator(SELECTORS.firstNameInput).fill('Duplicate');
+            await page.locator(SELECTORS.lastNameInput).fill('User');
             await page.locator(SELECTORS.emailInput).fill('seeker@test.com');
             await page.locator(SELECTORS.passwordInput).fill('password123');
             await page.locator(SELECTORS.confirmPasswordInput).fill('password123');
@@ -49,7 +51,8 @@ test.describe('Authentication', () => {
             await page.goto('/register');
             await ensurePageReady(page);
 
-            await page.locator(SELECTORS.nameInput).fill('Test User');
+            await page.locator(SELECTORS.firstNameInput).fill('Test');
+            await page.locator(SELECTORS.lastNameInput).fill('User');
             await page.locator(SELECTORS.emailInput).fill(`test-${Date.now()}@example.com`);
             await page.locator(SELECTORS.passwordInput).fill('password123');
             await page.locator(SELECTORS.confirmPasswordInput).fill('differentpassword');

@@ -152,6 +152,8 @@
   "auth.password": "Password",
   "auth.confirm_password": "Conferma password",
   "auth.name": "Nome completo",
+  "auth.first_name": "Nome",
+  "auth.last_name": "Cognome",
   "auth.login_btn": "Accedi",
   "auth.register_btn": "Registrati",
   "auth.login_required": "Effettua il login per visualizzare questa pagina",

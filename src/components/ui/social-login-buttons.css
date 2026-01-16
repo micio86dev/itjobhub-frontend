@@ -1,0 +1,173 @@
+/* Social Login Buttons - Premium Styling */
+
+.socialGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.socialButton {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  overflow: hidden;
+  border: 2px solid transparent;
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  box-shadow: 
+    0 1px 3px rgba(0, 0, 0, 0.1),
+    0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+.socialButton::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.socialButton:hover::before {
+  opacity: 1;
+}
+
+.socialButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 10px 20px rgba(0, 0, 0, 0.1),
+    0 6px 6px rgba(0, 0, 0, 0.08);
+  border-color: rgba(99, 102, 241, 0.3);
+}
+
+.socialButton:active {
+  transform: translateY(0);
+  box-shadow: 
+    0 1px 3px rgba(0, 0, 0, 0.1),
+    0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+.socialButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.socialButton:disabled:hover {
+  transform: none;
+  box-shadow: 
+    0 1px 3px rgba(0, 0, 0, 0.1),
+    0 1px 2px rgba(0, 0, 0, 0.06);
+  border-color: transparent;
+}
+
+/* Dark Mode Support */
+:global(.dark) .socialButton {
+  background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+  border-color: rgba(75, 85, 99, 0.3);
+  box-shadow: 
+    0 1px 3px rgba(0, 0, 0, 0.3),
+    0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+:global(.dark) .socialButton::before {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, rgba(139, 92, 246, 0.2) 100%);
+}
+
+:global(.dark) .socialButton:hover {
+  border-color: rgba(99, 102, 241, 0.5);
+  box-shadow: 
+    0 10px 20px rgba(0, 0, 0, 0.4),
+    0 6px 6px rgba(0, 0, 0, 0.3);
+}
+
+:global(.dark) .socialButton:active {
+  box-shadow: 
+    0 1px 3px rgba(0, 0, 0, 0.3),
+    0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* Spinner Animation */
+.socialSpinner {
+  width: 1.25rem;
+  height: 1.25rem;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.spinnerBase {
+  opacity: 0.25;
+}
+
+.spinnerPath {
+  opacity: 0.75;
+}
+
+/* Icon and Text Spacing */
+.socialButton svg {
+  position: relative;
+  z-index: 1;
+}
+
+.socialButton span {
+  position: relative;
+  z-index: 1;
+  color: #374151;
+  transition: color 0.3s ease;
+}
+
+:global(.dark) .socialButton span {
+  color: #e5e7eb;
+}
+
+/* Responsive Design */
+@media (max-width: 640px) {
+  .socialGrid {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+  
+  .socialButton {
+    padding: 0.875rem 1.25rem;
+  }
+}
+
+/* Focus States for Accessibility */
+.socialButton:focus {
+  outline: none;
+  box-shadow: 
+    0 0 0 3px rgba(99, 102, 241, 0.3),
+    0 1px 3px rgba(0, 0, 0, 0.1),
+    0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+:global(.dark) .socialButton:focus {
+  box-shadow: 
+    0 0 0 3px rgba(99, 102, 241, 0.4),
+    0 1px 3px rgba(0, 0, 0, 0.3),
+    0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* Loading State */
+.socialButton:disabled .socialSpinner {
+  color: #6366f1;
+}
+
+:global(.dark) .socialButton:disabled .socialSpinner {
+  color: #818cf8;
+}

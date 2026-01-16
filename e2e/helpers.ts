@@ -7,7 +7,8 @@ export const SELECTORS = {
   // Auth
   emailInput: '[data-testid="email-input"]',
   passwordInput: '[data-testid="password-input"]',
-  nameInput: '[data-testid="name-input"]',
+  firstNameInput: '[data-testid="first-name-input"]',
+  lastNameInput: '[data-testid="last-name-input"]',
   confirmPasswordInput: '[data-testid="confirm-password-input"]',
   loginSubmit: '[data-testid="login-submit"]',
   registerSubmit: '[data-testid="register-submit"]',
