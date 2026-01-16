@@ -1,9 +1,17 @@
 .skillsSection {
-  @apply p-8 md:p-10 border-t border-gray-100 dark:border-gray-700 bg-gray-50/30 dark:bg-gray-900/10;
+  @apply p-8 md:p-10 border-t border-gray-100 bg-gray-50/30;
+}
+
+:global(.dark) .skillsSection {
+  @apply border-gray-700 bg-gray-900/10;
 }
 
 .skillsTitle {
-  @apply text-xl font-bold text-gray-900 dark:text-white mb-6;
+  @apply text-xl font-bold text-gray-900 mb-6;
+}
+
+:global(.dark) .skillsTitle {
+  @apply text-white;
 }
 
 .skillsList {
@@ -11,5 +19,9 @@
 }
 
 .skillItem {
-  @apply px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-400 shadow-sm;
+  @apply px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-600 shadow-sm;
+}
+
+:global(.dark) .skillItem {
+  @apply bg-gray-800 border-gray-600 text-gray-400;
 }

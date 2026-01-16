@@ -5,7 +5,13 @@ import { useAuth } from "~/contexts/auth";
 import { useTranslate, type SupportedLanguage } from "~/contexts/i18n";
 import { useJobs } from "~/contexts/jobs";
 import { OrganizationSchema, WebSiteSchema } from "~/components/seo/json-ld";
-import { HeroSection, StatsSection, FeaturedJobs, ValueProps, CTASection } from "~/components/home";
+import {
+  HeroSection,
+  StatsSection,
+  FeaturedJobs,
+  ValueProps,
+  CTASection,
+} from "~/components/home";
 
 // Import translations for server-side DocumentHead
 import it from "~/locales/it.json";
@@ -18,12 +24,15 @@ const translations = { it, en, es, de, fr };
 
 // Route loader to get translated meta for DocumentHead
 export const useHeadMeta = routeLoader$(({ cookie }) => {
-  const savedLang = cookie.get('preferred-language')?.value as SupportedLanguage || 'it';
-  const lang = savedLang in translations ? savedLang : 'it';
+  const savedLang =
+    (cookie.get("preferred-language")?.value as SupportedLanguage) || "it";
+  const lang = savedLang in translations ? savedLang : "it";
   const t = translations[lang];
   return {
-    title: t['meta.index_title'] || 'ITJobHub - Find your ideal IT job',
-    description: t['meta.index_description'] || 'The platform to find your dream job in the IT world.'
+    title: t["meta.index_title"] || "ITJobHub - Find your ideal IT job",
+    description:
+      t["meta.index_description"] ||
+      "The platform to find your dream job in the IT world.",
   };
 });
 
@@ -32,7 +41,12 @@ export default component$(() => {
   const t = useTranslate();
   const jobsState = useJobs();
   const topSkills = useSignal<{ skill: string; count: number }[]>([]);
-  const matchScores = useSignal<Record<string, { score: number; label: 'excellent' | 'good' | 'fair' | 'low' }>>({});
+  const matchScores = useSignal<
+    Record<
+      string,
+      { score: number; label: "excellent" | "good" | "fair" | "low" }
+    >
+  >({});
 
   // Fetch jobs and stats
   useTask$(async () => {
@@ -40,9 +54,11 @@ export default component$(() => {
     if (jobsState.jobs.length === 0) {
       promises.push(jobsState.fetchJobsPage$(1));
     }
-    promises.push(jobsState.fetchTopSkills$(10, new Date().getFullYear()).then(skills => {
-      topSkills.value = skills;
-    }));
+    promises.push(
+      jobsState.fetchTopSkills$(10, new Date().getFullYear()).then((skills) => {
+        topSkills.value = skills;
+      }),
+    );
     await Promise.all(promises);
   });
 
@@ -53,7 +69,7 @@ export default component$(() => {
 
     if (token && jobs.length > 0) {
       // Get scores for the first 3 jobs (displayed on homepage)
-      const recentJobIds = jobs.slice(0, 3).map(job => job.id);
+      const recentJobIds = jobs.slice(0, 3).map((job) => job.id);
       const scores = await jobsState.fetchBatchMatchScores$(recentJobIds);
       matchScores.value = scores;
     } else {

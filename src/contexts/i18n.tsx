@@ -37,7 +37,7 @@ const translations = {
   en,
   es,
   de,
-  fr
+  fr,
 };
 
 export const I18nProvider = component$(() => {
@@ -54,7 +54,7 @@ export const I18nProvider = component$(() => {
   useTask$(() => {
     if (isBrowser) {
       const savedLang = localStorage.getItem(
-        "preferred-language"
+        "preferred-language",
       ) as SupportedLanguage;
       if (
         savedLang &&
@@ -101,20 +101,24 @@ export const translate = (key: string, language: SupportedLanguage): string => {
   const translation =
     currentTranslations[key as keyof typeof currentTranslations];
   if (!translation) {
-    console.warn(`Translation missing for key "${key}" in language "${language}"`);
+    console.warn(
+      `Translation missing for key "${key}" in language "${language}"`,
+    );
   }
   return translation || key;
 };
 
 export const useTranslate = () => {
   const i18n = useContext(I18nContext);
-  return noSerialize((key: string) => translate(key, i18n.currentLanguage)) as (key: string) => string;
+  return noSerialize((key: string) => translate(key, i18n.currentLanguage)) as (
+    key: string,
+  ) => string;
 };
 
 // Helper function for interpolation
 export const interpolate = (
   template: string,
-  values: Record<string, string | number>
+  values: Record<string, string | number>,
 ): string => {
   return template.replace(/\{(\w+)\}/g, (match, key) => {
     return values[key]?.toString() || match;

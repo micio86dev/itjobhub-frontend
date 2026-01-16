@@ -1,7 +1,18 @@
-import { component$, createContextId, useContextProvider, useContext, useStore, $, useTask$, Slot, useSignal, isBrowser } from "@builder.io/qwik";
+import {
+  component$,
+  createContextId,
+  useContextProvider,
+  useContext,
+  useStore,
+  $,
+  useTask$,
+  Slot,
+  useSignal,
+  isBrowser,
+} from "@builder.io/qwik";
 import type { Signal } from "@builder.io/qwik";
 
-export type Theme = 'light' | 'dark';
+export type Theme = "light" | "dark";
 
 interface ThemeStore {
   theme: Theme;
@@ -9,7 +20,7 @@ interface ThemeStore {
   setThemeSignal: Signal<Theme | null>;
 }
 
-export const ThemeContext = createContextId<ThemeStore>('theme-context');
+export const ThemeContext = createContextId<ThemeStore>("theme-context");
 
 export const useTheme = () => {
   const context = useContext(ThemeContext);
@@ -22,13 +33,13 @@ export const useTheme = () => {
     }),
     setTheme: $((theme: Theme) => {
       context.setThemeSignal.value = theme;
-    })
+    }),
   };
 };
 
 export const ThemeProvider = component$(() => {
   const store = useStore<{ theme: Theme }>({
-    theme: 'light'
+    theme: "light",
   });
 
   // Create signals for theme operations
@@ -38,18 +49,18 @@ export const ThemeProvider = component$(() => {
   const themeStore: ThemeStore = {
     theme: store.theme,
     toggleSignal,
-    setThemeSignal
+    setThemeSignal,
   };
 
   // Handle toggle theme requests
   useTask$(({ track }) => {
     const shouldToggle = track(() => toggleSignal.value);
-    if (shouldToggle && typeof window !== 'undefined') {
-      const newTheme = store.theme === 'light' ? 'dark' : 'light';
+    if (shouldToggle && typeof window !== "undefined") {
+      const newTheme = store.theme === "light" ? "dark" : "light";
       store.theme = newTheme;
 
-      localStorage.setItem('theme', newTheme);
-      document.documentElement.classList.toggle('dark', newTheme === 'dark');
+      localStorage.setItem("theme", newTheme);
+      document.documentElement.classList.toggle("dark", newTheme === "dark");
 
       toggleSignal.value = false;
     }
@@ -58,11 +69,11 @@ export const ThemeProvider = component$(() => {
   // Handle set theme requests
   useTask$(({ track }) => {
     const newTheme = track(() => setThemeSignal.value);
-    if (newTheme && typeof window !== 'undefined') {
+    if (newTheme && typeof window !== "undefined") {
       store.theme = newTheme;
 
-      localStorage.setItem('theme', newTheme);
-      document.documentElement.classList.toggle('dark', newTheme === 'dark');
+      localStorage.setItem("theme", newTheme);
+      document.documentElement.classList.toggle("dark", newTheme === "dark");
 
       setThemeSignal.value = null;
     }
@@ -73,29 +84,36 @@ export const ThemeProvider = component$(() => {
   // Initialize theme from localStorage on client side
   useTask$(() => {
     if (isBrowser) {
-      if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-        document.documentElement.classList.add('dark');
-        store.theme = 'dark';
+      if (
+        localStorage.getItem("theme") === "dark" ||
+        (!localStorage.getItem("theme") &&
+          window.matchMedia("(prefers-color-scheme: dark)").matches)
+      ) {
+        document.documentElement.classList.add("dark");
+        store.theme = "dark";
       } else {
-        document.documentElement.classList.remove('dark');
-        store.theme = 'light';
+        document.documentElement.classList.remove("dark");
+        store.theme = "light";
       }
 
       // Listen for system theme changes
-      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
       const handleChange = (e: MediaQueryListEvent) => {
-        if (!localStorage.getItem('theme')) {
-          const newTheme = e.matches ? 'dark' : 'light';
+        if (!localStorage.getItem("theme")) {
+          const newTheme = e.matches ? "dark" : "light";
           store.theme = newTheme;
-          document.documentElement.classList.toggle('dark', newTheme === 'dark');
+          document.documentElement.classList.toggle(
+            "dark",
+            newTheme === "dark",
+          );
         }
       };
 
-      mediaQuery.addEventListener('change', handleChange);
+      mediaQuery.addEventListener("change", handleChange);
 
       // Cleanup in case this runs multiple times
       return () => {
-        mediaQuery.removeEventListener('change', handleChange);
+        mediaQuery.removeEventListener("change", handleChange);
       };
     }
   });

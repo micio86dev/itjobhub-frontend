@@ -1,10 +1,10 @@
-import { component$ } from '@builder.io/qwik';
-import type { RequestHandler } from '@builder.io/qwik-city';
+import { component$ } from "@builder.io/qwik";
+import type { RequestHandler } from "@builder.io/qwik-city";
 
 export const onGet: RequestHandler = async ({ redirect }) => {
-    throw redirect(302, '/admin/stats');
+  throw redirect(302, "/admin/stats");
 };
 
 export default component$(() => {
-    return null;
+  return null;
 });

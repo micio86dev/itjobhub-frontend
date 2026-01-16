@@ -38,15 +38,14 @@ Use the `bun run qwik add` command to add additional integrations. Some examples
 bun run qwik add
 ```
 
-
 ## Environment Variables
 
 This project uses environment variables for configuration. Create a `.env` file in the root directory (based on `.env.example`).
 
-| Variable | Description | Default / Example |
-|----------|-------------|-------------------|
-| `PUBLIC_API_URL` | URL of the backend API | `http://localhost:3001` |
-| `PUBLIC_SITE_URL` | Base URL of the frontend (used for SEO/Canonical) | `https://itjobhub.com` |
+| Variable          | Description                                       | Default / Example       |
+| ----------------- | ------------------------------------------------- | ----------------------- |
+| `PUBLIC_API_URL`  | URL of the backend API                            | `http://localhost:3001` |
+| `PUBLIC_SITE_URL` | Base URL of the frontend (used for SEO/Canonical) | `https://itjobhub.com`  |
 
 ## Development
 
@@ -69,36 +68,46 @@ bun run preview
 ## Quality Assurance
 
 ### Linting
+
 We use ESLint to maintain code quality. To run the linter:
+
 ```bash
 bun run lint
 ```
 
 ### Type Checking
+
 To run a full TypeScript type check:
+
 ```bash
 bun run build.types
 ```
 
 ### Formatting
+
 We use Prettier for code formatting.
+
 - **Check formatting**: `bun run fmt.check`
 - **Fix formatting**: `bun run fmt`
 
 ### Testing
+
 ### Testing
 
 #### E2E Testing (Playwright)
+
 We use **Playwright** for End-to-End testing.
 
 **Prerequisites:**
 The backend server must be running on port 3001.
+
 ```bash
 cd ../backend
 bun run dev
 ```
 
 **Running Tests:**
+
 ```bash
 # Run all E2E tests
 bun run test.e2e
@@ -123,6 +132,7 @@ bun run build
 This project uses [Husky](https://typicode.github.io/husky/) to enforce code quality with pre-commit hooks.
 
 ### Installation
+
 To install Husky and its hooks (if not automatically installed):
 
 ```shell
@@ -130,12 +140,16 @@ bun run prepare
 ```
 
 ### Pre-commit Hook
+
 Husky is configured to run automatically before you commit.
+
 - **Action**: Runs `bun lint`.
 - **Behavior**: If linting fails, the commit is **blocked**. You must fix the lint errors before committing.
 
 ### Testing the Hook
+
 To verify the hook works:
+
 1. Make a change that violates lint rules (e.g. use `any`).
 2. Try to commit: `git commit -m "test"`.
 3. The commit should fail.

@@ -1,4 +1,9 @@
-import { component$, useTask$, useStore, useStylesScoped$ } from "@builder.io/qwik";
+import {
+  component$,
+  useTask$,
+  useStore,
+  useStylesScoped$,
+} from "@builder.io/qwik";
 import { useLocation, useNavigate } from "@builder.io/qwik-city";
 import type { DocumentHead } from "@builder.io/qwik-city";
 import { useAuth } from "~/contexts/auth";
@@ -7,9 +12,9 @@ import { request } from "~/utils/api";
 import { setCookie } from "~/utils/cookies";
 
 interface CallbackState {
-    loading: boolean;
-    error: string;
-    success: boolean;
+  loading: boolean;
+  error: string;
+  success: boolean;
 }
 
 const styles = `
@@ -93,159 +98,187 @@ const styles = `
 }
 `;
 
-const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:3001';
+const API_URL = import.meta.env.PUBLIC_API_URL || "http://localhost:3001";
 
 export default component$(() => {
-    useStylesScoped$(styles);
-    const location = useLocation();
-    const nav = useNavigate();
-    const auth = useAuth();
-    const t = useTranslate();
+  useStylesScoped$(styles);
+  const location = useLocation();
+  const nav = useNavigate();
+  const auth = useAuth();
+  const t = useTranslate();
 
-    const state = useStore<CallbackState>({
-        loading: true,
-        error: '',
-        success: false,
-    });
+  const state = useStore<CallbackState>({
+    loading: true,
+    error: "",
+    success: false,
+  });
 
-    // Process OAuth callback
-    useTask$(async ({ track }) => {
-        track(() => location.url.href);
+  // Process OAuth callback
+  useTask$(async ({ track }) => {
+    track(() => location.url.href);
 
-        const provider = location.params.provider;
-        const code = location.url.searchParams.get('code');
-        const error = location.url.searchParams.get('error');
+    const provider = location.params.provider;
+    const code = location.url.searchParams.get("code");
+    const error = location.url.searchParams.get("error");
 
-        if (error) {
-            state.loading = false;
-            state.error = location.url.searchParams.get('error_description') || 'OAuth authorization was denied';
-            return;
+    if (error) {
+      state.loading = false;
+      state.error =
+        location.url.searchParams.get("error_description") ||
+        "OAuth authorization was denied";
+      return;
+    }
+
+    if (!code) {
+      state.loading = false;
+      state.error = "No authorization code received";
+      return;
+    }
+
+    if (!["github", "linkedin", "google"].includes(provider)) {
+      state.loading = false;
+      state.error = `Invalid provider: ${provider}`;
+      return;
+    }
+
+    try {
+      // Exchange code for tokens with backend
+      const response = await request(
+        `${API_URL}/auth/oauth/${provider}/callback`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({
+            code,
+            state: location.url.searchParams.get("state"),
+          }),
+        },
+      );
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        const { user, token } = data.data;
+
+        // Update auth state
+        auth.user = {
+          id: user.id,
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          name: `${user.firstName || ""} ${user.lastName || ""}`.trim(),
+          role: user.role,
+          phone: user.phone,
+          location: user.location,
+          bio: user.bio,
+          birthDate: user.birthDate,
+          avatar: user.avatar,
+          languages: user.languages || [],
+          skills: user.skills || [],
+          seniority: user.seniority,
+          availability: user.availability,
+          profileCompleted: user.profileCompleted,
+        };
+        auth.token = token;
+        auth.isAuthenticated = true;
+
+        // Store token in cookie
+        if (typeof document !== "undefined") {
+          setCookie("auth_token", token);
         }
 
-        if (!code) {
-            state.loading = false;
-            state.error = 'No authorization code received';
-            return;
-        }
+        state.loading = false;
+        state.success = true;
 
-        if (!['github', 'linkedin', 'google'].includes(provider)) {
-            state.loading = false;
-            state.error = `Invalid provider: ${provider}`;
-            return;
-        }
+        // Redirect after short delay
+        setTimeout(() => {
+          if (!user.profileCompleted) {
+            nav("/wizard");
+          } else {
+            nav("/");
+          }
+        }, 1500);
+      } else {
+        state.loading = false;
+        state.error = data.message || "OAuth authentication failed";
+      }
+    } catch (err) {
+      console.error("OAuth callback error:", err);
+      state.loading = false;
+      state.error = "Failed to complete authentication. Please try again.";
+    }
+  });
 
-        try {
-            // Exchange code for tokens with backend
-            const response = await request(`${API_URL}/auth/oauth/${provider}/callback`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                credentials: 'include',
-                body: JSON.stringify({
-                    code,
-                    state: location.url.searchParams.get('state'),
-                }),
-            });
+  return (
+    <div class="callback-container">
+      <div class="callback-card">
+        {state.loading && (
+          <>
+            <div class="spinner" />
+            <h2 class="title">{t("auth.oauth_processing")}</h2>
+            <p class="subtitle">{t("auth.oauth_please_wait")}</p>
+          </>
+        )}
 
-            const data = await response.json();
+        {state.success && (
+          <>
+            <svg
+              class="success-icon"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M5 13l4 4L19 7"
+              />
+            </svg>
+            <h2 class="title">{t("auth.oauth_success")}</h2>
+            <p class="subtitle">{t("auth.oauth_redirecting")}</p>
+          </>
+        )}
 
-            if (response.ok && data.success) {
-                const { user, token } = data.data;
-
-                // Update auth state
-                auth.user = {
-                    id: user.id,
-                    email: user.email,
-                    firstName: user.firstName,
-                    lastName: user.lastName,
-                    name: `${user.firstName || ''} ${user.lastName || ''}`.trim(),
-                    role: user.role,
-                    phone: user.phone,
-                    location: user.location,
-                    bio: user.bio,
-                    birthDate: user.birthDate,
-                    avatar: user.avatar,
-                    languages: user.languages || [],
-                    skills: user.skills || [],
-                    seniority: user.seniority,
-                    availability: user.availability,
-                    profileCompleted: user.profileCompleted,
-                };
-                auth.token = token;
-                auth.isAuthenticated = true;
-
-                // Store token in cookie
-                if (typeof document !== 'undefined') {
-                    setCookie('auth_token', token);
-                }
-
-                state.loading = false;
-                state.success = true;
-
-                // Redirect after short delay
-                setTimeout(() => {
-                    if (!user.profileCompleted) {
-                        nav('/wizard');
-                    } else {
-                        nav('/');
-                    }
-                }, 1500);
-            } else {
-                state.loading = false;
-                state.error = data.message || 'OAuth authentication failed';
-            }
-        } catch (err) {
-            console.error('OAuth callback error:', err);
-            state.loading = false;
-            state.error = 'Failed to complete authentication. Please try again.';
-        }
-    });
-
-    return (
-        <div class="callback-container">
-            <div class="callback-card">
-                {state.loading && (
-                    <>
-                        <div class="spinner" />
-                        <h2 class="title">{t('auth.oauth_processing')}</h2>
-                        <p class="subtitle">{t('auth.oauth_please_wait')}</p>
-                    </>
-                )}
-
-                {state.success && (
-                    <>
-                        <svg class="success-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                        </svg>
-                        <h2 class="title">{t('auth.oauth_success')}</h2>
-                        <p class="subtitle">{t('auth.oauth_redirecting')}</p>
-                    </>
-                )}
-
-                {state.error && (
-                    <>
-                        <svg class="success-icon" style="color: #dc2626" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                        <h2 class="title">{t('auth.oauth_error')}</h2>
-                        <div class="error-container">
-                            <p class="error-text">{state.error}</p>
-                        </div>
-                        <a href="/login" class="retry-link">{t('auth.oauth_try_again')}</a>
-                    </>
-                )}
+        {state.error && (
+          <>
+            <svg
+              class="success-icon"
+              style="color: #dc2626"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+            <h2 class="title">{t("auth.oauth_error")}</h2>
+            <div class="error-container">
+              <p class="error-text">{state.error}</p>
             </div>
-        </div>
-    );
+            <a href="/login" class="retry-link">
+              {t("auth.oauth_try_again")}
+            </a>
+          </>
+        )}
+      </div>
+    </div>
+  );
 });
 
 export const head: DocumentHead = {
-    title: 'OAuth Callback - ITJobHub',
-    meta: [
-        {
-            name: "description",
-            content: 'Processing OAuth authentication',
-        },
-    ],
+  title: "OAuth Callback - ITJobHub",
+  meta: [
+    {
+      name: "description",
+      content: "Processing OAuth authentication",
+    },
+  ],
 };

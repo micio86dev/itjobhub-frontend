@@ -1,5 +1,9 @@
 import { component$, isDev } from "@builder.io/qwik";
-import { QwikCityProvider, RouterOutlet, ServiceWorkerRegister } from "@builder.io/qwik-city";
+import {
+  QwikCityProvider,
+  RouterOutlet,
+  ServiceWorkerRegister,
+} from "@builder.io/qwik-city";
 import { RouterHead } from "./components/router-head/router-head";
 
 import "./global.css";
@@ -21,7 +25,11 @@ export default component$(() => {
 
         {/* Preconnect to critical origins for performance */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="anonymous"
+        />
 
         {/* Favicon and touch icons */}
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />

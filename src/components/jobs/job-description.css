@@ -1,9 +1,13 @@
 .descriptionSection {
-  @apply px-8 pb-10;
+  @apply p-8 md:p-10 bg-gray-50/30;
 }
 
 .descriptionTitle {
-  @apply text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center;
+  @apply text-xl font-bold text-gray-900 mb-6 flex items-center;
+}
+
+:global(.dark) .descriptionTitle {
+  @apply text-white;
 }
 
 .descriptionBar {
@@ -11,5 +15,9 @@
 }
 
 .descriptionContent {
-  @apply text-gray-700 dark:text-gray-300 leading-relaxed space-y-4;
+  @apply text-gray-700 leading-relaxed space-y-4;
+}
+
+:global(.dark) .descriptionContent {
+  @apply text-gray-300;
 }

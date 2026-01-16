@@ -28,8 +28,8 @@ export interface User {
   avatar?: string;
   languages?: string[];
   skills?: string[];
-  seniority?: 'junior' | 'mid' | 'senior';
-  availability?: 'full-time' | 'part-time' | 'busy';
+  seniority?: "junior" | "mid" | "senior";
+  availability?: "full-time" | "part-time" | "busy";
   profileCompleted?: boolean;
   role?: string;
   language?: string;
@@ -42,8 +42,8 @@ export interface User {
 export interface WizardData {
   languages: string[];
   skills: string[];
-  seniority: 'junior' | 'mid' | 'senior' | '';
-  availability: 'full-time' | 'part-time' | 'busy' | '';
+  seniority: "junior" | "mid" | "senior" | "";
+  availability: "full-time" | "part-time" | "busy" | "";
 }
 
 export interface LoginRequest {
@@ -60,7 +60,7 @@ export interface RegisterRequest {
 }
 
 export interface SocialLoginRequest {
-  provider: 'google' | 'linkedin' | 'github';
+  provider: "google" | "linkedin" | "github";
 }
 
 export interface PersonalInfoUpdate {
@@ -88,10 +88,10 @@ export interface AuthState {
   updateProfileSignal: Signal<WizardData | null>;
   updatePersonalInfoSignal: Signal<PersonalInfoUpdate | null>;
   updateAvatarSignal: Signal<AvatarUpdateRequest | null>;
-  loginResult: Signal<{ success: boolean, error?: string } | null>;
-  registerResult: Signal<{ success: boolean, error?: string } | null>;
-  profileUpdateResult: Signal<{ success: boolean, error?: string } | null>;
-  avatarUpdateResult: Signal<{ success: boolean, error?: string } | null>;
+  loginResult: Signal<{ success: boolean; error?: string } | null>;
+  registerResult: Signal<{ success: boolean; error?: string } | null>;
+  profileUpdateResult: Signal<{ success: boolean; error?: string } | null>;
+  avatarUpdateResult: Signal<{ success: boolean; error?: string } | null>;
 }
 
 export interface BackendUser {
@@ -107,353 +107,397 @@ export interface BackendUser {
   profile?: {
     languages?: string[];
     skills?: string[];
-    seniority?: 'junior' | 'mid' | 'senior';
-    availability?: 'full-time' | 'part-time' | 'busy';
+    seniority?: "junior" | "mid" | "senior";
+    availability?: "full-time" | "part-time" | "busy";
     bio?: string;
   };
 }
 
-export const AuthContext = createContextId<AuthState>('auth-context');
+export const AuthContext = createContextId<AuthState>("auth-context");
 
-const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:3001';
+const API_URL = import.meta.env.PUBLIC_API_URL || "http://localhost:3001";
 
-export const AuthProvider = component$((props: { initialUser?: User | null, initialToken?: string | null }) => {
-  const nav = useNavigate();
+export const AuthProvider = component$(
+  (props: { initialUser?: User | null; initialToken?: string | null }) => {
+    const nav = useNavigate();
 
-  // Create signals for actions
-  const loginSignal = useSignal<LoginRequest | null>(null);
-  const registerSignal = useSignal<RegisterRequest | null>(null);
-  const socialLoginSignal = useSignal<SocialLoginRequest | null>(null);
-  const logoutSignal = useSignal(false);
-  const updateProfileSignal = useSignal<WizardData | null>(null);
-  const updatePersonalInfoSignal = useSignal<PersonalInfoUpdate | null>(null);
-  const updateAvatarSignal = useSignal<AvatarUpdateRequest | null>(null);
+    // Create signals for actions
+    const loginSignal = useSignal<LoginRequest | null>(null);
+    const registerSignal = useSignal<RegisterRequest | null>(null);
+    const socialLoginSignal = useSignal<SocialLoginRequest | null>(null);
+    const logoutSignal = useSignal(false);
+    const updateProfileSignal = useSignal<WizardData | null>(null);
+    const updatePersonalInfoSignal = useSignal<PersonalInfoUpdate | null>(null);
+    const updateAvatarSignal = useSignal<AvatarUpdateRequest | null>(null);
 
-  // Create result signals
-  const loginResult = useSignal<{ success: boolean, error?: string } | null>(null);
-  const registerResult = useSignal<{ success: boolean, error?: string } | null>(null);
-  const profileUpdateResult = useSignal<{ success: boolean, error?: string } | null>(null);
-  const avatarUpdateResult = useSignal<{ success: boolean, error?: string } | null>(null);
+    // Create result signals
+    const loginResult = useSignal<{ success: boolean; error?: string } | null>(
+      null,
+    );
+    const registerResult = useSignal<{
+      success: boolean;
+      error?: string;
+    } | null>(null);
+    const profileUpdateResult = useSignal<{
+      success: boolean;
+      error?: string;
+    } | null>(null);
+    const avatarUpdateResult = useSignal<{
+      success: boolean;
+      error?: string;
+    } | null>(null);
 
-  const authState = useStore<AuthState>({
-    user: props.initialUser || null,
-    isAuthenticated: !!props.initialToken,
-    token: props.initialToken || null,
-    loginSignal,
-    registerSignal,
-    socialLoginSignal,
-    logoutSignal,
-    updateProfileSignal,
-    updatePersonalInfoSignal,
-    updateAvatarSignal,
-    loginResult,
-    registerResult,
-    profileUpdateResult,
-    avatarUpdateResult
-  });
+    const authState = useStore<AuthState>({
+      user: props.initialUser || null,
+      isAuthenticated: !!props.initialToken,
+      token: props.initialToken || null,
+      loginSignal,
+      registerSignal,
+      socialLoginSignal,
+      logoutSignal,
+      updateProfileSignal,
+      updatePersonalInfoSignal,
+      updateAvatarSignal,
+      loginResult,
+      registerResult,
+      profileUpdateResult,
+      avatarUpdateResult,
+    });
 
-  // Sync state with props (important for SSR and route navigation)
-  useTask$(({ track }) => {
-    const initialUser = track(() => props.initialUser);
-    const initialToken = track(() => props.initialToken);
+    // Sync state with props (important for SSR and route navigation)
+    useTask$(({ track }) => {
+      const initialUser = track(() => props.initialUser);
+      const initialToken = track(() => props.initialToken);
 
-    if (initialUser !== undefined) {
-      authState.user = initialUser;
-    }
-    if (initialToken !== undefined) {
-      authState.token = initialToken;
-      authState.isAuthenticated = !!initialToken;
-    }
-  });
-
-  // Handle unauthorized event
-  const handleUnauthorized = $(() => {
-    if (authState.isAuthenticated) {
-      authState.logoutSignal.value = true;
-    }
-  });
-  useOnWindow('unauthorized', handleUnauthorized);
-
-  // Helper to map backend user to frontend User
-  const mapUser = $((bu: BackendUser): User => {
-    return {
-      id: bu.id,
-      email: bu.email,
-      firstName: bu.firstName,
-      lastName: bu.lastName,
-      name: `${bu.firstName || ''} ${bu.lastName || ''}`.trim(),
-      role: bu.role,
-      languages: bu.profile?.languages || [],
-      skills: bu.profile?.skills || [],
-      seniority: bu.profile?.seniority,
-      availability: bu.profile?.availability,
-      bio: bu.profile?.bio,
-      profileCompleted: !!bu.profile,
-      phone: bu.phone,
-      location: bu.location,
-      birthDate: bu.birthDate,
-      avatar: bu.avatar
-    };
-  });
-
-  // Handle login requests
-  useTask$(async ({ track }) => {
-    const loginReq = track(() => loginSignal.value);
-    if (!loginReq) return;
-
-    try {
-      const response = await request(`${API_URL}/auth/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept-Language': authState.user?.language || 'it',
-        },
-        credentials: 'include',
-        body: JSON.stringify(loginReq),
-      });
-
-      const data = await response.json();
-
-      if (response.ok && data.success) {
-        const { user: bu, token } = data.data;
-
-        authState.user = await mapUser(bu);
-        authState.token = token;
-        authState.isAuthenticated = true;
-
-        if (typeof document !== 'undefined') {
-          setCookie('auth_token', token);
-        }
-
-        loginResult.value = { success: true };
-      } else {
-        loginResult.value = { success: false, error: data.message || 'Login failed' };
+      if (initialUser !== undefined) {
+        authState.user = initialUser;
       }
-    } catch (error) {
-      console.error('Login error:', error);
-      loginResult.value = { success: false, error: 'Network error or server unavailable' };
-    } finally {
-      loginSignal.value = null;
-    }
-  });
+      if (initialToken !== undefined) {
+        authState.token = initialToken;
+        authState.isAuthenticated = !!initialToken;
+      }
+    });
 
-  // Handle register requests
-  useTask$(async ({ track }) => {
-    const registerReq = track(() => registerSignal.value);
-    if (!registerReq) return;
+    // Handle unauthorized event
+    const handleUnauthorized = $(() => {
+      if (authState.isAuthenticated) {
+        authState.logoutSignal.value = true;
+      }
+    });
+    useOnWindow("unauthorized", handleUnauthorized);
 
-    try {
-      const nameParts = (registerReq.name || '').split(' ');
-      const firstName = registerReq.firstName || nameParts[0] || 'User';
-      const lastName = registerReq.lastName || nameParts.slice(1).join(' ') || 'New';
-
-      const payload = {
-        email: registerReq.email,
-        password: registerReq.password,
-        firstName,
-        lastName
+    // Helper to map backend user to frontend User
+    const mapUser = $((bu: BackendUser): User => {
+      return {
+        id: bu.id,
+        email: bu.email,
+        firstName: bu.firstName,
+        lastName: bu.lastName,
+        name: `${bu.firstName || ""} ${bu.lastName || ""}`.trim(),
+        role: bu.role,
+        languages: bu.profile?.languages || [],
+        skills: bu.profile?.skills || [],
+        seniority: bu.profile?.seniority,
+        availability: bu.profile?.availability,
+        bio: bu.profile?.bio,
+        profileCompleted: !!bu.profile,
+        phone: bu.phone,
+        location: bu.location,
+        birthDate: bu.birthDate,
+        avatar: bu.avatar,
       };
+    });
 
-      const response = await request(`${API_URL}/auth/register`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept-Language': authState.user?.language || 'it',
-        },
-        credentials: 'include',
-        body: JSON.stringify(payload),
-      });
+    // Handle login requests
+    useTask$(async ({ track }) => {
+      const loginReq = track(() => loginSignal.value);
+      if (!loginReq) return;
 
-      const text = await response.text();
-      let data;
       try {
-        data = JSON.parse(text);
-      } catch {
-        data = { success: false, message: 'Invalid response from server' };
+        const response = await request(`${API_URL}/auth/login`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Accept-Language": authState.user?.language || "it",
+          },
+          credentials: "include",
+          body: JSON.stringify(loginReq),
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+          const { user: bu, token } = data.data;
+
+          authState.user = await mapUser(bu);
+          authState.token = token;
+          authState.isAuthenticated = true;
+
+          if (typeof document !== "undefined") {
+            setCookie("auth_token", token);
+          }
+
+          loginResult.value = { success: true };
+        } else {
+          loginResult.value = {
+            success: false,
+            error: data.message || "Login failed",
+          };
+        }
+      } catch (error) {
+        console.error("Login error:", error);
+        loginResult.value = {
+          success: false,
+          error: "Network error or server unavailable",
+        };
+      } finally {
+        loginSignal.value = null;
       }
+    });
 
-      if (response.status === 201 && data.success) {
-        const { user: bu, token } = data.data;
+    // Handle register requests
+    useTask$(async ({ track }) => {
+      const registerReq = track(() => registerSignal.value);
+      if (!registerReq) return;
 
-        authState.user = await mapUser(bu);
-        authState.token = token;
-        authState.isAuthenticated = true;
+      try {
+        const nameParts = (registerReq.name || "").split(" ");
+        const firstName = registerReq.firstName || nameParts[0] || "User";
+        const lastName =
+          registerReq.lastName || nameParts.slice(1).join(" ") || "New";
 
-        if (typeof document !== 'undefined') {
-          setCookie('auth_token', token);
+        const payload = {
+          email: registerReq.email,
+          password: registerReq.password,
+          firstName,
+          lastName,
+        };
+
+        const response = await request(`${API_URL}/auth/register`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Accept-Language": authState.user?.language || "it",
+          },
+          credentials: "include",
+          body: JSON.stringify(payload),
+        });
+
+        const text = await response.text();
+        let data;
+        try {
+          data = JSON.parse(text);
+        } catch {
+          data = { success: false, message: "Invalid response from server" };
         }
 
-        registerResult.value = { success: true };
-      } else {
-        registerResult.value = { success: false, error: data.message || 'Registration failed' };
-      }
-    } catch (error) {
-      console.error('Registration error:', error);
-      registerResult.value = { success: false, error: 'Network error or server unavailable' };
-    } finally {
-      registerSignal.value = null;
-    }
-  });
+        if (response.status === 201 && data.success) {
+          const { user: bu, token } = data.data;
 
-  // Handle logout requests
-  useTask$(async ({ track }) => {
-    const shouldLogout = track(() => logoutSignal.value);
-    if (!shouldLogout) return;
+          authState.user = await mapUser(bu);
+          authState.token = token;
+          authState.isAuthenticated = true;
 
-    try {
-      await request(`${API_URL}/auth/logout`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${authState.token}`,
-          'Accept-Language': authState.user?.language || 'it',
-        },
-        credentials: 'include'
-      });
-    } catch (e) {
-      console.error('Logout error', e);
-    } finally {
-      authState.user = null;
-      authState.token = null;
-      authState.isAuthenticated = false;
+          if (typeof document !== "undefined") {
+            setCookie("auth_token", token);
+          }
 
-      if (typeof document !== 'undefined') {
-        deleteCookie('auth_token');
-        nav('/login');
-      }
-
-      logoutSignal.value = false;
-    }
-  });
-
-  // Handle profile update requests
-  useTask$(async ({ track }) => {
-    const wizardData = track(() => updateProfileSignal.value);
-    if (!wizardData || !authState.user) return;
-
-    try {
-      const response = await request(`${API_URL}/users/me/profile`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${authState.token}`,
-          'Accept-Language': authState.user?.language || 'it',
-        },
-        credentials: 'include',
-        body: JSON.stringify({
-          languages: wizardData.languages,
-          skills: wizardData.skills,
-          seniority: wizardData.seniority,
-          availability: wizardData.availability
-        })
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        // Update user in sync with backend response
-        const backendProfile = data.data;
-        if (authState.user) {
-          authState.user.languages = backendProfile.languages;
-          authState.user.skills = backendProfile.skills;
-          authState.user.seniority = backendProfile.seniority;
-          authState.user.availability = backendProfile.availability;
-          authState.user.profileCompleted = true;
+          registerResult.value = { success: true };
+        } else {
+          registerResult.value = {
+            success: false,
+            error: data.message || "Registration failed",
+          };
         }
-        profileUpdateResult.value = { success: true };
-      } else {
-        const data = await response.json();
-        profileUpdateResult.value = { success: false, error: data.message || 'Failed to save profile data' };
+      } catch (error) {
+        console.error("Registration error:", error);
+        registerResult.value = {
+          success: false,
+          error: "Network error or server unavailable",
+        };
+      } finally {
+        registerSignal.value = null;
       }
-    } catch (error) {
-      console.error('Failed to update profile on server', error);
-      profileUpdateResult.value = { success: false, error: 'Failed to save profile data' };
-    } finally {
-      updateProfileSignal.value = null;
-    }
-  });
+    });
 
-  // Handle personal info update requests
-  useTask$(async ({ track }) => {
-    const personalInfo = track(() => updatePersonalInfoSignal.value);
-    if (!personalInfo || !authState.user) return;
+    // Handle logout requests
+    useTask$(async ({ track }) => {
+      const shouldLogout = track(() => logoutSignal.value);
+      if (!shouldLogout) return;
 
-    try {
-      // Optimistic update
-      const prevUser = { ...authState.user };
-      authState.user.name = personalInfo.name;
-      authState.user.phone = personalInfo.phone;
-      authState.user.location = personalInfo.location;
-      authState.user.birthDate = personalInfo.birthDate;
-      authState.user.bio = personalInfo.bio;
+      try {
+        await request(`${API_URL}/auth/logout`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${authState.token}`,
+            "Accept-Language": authState.user?.language || "it",
+          },
+          credentials: "include",
+        });
+      } catch (e) {
+        console.error("Logout error", e);
+      } finally {
+        authState.user = null;
+        authState.token = null;
+        authState.isAuthenticated = false;
 
-      const response = await request(`${API_URL}/users/me/profile`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${authState.token}`
-        },
-        credentials: 'include',
-        body: JSON.stringify({
-          bio: personalInfo.bio,
-          name: personalInfo.name,
-          phone: personalInfo.phone,
-          birthDate: personalInfo.birthDate,
-          location: personalInfo.location,
-          locationGeo: personalInfo.coordinates
-        })
-      });
+        if (typeof document !== "undefined") {
+          deleteCookie("auth_token");
+          nav("/login");
+        }
 
-      if (response.ok) {
-        profileUpdateResult.value = { success: true };
-      } else {
-        const data = await response.json();
-        // Revert on failure
-        authState.user = prevUser;
-        profileUpdateResult.value = { success: false, error: data.message || 'Failed to save personal info' };
+        logoutSignal.value = false;
       }
-    } catch (error) {
-      console.error('Failed to update profile on server', error);
-      profileUpdateResult.value = { success: false, error: 'Network error or server unavailable' };
-    } finally {
-      updatePersonalInfoSignal.value = null;
-    }
-  });
+    });
 
-  // Handle avatar update requests
-  useTask$(async ({ track }) => {
-    const avatarUpdate = track(() => updateAvatarSignal.value);
-    if (!avatarUpdate || !authState.user) return;
+    // Handle profile update requests
+    useTask$(async ({ track }) => {
+      const wizardData = track(() => updateProfileSignal.value);
+      if (!wizardData || !authState.user) return;
 
-    try {
-      const response = await request(`${API_URL}/users/me/profile`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${authState.token}`
-        },
-        credentials: 'include',
-        body: JSON.stringify({
-          avatar: avatarUpdate.avatar
-        })
-      });
+      try {
+        const response = await request(`${API_URL}/users/me/profile`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${authState.token}`,
+            "Accept-Language": authState.user?.language || "it",
+          },
+          credentials: "include",
+          body: JSON.stringify({
+            languages: wizardData.languages,
+            skills: wizardData.skills,
+            seniority: wizardData.seniority,
+            availability: wizardData.availability,
+          }),
+        });
 
-      if (response.ok) {
-        authState.user.avatar = avatarUpdate.avatar;
-        avatarUpdateResult.value = { success: true };
-      } else {
-        avatarUpdateResult.value = { success: false, error: 'Failed to update avatar' };
+        if (response.ok) {
+          const data = await response.json();
+          // Update user in sync with backend response
+          const backendProfile = data.data;
+          if (authState.user) {
+            authState.user.languages = backendProfile.languages;
+            authState.user.skills = backendProfile.skills;
+            authState.user.seniority = backendProfile.seniority;
+            authState.user.availability = backendProfile.availability;
+            authState.user.profileCompleted = true;
+          }
+          profileUpdateResult.value = { success: true };
+        } else {
+          const data = await response.json();
+          profileUpdateResult.value = {
+            success: false,
+            error: data.message || "Failed to save profile data",
+          };
+        }
+      } catch (error) {
+        console.error("Failed to update profile on server", error);
+        profileUpdateResult.value = {
+          success: false,
+          error: "Failed to save profile data",
+        };
+      } finally {
+        updateProfileSignal.value = null;
       }
-    } catch (error) {
-      console.error('Failed to update avatar on server', error);
-      avatarUpdateResult.value = { success: false, error: 'Network error or server unavailable' };
-    } finally {
-      updateAvatarSignal.value = null;
-    }
-  });
+    });
 
-  useContextProvider(AuthContext, authState);
+    // Handle personal info update requests
+    useTask$(async ({ track }) => {
+      const personalInfo = track(() => updatePersonalInfoSignal.value);
+      if (!personalInfo || !authState.user) return;
 
-  return <Slot />;
-});
+      try {
+        // Optimistic update
+        const prevUser = { ...authState.user };
+        authState.user.name = personalInfo.name;
+        authState.user.phone = personalInfo.phone;
+        authState.user.location = personalInfo.location;
+        authState.user.birthDate = personalInfo.birthDate;
+        authState.user.bio = personalInfo.bio;
+
+        const response = await request(`${API_URL}/users/me/profile`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${authState.token}`,
+          },
+          credentials: "include",
+          body: JSON.stringify({
+            bio: personalInfo.bio,
+            name: personalInfo.name,
+            phone: personalInfo.phone,
+            birthDate: personalInfo.birthDate,
+            location: personalInfo.location,
+            locationGeo: personalInfo.coordinates,
+          }),
+        });
+
+        if (response.ok) {
+          profileUpdateResult.value = { success: true };
+        } else {
+          const data = await response.json();
+          // Revert on failure
+          authState.user = prevUser;
+          profileUpdateResult.value = {
+            success: false,
+            error: data.message || "Failed to save personal info",
+          };
+        }
+      } catch (error) {
+        console.error("Failed to update profile on server", error);
+        profileUpdateResult.value = {
+          success: false,
+          error: "Network error or server unavailable",
+        };
+      } finally {
+        updatePersonalInfoSignal.value = null;
+      }
+    });
+
+    // Handle avatar update requests
+    useTask$(async ({ track }) => {
+      const avatarUpdate = track(() => updateAvatarSignal.value);
+      if (!avatarUpdate || !authState.user) return;
+
+      try {
+        const response = await request(`${API_URL}/users/me/profile`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${authState.token}`,
+          },
+          credentials: "include",
+          body: JSON.stringify({
+            avatar: avatarUpdate.avatar,
+          }),
+        });
+
+        if (response.ok) {
+          authState.user.avatar = avatarUpdate.avatar;
+          avatarUpdateResult.value = { success: true };
+        } else {
+          avatarUpdateResult.value = {
+            success: false,
+            error: "Failed to update avatar",
+          };
+        }
+      } catch (error) {
+        console.error("Failed to update avatar on server", error);
+        avatarUpdateResult.value = {
+          success: false,
+          error: "Network error or server unavailable",
+        };
+      } finally {
+        updateAvatarSignal.value = null;
+      }
+    });
+
+    useContextProvider(AuthContext, authState);
+
+    return <Slot />;
+  },
+);
 
 export const useAuth = () => {
   return useContext(AuthContext);

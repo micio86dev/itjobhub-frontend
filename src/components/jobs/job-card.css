@@ -1,5 +1,9 @@
 .job-card {
-  @apply bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-800 p-4 sm:p-6 mb-4 hover:shadow-md transition-shadow relative;
+  @apply bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6 mb-4 hover:shadow-md transition-shadow relative;
+}
+
+:global(.dark) .job-card {
+  @apply bg-gray-900 border-gray-800;
 }
 
 .header {
@@ -15,7 +19,11 @@
 }
 
 .logo-container {
-  @apply w-8 h-8 rounded flex items-center justify-center bg-gray-100 dark:bg-gray-700 flex-shrink-0 overflow-hidden;
+  @apply w-8 h-8 rounded flex items-center justify-center bg-gray-100 flex-shrink-0 overflow-hidden;
+}
+
+:global(.dark) .logo-container {
+  @apply bg-gray-700;
 }
 
 .logo-image {
@@ -23,11 +31,19 @@
 }
 
 .logo-placeholder {
-  @apply w-5 h-5 text-gray-400 dark:text-gray-500;
+  @apply w-5 h-5 text-gray-400;
+}
+
+:global(.dark) .logo-placeholder {
+  @apply text-gray-500;
 }
 
 .job-title {
-  @apply text-lg font-semibold text-gray-900 dark:text-gray-100 mb-1 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors;
+  @apply text-lg font-semibold text-gray-900 mb-1 hover:text-indigo-600 transition-colors;
+}
+
+:global(.dark) .job-title {
+  @apply text-gray-100 hover:text-indigo-400;
 }
 
 .meta-row {
@@ -35,11 +51,19 @@
 }
 
 .company-name {
-  @apply text-sm font-medium text-gray-700 dark:text-gray-300;
+  @apply text-sm font-medium text-gray-700;
+}
+
+:global(.dark) .company-name {
+  @apply text-gray-300;
 }
 
 .trust-badge {
-  @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200;
+  @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800;
+}
+
+:global(.dark) .trust-badge {
+  @apply bg-green-900 text-green-200;
 }
 
 .match-badge {
@@ -47,19 +71,35 @@
 }
 
 .match-excellent {
-  @apply bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-200 ring-1 ring-emerald-500/30;
+  @apply bg-emerald-100 text-emerald-700 ring-1 ring-emerald-500/30;
+}
+
+:global(.dark) .match-excellent {
+  @apply bg-emerald-900 text-emerald-200;
 }
 
 .match-good {
-  @apply bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200 ring-1 ring-blue-500/30;
+  @apply bg-blue-100 text-blue-700 ring-1 ring-blue-500/30;
+}
+
+:global(.dark) .match-good {
+  @apply bg-blue-900 text-blue-200;
 }
 
 .match-fair {
-  @apply bg-amber-100 dark:bg-amber-900 text-amber-700 dark:text-amber-200 ring-1 ring-amber-500/30;
+  @apply bg-amber-100 text-amber-700 ring-1 ring-amber-500/30;
+}
+
+:global(.dark) .match-fair {
+  @apply bg-amber-900 text-amber-200;
 }
 
 .match-low {
-  @apply bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 ring-1 ring-gray-500/30;
+  @apply bg-gray-100 text-gray-600 ring-1 ring-gray-500/30;
+}
+
+:global(.dark) .match-low {
+  @apply bg-gray-700 text-gray-400;
 }
 
 .action-column {
@@ -67,7 +107,11 @@
 }
 
 .date-display {
-  @apply flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400;
+  @apply flex items-center gap-2 text-xs text-gray-500;
+}
+
+:global(.dark) .date-display {
+  @apply text-gray-400;
 }
 
 .favorite-btn {
@@ -83,11 +127,19 @@
 }
 
 .remote-badge {
-  @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-green-200;
+  @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800;
+}
+
+:global(.dark) .remote-badge {
+  @apply bg-blue-900 text-blue-200;
 }
 
 .description {
-  @apply text-gray-600 dark:text-gray-400 text-sm mb-4 line-clamp-2;
+  @apply text-gray-600 text-sm mb-4 line-clamp-2;
+}
+
+:global(.dark) .description {
+  @apply text-gray-400;
 }
 
 .details-grid {
@@ -95,7 +147,11 @@
 }
 
 .detail-label {
-  @apply text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide;
+  @apply text-xs font-medium text-gray-500 uppercase tracking-wide;
+}
+
+:global(.dark) .detail-label {
+  @apply text-gray-400;
 }
 
 .detail-value-container {
@@ -107,27 +163,51 @@
 }
 
 .badge-green {
-  @apply bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200;
+  @apply bg-green-100 text-green-800;
+}
+
+:global(.dark) .badge-green {
+  @apply bg-green-900 text-green-200;
 }
 
 .badge-yellow {
-  @apply bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200;
+  @apply bg-yellow-100 text-yellow-800;
+}
+
+:global(.dark) .badge-yellow {
+  @apply bg-yellow-900 text-yellow-200;
 }
 
 .badge-red {
-  @apply bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200;
+  @apply bg-red-100 text-red-800;
+}
+
+:global(.dark) .badge-red {
+  @apply bg-red-900 text-red-200;
 }
 
 .badge-indigo {
-  @apply bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200;
+  @apply bg-indigo-100 text-indigo-800;
+}
+
+:global(.dark) .badge-indigo {
+  @apply bg-indigo-900 text-indigo-200;
 }
 
 .badge-gray {
-  @apply bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200;
+  @apply bg-gray-100 text-gray-800;
+}
+
+:global(.dark) .badge-gray {
+  @apply bg-gray-700 text-gray-200;
 }
 
 .location-text {
-  @apply text-sm text-gray-900 dark:text-gray-100;
+  @apply text-sm text-gray-900;
+}
+
+:global(.dark) .location-text {
+  @apply text-gray-100;
 }
 
 .salary-text {
@@ -143,7 +223,11 @@
 }
 
 .footer-actions {
-  @apply flex items-center justify-between pt-4 border-t border-gray-100 dark:border-gray-700;
+  @apply flex items-center justify-between pt-4 border-t border-gray-100;
+}
+
+:global(.dark) .footer-actions {
+  @apply border-gray-700;
 }
 
 .reaction-buttons {
@@ -155,19 +239,35 @@
 }
 
 .reaction-btn-like-active {
-  @apply bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-200;
+  @apply bg-green-100 text-green-700;
+}
+
+:global(.dark) .reaction-btn-like-active {
+  @apply bg-green-900 text-green-200;
 }
 
 .reaction-btn-like-inactive {
-  @apply text-gray-500 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20;
+  @apply text-gray-500 hover:text-green-600 hover:bg-green-50;
+}
+
+:global(.dark) .reaction-btn-like-inactive {
+  @apply text-gray-400 hover:text-green-400 hover:bg-green-900/20;
 }
 
 .reaction-btn-dislike-active {
-  @apply bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-200;
+  @apply bg-red-100 text-red-700;
+}
+
+:global(.dark) .reaction-btn-dislike-active {
+  @apply bg-red-900 text-red-200;
 }
 
 .reaction-btn-dislike-inactive {
-  @apply text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20;
+  @apply text-gray-500 hover:text-red-600 hover:bg-red-50;
+}
+
+:global(.dark) .reaction-btn-dislike-inactive {
+  @apply text-gray-400 hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20;
 }
 
 .comments-btn {
@@ -175,15 +275,27 @@
 }
 
 .comments-btn-active {
-  @apply bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200;
+  @apply bg-blue-100 text-blue-700;
+}
+
+:global(.dark) .comments-btn-active {
+  @apply bg-blue-900 text-blue-200;
 }
 
 .comments-btn-inactive {
-  @apply text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20;
+  @apply text-gray-500 hover:text-blue-600 hover:bg-blue-50;
+}
+
+:global(.dark) .comments-btn-inactive {
+  @apply text-gray-400 hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20;
 }
 
 .stats-container {
-  @apply flex items-center space-x-3 text-xs text-gray-400 dark:text-gray-500 ml-2 border-l border-gray-200 dark:border-gray-700 pl-3;
+  @apply flex items-center space-x-3 text-xs text-gray-400 ml-2 border-l border-gray-200 pl-3;
+}
+
+:global(.dark) .stats-container {
+  @apply text-gray-500 border-gray-700;
 }
 
 .apply-btn {

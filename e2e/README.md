@@ -10,10 +10,10 @@ This directory contains Playwright end-to-end tests for ITJobHub.
 
 ## Test Users
 
-| Role   | Email            | Password     |
-|--------|------------------|--------------|
-| Admin  | admin@test.com   | password123  |
-| User   | seeker@test.com  | password123  |
+| Role  | Email           | Password    |
+| ----- | --------------- | ----------- |
+| Admin | admin@test.com  | password123 |
+| User  | seeker@test.com | password123 |
 
 ## Quick Start
 
@@ -73,23 +73,24 @@ bun run test.e2e -- --grep "should allow a user to login"
 
 ## Test Coverage Matrix
 
-| Test File | Guest | User | Admin | Coverage |
-|-----------|-------|------|-------|----------|
-| auth.spec.ts | ✓ | ✓ | - | Registration, Login, Logout |
-| guest.spec.ts | ✓ | - | - | Homepage, Jobs, Search, Protected Routes |
-| user.spec.ts | - | ✓ | - | Profile, Favorites, Comments, Reactions |
-| admin.spec.ts | - | - | ✓ | Job CRUD, Admin Panel, Moderation |
-| company.spec.ts | - | - | ✓ | Job Posting, Company Management |
-| comments.spec.ts | ✓ | ✓ | ✓ | View, Add, Delete Comments |
-| favorites.spec.ts | ✓ | ✓ | - | Add, Remove, View Favorites |
-| profile.spec.ts | ✓ | ✓ | - | View, Edit Profile, Wizard |
-| mobile.spec.ts | ✓ | ✓ | - | Mobile Navigation, Touch, Responsive |
+| Test File         | Guest | User | Admin | Coverage                                 |
+| ----------------- | ----- | ---- | ----- | ---------------------------------------- |
+| auth.spec.ts      | ✓     | ✓    | -     | Registration, Login, Logout              |
+| guest.spec.ts     | ✓     | -    | -     | Homepage, Jobs, Search, Protected Routes |
+| user.spec.ts      | -     | ✓    | -     | Profile, Favorites, Comments, Reactions  |
+| admin.spec.ts     | -     | -    | ✓     | Job CRUD, Admin Panel, Moderation        |
+| company.spec.ts   | -     | -    | ✓     | Job Posting, Company Management          |
+| comments.spec.ts  | ✓     | ✓    | ✓     | View, Add, Delete Comments               |
+| favorites.spec.ts | ✓     | ✓    | -     | Add, Remove, View Favorites              |
+| profile.spec.ts   | ✓     | ✓    | -     | View, Edit Profile, Wizard               |
+| mobile.spec.ts    | ✓     | ✓    | -     | Mobile Navigation, Touch, Responsive     |
 
 ## Test Architecture
 
 ### Fixtures (`fixtures.ts`)
 
 Provides pre-authenticated contexts:
+
 - `adminPage` - Page logged in as admin
 - `userPage` - Page logged in as seeker
 - `loginViaAPI()` - Fast login using API
@@ -97,6 +98,7 @@ Provides pre-authenticated contexts:
 ### Helpers (`helpers.ts`)
 
 Common utilities:
+
 - `SELECTORS` - Centralized test selectors
 - `ensurePageReady()` - Wait for hydration
 - `loginViaUI()` - UI-based login
@@ -110,11 +112,11 @@ Always prefer `data-testid` attributes:
 
 ```typescript
 // ✅ Good
-page.locator('[data-testid="login-submit"]')
+page.locator('[data-testid="login-submit"]');
 
 // ❌ Avoid
-page.locator('.btn-primary')
-page.locator('button:nth-child(2)')
+page.locator(".btn-primary");
+page.locator("button:nth-child(2)");
 ```
 
 ### Waiting
@@ -134,8 +136,8 @@ await page.waitForTimeout(2000);
 Wait for specific responses when needed:
 
 ```typescript
-const responsePromise = page.waitForResponse(
-    response => response.url().includes('/auth/login')
+const responsePromise = page.waitForResponse((response) =>
+  response.url().includes("/auth/login"),
 );
 await page.click('[data-testid="login-submit"]');
 await responsePromise;

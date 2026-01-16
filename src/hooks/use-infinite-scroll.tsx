@@ -1,4 +1,10 @@
-import { useStore, useSignal, useVisibleTask$, type QRL, type Signal } from "@builder.io/qwik";
+import {
+  useStore,
+  useSignal,
+  useVisibleTask$,
+  type QRL,
+  type Signal,
+} from "@builder.io/qwik";
 
 interface UseInfiniteScrollOptions {
   threshold?: number;
@@ -10,13 +16,13 @@ interface UseInfiniteScrollReturn {
   ref: Signal<HTMLElement | undefined>;
 }
 
-export const useInfiniteScroll = (options: UseInfiniteScrollOptions): UseInfiniteScrollReturn => {
-  const { threshold = 0, rootMargin = '100px', loadMore$ } = options;
+export const useInfiniteScroll = (
+  options: UseInfiniteScrollOptions,
+): UseInfiniteScrollReturn => {
+  const { threshold = 0, rootMargin = "100px", loadMore$ } = options;
   const ref = useSignal<HTMLElement>();
 
-  const state = useStore({
-    observer: null as IntersectionObserver | null,
-  });
+  // IntersectionObserver is not serializable and only used in visible task
 
   // eslint-disable-next-line qwik/no-use-visible-task
   useVisibleTask$(({ track, cleanup }) => {
@@ -34,11 +40,10 @@ export const useInfiniteScroll = (options: UseInfiniteScrollOptions): UseInfinit
         {
           threshold,
           rootMargin,
-        }
+        },
       );
 
       observer.observe(element);
-      state.observer = observer;
 
       cleanup(() => {
         observer.disconnect();

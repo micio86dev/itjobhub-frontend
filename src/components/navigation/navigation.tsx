@@ -17,7 +17,7 @@ export const Navigation = component$(() => {
   /* State for mobile menu */
   const state = useStore({
     showLanguageDropdown: false,
-    isMenuOpen: false
+    isMenuOpen: false,
   });
 
   const handleLogout = $(() => {
@@ -44,24 +44,28 @@ export const Navigation = component$(() => {
   });
 
   const languages = [
-    { code: 'it' as SupportedLanguage, name: t('lang.italian'), flag: '🇮🇹' },
-    { code: 'en' as SupportedLanguage, name: t('lang.english'), flag: '🇺🇸' },
-    { code: 'es' as SupportedLanguage, name: t('lang.spanish'), flag: '🇪🇸' },
-    { code: 'de' as SupportedLanguage, name: t('lang.german'), flag: '🇩🇪' },
-    { code: 'fr' as SupportedLanguage, name: t('lang.french'), flag: '🇫🇷' }
+    { code: "it" as SupportedLanguage, name: t("lang.italian"), flag: "🇮🇹" },
+    { code: "en" as SupportedLanguage, name: t("lang.english"), flag: "🇺🇸" },
+    { code: "es" as SupportedLanguage, name: t("lang.spanish"), flag: "🇪🇸" },
+    { code: "de" as SupportedLanguage, name: t("lang.german"), flag: "🇩🇪" },
+    { code: "fr" as SupportedLanguage, name: t("lang.french"), flag: "🇫🇷" },
   ];
 
-  const currentLanguageObj = languages.find(lang => lang.code === currentLanguage);
+  const currentLanguageObj = languages.find(
+    (lang) => lang.code === currentLanguage,
+  );
 
   return (
     <nav class="bg-white dark:bg-gray-900 shadow-sm border-b border-gray-200 dark:border-gray-700 relative">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center h-16">
-
           {/* Left Side: Brand & (Desktop) Links */}
           <div class="flex items-center min-w-0 flex-1">
-            <a href="/" class="text-xl font-bold text-gray-900 dark:text-white flex-shrink-0 mr-8">
-              {t('nav.brand')}
+            <a
+              href="/"
+              class="text-xl font-bold text-gray-900 dark:text-white flex-shrink-0 mr-8"
+            >
+              {t("nav.brand")}
             </a>
 
             {/* Desktop Navigation Links */}
@@ -70,14 +74,14 @@ export const Navigation = component$(() => {
                 href="/jobs"
                 class="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-2 sm:px-3 py-2 rounded-md text-sm font-medium whitespace-nowrap"
               >
-                {t('nav.jobs')}
+                {t("nav.jobs")}
               </a>
               {auth.user?.role === "admin" && (
                 <a
                   href="/admin/stats"
                   class="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-2 sm:px-3 py-2 rounded-md text-sm font-medium whitespace-nowrap"
                 >
-                  {t('nav.dashboard')}
+                  {t("nav.dashboard")}
                 </a>
               )}
               {auth.isAuthenticated && (
@@ -85,7 +89,7 @@ export const Navigation = component$(() => {
                   href="/favorites"
                   class="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-2 sm:px-3 py-2 rounded-md text-sm font-medium whitespace-nowrap"
                 >
-                  {t('nav.favorites')}
+                  {t("nav.favorites")}
                 </a>
               )}
             </div>
@@ -93,20 +97,39 @@ export const Navigation = component$(() => {
 
           {/* Right Side: Theme, Lang, Auth (Desktop), Hamburger (Mobile) */}
           <div class="flex items-center space-x-2 sm:space-x-4 flex-shrink-0">
-
             {/* Theme toggle - Always Visible */}
             <button
               onClick$={theme.toggleTheme}
               class="p-2 rounded-md text-gray-700 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-800 transition-colors"
               aria-label="Toggle theme"
             >
-              {theme.theme === 'light' ? (
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+              {theme.theme === "light" ? (
+                <svg
+                  class="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
+                  />
                 </svg>
               ) : (
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                <svg
+                  class="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
+                  />
                 </svg>
               )}
             </button>
@@ -119,8 +142,18 @@ export const Navigation = component$(() => {
               >
                 <span>{currentLanguageObj?.flag}</span>
                 <span class="hidden md:inline">{currentLanguageObj?.name}</span>
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                <svg
+                  class="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M19 9l-7 7-7-7"
+                  />
                 </svg>
               </button>
 
@@ -131,8 +164,11 @@ export const Navigation = component$(() => {
                       <button
                         key={lang.code}
                         onClick$={() => selectLanguage(lang.code)}
-                        class={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 ${lang.code === currentLanguage ? 'bg-indigo-50 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300' : 'text-gray-700 dark:text-gray-300'
-                          }`}
+                        class={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 ${
+                          lang.code === currentLanguage
+                            ? "bg-indigo-50 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300"
+                            : "text-gray-700 dark:text-gray-300"
+                        }`}
                       >
                         <span class="mr-2">{lang.flag}</span>
                         {lang.name}
@@ -151,13 +187,13 @@ export const Navigation = component$(() => {
                     href="/profile"
                     class="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-2 sm:px-3 py-2 rounded-md text-sm font-medium"
                   >
-                    {t('nav.profile')}
+                    {t("nav.profile")}
                   </a>
                   <button
                     onClick$={handleLogout}
                     class="bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-800 text-white px-3 sm:px-4 py-2 rounded-md text-sm font-medium whitespace-nowrap"
                   >
-                    {t('nav.logout')}
+                    {t("nav.logout")}
                   </button>
                 </>
               ) : (
@@ -166,13 +202,13 @@ export const Navigation = component$(() => {
                     href="/login"
                     class="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-2 sm:px-3 py-2 rounded-md text-sm font-medium"
                   >
-                    {t('nav.login')}
+                    {t("nav.login")}
                   </a>
                   <a
                     href="/register"
                     class="bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-700 dark:hover:bg-indigo-800 text-white px-3 sm:px-4 py-2 rounded-md text-sm font-medium whitespace-nowrap"
                   >
-                    {t('nav.register')}
+                    {t("nav.register")}
                   </a>
                 </>
               )}
@@ -186,16 +222,38 @@ export const Navigation = component$(() => {
                 class="bg-white dark:bg-gray-900 h-10 w-10 inline-flex items-center justify-center rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
                 aria-expanded="false"
               >
-                <span class="sr-only">{t('nav.open_menu')}</span>
+                <span class="sr-only">{t("nav.open_menu")}</span>
                 {/* Icon when menu is closed */}
                 {!state.isMenuOpen ? (
-                  <svg class="block h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                  <svg
+                    class="block h-6 w-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M4 6h16M4 12h16M4 18h16"
+                    />
                   </svg>
                 ) : (
                   /* Icon when menu is open */
-                  <svg class="block h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                  <svg
+                    class="block h-6 w-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M6 18L18 6M6 6l12 12"
+                    />
                   </svg>
                 )}
               </button>
@@ -212,14 +270,14 @@ export const Navigation = component$(() => {
               href="/jobs"
               class="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-800 block px-3 py-2 rounded-md text-base font-medium"
             >
-              {t('nav.jobs')}
+              {t("nav.jobs")}
             </a>
             {auth.user?.role === "admin" && (
               <a
                 href="/admin/stats"
                 class="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-800 block px-3 py-2 rounded-md text-base font-medium"
               >
-                {t('nav.dashboard')}
+                {t("nav.dashboard")}
               </a>
             )}
             {auth.isAuthenticated && (
@@ -227,7 +285,7 @@ export const Navigation = component$(() => {
                 href="/favorites"
                 class="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-800 block px-3 py-2 rounded-md text-base font-medium"
               >
-                {t('nav.favorites')}
+                {t("nav.favorites")}
               </a>
             )}
 
@@ -238,13 +296,13 @@ export const Navigation = component$(() => {
                     href="/profile"
                     class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-800"
                   >
-                    {t('nav.profile')}
+                    {t("nav.profile")}
                   </a>
                   <button
                     onClick$={handleLogout}
                     class="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/10"
                   >
-                    {t('nav.logout')}
+                    {t("nav.logout")}
                   </button>
                 </div>
               ) : (
@@ -253,13 +311,13 @@ export const Navigation = component$(() => {
                     href="/login"
                     class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-800"
                   >
-                    {t('nav.login')}
+                    {t("nav.login")}
                   </a>
                   <a
                     href="/register"
                     class="block px-3 py-2 rounded-md text-base font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-900/10"
                   >
-                    {t('nav.register')}
+                    {t("nav.register")}
                   </a>
                 </div>
               )}

@@ -3,11 +3,18 @@
 }
 
 .backLink {
-  @apply inline-flex items-center text-indigo-600 hover:text-indigo-700 font-medium mb-6 transition-colors self-start;
+  display: flex !important;
+  align-items: center;
+  gap: 0.5rem;
+  @apply px-3 py-1.5 -ml-3 text-sm font-semibold text-gray-600 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-full hover:bg-slate-100 dark:hover:bg-gray-800 transition-all duration-300 mb-6;
 }
 
 .backIcon {
-  @apply h-5 w-5 mr-1 transform transition-transform group-hover:-translate-x-1;
+  @apply h-4 w-4 transition-transform duration-300 shrink-0;
+}
+
+.backLink:hover .backIcon {
+  @apply -translate-x-1.5;
 }
 
 .loadingSpinner {
@@ -19,11 +26,19 @@
 }
 
 .notFoundCard {
-  @apply bg-white dark:bg-gray-800 rounded-xl p-12 text-center shadow-lg border border-gray-100 dark:border-gray-700;
+  @apply bg-white rounded-xl p-12 text-center shadow-lg border border-gray-100;
+}
+
+:global(.dark) .notFoundCard {
+  @apply bg-gray-800 border-gray-700;
 }
 
 .notFoundTitle {
-  @apply text-2xl font-bold text-gray-900 dark:text-white mb-2;
+  @apply text-2xl font-bold text-gray-900 mb-2;
+}
+
+:global(.dark) .notFoundTitle {
+  @apply text-white;
 }
 
 .notFoundIcon {
@@ -31,7 +46,11 @@
 }
 
 .notFoundDesc {
-  @apply text-gray-500 dark:text-gray-400 mb-8;
+  @apply text-gray-500 mb-8;
+}
+
+:global(.dark) .notFoundDesc {
+  @apply text-gray-400;
 }
 
 .notFoundButton {
@@ -39,13 +58,18 @@
 }
 
 .mainContent {
-  @apply space-y-10 pb-20;
+  @apply flex flex-col gap-8 pb-20;
 }
 
-.jobCard {
+.card {
   @apply bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden border border-gray-100 dark:border-gray-700;
 }
 
-.commentsSection {
-  @apply bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-8;
+.jobCard {
+  @apply card;
 }
+
+.commentsSection {
+  @apply card p-8;
+}
+

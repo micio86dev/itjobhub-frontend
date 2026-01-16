@@ -1,8 +1,16 @@
-import { component$, useSignal, useTask$, PropFunction, isBrowser } from '@builder.io/qwik';
+import {
+  component$,
+  useSignal,
+  useTask$,
+  PropFunction,
+  isBrowser,
+} from "@builder.io/qwik";
 
 interface Props {
   value: string;
-  onLocationSelect$: PropFunction<(location: string, coordinates: { lat: number; lng: number }) => void>;
+  onLocationSelect$: PropFunction<
+    (location: string, coordinates: { lat: number; lng: number }) => void
+  >;
   onInput$: PropFunction<(value: string) => void>;
   class?: string; // Accept class prop for styling
 }
@@ -15,19 +23,21 @@ export const LocationAutocomplete = component$((props: Props) => {
 
     if (isBrowser) {
       const loadGoogleMaps = () => {
-        if (typeof window === 'undefined') return;
+        if (typeof window === "undefined") return;
 
         if (window.google?.maps?.places) {
           initAutocomplete();
           return;
         }
 
-        if (!document.getElementById('google-maps-script')) {
-          const script = document.createElement('script');
-          script.id = 'google-maps-script';
+        if (!document.getElementById("google-maps-script")) {
+          const script = document.createElement("script");
+          script.id = "google-maps-script";
           const apiKey = import.meta.env.PUBLIC_GOOGLE_MAPS_KEY;
           if (!apiKey) {
-            console.error("Google Maps API key is missing. set PUBLIC_GOOGLE_MAPS_KEY in .env");
+            console.error(
+              "Google Maps API key is missing. set PUBLIC_GOOGLE_MAPS_KEY in .env",
+            );
             return;
           }
           script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
@@ -48,16 +58,19 @@ export const LocationAutocomplete = component$((props: Props) => {
       const initAutocomplete = () => {
         if (!inputRef.value) return;
 
-        const autocomplete = new window.google.maps.places.Autocomplete(inputRef.value, {
-          types: ['(cities)'],
-        });
+        const autocomplete = new window.google.maps.places.Autocomplete(
+          inputRef.value,
+          {
+            types: ["(cities)"],
+          },
+        );
 
-        autocomplete.addListener('place_changed', () => {
+        autocomplete.addListener("place_changed", () => {
           const place = autocomplete.getPlace();
           if (place.geometry && place.geometry.location) {
             const lat = place.geometry.location.lat();
             const lng = place.geometry.location.lng();
-            const formattedAddress = place.formatted_address || '';
+            const formattedAddress = place.formatted_address || "";
             props.onLocationSelect$(formattedAddress, { lat, lng });
           }
         });
@@ -78,5 +91,3 @@ export const LocationAutocomplete = component$((props: Props) => {
     />
   );
 });
-
-

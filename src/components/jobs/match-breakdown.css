@@ -1,9 +1,14 @@
 .container {
-  @apply bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-8;
+  @apply bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 p-8;
 }
 
+
 .title {
-  @apply text-xl font-bold text-gray-900 dark:text-white mb-6;
+  @apply text-xl font-bold text-gray-900 mb-6;
+}
+
+:global(.dark) .title {
+  @apply text-white;
 }
 
 .score-container {
@@ -19,7 +24,11 @@
 }
 
 .score-subtitle {
-  @apply text-sm text-gray-500 dark:text-gray-400;
+  @apply text-sm text-gray-500;
+}
+
+:global(.dark) .score-subtitle {
+  @apply text-gray-400;
 }
 
 .factors-list {
@@ -31,7 +40,11 @@
 }
 
 .factor-label {
-  @apply text-sm font-medium text-gray-700 dark:text-gray-300;
+  @apply text-sm font-medium text-gray-700;
+}
+
+:global(.dark) .factor-label {
+  @apply text-gray-300;
 }
 
 .factor-sublabel {
@@ -39,7 +52,11 @@
 }
 
 .progress-bar-bg {
-  @apply w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2;
+  @apply w-full bg-gray-200 rounded-full h-2;
+}
+
+:global(.dark) .progress-bar-bg {
+  @apply bg-gray-700;
 }
 
 .progress-bar-fill {
@@ -51,7 +68,11 @@
 }
 
 .grid-item {
-  @apply bg-gray-50 dark:bg-gray-900/50 p-3 rounded-lg text-center;
+  @apply bg-gray-50 p-3 rounded-lg text-center;
+}
+
+:global(.dark) .grid-item {
+  @apply bg-gray-900/50;
 }
 
 .grid-label {
@@ -59,5 +80,9 @@
 }
 
 .grid-value {
-  @apply font-bold text-indigo-600 dark:text-indigo-400;
+  @apply font-bold text-indigo-600;
+}
+
+:global(.dark) .grid-value {
+  @apply text-indigo-400;
 }

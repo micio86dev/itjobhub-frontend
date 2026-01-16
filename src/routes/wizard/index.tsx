@@ -16,20 +16,20 @@ export default component$(() => {
 
     if (isBrowser) {
       if (!auth.isAuthenticated) {
-        void nav('/login');
+        void nav("/login");
       } else if (auth.user?.profileCompleted) {
-        void nav('/');
+        void nav("/");
       }
     }
   });
 
   const handleWizardComplete = $((data: WizardData) => {
     auth.updateProfileSignal.value = data;
-    nav('/');
+    nav("/");
   });
 
   const handleCancel = $(() => {
-    nav('/');
+    nav("/");
   });
 
   if (!auth.isAuthenticated || auth.user?.profileCompleted) {
@@ -51,11 +51,11 @@ export default component$(() => {
 });
 
 export const head: DocumentHead = {
-  title: 'Completa il tuo profilo - ITJobHub',
+  title: "Completa il tuo profilo - ITJobHub",
   meta: [
     {
       name: "description",
-      content: 'Completa il tuo profilo professionale su ITJobHub',
+      content: "Completa il tuo profilo professionale su ITJobHub",
     },
   ],
 };

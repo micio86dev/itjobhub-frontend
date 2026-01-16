@@ -20,7 +20,7 @@ const LOCALE_MAP: Record<SupportedLanguage, string> = {
 /**
  * The RouterHead component is placed inside of the document `<head>` element.
  * It handles SEO meta tags, hreflang, Open Graph, and Twitter Cards.
- * 
+ *
  * Note: This component cannot use useI18n() because it's rendered in root.tsx
  * inside <head>, before the I18nProvider (which is in layout.tsx inside RouterOutlet).
  * We use Italian as the default language for SEO purposes.
@@ -58,7 +58,11 @@ export const RouterHead = component$(() => {
         />
       ))}
       {/* x-default hreflang for language selector / default */}
-      <link rel="alternate" hreflang="x-default" href={`${SITE_URL}${pathname}`} />
+      <link
+        rel="alternate"
+        hreflang="x-default"
+        href={`${SITE_URL}${pathname}`}
+      />
 
       {/* Open Graph tags */}
       <meta property="og:type" content="website" />
@@ -66,8 +70,12 @@ export const RouterHead = component$(() => {
       <meta property="og:title" content={head.title} />
       <meta property="og:url" content={canonicalUrl} />
       <meta property="og:locale" content={LOCALE_MAP[currentLang]} />
-      {SUPPORTED_LANGUAGES.filter(l => l !== currentLang).map((lang) => (
-        <meta key={lang} property="og:locale:alternate" content={LOCALE_MAP[lang]} />
+      {SUPPORTED_LANGUAGES.filter((l) => l !== currentLang).map((lang) => (
+        <meta
+          key={lang}
+          property="og:locale:alternate"
+          content={LOCALE_MAP[lang]}
+        />
       ))}
 
       {/* Twitter Card tags */}
@@ -81,8 +89,16 @@ export const RouterHead = component$(() => {
           return (
             <>
               <meta key={m.key} {...m} />
-              <meta key={`og-${m.key}`} property="og:description" content={m.content} />
-              <meta key={`tw-${m.key}`} name="twitter:description" content={m.content} />
+              <meta
+                key={`og-${m.key}`}
+                property="og:description"
+                content={m.content}
+              />
+              <meta
+                key={`tw-${m.key}`}
+                name="twitter:description"
+                content={m.content}
+              />
             </>
           );
         }

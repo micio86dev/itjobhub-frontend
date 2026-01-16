@@ -8,19 +8,19 @@ import { Navigation } from "~/components/navigation/navigation";
 import { Footer } from "~/components/footer/footer";
 
 export const useAuthLoader = routeLoader$(async ({ cookie }) => {
-  const token = cookie.get('auth_token')?.value;
+  const token = cookie.get("auth_token")?.value;
 
   if (!token) return { token: null, user: null };
 
   try {
     // Determine API URL (handle both local and production if needed)
     // In Qwik loaders we use process.env for server-side env vars
-    const API_URL = process.env.PUBLIC_API_URL || 'http://localhost:3001';
+    const API_URL = process.env.PUBLIC_API_URL || "http://localhost:3001";
 
     const response = await fetch(`${API_URL}/users/me`, {
       headers: {
-        'Authorization': `Bearer ${token}`
-      }
+        Authorization: `Bearer ${token}`,
+      },
     });
 
     if (response.ok) {
@@ -45,18 +45,18 @@ export const useAuthLoader = routeLoader$(async ({ cookie }) => {
           seniority: bu.profile?.seniority,
           availability: bu.profile?.availability,
           // A profile is completed if it exists
-          profileCompleted: !!bu.profile
+          profileCompleted: !!bu.profile,
         };
         return { token, user };
       }
     }
   } catch (e) {
-    console.error('[SSR] Failed to fetch user data:', e);
+    console.error("[SSR] Failed to fetch user data:", e);
   }
 
   return {
     token: token || null,
-    user: null
+    user: null,
   };
 });
 
@@ -66,7 +66,10 @@ export default component$(() => {
   return (
     <ThemeProvider>
       <I18nProvider>
-        <AuthProvider initialToken={authData.value.token} initialUser={authData.value.user}>
+        <AuthProvider
+          initialToken={authData.value.token}
+          initialUser={authData.value.user}
+        >
           <JobsProvider>
             <div class="flex flex-col min-h-screen">
               <Navigation />

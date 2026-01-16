@@ -11,7 +11,7 @@ export default component$(() => {
   const t = useTranslate();
 
   const state = useStore({
-    isLoading: true
+    isLoading: true,
   });
 
   useTask$(async ({ track }) => {
@@ -19,7 +19,7 @@ export default component$(() => {
     if (!auth.isAuthenticated) {
       // Assuming 'nav' is available or needs to be imported/defined.
       // For now, I'll comment it out as it's not defined in the original code.
-      // nav('/login'); 
+      // nav('/login');
       state.isLoading = false; // Ensure loading state is false if not authenticated
     } else {
       track(() => auth.token); // Keep tracking token for fetching favorites
@@ -33,19 +33,19 @@ export default component$(() => {
     <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
       <div class="px-4 py-6 sm:px-0">
         <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-6">
-          {t('nav.favorites')}
+          {t("nav.favorites")}
         </h1>
 
         {!auth.isAuthenticated ? (
           <div class="text-center py-12">
             <p class="text-lg text-gray-600 dark:text-gray-300">
-              {t('auth.login_required')}
+              {t("auth.login_required")}
             </p>
             <a
               href="/login"
               class="mt-4 inline-flex items-center justify-center px-4 py-2 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700"
             >
-              {t('home.login')}
+              {t("home.login")}
             </a>
           </div>
         ) : state.isLoading ? (
@@ -55,13 +55,13 @@ export default component$(() => {
         ) : jobsState.favorites.length === 0 ? (
           <div class="text-center py-12">
             <p class="text-lg text-gray-600 dark:text-gray-300 mb-4">
-              {t('jobs.no_favorites')}
+              {t("jobs.no_favorites")}
             </p>
             <a
               href="/jobs"
               class="text-indigo-600 hover:text-indigo-500 font-medium"
             >
-              {t('home.find_opportunities')}
+              {t("home.find_opportunities")}
             </a>
           </div>
         ) : (
@@ -77,9 +77,9 @@ export default component$(() => {
 });
 
 export const head: DocumentHead = () => {
-  const t = (key: string) => translate(key, 'it');
+  const t = (key: string) => translate(key, "it");
   return {
-    title: t('nav.favorites') + ' - IT Job Hub',
+    title: t("nav.favorites") + " - IT Job Hub",
     meta: [
       {
         name: "description",

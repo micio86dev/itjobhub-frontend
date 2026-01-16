@@ -1,11 +1,23 @@
 .mapContainer {
-  @apply border-t border-gray-100 dark:border-gray-700 overflow-hidden;
+  @apply overflow-hidden;
+}
+
+:global(.dark) .mapContainer {
+  @apply border-gray-700;
 }
 
 .mapWrapper {
-  @apply w-full h-48 bg-gray-200 dark:bg-gray-700 relative;
+  @apply w-full h-48 bg-gray-200 relative;
+}
+
+:global(.dark) .mapWrapper {
+  @apply bg-gray-700;
 }
 
 .mapLabel {
-  @apply absolute bottom-2 right-2 bg-white/90 dark:bg-gray-800/90 px-2 py-1 rounded text-[10px] text-gray-500 font-medium;
+  @apply absolute bottom-2 right-2 bg-white/90 px-2 py-1 rounded text-[10px] text-gray-500 font-medium;
+}
+
+:global(.dark) .mapLabel {
+  @apply bg-gray-800/90;
 }
