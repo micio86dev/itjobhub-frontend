@@ -4,6 +4,7 @@ import {
   useStore,
   type QRL,
   useStylesScoped$,
+  useTask$,
 } from "@builder.io/qwik";
 import styles from "./comments-section.css?inline";
 import { useJobs, getCommentsFromState } from "~/contexts/jobs";
@@ -38,6 +39,13 @@ export const CommentsSection = component$<CommentsSectionProps>(
     });
 
     const comments = getCommentsFromState(jobsContext.comments, jobId);
+
+    useTask$(async ({ track }) => {
+      const id = track(() => jobId);
+      if (id) {
+        await jobsContext.fetchComments$(id);
+      }
+    });
 
     const startEditing = $((commentId: string, currentText: string) => {
       state.editingId = commentId;

@@ -143,16 +143,21 @@
 }
 
 .loginHint {
-  @apply text-xs text-amber-600 font-medium text-center max-w-[160px];
+  @apply text-xs text-gray-900 font-medium text-center max-w-[180px];
 }
 
 :global(.dark) .loginHint {
-  @apply text-amber-400;
+  @apply text-white;
 }
 
 .link {
-  @apply text-indigo-600 dark:text-indigo-400 hover:underline;
+  @apply text-indigo-600 hover:text-indigo-500 font-semibold hover:underline transition-colors;
 }
+
+:global(.dark) .link {
+  @apply text-indigo-400 hover:text-indigo-300;
+}
+
 
 .badgesRow {
   @apply flex flex-wrap items-center gap-4 mt-8 pt-8 border-t border-gray-100;

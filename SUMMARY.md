@@ -67,3 +67,9 @@ The IT Job Hub frontend is a high-performance web application designed for devel
 - Updated `ProfileWizard` initialization in `profile/index.tsx` to correctly pass existing `workModes` from `auth.user`
 - Added missing work mode translations for all supported languages (IT, EN, FR, ES, DE)
 - Enhanced profile page to display active work mode preferences in the professional information section
+
+### 2026-01-16: Job Header Login Hint Styling Fix
+- Fixed styling of "Login/Register" hint in `job-header.tsx`
+- Changed orange text (amber-600) to theme-aware black/white (gray-900/white)
+- Updated login and register links to use bold indigo/purple color matching the rest of the application
+- Improved link visibility and hover states
