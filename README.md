@@ -44,6 +44,10 @@ Inside your project, you'll see the following directory structure:
   - Full dark mode support
   - Responsive design (grid on desktop, stack on mobile)
   - Focus states for accessibility
+- **JobCard** (`src/components/jobs/job-card.tsx`): Displays job listings with:
+  - Scoped styling for actions and details
+  - "Apply" button with gradient and hover effects (using global selectors for Link component compatibility)
+  - Interactive "Like" and "Dislike" buttons
 
 ## Add Integrations and deployment
 

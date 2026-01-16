@@ -50,3 +50,8 @@ The IT Job Hub frontend is a high-performance web application designed for devel
 - Added smooth hover effects with scale transformation and shadow transitions
 - Implemented dark mode support with adjusted colors and glowing shadows
 - Improved visual hierarchy to make the CTA more prominent
+
+### 2026-01-16: Apply Button Style Scoping Fix
+- Fixed issue where 'Apply' button lost styling due to Qwik Link component scope isolation
+- Implemented `.job-card :global(.apply-btn)` selector pattern to ensure styles reach the inner anchor tag of the Link component
+- Verified persistence of style in both light and dark modes
