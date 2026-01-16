@@ -1,5 +1,5 @@
 .job-card {
-  @apply bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6 mb-4 hover:shadow-md transition-shadow relative;
+  @apply bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-800 p-4 sm:p-6 mb-4 hover:shadow-md transition-shadow relative;
 }
 
 .header {
@@ -87,7 +87,7 @@
 }
 
 .description {
-  @apply text-gray-600 dark:text-gray-400 text-sm mb-4 line-clamp-2 prose prose-sm dark:prose-invert;
+  @apply text-gray-600 dark:text-gray-400 text-sm mb-4 line-clamp-2;
 }
 
 .details-grid {

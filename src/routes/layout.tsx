@@ -70,7 +70,7 @@ export default component$(() => {
           <JobsProvider>
             <div class="flex flex-col min-h-screen">
               <Navigation />
-              <main class="flex-grow bg-gray-50 dark:bg-gray-900">
+              <main class="flex-grow bg-gray-50 dark:bg-gray-950">
                 <Slot />
               </main>
               <Footer />
