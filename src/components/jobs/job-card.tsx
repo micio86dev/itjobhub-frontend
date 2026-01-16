@@ -202,7 +202,7 @@ export const JobCard = component$<JobCardProps>(({ job, onToggleComments$, showC
       {/* Description */}
       {job.description && (
         <div
-          class="description"
+          class="description prose prose-sm dark:prose-invert"
           dangerouslySetInnerHTML={marked.parse(job.description) as string}
         ></div>
       )}

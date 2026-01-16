@@ -274,7 +274,7 @@ export const CommentsSection = component$<CommentsSectionProps>(({ jobId, onClos
                     </div>
                   </div>
                 ) : (
-                  <div class="comment-content-container">
+                  <div class="comment-content-container group">
                     <div class="comment-header">
                       <span class="comment-author">
                         {comment.author.name}
