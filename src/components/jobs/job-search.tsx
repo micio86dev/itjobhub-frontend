@@ -75,7 +75,6 @@ export const JobSearch = component$<JobSearchProps>(
       <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6 mb-6">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {/* Search query */}
-          {/* Search query */}
           <div class="lg:col-span-1">
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               {t("jobs.search_label")}

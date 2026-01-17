@@ -2,7 +2,6 @@ import {
   component$,
   Slot,
   type PropFunction,
-  $,
   useStylesScoped$,
   useSignal,
   useVisibleTask$,
@@ -150,7 +149,7 @@ export const Modal = component$<ModalProps>(
                 class={`btn-confirm ${
                   isDestructive ? "btn-destructive" : "btn-primary"
                 } ${isLoading ? "btn-loading" : ""}`}
-                onClick$={$(() => onConfirm$())}
+                onClick$={onConfirm$}
                 aria-busy={isLoading}
               >
                 {isLoading && (
@@ -181,7 +180,7 @@ export const Modal = component$<ModalProps>(
                 type="button"
                 data-testid="modal-cancel"
                 class="btn-cancel"
-                onClick$={$(() => onClose$())}
+                onClick$={onClose$}
               >
                 {cancelText}
               </button>

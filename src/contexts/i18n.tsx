@@ -12,6 +12,7 @@ import {
   isBrowser,
 } from "@builder.io/qwik";
 import logger from "../utils/logger";
+import { getCookie, setCookie } from "../utils/cookies";
 
 import it from "../locales/it.json";
 import en from "../locales/en.json";
@@ -41,28 +42,29 @@ const translations = {
   fr,
 };
 
-export const I18nProvider = component$(() => {
+interface I18nProviderProps {
+  initialLanguage?: SupportedLanguage;
+}
+
+export const I18nProvider = component$((props: I18nProviderProps) => {
   // Create signal for language changes
   const setLanguageSignal = useSignal<SetLanguageRequest | null>(null);
 
   const i18nState: I18nState = useStore<I18nState>({
-    currentLanguage: "it",
+    currentLanguage: props.initialLanguage || "it",
     setLanguageSignal,
   });
 
-  // Load saved language preference from localStorage after hydration
-  // Load saved language preference from localStorage after hydration
+  // Load saved language preference from cookies after hydration if not provided by server
   useTask$(() => {
-    if (isBrowser) {
-      const savedLang = localStorage.getItem(
-        "preferred-language",
-      ) as SupportedLanguage;
+    if (isBrowser && !props.initialLanguage) {
+      const savedLang = getCookie("preferred-language") as SupportedLanguage;
       if (
         savedLang &&
         savedLang in translations &&
         savedLang !== i18nState.currentLanguage
       ) {
-        logger.info({ savedLang }, "Loading saved language from localStorage");
+        logger.info({ savedLang }, "Loading saved language from cookies");
         i18nState.currentLanguage = savedLang;
       }
     }
@@ -78,10 +80,10 @@ export const I18nProvider = component$(() => {
         { currentLanguage: i18nState.currentLanguage },
         "Language changed",
       );
-      // Save to localStorage (will only run client-side)
-      if (typeof localStorage !== "undefined") {
-        localStorage.setItem("preferred-language", langReq.language);
-        logger.info({ language: langReq.language }, "Saved to localStorage");
+      // Save to cookies
+      if (isBrowser) {
+        setCookie("preferred-language", langReq.language, 365); // Save for 1 year
+        logger.info({ language: langReq.language }, "Saved to cookies");
       }
       setLanguageSignal.value = null;
     }

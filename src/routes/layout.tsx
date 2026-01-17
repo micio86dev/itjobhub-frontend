@@ -2,7 +2,7 @@ import { component$, Slot } from "@builder.io/qwik";
 import { routeLoader$ } from "@builder.io/qwik-city";
 import { AuthProvider, type User } from "~/contexts/auth";
 import { JobsProvider } from "~/contexts/jobs";
-import { I18nProvider } from "~/contexts/i18n";
+import { I18nProvider, type SupportedLanguage } from "~/contexts/i18n";
 import { ThemeProvider } from "~/contexts/theme";
 import { Navigation } from "~/components/navigation/navigation";
 import { Footer } from "~/components/footer/footer";
@@ -10,55 +10,58 @@ import logger from "~/utils/logger";
 
 export const useAuthLoader = routeLoader$(async ({ cookie }) => {
   const token = cookie.get("auth_token")?.value;
+  const lang = cookie.get("preferred-language")?.value as SupportedLanguage;
 
-  if (!token) return { token: null, user: null };
+  let user: User | null = null;
 
-  try {
-    // Determine API URL (handle both local and production if needed)
-    // In Qwik loaders we use process.env for server-side env vars
-    const API_URL = process.env.PUBLIC_API_URL || "http://localhost:3001";
+  if (token) {
+    try {
+      // Determine API URL (handle both local and production if needed)
+      // In Qwik loaders we use process.env for server-side env vars
+      const API_URL = process.env.PUBLIC_API_URL || "http://localhost:3001";
 
-    const response = await fetch(`${API_URL}/users/me`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+      const response = await fetch(`${API_URL}/users/me`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-    if (response.ok) {
-      const result = await response.json();
-      if (result.success) {
-        const bu = result.data;
-        // Map backend user to frontend User interface
-        const user: User = {
-          id: bu.id,
-          email: bu.email,
-          firstName: bu.firstName,
-          lastName: bu.lastName,
-          name: `${bu.firstName} ${bu.lastName}`,
-          role: bu.role,
-          phone: bu.phone,
-          location: bu.location,
-          birthDate: bu.birthDate,
-          bio: bu.bio,
-          avatar: bu.avatar,
-          languages: bu.profile?.languages || [],
-          skills: bu.profile?.skills || [],
-          seniority: bu.profile?.seniority,
-          availability: bu.profile?.availability,
-          workModes: bu.profile?.workModes || [],
-          // A profile is completed if it exists
-          profileCompleted: !!bu.profile,
-        };
-        return { token, user };
+      if (response.ok) {
+        const result = await response.json();
+        if (result.success) {
+          const bu = result.data;
+          // Map backend user to frontend User interface
+          user = {
+            id: bu.id,
+            email: bu.email,
+            firstName: bu.firstName,
+            lastName: bu.lastName,
+            name: `${bu.firstName} ${bu.lastName}`,
+            role: bu.role,
+            phone: bu.phone,
+            location: bu.location,
+            birthDate: bu.birthDate,
+            bio: bu.bio,
+            avatar: bu.avatar,
+            languages: bu.profile?.languages || [],
+            skills: bu.profile?.skills || [],
+            seniority: bu.profile?.seniority,
+            availability: bu.profile?.availability,
+            workModes: bu.profile?.workModes || [],
+            // A profile is completed if it exists
+            profileCompleted: !!bu.profile,
+          };
+        }
       }
+    } catch (e) {
+      logger.error({ e }, "[SSR] Failed to fetch user data");
     }
-  } catch (e) {
-    logger.error({ e }, "[SSR] Failed to fetch user data");
   }
 
   return {
     token: token || null,
-    user: null,
+    user,
+    lang: lang || "it",
   };
 });
 
@@ -67,7 +70,7 @@ export default component$(() => {
 
   return (
     <ThemeProvider>
-      <I18nProvider>
+      <I18nProvider initialLanguage={authData.value.lang}>
         <AuthProvider
           initialToken={authData.value.token}
           initialUser={authData.value.user}

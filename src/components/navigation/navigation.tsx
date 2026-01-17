@@ -1,4 +1,4 @@
-import { component$, $, useStore, useStylesScoped$ } from "@builder.io/qwik";
+import { component$, $, useStore, useStyles$ } from "@builder.io/qwik";
 import logger from "../../utils/logger";
 import { Link } from "@builder.io/qwik-city";
 import { useAuth } from "~/contexts/auth";
@@ -7,7 +7,7 @@ import { useTheme } from "~/contexts/theme";
 import styles from "./navigation.css?inline";
 
 export const Navigation = component$(() => {
-  useStylesScoped$(styles);
+  useStyles$(styles);
   const auth = useAuth();
   const i18n = useI18n();
   const theme = useTheme();
@@ -65,22 +65,22 @@ export const Navigation = component$(() => {
         <div class="nav-content">
           {/* Left Side: Brand & (Desktop) Links */}
           <div class="nav-left">
-            <Link href="/" class="brand">
+            <Link href="/" class="brand dark:text-white">
               {t("nav.brand")}
             </Link>
 
             {/* Desktop Navigation Links */}
             <div class="desktop-links">
-              <Link href="/jobs" class="nav-link">
+              <Link href="/jobs" class="nav-link dark:text-white">
                 {t("nav.jobs")}
               </Link>
               {auth.user?.role === "admin" && (
-                <Link href="/admin/stats" class="nav-link">
+                <Link href="/admin/stats" class="nav-link dark:text-white">
                   {t("nav.dashboard")}
                 </Link>
               )}
               {auth.isAuthenticated && (
-                <Link href="/favorites" class="nav-link">
+                <Link href="/favorites" class="nav-link dark:text-white">
                   {t("nav.favorites")}
                 </Link>
               )}
@@ -172,7 +172,7 @@ export const Navigation = component$(() => {
             <div class="desktop-auth">
               {auth.isAuthenticated ? (
                 <>
-                  <Link href="/profile" class="nav-link">
+                  <Link href="/profile" class="nav-link dark:text-white">
                     {t("nav.profile")}
                   </Link>
                   <button
@@ -185,7 +185,7 @@ export const Navigation = component$(() => {
                 </>
               ) : (
                 <>
-                  <Link href="/login" class="nav-link">
+                  <Link href="/login" class="nav-link dark:text-white">
                     {t("nav.login")}
                   </Link>
                   <Link href="/register" class="btn-register">
@@ -248,16 +248,16 @@ export const Navigation = component$(() => {
       {state.isMenuOpen && (
         <div class="mobile-menu">
           <div class="mobile-menu-panel">
-            <Link href="/jobs" class="mobile-nav-link">
+            <Link href="/jobs" class="mobile-nav-link dark:text-white">
               {t("nav.jobs")}
             </Link>
             {auth.user?.role === "admin" && (
-              <Link href="/admin/stats" class="mobile-nav-link">
+              <Link href="/admin/stats" class="mobile-nav-link dark:text-white">
                 {t("nav.dashboard")}
               </Link>
             )}
             {auth.isAuthenticated && (
-              <Link href="/favorites" class="mobile-nav-link">
+              <Link href="/favorites" class="mobile-nav-link dark:text-white">
                 {t("nav.favorites")}
               </Link>
             )}
@@ -265,7 +265,7 @@ export const Navigation = component$(() => {
             <div class="mobile-divider">
               {auth.isAuthenticated ? (
                 <div class="mobile-auth-wrapper">
-                  <Link href="/profile" class="mobile-nav-link">
+                  <Link href="/profile" class="mobile-nav-link dark:text-white">
                     {t("nav.profile")}
                   </Link>
                   <button
@@ -278,7 +278,7 @@ export const Navigation = component$(() => {
                 </div>
               ) : (
                 <div class="mobile-auth-wrapper">
-                  <Link href="/login" class="mobile-nav-link">
+                  <Link href="/login" class="mobile-nav-link dark:text-white">
                     {t("nav.login")}
                   </Link>
                   <Link href="/register" class="mobile-btn-register">

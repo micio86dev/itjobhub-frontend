@@ -6,7 +6,7 @@
   display: flex !important;
   align-items: center;
   gap: 0.5rem;
-  @apply px-3 py-1.5 -ml-3 text-sm font-semibold text-gray-600 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-full hover:bg-slate-100 dark:hover:bg-gray-800 transition-all duration-300 mb-6;
+  @apply px-3 py-1.5 -ml-3 text-sm font-semibold text-gray-600 dark:text-white hover:text-indigo-600 dark:hover:text-indigo-400 rounded-full hover:bg-slate-100 dark:hover:bg-gray-800 transition-all duration-300 mb-6;
 }
 
 .backIcon {
@@ -55,6 +55,10 @@
 
 .notFoundButton {
   @apply inline-block px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition-colors;
+}
+
+:global(.dark) .notFoundButton {
+  @apply text-white bg-indigo-500 hover:bg-indigo-600;
 }
 
 .mainContent {

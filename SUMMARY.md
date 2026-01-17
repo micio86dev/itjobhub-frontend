@@ -28,6 +28,14 @@ The IT Job Hub frontend is a high-performance web application designed for devel
 
 ## Recent Changes
 
+### 2026-01-17: Persistent Language Selection (Cookies)
+
+- Implemented server-side and client-side language persistence using cookies instead of `localStorage`.
+- Enhanced `I18nProvider` to support initialization from server-side cookies, preventing "language flicker" on page load.
+- Updated `layout.tsx` to read the `preferred-language` cookie in the Qwik route loader.
+- Improved SEO mapping for `og:locale` and `content-language` meta tags (partial implementation).
+- Added comprehensive E2E test suite in `e2e/i18n.spec.ts` to verify language persistence across page refreshes.
+
 ### 2026-01-17: Navigation Premium Styling Enhancement
 
 - Redesigned navigation bar with premium visual effects and micro-animations
