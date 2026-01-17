@@ -2,7 +2,7 @@ import { component$, Slot } from "@builder.io/qwik";
 import { routeLoader$ } from "@builder.io/qwik-city";
 import { AuthProvider, type User } from "~/contexts/auth";
 import { JobsProvider } from "~/contexts/jobs";
-import { I18nProvider, useTranslate } from "~/contexts/i18n";
+import { I18nProvider } from "~/contexts/i18n";
 import { ThemeProvider } from "~/contexts/theme";
 import { Navigation } from "~/components/navigation/navigation";
 import { Footer } from "~/components/footer/footer";
@@ -62,43 +62,6 @@ export const useAuthLoader = routeLoader$(async ({ cookie }) => {
   };
 });
 
-/**
- * Layout wrapper component for accessibility - contains skip link
- */
-const LayoutContent = component$(() => {
-  const t = useTranslate();
-
-  return (
-    <div class="flex flex-col min-h-screen">
-      {/* Skip Link for keyboard accessibility - WCAG 2.1 AA */}
-      <a href="#main-content" class="skip-link">
-        {t("a11y.skip_to_content")}
-      </a>
-
-      <Navigation />
-
-      <main
-        id="main-content"
-        class="flex-grow bg-gray-50 dark:bg-gray-950"
-        role="main"
-        tabIndex={-1}
-      >
-        <Slot />
-      </main>
-
-      <Footer />
-
-      {/* ARIA Live Region for dynamic announcements */}
-      <div
-        id="live-announcer"
-        class="live-region"
-        aria-live="polite"
-        aria-atomic="true"
-      />
-    </div>
-  );
-});
-
 export default component$(() => {
   const authData = useAuthLoader();
 
@@ -110,7 +73,33 @@ export default component$(() => {
           initialUser={authData.value.user}
         >
           <JobsProvider>
-            <LayoutContent />
+            <div class="flex flex-col min-h-screen">
+              {/* Skip Link for keyboard accessibility - WCAG 2.1 AA */}
+              <a href="#main-content" class="skip-link">
+                Skip to main content
+              </a>
+
+              <Navigation />
+
+              <main
+                id="main-content"
+                class="flex-grow bg-gray-50 dark:bg-gray-950"
+                role="main"
+                tabIndex={-1}
+              >
+                <Slot />
+              </main>
+
+              <Footer />
+
+              {/* ARIA Live Region for dynamic announcements */}
+              <div
+                id="live-announcer"
+                class="live-region"
+                aria-live="polite"
+                aria-atomic="true"
+              />
+            </div>
           </JobsProvider>
         </AuthProvider>
       </I18nProvider>
