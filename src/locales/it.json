@@ -308,5 +308,10 @@
   "auth.oauth_error": "Autenticazione fallita",
   "auth.oauth_try_again": "Torna al login",
   "footer.all_rights_reserved": "Tutti i diritti riservati",
-  "footer.developed_by": "Sviluppato da"
+  "footer.developed_by": "Sviluppato da",
+  "a11y.skip_to_content": "Vai al contenuto principale",
+  "a11y.loading": "Caricamento in corso",
+  "a11y.close_modal": "Chiudi finestra di dialogo",
+  "a11y.menu_expanded": "Menu espanso",
+  "a11y.menu_collapsed": "Menu compresso"
 }

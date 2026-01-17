@@ -33,6 +33,9 @@ export default defineConfig({
 
     /* Navigation timeout */
     navigationTimeout: 30 * 1000,
+
+    /* Test ID attribute */
+    testIdAttribute: "data-testid",
   },
   projects: [
     // Desktop Chrome

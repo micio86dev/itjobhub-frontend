@@ -15,7 +15,7 @@
 }
 
 .nav-left {
-  @apply flex items-center min-w-0 flex-1;
+  @apply flex items-center min-w-0 flex-1 gap-x-6;
 }
 
 .brand {
@@ -27,13 +27,12 @@
 }
 
 .desktop-links {
-  @apply hidden md:flex items-center space-x-1 sm:space-x-4 min-w-0;
+  @apply hidden md:flex items-center space-x-1 sm:space-x-4 min-w-0 gap-x-3;
 }
 
 .nav-link {
   @apply text-gray-700 px-3 sm:px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap relative;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  overflow: hidden;
 }
 
 .nav-link::before {
@@ -183,7 +182,7 @@
 }
 
 .desktop-auth {
-  @apply hidden md:flex items-center space-x-1 sm:space-x-3;
+  @apply hidden md:flex items-center space-x-1 sm:space-x-3 gap-x-3;
 }
 
 .btn-logout {

@@ -300,5 +300,10 @@
   "auth.oauth_error": "Échec de l'authentification",
   "auth.oauth_try_again": "Retour à la connexion",
   "footer.all_rights_reserved": "Tous droits réservés",
-  "footer.developed_by": "Développé par"
+  "footer.developed_by": "Développé par",
+  "a11y.skip_to_content": "Aller au contenu principal",
+  "a11y.loading": "Chargement",
+  "a11y.close_modal": "Fermer la boîte de dialogue",
+  "a11y.menu_expanded": "Menu développé",
+  "a11y.menu_collapsed": "Menu réduit"
 }

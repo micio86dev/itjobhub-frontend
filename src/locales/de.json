@@ -295,5 +295,10 @@
   "auth.oauth_error": "Authentifizierung fehlgeschlagen",
   "auth.oauth_try_again": "Zurück zur Anmeldung",
   "footer.all_rights_reserved": "Alle Rechte vorbehalten",
-  "footer.developed_by": "Entwickelt von"
+  "footer.developed_by": "Entwickelt von",
+  "a11y.skip_to_content": "Zum Hauptinhalt springen",
+  "a11y.loading": "Laden",
+  "a11y.close_modal": "Dialog schließen",
+  "a11y.menu_expanded": "Menü erweitert",
+  "a11y.menu_collapsed": "Menü eingeklappt"
 }

@@ -4,6 +4,8 @@ import {
   type PropFunction,
   $,
   useStylesScoped$,
+  useSignal,
+  useVisibleTask$,
 } from "@builder.io/qwik";
 import styles from "./modal.css?inline";
 
@@ -30,12 +32,67 @@ export const Modal = component$<ModalProps>(
     isLoading = false,
   }) => {
     useStylesScoped$(styles);
+    const modalRef = useSignal<HTMLDivElement>();
+    const confirmButtonRef = useSignal<HTMLButtonElement>();
+
+    // Focus trap and ESC key handler - WCAG 2.1 AA requirement
+    // eslint-disable-next-line qwik/no-use-visible-task
+    useVisibleTask$(({ track, cleanup }) => {
+      const open = track(() => isOpen);
+
+      if (!open) return;
+
+      // Focus the confirm button when modal opens
+      setTimeout(() => {
+        confirmButtonRef.value?.focus();
+      }, 50);
+
+      // ESC key handler
+      const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === "Escape") {
+          e.preventDefault();
+          onClose$();
+        }
+
+        // Focus trap - Tab key handling
+        if (e.key === "Tab" && modalRef.value) {
+          const focusableElements =
+            modalRef.value.querySelectorAll<HTMLElement>(
+              'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+            );
+          const firstElement = focusableElements[0];
+          const lastElement = focusableElements[focusableElements.length - 1];
+
+          if (e.shiftKey && document.activeElement === firstElement) {
+            e.preventDefault();
+            lastElement?.focus();
+          } else if (!e.shiftKey && document.activeElement === lastElement) {
+            e.preventDefault();
+            firstElement?.focus();
+          }
+        }
+      };
+
+      document.addEventListener("keydown", handleKeyDown);
+
+      // Prevent body scroll when modal is open
+      const originalOverflow = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+
+      cleanup(() => {
+        document.removeEventListener("keydown", handleKeyDown);
+        document.body.style.overflow = originalOverflow;
+      });
+    });
+
     if (!isOpen) return null;
 
     return (
       <div
+        ref={modalRef}
         class="modal-backdrop"
         aria-labelledby="modal-title"
+        aria-describedby="modal-description"
         role="dialog"
         aria-modal="true"
       >
@@ -48,7 +105,7 @@ export const Modal = component$<ModalProps>(
             &#8203;
           </span>
 
-          <div class="modal-panel">
+          <div class="modal-panel" role="document">
             <div class="modal-header">
               <div class="modal-body">
                 {isDestructive && (
@@ -76,7 +133,7 @@ export const Modal = component$<ModalProps>(
                   <h3 class="title" id="modal-title">
                     {title}
                   </h3>
-                  <div class="slot-wrapper">
+                  <div class="slot-wrapper" id="modal-description">
                     <div class="slot-text">
                       <Slot />
                     </div>
@@ -86,6 +143,7 @@ export const Modal = component$<ModalProps>(
             </div>
             <div class="footer">
               <button
+                ref={confirmButtonRef}
                 type="button"
                 data-testid="modal-confirm"
                 disabled={isLoading}
@@ -93,9 +151,15 @@ export const Modal = component$<ModalProps>(
                   isDestructive ? "btn-destructive" : "btn-primary"
                 } ${isLoading ? "btn-loading" : ""}`}
                 onClick$={$(() => onConfirm$())}
+                aria-busy={isLoading}
               >
                 {isLoading && (
-                  <svg class="spinner" fill="none" viewBox="0 0 24 24">
+                  <svg
+                    class="spinner"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
                     <circle
                       class="opacity-25"
                       cx="12"

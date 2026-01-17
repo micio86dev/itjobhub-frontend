@@ -308,5 +308,10 @@
   "auth.oauth_error": "Authentication failed",
   "auth.oauth_try_again": "Back to login",
   "footer.all_rights_reserved": "All rights reserved",
-  "footer.developed_by": "Developed by"
+  "footer.developed_by": "Developed by",
+  "a11y.skip_to_content": "Skip to main content",
+  "a11y.loading": "Loading",
+  "a11y.close_modal": "Close dialog",
+  "a11y.menu_expanded": "Menu expanded",
+  "a11y.menu_collapsed": "Menu collapsed"
 }

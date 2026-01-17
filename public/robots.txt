@@ -7,10 +7,16 @@ Allow: /
 # Disallow admin and auth pages
 Disallow: /admin/
 Disallow: /auth/
+Disallow: /wizard/
+Disallow: /profile/
 
 # Allow search engines to crawl job pages
 Allow: /jobs/
 Allow: /jobs/*
 
-# Sitemap location
+# Crawl delay for polite crawling
+Crawl-delay: 1
+
+# Sitemap location (dynamic sitemap)
 Sitemap: https://itjobhub.com/sitemap.xml
+

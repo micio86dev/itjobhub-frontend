@@ -69,6 +69,13 @@ export const RouterHead = component$(() => {
       <meta property="og:title" content={head.title} />
       <meta property="og:url" content={canonicalUrl} />
       <meta property="og:locale" content={LOCALE_MAP[currentLang]} />
+      <meta property="og:image" content={`${SITE_URL}/og-image.png`} />
+      <meta property="og:image:width" content="1200" />
+      <meta property="og:image:height" content="630" />
+      <meta
+        property="og:image:alt"
+        content="ITJobHub - Find your ideal IT job"
+      />
       {SUPPORTED_LANGUAGES.filter((l) => l !== currentLang).map((lang) => (
         <meta
           key={lang}
@@ -80,6 +87,11 @@ export const RouterHead = component$(() => {
       {/* Twitter Card tags */}
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:title" content={head.title} />
+      <meta name="twitter:image" content={`${SITE_URL}/og-image.png`} />
+      <meta
+        name="twitter:image:alt"
+        content="ITJobHub - Find your ideal IT job"
+      />
 
       {/* Iterate over DocumentHead meta tags */}
       {head.meta.map((m) => {
