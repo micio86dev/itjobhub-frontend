@@ -6,12 +6,27 @@ import {
   useSignal,
   isBrowser,
 } from "@builder.io/qwik";
-import { useNavigate, type DocumentHead, useLocation } from "@builder.io/qwik-city";
+import {
+  useNavigate,
+  type DocumentHead,
+  useLocation,
+  routeLoader$,
+} from "@builder.io/qwik-city";
 import { useAuth } from "~/contexts/auth";
 import { useTranslate, translate, useI18n } from "~/contexts/i18n";
 import { ProfileWizard } from "~/components/wizard/profile-wizard";
 import { LocationAutocomplete } from "~/components/ui/location-autocomplete";
 import type { WizardData } from "~/contexts/auth";
+import logger from "~/utils/logger";
+
+export const useProfileProtection = routeLoader$(
+  async ({ cookie, redirect, url }) => {
+    const token = cookie.get("auth_token")?.value;
+    if (!token) {
+      throw redirect(302, `/login?returnUrl=${url.pathname}`);
+    }
+  },
+);
 
 interface EditFormData {
   name: string;
@@ -24,6 +39,7 @@ interface EditFormData {
 }
 
 export default component$(() => {
+  useProfileProtection();
   const nav = useNavigate();
   const auth = useAuth();
   const i18n = useI18n();
@@ -206,7 +222,7 @@ export default component$(() => {
         }
       };
       reader.onerror = (e) => {
-        console.error("FileReader error:", e);
+        logger.error({ e }, "FileReader error");
         state.message = {
           type: "error",
           text: translate("profile.avatar_error", i18n.currentLanguage),
@@ -272,10 +288,11 @@ export default component$(() => {
         {/* Feedback Message */}
         {state.message.text && (
           <div
-            class={`p-4 rounded-t-lg text-center text-sm font-medium ${state.message.type === "success"
-              ? "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300"
-              : "bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300"
-              }`}
+            class={`p-4 rounded-t-lg text-center text-sm font-medium ${
+              state.message.type === "success"
+                ? "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300"
+                : "bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300"
+            }`}
           >
             {state.message.text}
           </div>
@@ -439,9 +456,9 @@ export default component$(() => {
                           type="text"
                           value={state.formData.name}
                           onInput$={(e) =>
-                          (state.formData.name = (
-                            e.target as HTMLInputElement
-                          ).value)
+                            (state.formData.name = (
+                              e.target as HTMLInputElement
+                            ).value)
                           }
                           data-testid="profile-name"
                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:ring-indigo-500 focus:border-indigo-500 dark:focus:ring-indigo-400 dark:focus:border-indigo-400"
@@ -455,9 +472,9 @@ export default component$(() => {
                           type="tel"
                           value={state.formData.phone}
                           onInput$={(e) =>
-                          (state.formData.phone = (
-                            e.target as HTMLInputElement
-                          ).value)
+                            (state.formData.phone = (
+                              e.target as HTMLInputElement
+                            ).value)
                           }
                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:ring-indigo-500 focus:border-indigo-500 dark:focus:ring-indigo-400 dark:focus:border-indigo-400"
                         />
@@ -490,9 +507,9 @@ export default component$(() => {
                           type="date"
                           value={state.formData.birthDate}
                           onInput$={(e) =>
-                          (state.formData.birthDate = (
-                            e.target as HTMLInputElement
-                          ).value)
+                            (state.formData.birthDate = (
+                              e.target as HTMLInputElement
+                            ).value)
                           }
                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:ring-indigo-500 focus:border-indigo-500 dark:focus:ring-indigo-400 dark:focus:border-indigo-400"
                         />
@@ -505,9 +522,9 @@ export default component$(() => {
                       <textarea
                         value={state.formData.bio}
                         onInput$={(e) =>
-                        (state.formData.bio = (
-                          e.target as HTMLTextAreaElement
-                        ).value)
+                          (state.formData.bio = (
+                            e.target as HTMLTextAreaElement
+                          ).value)
                         }
                         rows={4}
                         data-testid="profile-bio"
@@ -651,7 +668,8 @@ export default component$(() => {
                         const langKey = `lang.${lang.toLowerCase()}`;
                         const translatedLang = t(langKey);
                         // If translation returns the key itself, use the original value
-                        const displayLang = translatedLang === langKey ? lang : translatedLang;
+                        const displayLang =
+                          translatedLang === langKey ? lang : translatedLang;
 
                         return (
                           <span

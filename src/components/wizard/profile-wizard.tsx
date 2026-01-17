@@ -212,19 +212,23 @@ export const ProfileWizard = component$<ProfileWizardProps>(
                   ].map((option) => (
                     <label
                       key={option.value}
-                      class={`flex items-start p-3 rounded-lg border-2 cursor-pointer transition-colors ${state.data.seniority === option.value
-                        ? "border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20"
-                        : "border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600"
-                        }`}
+                      for={`seniority-${option.value}`}
+                      class={`flex items-start p-3 rounded-lg border-2 cursor-pointer transition-colors ${
+                        state.data.seniority === option.value
+                          ? "border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20"
+                          : "border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600"
+                      }`}
                     >
                       <input
+                        id={`seniority-${option.value}`}
+                        aria-label={t(option.labelKey)}
                         type="radio"
                         name="seniority"
                         value={option.value}
                         checked={state.data.seniority === option.value}
                         onChange$={() =>
-                        (state.data.seniority =
-                          option.value as WizardData["seniority"])
+                          (state.data.seniority =
+                            option.value as WizardData["seniority"])
                         }
                         class="mt-0.5 h-4 w-4 text-indigo-600 focus:ring-indigo-500"
                       />
@@ -272,12 +276,16 @@ export const ProfileWizard = component$<ProfileWizardProps>(
                   ].map((option) => (
                     <label
                       key={option.value}
-                      class={`flex items-start p-3 rounded-lg border-2 cursor-pointer transition-colors ${state.data.workModes.includes(option.value)
-                        ? "border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20"
-                        : "border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600"
-                        }`}
+                      for={`workMode-${option.value}`}
+                      class={`flex items-start p-3 rounded-lg border-2 cursor-pointer transition-colors ${
+                        state.data.workModes.includes(option.value)
+                          ? "border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20"
+                          : "border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600"
+                      }`}
                     >
                       <input
+                        id={`workMode-${option.value}`}
+                        aria-label={t(option.labelKey)}
                         type="checkbox"
                         name="workModes"
                         value={option.value}
@@ -285,7 +293,7 @@ export const ProfileWizard = component$<ProfileWizardProps>(
                         onChange$={() => {
                           if (state.data.workModes.includes(option.value)) {
                             state.data.workModes = state.data.workModes.filter(
-                              (m) => m !== option.value
+                              (m) => m !== option.value,
                             );
                           } else {
                             state.data.workModes = [
@@ -340,19 +348,23 @@ export const ProfileWizard = component$<ProfileWizardProps>(
                   ].map((option) => (
                     <label
                       key={option.value}
-                      class={`flex items-start p-3 rounded-lg border-2 cursor-pointer transition-colors ${state.data.availability === option.value
-                        ? "border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20"
-                        : "border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600"
-                        }`}
+                      for={`availability-${option.value}`}
+                      class={`flex items-start p-3 rounded-lg border-2 cursor-pointer transition-colors ${
+                        state.data.availability === option.value
+                          ? "border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20"
+                          : "border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600"
+                      }`}
                     >
                       <input
+                        id={`availability-${option.value}`}
+                        aria-label={t(option.labelKey)}
                         type="radio"
                         name="availability"
                         value={option.value}
                         checked={state.data.availability === option.value}
                         onChange$={() =>
-                        (state.data.availability =
-                          option.value as WizardData["availability"])
+                          (state.data.availability =
+                            option.value as WizardData["availability"])
                         }
                         class="mt-0.5 h-4 w-4 text-indigo-600 focus:ring-indigo-500"
                       />

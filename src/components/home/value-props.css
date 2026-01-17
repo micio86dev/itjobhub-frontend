@@ -1,0 +1,68 @@
+.value-props-section {
+  @apply py-16 bg-gray-50;
+}
+
+:global(.dark) .value-props-section {
+  @apply bg-black/20;
+}
+
+.container {
+  @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+.header {
+  @apply text-center mb-16;
+}
+
+.title {
+  @apply text-3xl font-bold text-gray-900;
+}
+
+:global(.dark) .title {
+  @apply text-gray-100;
+}
+
+.gridContainer {
+  display: grid;
+  @apply grid-cols-1 md:grid-cols-3 gap-10;
+}
+
+.card {
+  @apply text-center p-6 rounded-2xl transition-all duration-300 hover:shadow-xl hover:bg-white;
+}
+
+:global(.dark) .card {
+  @apply hover:bg-gray-800;
+}
+
+.icon-wrapper {
+  @apply mx-auto h-16 w-16 flex items-center justify-center rounded-2xl mb-6 transition-transform group-hover:scale-110;
+}
+
+.icon-wrapper-indigo {
+  @apply bg-indigo-100 text-indigo-600;
+}
+
+.icon-wrapper-pink {
+  @apply bg-pink-100 text-pink-600;
+}
+
+.icon-wrapper-purple {
+  @apply bg-purple-100 text-purple-600;
+}
+
+.card-title {
+  @apply text-xl font-bold text-gray-900 mb-3;
+}
+
+:global(.dark) .card-title {
+  @apply text-gray-100;
+}
+
+.card-desc {
+  @apply text-gray-600 leading-relaxed;
+}
+
+:global(.dark) .card-desc {
+  @apply text-gray-400;
+}

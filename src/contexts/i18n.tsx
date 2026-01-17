@@ -11,6 +11,7 @@ import {
   noSerialize,
   isBrowser,
 } from "@builder.io/qwik";
+import logger from "../utils/logger";
 
 import it from "../locales/it.json";
 import en from "../locales/en.json";
@@ -61,7 +62,7 @@ export const I18nProvider = component$(() => {
         savedLang in translations &&
         savedLang !== i18nState.currentLanguage
       ) {
-        console.log("Loading saved language from localStorage:", savedLang);
+        logger.info({ savedLang }, "Loading saved language from localStorage");
         i18nState.currentLanguage = savedLang;
       }
     }
@@ -71,13 +72,16 @@ export const I18nProvider = component$(() => {
   useTask$(({ track }) => {
     const langReq = track(() => setLanguageSignal.value);
     if (langReq) {
-      console.log("Language change request:", langReq);
+      logger.info({ langReq }, "Language change request");
       i18nState.currentLanguage = langReq.language;
-      console.log("Language changed to:", i18nState.currentLanguage);
+      logger.info(
+        { currentLanguage: i18nState.currentLanguage },
+        "Language changed",
+      );
       // Save to localStorage (will only run client-side)
       if (typeof localStorage !== "undefined") {
         localStorage.setItem("preferred-language", langReq.language);
-        console.log("Saved to localStorage:", langReq.language);
+        logger.info({ language: langReq.language }, "Saved to localStorage");
       }
       setLanguageSignal.value = null;
     }
@@ -95,13 +99,17 @@ export const useI18n = () => {
 export const translate = (key: string, language: SupportedLanguage): string => {
   const currentTranslations = translations[language];
   if (!currentTranslations) {
-    console.warn(`No translations found for language: ${language}`);
+    logger.warn(
+      { language },
+      `No translations found for language: ${language}`,
+    );
     return key;
   }
   const translation =
     currentTranslations[key as keyof typeof currentTranslations];
   if (!translation) {
-    console.warn(
+    logger.warn(
+      { key, language },
       `Translation missing for key "${key}" in language "${language}"`,
     );
   }

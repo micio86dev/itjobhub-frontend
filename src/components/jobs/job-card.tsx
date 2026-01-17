@@ -191,14 +191,15 @@ export const JobCard = component$<JobCardProps>(
 
                   {matchScore && (
                     <span
-                      class={`match-badge ${matchScore.label === "excellent"
-                        ? "match-excellent"
-                        : matchScore.label === "good"
-                          ? "match-good"
-                          : matchScore.label === "fair"
-                            ? "match-fair"
-                            : "match-low"
-                        }`}
+                      class={`match-badge ${
+                        matchScore.label === "excellent"
+                          ? "match-excellent"
+                          : matchScore.label === "good"
+                            ? "match-good"
+                            : matchScore.label === "fair"
+                              ? "match-fair"
+                              : "match-low"
+                      }`}
                     >
                       ⚡ {matchScore.score}% {t(`match.${matchScore.label}`)}
                     </span>
@@ -214,8 +215,9 @@ export const JobCard = component$<JobCardProps>(
               {auth.isAuthenticated && (
                 <button
                   onClick$={handleToggleFavorite}
-                  class={`favorite-btn ${job.is_favorite ? "favorite-active" : "favorite-inactive"
-                    }`}
+                  class={`favorite-btn ${
+                    job.is_favorite ? "favorite-active" : "favorite-inactive"
+                  }`}
                   data-testid="favorite-button"
                   title={
                     job.is_favorite
@@ -264,12 +266,13 @@ export const JobCard = component$<JobCardProps>(
             <span class="detail-label">{t("job.seniority")}</span>
             <div class="detail-value-container">
               <span
-                class={`badge-base ${job.seniority === "junior"
-                  ? "badge-green"
-                  : job.seniority === "mid"
-                    ? "badge-yellow"
-                    : "badge-red"
-                  }`}
+                class={`badge-base ${
+                  job.seniority === "junior"
+                    ? "badge-green"
+                    : job.seniority === "mid"
+                      ? "badge-yellow"
+                      : "badge-red"
+                }`}
               >
                 {t("jobs." + job.seniority)}
               </span>
@@ -328,10 +331,11 @@ export const JobCard = component$<JobCardProps>(
               disabled={!auth.isAuthenticated}
               title={t("job.like")}
               data-testid="like-button"
-              class={`reaction-btn ${job.user_reaction === "LIKE"
-                ? "reaction-btn-like-active"
-                : "reaction-btn-like-inactive"
-                }`}
+              class={`reaction-btn ${
+                job.user_reaction === "LIKE"
+                  ? "reaction-btn-like-active"
+                  : "reaction-btn-like-inactive"
+              }`}
             >
               <span class="text-lg">👍</span>
               <span class="text-sm font-medium" data-testid="like-count">
@@ -344,10 +348,11 @@ export const JobCard = component$<JobCardProps>(
               disabled={!auth.isAuthenticated}
               title={t("job.dislike")}
               data-testid="dislike-button"
-              class={`reaction-btn ${job.user_reaction === "DISLIKE"
-                ? "reaction-btn-dislike-active"
-                : "reaction-btn-dislike-inactive"
-                }`}
+              class={`reaction-btn ${
+                job.user_reaction === "DISLIKE"
+                  ? "reaction-btn-dislike-active"
+                  : "reaction-btn-dislike-inactive"
+              }`}
             >
               <span class="text-lg">👎</span>
               <span class="text-sm font-medium" data-testid="dislike-count">
@@ -359,8 +364,9 @@ export const JobCard = component$<JobCardProps>(
             {onToggleComments$ && (
               <button
                 onClick$={$(() => onToggleComments$(job.id))}
-                class={`comments-btn ${showComments ? "comments-btn-active" : "comments-btn-inactive"
-                  }`}
+                class={`comments-btn ${
+                  showComments ? "comments-btn-active" : "comments-btn-inactive"
+                }`}
               >
                 <span class="text-lg">💬</span>
                 <span class="text-sm font-medium">

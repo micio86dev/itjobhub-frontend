@@ -1,6 +1,9 @@
-import { component$, $ } from "@builder.io/qwik";
+import { component$, $, useStylesScoped$ } from "@builder.io/qwik";
+import styles from "./scroll-buttons.css?inline";
 
 export const ScrollButtons = component$(() => {
+  useStylesScoped$(styles);
+
   const scrollToTop = $(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   });
@@ -10,18 +13,9 @@ export const ScrollButtons = component$(() => {
   });
 
   return (
-    <div class="fixed bottom-8 right-8 flex flex-col space-y-4 z-50">
-      <button
-        onClick$={scrollToTop}
-        class="p-3 bg-white dark:bg-gray-800 text-indigo-600 dark:text-indigo-400 rounded-full shadow-lg border border-gray-200 dark:border-gray-700 hover:scale-110 transition-transform focus:outline-none"
-        title="Scroll to Top"
-      >
-        <svg
-          class="w-6 h-6"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
+    <div class="scroll-buttons-container">
+      <button onClick$={scrollToTop} class="scroll-btn" title="Scroll to Top">
+        <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path
             stroke-linecap="round"
             stroke-linejoin="round"
@@ -33,15 +27,10 @@ export const ScrollButtons = component$(() => {
 
       <button
         onClick$={scrollToBottom}
-        class="p-3 bg-white dark:bg-gray-800 text-indigo-600 dark:text-indigo-400 rounded-full shadow-lg border border-gray-200 dark:border-gray-700 hover:scale-110 transition-transform focus:outline-none"
+        class="scroll-btn"
         title="Scroll to Bottom"
       >
-        <svg
-          class="w-6 h-6"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
+        <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path
             stroke-linecap="round"
             stroke-linejoin="round"

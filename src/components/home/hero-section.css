@@ -1,0 +1,71 @@
+.hero-section {
+  @apply relative bg-gradient-to-br from-indigo-900 via-purple-800 to-pink-700 text-white py-24 sm:py-32;
+}
+
+.bg-overlay {
+  @apply absolute inset-0 overflow-hidden;
+}
+
+.bg-pattern {
+  @apply absolute inset-0 bg-[url('/grid.svg')] opacity-10;
+}
+
+.container {
+  @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center;
+}
+
+.heading {
+  @apply text-4xl sm:text-6xl font-extrabold tracking-tight mb-6;
+}
+
+.heading-main {
+  @apply block;
+}
+
+.heading-sub {
+  @apply block text-indigo-200 mt-2 text-2xl sm:text-4xl;
+}
+
+.description {
+  @apply mt-4 max-w-2xl mx-auto text-xl text-indigo-100 mb-10;
+}
+
+.search-container {
+  @apply max-w-3xl mx-auto;
+}
+
+.search-form {
+  @apply relative;
+}
+
+.search-glow {
+  @apply absolute inset-0 bg-pink-500 rounded-lg blur opacity-25 transition duration-1000 group-hover:opacity-50;
+}
+
+.search-input-wrapper {
+  @apply relative bg-white rounded-lg p-2 shadow-xl flex items-center;
+}
+
+.search-icon-wrapper {
+  @apply pl-4 text-gray-400;
+}
+
+.search-input {
+  @apply flex-1 p-4 text-gray-900 placeholder-gray-500 rounded-lg focus:outline-none;
+}
+
+.search-button {
+  @apply hidden sm:block bg-indigo-600 text-white px-8 py-3 rounded-md font-semibold transition-colors duration-200 hover:bg-indigo-700;
+}
+
+.popular-tags {
+  @apply mt-4 text-sm text-indigo-200 flex flex-wrap gap-2 items-center justify-center sm:justify-start;
+}
+
+.popular-label {
+  @apply font-medium opacity-80 mr-1;
+}
+
+.tag-link {
+  @apply hover:text-white underline decoration-dashed underline-offset-4 mr-2 transition-colors;
+}

@@ -46,11 +46,14 @@ const ignores = [
   "eslint.config.js",
 ];
 
+import jsxA11y from "eslint-plugin-jsx-a11y";
+
 export default tseslint.config(
   globalIgnores(ignores),
   js.configs.recommended,
   tseslint.configs.recommended,
   qwikEslint9Plugin.configs.recommended,
+  jsxA11y.flatConfigs.recommended,
   {
     languageOptions: {
       globals: {
@@ -68,7 +71,7 @@ export default tseslint.config(
   {
     rules: {
       "@typescript-eslint/no-explicit-any": "error",
-      "qwik/no-use-visible-task": "warn", // Configuring as warn since we cleaned up comments but use it correctly
+      "qwik/no-use-visible-task": "warn",
     },
   },
 );

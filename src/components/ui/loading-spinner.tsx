@@ -1,4 +1,5 @@
-import { component$ } from "@builder.io/qwik";
+import { component$, useStylesScoped$ } from "@builder.io/qwik";
+import styles from "./loading-spinner.css?inline";
 
 interface LoadingSpinnerProps {
   size?: "sm" | "md" | "lg";
@@ -7,17 +8,17 @@ interface LoadingSpinnerProps {
 
 export const LoadingSpinner = component$<LoadingSpinnerProps>(
   ({ size = "md", class: className }) => {
+    useStylesScoped$(styles);
+
     const sizeClasses = {
-      sm: "w-6 h-6",
-      md: "w-10 h-10",
-      lg: "w-16 h-16",
+      sm: "spinner-sm",
+      md: "spinner-md",
+      lg: "spinner-lg",
     };
 
     return (
-      <div class={`flex items-center justify-center py-12 ${className || ""}`}>
-        <div
-          class={`${sizeClasses[size]} animate-spin rounded-full border-4 border-indigo-200 dark:border-indigo-900 border-t-indigo-600 dark:border-t-indigo-400`}
-        ></div>
+      <div class={`spinner-container ${className || ""}`}>
+        <div class={`spinner ${sizeClasses[size]}`}></div>
       </div>
     );
   },

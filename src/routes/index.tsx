@@ -1,8 +1,13 @@
-import { component$, useTask$, useSignal } from "@builder.io/qwik";
+import {
+  component$,
+  useTask$,
+  useSignal,
+  useStylesScoped$,
+} from "@builder.io/qwik";
 import type { DocumentHead } from "@builder.io/qwik-city";
 import { routeLoader$ } from "@builder.io/qwik-city";
 import { useAuth } from "~/contexts/auth";
-import { useTranslate, type SupportedLanguage } from "~/contexts/i18n";
+import { type SupportedLanguage } from "~/contexts/i18n";
 import { useJobs } from "~/contexts/jobs";
 import { OrganizationSchema, WebSiteSchema } from "~/components/seo/json-ld";
 import {
@@ -12,6 +17,7 @@ import {
   ValueProps,
   CTASection,
 } from "~/components/home";
+import styles from "./index.css?inline";
 
 // Import translations for server-side DocumentHead
 import it from "~/locales/it.json";
@@ -37,8 +43,9 @@ export const useHeadMeta = routeLoader$(({ cookie }) => {
 });
 
 export default component$(() => {
+  useStylesScoped$(styles);
   const auth = useAuth();
-  const t = useTranslate();
+  // const t = useTranslate();
   const jobsState = useJobs();
   const topSkills = useSignal<{ skill: string; count: number }[]>([]);
   const matchScores = useSignal<
@@ -80,7 +87,7 @@ export default component$(() => {
   const recentJobs = jobsState.jobs.slice(0, 3); // Top 3 jobs
 
   return (
-    <div class="flex flex-col min-h-screen">
+    <div class="page-wrapper">
       {/* JSON-LD Structured Data for SEO */}
       <OrganizationSchema />
       <WebSiteSchema />

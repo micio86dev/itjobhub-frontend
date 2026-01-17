@@ -1,7 +1,7 @@
 import { test as base, expect, Page, BrowserContext } from "@playwright/test";
 
 // API base URL for direct API calls
-const API_BASE = "http://localhost:3001/api";
+const API_BASE = "http://localhost:3001";
 
 // Test users credentials
 export const TEST_USERS = {

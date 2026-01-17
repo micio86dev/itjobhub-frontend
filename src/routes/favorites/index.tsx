@@ -30,7 +30,7 @@ export default component$(() => {
   });
 
   return (
-    <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+    <div class="container mx-auto py-6 sm:px-6 lg:px-8">
       <div class="px-4 py-6 sm:px-0">
         <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-6">
           {t("nav.favorites")}

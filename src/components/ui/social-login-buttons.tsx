@@ -18,6 +18,7 @@ export const SocialLoginButtons = component$<SocialLoginButtonsProps>(
           disabled={loading}
           class="socialButton"
           aria-label="Login with Google"
+          data-testid="social-login-google-btn"
         >
           {loading && activeProvider === "google" ? (
             <svg class="socialSpinner" fill="none" viewBox="0 0 24 24">
@@ -66,6 +67,7 @@ export const SocialLoginButtons = component$<SocialLoginButtonsProps>(
           disabled={loading}
           class="socialButton"
           aria-label="Login with LinkedIn"
+          data-testid="social-login-linkedin-btn"
         >
           {loading && activeProvider === "linkedin" ? (
             <svg class="socialSpinner" fill="none" viewBox="0 0 24 24">
@@ -99,6 +101,7 @@ export const SocialLoginButtons = component$<SocialLoginButtonsProps>(
           disabled={loading}
           class="socialButton"
           aria-label="Login with GitHub"
+          data-testid="social-login-github-btn"
         >
           {loading && activeProvider === "github" ? (
             <svg class="socialSpinner" fill="none" viewBox="0 0 24 24">

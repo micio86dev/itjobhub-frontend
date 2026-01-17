@@ -5,6 +5,7 @@ import {
   PropFunction,
   isBrowser,
 } from "@builder.io/qwik";
+import logger from "../../utils/logger";
 
 interface Props {
   value: string;
@@ -35,7 +36,7 @@ export const LocationAutocomplete = component$((props: Props) => {
           script.id = "google-maps-script";
           const apiKey = import.meta.env.PUBLIC_GOOGLE_MAPS_KEY;
           if (!apiKey) {
-            console.error(
+            logger.error(
               "Google Maps API key is missing. set PUBLIC_GOOGLE_MAPS_KEY in .env",
             );
             return;

@@ -1,35 +1,33 @@
-import { component$, type Signal } from "@builder.io/qwik";
+import { component$, type Signal, useStylesScoped$ } from "@builder.io/qwik";
 import { useTranslate } from "~/contexts/i18n";
+import styles from "./hero-section.css?inline";
 
 interface HeroSectionProps {
   topSkills: Signal<{ skill: string; count: number }[]>;
 }
 
 export const HeroSection = component$<HeroSectionProps>(({ topSkills }) => {
+  useStylesScoped$(styles);
   const t = useTranslate();
 
   return (
-    <section class="relative bg-gradient-to-br from-indigo-900 via-purple-800 to-pink-700 text-white py-24 sm:py-32">
-      <div class="absolute inset-0 overflow-hidden">
-        <div class="absolute inset-0 bg-[url('/grid.svg')] opacity-10"></div>
+    <section class="hero-section">
+      <div class="bg-overlay">
+        <div class="bg-pattern"></div>
       </div>
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
-        <h1 class="text-4xl sm:text-6xl font-extrabold tracking-tight mb-6">
-          <span class="block">{t("home.title")}</span>
-          <span class="block text-indigo-200 mt-2 text-2xl sm:text-4xl">
-            {t("home.subtitle")}
-          </span>
+      <div class="container">
+        <h1 class="heading">
+          <span class="heading-main">{t("home.title")}</span>
+          <span class="heading-sub">{t("home.subtitle")}</span>
         </h1>
-        <p class="mt-4 max-w-2xl mx-auto text-xl text-indigo-100 mb-10">
-          {t("home.opportunities_desc")}
-        </p>
+        <p class="description">{t("home.opportunities_desc")}</p>
 
         {/* Search Box */}
-        <div class="max-w-3xl mx-auto">
-          <form action="/jobs" method="get" class="relative group">
-            <div class="absolute inset-0 bg-pink-500 rounded-lg blur opacity-25 group-hover:opacity-50 transition duration-1000"></div>
-            <div class="relative bg-white rounded-lg p-2 shadow-xl flex items-center">
-              <span class="pl-4 text-gray-400">
+        <div class="search-container">
+          <form action="/jobs" method="get" class="search-form group">
+            <div class="search-glow"></div>
+            <div class="search-input-wrapper">
+              <span class="search-icon-wrapper">
                 <svg
                   class="w-6 h-6"
                   fill="none"
@@ -48,54 +46,39 @@ export const HeroSection = component$<HeroSectionProps>(({ topSkills }) => {
                 type="text"
                 name="q"
                 placeholder={t("home.start_search")}
-                class="flex-1 p-4 text-gray-900 placeholder-gray-500 focus:outline-none rounded-lg"
+                class="search-input"
               />
-              <button
-                type="submit"
-                class="bg-indigo-600 text-white px-8 py-3 rounded-md font-semibold hover:bg-indigo-700 transition-colors duration-200 hidden sm:block"
-              >
+              <button type="submit" class="search-button">
                 {t("home.search_button")}
               </button>
             </div>
           </form>
-          <div class="mt-4 text-sm text-indigo-200 flex flex-wrap gap-2 items-center justify-center sm:justify-start">
-            <span class="font-medium opacity-80 mr-1">{t("home.popular")}</span>
+          <div class="popular-tags">
+            <span class="popular-label">{t("home.popular")}</span>
             {topSkills.value.length > 0 ? (
               topSkills.value.slice(0, 6).map((s) => (
                 <a
                   key={s.skill}
                   href={`/jobs?q=${encodeURIComponent(s.skill)}`}
-                  class="hover:text-white underline decoration-dashed underline-offset-4 mr-2 transition-colors"
+                  class="tag-link"
                 >
                   {s.skill}
                 </a>
               ))
             ) : (
               <>
-                <a
-                  href="/jobs?q=Frontend"
-                  class="hover:text-white underline decoration-dashed underline-offset-4 mr-2 transition-colors"
-                >
+                <a href="/jobs?q=Frontend" class="tag-link">
                   Frontend
                 </a>
-                <a
-                  href="/jobs?q=Backend"
-                  class="hover:text-white underline decoration-dashed underline-offset-4 mr-2 transition-colors"
-                >
+                <a href="/jobs?q=Backend" class="tag-link">
                   Backend
                 </a>
-                <a
-                  href="/jobs?q=Fullstack"
-                  class="hover:text-white underline decoration-dashed underline-offset-4 mr-2 transition-colors"
-                >
+                <a href="/jobs?q=Fullstack" class="tag-link">
                   Fullstack
                 </a>
               </>
             )}
-            <a
-              href="/jobs?remote=true"
-              class="hover:text-white underline decoration-dashed underline-offset-4 transition-colors"
-            >
+            <a href="/jobs?remote=true" class="tag-link">
               {t("jobs.remote")}
             </a>
           </div>

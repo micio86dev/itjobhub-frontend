@@ -164,6 +164,7 @@ export default component$(() => {
                 ))
               }
               class="bg-white dark:bg-gray-800 dark:text-white border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
+              data-testid="admin-stats-month-select"
             >
               <option value="0">{t("admin.total")}</option>
               {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
@@ -184,6 +185,7 @@ export default component$(() => {
               ))
             }
             class="bg-white dark:bg-gray-800 dark:text-white border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
+            data-testid="admin-stats-year-select"
           >
             <option value="0">{t("admin.all_time")}</option>
             {Array.from(
@@ -201,7 +203,10 @@ export default component$(() => {
       {/* Stats Cards */}
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {/* Users Card */}
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+        <div
+          class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6"
+          data-testid="admin-stats-users-card"
+        >
           <div class="flex items-center justify-between mb-4">
             <span class="p-2 bg-blue-50 dark:bg-blue-900/30 rounded-lg text-blue-600 dark:text-blue-400">
               <svg
@@ -228,13 +233,19 @@ export default component$(() => {
           <h3 class="text-gray-500 dark:text-gray-400 text-sm font-medium">
             {t("admin.total_users")}
           </h3>
-          <p class="text-2xl font-bold text-gray-900 dark:text-white">
+          <p
+            class="text-2xl font-bold text-gray-900 dark:text-white"
+            data-testid="admin-stats-total-users"
+          >
             {stats.overview.users.total}
           </p>
         </div>
 
         {/* Jobs Card */}
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+        <div
+          class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6"
+          data-testid="admin-stats-jobs-card"
+        >
           <div class="flex items-center justify-between mb-4">
             <span class="p-2 bg-indigo-50 dark:bg-indigo-900/30 rounded-lg text-indigo-600 dark:text-indigo-400">
               <svg
@@ -261,13 +272,19 @@ export default component$(() => {
           <h3 class="text-gray-500 dark:text-gray-400 text-sm font-medium">
             {t("admin.active_jobs")}
           </h3>
-          <p class="text-2xl font-bold text-gray-900 dark:text-white">
+          <p
+            class="text-2xl font-bold text-gray-900 dark:text-white"
+            data-testid="admin-stats-active-jobs"
+          >
             {stats.overview.jobs.total}
           </p>
         </div>
 
         {/* Companies Card */}
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+        <div
+          class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6"
+          data-testid="admin-stats-companies-card"
+        >
           <div class="flex items-center justify-between mb-4">
             <span class="p-2 bg-purple-50 dark:bg-purple-900/30 rounded-lg text-purple-600 dark:text-purple-400">
               <svg
@@ -294,13 +311,19 @@ export default component$(() => {
           <h3 class="text-gray-500 dark:text-gray-400 text-sm font-medium">
             {t("admin.companies")}
           </h3>
-          <p class="text-2xl font-bold text-gray-900 dark:text-white">
+          <p
+            class="text-2xl font-bold text-gray-900 dark:text-white"
+            data-testid="admin-stats-companies"
+          >
             {stats.overview.companies.total}
           </p>
         </div>
 
         {/* Engagement Card */}
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+        <div
+          class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6"
+          data-testid="admin-stats-engagement-card"
+        >
           <div class="flex items-center justify-between mb-4">
             <span class="p-2 bg-pink-50 dark:bg-pink-900/30 rounded-lg text-pink-600 dark:text-pink-400">
               <svg
@@ -322,13 +345,19 @@ export default component$(() => {
             {t("admin.engagement")}
           </h3>
           <div class="flex items-center gap-4">
-            <p class="text-2xl font-bold text-gray-900 dark:text-white flex items-center">
+            <p
+              class="text-2xl font-bold text-gray-900 dark:text-white flex items-center"
+              data-testid="admin-stats-comments"
+            >
               {stats.overview.engagement.comments}{" "}
               <span class="text-xs font-normal ml-1">
                 {t("admin.comments")}
               </span>
             </p>
-            <p class="text-2xl font-bold text-gray-900 dark:text-white flex items-center">
+            <p
+              class="text-2xl font-bold text-gray-900 dark:text-white flex items-center"
+              data-testid="admin-stats-likes"
+            >
               {stats.overview.engagement.likes}{" "}
               <span class="text-xs font-normal ml-1">{t("admin.likes")}</span>
             </p>
@@ -373,7 +402,6 @@ export default component$(() => {
       </div>
 
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Jobs by Seniority */}
         {/* Jobs by Seniority */}
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
           {(() => {

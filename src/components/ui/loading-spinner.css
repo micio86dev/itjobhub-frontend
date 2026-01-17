@@ -1,0 +1,23 @@
+.spinner-container {
+  @apply flex items-center justify-center py-12;
+}
+
+.spinner {
+  @apply animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600;
+}
+
+:global(.dark) .spinner {
+  @apply border-indigo-900 border-t-indigo-400;
+}
+
+.spinner-sm {
+  @apply w-6 h-6;
+}
+
+.spinner-md {
+  @apply w-10 h-10;
+}
+
+.spinner-lg {
+  @apply w-16 h-16;
+}

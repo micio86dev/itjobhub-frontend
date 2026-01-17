@@ -12,6 +12,7 @@ import { useAuth } from "~/contexts/auth";
 import { useTranslate, useI18n } from "~/contexts/i18n";
 
 import { Modal } from "~/components/ui/modal";
+import logger from "../../utils/logger";
 
 interface CommentsSectionProps {
   jobId: string;
@@ -34,9 +35,14 @@ export const CommentsSection = component$<CommentsSectionProps>(
       isSubmitting: false,
       editingId: null as string | null,
       editContent: "",
+
       showDeleteModal: false,
       commentToDelete: null as string | null,
+      isEditingSubmitting: false,
+      isExpanded: true,
     });
+
+    const anonymousUser = t("comments.anonymous_user");
 
     const comments = getCommentsFromState(jobsContext.comments, jobId);
 
@@ -60,9 +66,21 @@ export const CommentsSection = component$<CommentsSectionProps>(
     const saveEdit = $(async () => {
       if (!state.editingId || !state.editContent.trim()) return;
 
-      await jobsContext.editComment$(state.editingId, state.editContent.trim());
-      state.editingId = null;
-      state.editContent = "";
+      state.isEditingSubmitting = true;
+      try {
+        await jobsContext.editComment$(
+          state.editingId,
+          state.editContent.trim(),
+        );
+        state.editingId = null;
+        state.editContent = "";
+      } finally {
+        state.isEditingSubmitting = false;
+      }
+    });
+
+    const toggleExpanded = $(() => {
+      state.isExpanded = !state.isExpanded;
     });
 
     const handleDelete = $((commentId: string) => {
@@ -95,7 +113,8 @@ export const CommentsSection = component$<CommentsSectionProps>(
             name:
               auth.user?.name ||
               `${auth.user?.firstName || ""} ${auth.user?.lastName || ""}`.trim() ||
-              t("comments.anonymous_user"),
+              `${auth.user?.firstName || ""} ${auth.user?.lastName || ""}`.trim() ||
+              anonymousUser,
             avatar: auth.user?.avatar,
           },
           text: state.commentText.trim(),
@@ -105,7 +124,7 @@ export const CommentsSection = component$<CommentsSectionProps>(
 
         // Close the comments section if callback provided
         if (onClose$) {
-          console.log("Closing comments section...");
+          logger.info("Closing comments section...");
           await onClose$();
         }
       } catch {
@@ -168,9 +187,29 @@ export const CommentsSection = component$<CommentsSectionProps>(
     return (
       <div class="comments-container">
         <div class="comments-header-container">
-          <h4 class="comments-title">
-            {t("comments.title")} ({comments.length})
-          </h4>
+          <div class="flex items-center justify-between w-full">
+            <h4 class="comments-title">
+              {t("comments.title")} ({comments.length})
+            </h4>
+            <button
+              onClick$={toggleExpanded}
+              class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+            >
+              <svg
+                class={`w-5 h-5 transform transition-transform ${state.isExpanded ? "rotate-180" : ""}`}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+            </button>
+          </div>
 
           {/* Comment form */}
           {auth.isAuthenticated ? (
@@ -200,9 +239,9 @@ export const CommentsSection = component$<CommentsSectionProps>(
                   <textarea
                     value={state.commentText}
                     onInput$={(e) =>
-                    (state.commentText = (
-                      e.target as HTMLTextAreaElement
-                    ).value)
+                      (state.commentText = (
+                        e.target as HTMLTextAreaElement
+                      ).value)
                     }
                     placeholder={t("comments.placeholder")}
                     rows={2}
@@ -257,92 +296,119 @@ export const CommentsSection = component$<CommentsSectionProps>(
         </div>
 
         {/* Comments list */}
-        <div class="comments-list">
-          {comments.length === 0 ? (
-            <div class="no-comments-container">
-              <div class="no-comments-icon-container">
-                <svg
-                  class="no-comments-icon"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-                  />
-                </svg>
-              </div>
-              <p class="no-comments-text">{t("comments.no_comments")}</p>
-              <p class="be-first-text">{t("comments.be_first")}</p>
-            </div>
-          ) : (
-            comments.map((comment) => (
-              <div key={comment.id} class="comment-item">
-                <div class="comment-avatar-container">
-                  {comment.author.avatar ? (
-                    <img
-                      src={comment.author.avatar}
-                      alt={comment.author.name}
-                      class="comment-avatar-image"
-                      width="24"
-                      height="24"
+        {state.isExpanded && (
+          <div class="comments-list">
+            {comments.length === 0 ? (
+              <div class="no-comments-container">
+                <div class="no-comments-icon-container">
+                  <svg
+                    class="no-comments-icon"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
                     />
-                  ) : (
-                    <div class="comment-avatar-placeholder">
-                      <span class="avatar-initials">
-                        {getInitials(comment.author.name)}
-                      </span>
-                    </div>
-                  )}
+                  </svg>
                 </div>
-
-                <div class="comment-body">
-                  {state.editingId === comment.id ? (
-                    <div class="edit-container">
-                      <textarea
-                        value={state.editContent}
-                        onInput$={(e) =>
-                        (state.editContent = (
-                          e.target as HTMLTextAreaElement
-                        ).value)
-                        }
-                        class="edit-textarea"
-                        rows={2}
+                <p class="no-comments-text">{t("comments.no_comments")}</p>
+                <p class="be-first-text">{t("comments.be_first")}</p>
+              </div>
+            ) : (
+              comments.map((comment) => (
+                <div key={comment.id} class="comment-item">
+                  <div class="comment-avatar-container">
+                    {comment.author.avatar ? (
+                      <img
+                        src={comment.author.avatar}
+                        alt={comment.author.name}
+                        class="comment-avatar-image"
+                        width="24"
+                        height="24"
                       />
-                      <div class="edit-actions">
-                        <button onClick$={cancelEditing} class="cancel-btn">
-                          {t("common.cancel")}
-                        </button>
-                        <button
-                          onClick$={saveEdit}
-                          class="save-btn"
-                          disabled={!state.editContent.trim()}
-                        >
-                          {t("common.save")}
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div class="comment-content-container group">
-                      <div class="comment-header">
-                        <span class="comment-author">
-                          {comment.author.name}
+                    ) : (
+                      <div class="comment-avatar-placeholder">
+                        <span class="avatar-initials">
+                          {getInitials(comment.author.name)}
                         </span>
-                        <div class="comment-meta">
-                          <span class="comment-date">
-                            {formatCommentDate(comment.date)}
+                      </div>
+                    )}
+                  </div>
+
+                  <div class="comment-body">
+                    {state.editingId === comment.id ? (
+                      <div class="edit-container">
+                        <textarea
+                          value={state.editContent}
+                          onInput$={(e) =>
+                            (state.editContent = (
+                              e.target as HTMLTextAreaElement
+                            ).value)
+                          }
+                          class="edit-textarea"
+                          rows={2}
+                        />
+                        <div class="edit-actions">
+                          <button onClick$={cancelEditing} class="cancel-btn">
+                            {t("common.cancel")}
+                          </button>
+                          <button
+                            onClick$={saveEdit}
+                            class="save-btn flex items-center"
+                            disabled={
+                              !state.editContent.trim() ||
+                              state.isEditingSubmitting
+                            }
+                          >
+                            {state.isEditingSubmitting && (
+                              <svg
+                                class="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                              >
+                                <circle
+                                  class="opacity-25"
+                                  cx="12"
+                                  cy="12"
+                                  r="10"
+                                  stroke="currentColor"
+                                  stroke-width="4"
+                                ></circle>
+                                <path
+                                  class="opacity-75"
+                                  fill="currentColor"
+                                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                ></path>
+                              </svg>
+                            )}
+                            {state.isEditingSubmitting
+                              ? t("common.saving")
+                              : t("common.save")}
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div class="comment-content-container group">
+                        <div class="comment-header">
+                          <span class="comment-author">
+                            {comment.author.name}
                           </span>
-                          {(auth.user?.id === comment.userId ||
-                            auth.user?.role === "admin") && (
+                          <div class="comment-meta">
+                            <span class="comment-date">
+                              {formatCommentDate(comment.date)}
+                            </span>
+                            {(auth.user?.id === comment.userId ||
+                              auth.user?.role === "admin") && (
                               <div class="comment-actions">
                                 {auth.user?.id === comment.userId && (
                                   <button
-                                    onClick$={$(() =>
+                                    onClick$={() =>
                                       startEditing(comment.id, comment.text)
-                                    )}
+                                    }
                                     class="action-btn-edit"
                                     title={t("common.edit")}
                                   >
@@ -362,7 +428,7 @@ export const CommentsSection = component$<CommentsSectionProps>(
                                   </button>
                                 )}
                                 <button
-                                  onClick$={$(() => handleDelete(comment.id))}
+                                  onClick$={() => handleDelete(comment.id)}
                                   class="action-btn-delete"
                                   title={t("common.delete")}
                                 >
@@ -382,16 +448,17 @@ export const CommentsSection = component$<CommentsSectionProps>(
                                 </button>
                               </div>
                             )}
+                          </div>
                         </div>
+                        <p class="comment-text">{comment.text}</p>
                       </div>
-                      <p class="comment-text">{comment.text}</p>
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))
-          )}
-        </div>
+              ))
+            )}
+          </div>
+        )}
 
         <Modal
           title={t("job.confirm_delete_title")}

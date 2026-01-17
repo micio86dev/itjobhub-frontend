@@ -132,7 +132,7 @@ export default component$(() => {
                 name="email"
                 type="email"
                 required
-                data-testid="email-input"
+                data-testid="login-form-email-input"
                 class="inputTop"
                 placeholder={t("auth.email")}
                 value={form.email}
@@ -150,7 +150,7 @@ export default component$(() => {
                 name="password"
                 type="password"
                 required
-                data-testid="password-input"
+                data-testid="login-form-password-input"
                 class="inputBottom"
                 placeholder={t("auth.password")}
                 value={form.password}
@@ -167,7 +167,7 @@ export default component$(() => {
             <button
               type="submit"
               disabled={form.loading}
-              data-testid="login-submit"
+              data-testid="login-form-submit-btn"
               class="submitButton"
             >
               {form.loading && form.provider === "email" && (

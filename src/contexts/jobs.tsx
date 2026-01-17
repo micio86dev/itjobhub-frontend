@@ -15,6 +15,7 @@ import {
 } from "@builder.io/qwik";
 import { useAuth } from "./auth";
 import { request } from "../utils/api";
+import logger from "../utils/logger";
 import type {
   ApiJob,
   ApiComment,
@@ -30,12 +31,12 @@ export interface JobListing {
   skills: string[];
   seniority: "junior" | "mid" | "senior" | "unknown";
   availability:
-  | "full_time"
-  | "part_time"
-  | "hybrid"
-  | "contract"
-  | "freelance"
-  | "not_specified";
+    | "full_time"
+    | "part_time"
+    | "hybrid"
+    | "contract"
+    | "freelance"
+    | "not_specified";
   location?: string;
   location_geo?: { coordinates: number[] };
   remote?: boolean;
@@ -232,16 +233,16 @@ export const JobsProvider = component$(() => {
     likeJobSignal,
     dislikeJobSignal,
     addCommentSignal,
-    fetchComments$: $(async () => { }), // Initialize with a no-op QRL
-    fetchJobsPage$: $(async () => { }), // Will be assigned below
-    loadMoreJobs$: $(async () => { }), // Will be assigned below
-    toggleFavorite$: $(async () => { }), // Will be assigned below
-    fetchFavorites$: $(async () => { }), // Will be assigned below
-    deleteComment$: $(async () => { }), // Will be assigned below
-    editComment$: $(async () => { }), // Will be assigned below
+    fetchComments$: $(async () => {}), // Initialize with a no-op QRL
+    fetchJobsPage$: $(async () => {}), // Will be assigned below
+    loadMoreJobs$: $(async () => {}), // Will be assigned below
+    toggleFavorite$: $(async () => {}), // Will be assigned below
+    fetchFavorites$: $(async () => {}), // Will be assigned below
+    deleteComment$: $(async () => {}), // Will be assigned below
+    editComment$: $(async () => {}), // Will be assigned below
     fetchTopSkills$: $(async () => []), // Will be assigned below
     fetchJobById$: $(async () => null), // Will be assigned below
-    trackJobInteraction$: $(async () => { }), // Will be assigned below
+    trackJobInteraction$: $(async () => {}), // Will be assigned below
     fetchJobMatchScore$: $(async () => null), // Will be assigned below
     fetchBatchMatchScores$: $(async () => ({})), // Will be assigned below
   });
@@ -270,7 +271,7 @@ export const JobsProvider = component$(() => {
           jobsState.comments = [...others, ...fetched];
         }
       } catch (error) {
-        console.error("Error fetching comments:", error);
+        logger.error({ error, jobId }, "Error fetching comments");
       }
     });
   });
@@ -287,8 +288,9 @@ export const JobsProvider = component$(() => {
         jobsState.pagination.isLoading = true;
 
         try {
-          console.log(
-            `Fetching jobs page ${page} with limit ${jobsState.pagination.limit}...`,
+          logger.info(
+            { page, limit: jobsState.pagination.limit },
+            `Fetching jobs page ${page}...`,
           );
           const url = new URL(`${API_URL}/jobs`);
           url.searchParams.append("page", String(page));
@@ -382,7 +384,10 @@ export const JobsProvider = component$(() => {
             jobsState.currentFilters = filters || null;
           }
         } catch (error) {
-          console.error("Failed to fetch jobs from API:", error);
+          logger.error(
+            { error, page, filters },
+            "Failed to fetch jobs from API",
+          );
           if (!append) {
             jobsState.jobs = [];
           }
@@ -395,12 +400,12 @@ export const JobsProvider = component$(() => {
 
     // fetchJobById$: Fetch a single job by ID
     jobsState.fetchJobById$ = $(async (id: string) => {
+      if (!id || id === "undefined") return null;
       try {
         const headers: Record<string, string> = {};
         if (auth.token) {
           headers["Authorization"] = `Bearer ${auth.token}`;
         }
-
         const response = await request(`${API_URL}/jobs/${id}`, { headers });
         if (!response.ok) throw new Error("Failed to fetch job");
         const result = await response.json();
@@ -409,7 +414,7 @@ export const JobsProvider = component$(() => {
         }
         return null;
       } catch (error) {
-        console.error("Error fetching job by id:", error);
+        logger.error({ error, id }, "Error fetching job by id");
         return null;
       }
     });
@@ -496,7 +501,7 @@ export const JobsProvider = component$(() => {
           }
         }
       } catch (error) {
-        console.error("Failed to toggle favorite:", error);
+        logger.error({ error, jobId }, "Failed to toggle favorite");
         // Revert on error for ALL instances
         allInstances.forEach((job) => {
           job.is_favorite = wasFavorite;
@@ -527,7 +532,7 @@ export const JobsProvider = component$(() => {
           });
         }
       } catch (error) {
-        console.error("Failed to fetch favorites:", error);
+        logger.error({ error }, "Failed to fetch favorites");
       }
     });
   });
@@ -621,7 +626,7 @@ export const JobsProvider = component$(() => {
           }
         }
       } catch (error) {
-        console.error("Failed to persist action:", error);
+        logger.error({ error, jobId }, "Failed to persist action");
       }
     }
   });
@@ -701,7 +706,7 @@ export const JobsProvider = component$(() => {
           }
         }
       } catch (error) {
-        console.error("Failed to persist action:", error);
+        logger.error({ error, jobId }, "Failed to persist action");
       }
     }
   });
@@ -742,7 +747,7 @@ export const JobsProvider = component$(() => {
           throw new Error("Failed to delete comment");
         }
       } catch (error) {
-        console.error("Failed to delete comment:", error);
+        logger.error({ error, commentId }, "Failed to delete comment");
         // Revert on error
         jobsState.comments = originalComments;
 
@@ -787,7 +792,7 @@ export const JobsProvider = component$(() => {
             throw new Error("Failed to edit comment");
           }
         } catch (error) {
-          console.error("Failed to edit comment:", error);
+          logger.error({ error, commentId }, "Failed to edit comment");
           // Revert on error
           jobsState.comments[commentIndex] = originalComment;
           alert("Failed to edit comment");
@@ -844,7 +849,10 @@ export const JobsProvider = component$(() => {
           });
         }
       } catch (error) {
-        console.error("Error adding comment:", error);
+        logger.error(
+          { error, jobId: commentReq.jobId },
+          "Error adding comment",
+        );
       } finally {
         jobsState.addCommentSignal.value = null;
       }
@@ -874,16 +882,16 @@ export const JobsProvider = component$(() => {
         }
         return [];
       } catch (error) {
-        console.error("Error fetching top skills:", error);
+        logger.error({ error, limit, year }, "Error fetching top skills");
         return [];
       }
     });
 
-    // trackJobInteraction$: Track view or apply
     jobsState.trackJobInteraction$ = $(
       async (jobId: string, type: "VIEW" | "APPLY") => {
         try {
-          if (typeof window === "undefined") return;
+          if (typeof window === "undefined" || !jobId || jobId === "undefined")
+            return;
 
           const visitorId = getVisitorId();
           const token = auth.token;
@@ -916,7 +924,7 @@ export const JobsProvider = component$(() => {
             }),
           });
         } catch (error) {
-          console.error("Error tracking interaction:", error);
+          logger.error({ error, jobId, type }, "Error tracking interaction");
         }
       },
     );
@@ -925,7 +933,8 @@ export const JobsProvider = component$(() => {
     jobsState.fetchJobMatchScore$ = $(async (jobId: string) => {
       try {
         const token = auth.token;
-        if (!token || !auth.user) return null;
+        if (!token || !auth.user || !jobId || jobId === "undefined")
+          return null;
 
         const response = await request(`${API_URL}/jobs/${jobId}/match`, {
           headers: {
@@ -941,7 +950,7 @@ export const JobsProvider = component$(() => {
         }
         return null;
       } catch (error) {
-        console.error("Error fetching match score:", error);
+        logger.error({ error, jobId }, "Error fetching match score");
         return null;
       }
     });
@@ -962,7 +971,7 @@ export const JobsProvider = component$(() => {
         });
 
         if (response.status === 401) {
-          console.warn("Batch match scores: Unauthorized");
+          logger.warn({ jobIds }, "Batch match scores: Unauthorized");
           if (typeof window !== "undefined") {
             window.dispatchEvent(new CustomEvent("unauthorized"));
           }
@@ -977,7 +986,7 @@ export const JobsProvider = component$(() => {
         }
         return {};
       } catch (error) {
-        console.error("Error fetching batch match scores:", error);
+        logger.error({ error, jobIds }, "Error fetching batch match scores");
         return {};
       }
     });
@@ -1002,9 +1011,9 @@ const getDistance = (
   const a =
     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
     Math.cos(lat1 * (Math.PI / 180)) *
-    Math.cos(lat2 * (Math.PI / 180)) *
-    Math.sin(dLon / 2) *
-    Math.sin(dLon / 2);
+      Math.cos(lat2 * (Math.PI / 180)) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   return R * c;
 };
@@ -1243,7 +1252,7 @@ export const getPersonalizedJobs = (
     // Recency boost
     const daysSincePosted = Math.floor(
       (new Date().getTime() - job.publishDate.getTime()) /
-      (1000 * 60 * 60 * 24),
+        (1000 * 60 * 60 * 24),
     );
     score += Math.max(0, 10 - daysSincePosted);
 

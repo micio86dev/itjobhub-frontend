@@ -1,0 +1,15 @@
+.scroll-buttons-container {
+  @apply fixed bottom-8 right-8 flex flex-col space-y-4 z-50;
+}
+
+.scroll-btn {
+  @apply p-3 bg-white text-indigo-600 rounded-full shadow-lg border border-gray-200 transition-transform hover:scale-110 focus:outline-none;
+}
+
+:global(.dark) .scroll-btn {
+  @apply bg-gray-800 text-indigo-400 border-gray-700;
+}
+
+.icon {
+  @apply w-6 h-6;
+}

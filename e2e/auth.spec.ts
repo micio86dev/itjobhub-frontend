@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { SELECTORS, ensurePageReady, loginViaUI, verifyAuthState } from './helpers';
+import { SELECTORS, ensurePageReady, loginViaUI, verifyAuthState, checkForViteError } from './helpers';
 
 test.describe('Authentication', () => {
     test.describe('Registration', () => {
@@ -9,11 +9,11 @@ test.describe('Authentication', () => {
 
             const email = `test-${Date.now()}@example.com`;
 
-            await page.locator(SELECTORS.firstNameInput).fill('Test');
-            await page.locator(SELECTORS.lastNameInput).fill('User');
-            await page.locator(SELECTORS.emailInput).fill(email);
-            await page.locator(SELECTORS.passwordInput).fill('password123');
-            await page.locator(SELECTORS.confirmPasswordInput).fill('password123');
+            await page.locator(SELECTORS.registerFirstNameInput).fill('Test');
+            await page.locator(SELECTORS.registerLastNameInput).fill('User');
+            await page.locator(SELECTORS.registerEmailInput).fill(email);
+            await page.locator(SELECTORS.registerPasswordInput).fill('password123');
+            await page.locator(SELECTORS.registerConfirmPasswordInput).fill('password123');
 
             const responsePromise = page.waitForResponse(
                 (response) =>
@@ -21,7 +21,12 @@ test.describe('Authentication', () => {
                     response.request().method() === 'POST'
             );
 
-            await page.locator(SELECTORS.registerSubmit).click();
+            try {
+                await page.locator(SELECTORS.registerSubmit).click({ timeout: 5000 });
+            } catch (e) {
+                await checkForViteError(page);
+                throw e;
+            }
             const response = await responsePromise;
 
             expect([200, 201]).toContain(response.status());
@@ -33,11 +38,11 @@ test.describe('Authentication', () => {
             await ensurePageReady(page);
 
             // Use existing seeker email
-            await page.locator(SELECTORS.firstNameInput).fill('Duplicate');
-            await page.locator(SELECTORS.lastNameInput).fill('User');
-            await page.locator(SELECTORS.emailInput).fill('seeker@test.com');
-            await page.locator(SELECTORS.passwordInput).fill('password123');
-            await page.locator(SELECTORS.confirmPasswordInput).fill('password123');
+            await page.locator(SELECTORS.registerFirstNameInput).fill('Duplicate');
+            await page.locator(SELECTORS.registerLastNameInput).fill('User');
+            await page.locator(SELECTORS.registerEmailInput).fill('seeker@test.com');
+            await page.locator(SELECTORS.registerPasswordInput).fill('password123');
+            await page.locator(SELECTORS.registerConfirmPasswordInput).fill('password123');
 
             await page.locator(SELECTORS.registerSubmit).click();
 
@@ -51,11 +56,11 @@ test.describe('Authentication', () => {
             await page.goto('/register');
             await ensurePageReady(page);
 
-            await page.locator(SELECTORS.firstNameInput).fill('Test');
-            await page.locator(SELECTORS.lastNameInput).fill('User');
-            await page.locator(SELECTORS.emailInput).fill(`test-${Date.now()}@example.com`);
-            await page.locator(SELECTORS.passwordInput).fill('password123');
-            await page.locator(SELECTORS.confirmPasswordInput).fill('differentpassword');
+            await page.locator(SELECTORS.registerFirstNameInput).fill('Test');
+            await page.locator(SELECTORS.registerLastNameInput).fill('User');
+            await page.locator(SELECTORS.registerEmailInput).fill(`test-${Date.now()}@example.com`);
+            await page.locator(SELECTORS.registerPasswordInput).fill('password123');
+            await page.locator(SELECTORS.registerConfirmPasswordInput).fill('differentpassword');
 
             // Try to submit
             const submitBtn = page.locator(SELECTORS.registerSubmit);
@@ -82,8 +87,8 @@ test.describe('Authentication', () => {
             await page.goto('/login');
             await ensurePageReady(page);
 
-            await page.locator(SELECTORS.emailInput).fill('seeker@test.com');
-            await page.locator(SELECTORS.passwordInput).fill('password123');
+            await page.locator(SELECTORS.loginEmailInput).fill('seeker@test.com');
+            await page.locator(SELECTORS.loginPasswordInput).fill('password123');
 
             const responsePromise = page.waitForResponse(
                 (response) =>
@@ -94,6 +99,11 @@ test.describe('Authentication', () => {
             await page.locator(SELECTORS.loginSubmit).click();
             const response = await responsePromise;
 
+            if (response.status() !== 200) {
+                console.log('Login failed with status:', response.status());
+                console.log('Response body:', await response.text());
+            }
+
             expect(response.status()).toBe(200);
             await expect(page).toHaveURL(/\/(wizard)?$/);
             await verifyAuthState(page, true);
@@ -103,8 +113,8 @@ test.describe('Authentication', () => {
             await page.goto('/login');
             await ensurePageReady(page);
 
-            await page.locator(SELECTORS.emailInput).fill('wrong@test.com');
-            await page.locator(SELECTORS.passwordInput).fill('wrongpassword');
+            await page.locator(SELECTORS.loginEmailInput).fill('wrong@test.com');
+            await page.locator(SELECTORS.loginPasswordInput).fill('wrongpassword');
 
             await page.locator(SELECTORS.loginSubmit).click();
 
@@ -126,8 +136,8 @@ test.describe('Authentication', () => {
             await expect(page).toHaveURL(/\/login/);
 
             // Login
-            await page.locator(SELECTORS.emailInput).fill('seeker@test.com');
-            await page.locator(SELECTORS.passwordInput).fill('password123');
+            await page.locator(SELECTORS.loginEmailInput).fill('seeker@test.com');
+            await page.locator(SELECTORS.loginPasswordInput).fill('password123');
             await page.locator(SELECTORS.loginSubmit).click();
 
             // Should redirect back to profile or home

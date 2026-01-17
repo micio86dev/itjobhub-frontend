@@ -9,6 +9,7 @@ import {
   useOn,
   isBrowser,
 } from "@builder.io/qwik";
+import logger from "../../../utils/logger";
 
 interface JobLocation {
   id: string;
@@ -131,7 +132,7 @@ export const JobMap = component$((props: Props) => {
           if (!document.getElementById(scriptId)) {
             const apiKey = import.meta.env.PUBLIC_GOOGLE_MAPS_KEY;
             if (!apiKey) {
-              console.error("Missing Google Maps API Key");
+              logger.error("Missing Google Maps API Key");
               return;
             }
             const script = document.createElement("script");

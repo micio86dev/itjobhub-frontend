@@ -70,14 +70,14 @@ export default component$(() => {
       auth.isAuthenticated && auth.user?.profileCompleted && !hasInitialSearch,
     searchFilters: hasInitialSearch
       ? ({
-        query: initialQuery,
-        remote:
-          initialRemote === "true"
-            ? true
-            : initialRemote === "false"
-              ? false
-              : undefined,
-      } as JobFilters)
+          query: initialQuery,
+          remote:
+            initialRemote === "true"
+              ? true
+              : initialRemote === "false"
+                ? false
+                : undefined,
+        } as JobFilters)
       : null,
     hasSearched: hasInitialSearch,
     shouldLoadJobs: true,
@@ -160,14 +160,18 @@ export default component$(() => {
       // Try GPS if no profile location
       if (!defaultLocation && isBrowser && navigator.geolocation) {
         try {
-          const pos = await new Promise<GeolocationPosition>((resolve, reject) => {
-            navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 5000 });
-          });
+          const pos = await new Promise<GeolocationPosition>(
+            (resolve, reject) => {
+              navigator.geolocation.getCurrentPosition(resolve, reject, {
+                timeout: 5000,
+              });
+            },
+          );
           defaultGeo = {
             lat: pos.coords.latitude,
             lng: pos.coords.longitude,
           };
-        } catch (e) {
+        } catch {
           // GPS denied or failed, ignore
         }
       }
@@ -256,26 +260,34 @@ export default component$(() => {
         : undefined;
     const shouldFilterByLanguage = userLanguages && userLanguages.length > 0;
 
+    // Map remote selection to API filters
+    // If 'hybrid' is selected, we map it to availability='hybrid' (assuming backend model)
+    let apiAvailability = filters.availability;
+    let apiRemote: boolean | undefined = undefined;
+
+    if (filters.remote === "remote") {
+      apiRemote = true;
+    } else if (filters.remote === "office") {
+      apiRemote = false;
+    } else if (filters.remote === "hybrid") {
+      apiAvailability = "hybrid";
+    }
+
     // Convert JobSearchFilters to JobFilters for API
     const convertedFilters: JobFilters | null =
       hasFilters || shouldFilterByLanguage
         ? {
-          query: filters.query,
-          seniority: filters.seniority,
-          availability: filters.availability,
-          location: filters.location,
-          location_geo: filters.location_geo,
-          radius_km: 50, // Default 50km radius
-          remote:
-            filters.remote === "remote"
-              ? true
-              : filters.remote === "office"
-                ? false
-                : undefined,
-          dateRange: filters.dateRange,
-          // Always apply strict language filtering if user has languages
-          languages: userLanguages,
-        }
+            query: filters.query,
+            seniority: filters.seniority,
+            availability: apiAvailability,
+            location: filters.location,
+            location_geo: filters.location_geo,
+            radius_km: 50, // Default 50km radius
+            remote: apiRemote,
+            dateRange: filters.dateRange,
+            // Always apply strict language filtering if user has languages
+            languages: userLanguages,
+          }
         : null;
 
     state.searchFilters = convertedFilters;
@@ -315,11 +327,11 @@ export default component$(() => {
           initialLocation={auth.user?.location || undefined}
           initialGeo={
             auth.user?.location_geo?.coordinates &&
-              auth.user.location_geo.coordinates.length >= 2
+            auth.user.location_geo.coordinates.length >= 2
               ? {
-                lat: auth.user.location_geo.coordinates[1],
-                lng: auth.user.location_geo.coordinates[0],
-              }
+                  lat: auth.user.location_geo.coordinates[1],
+                  lng: auth.user.location_geo.coordinates[0],
+                }
               : undefined
           }
           initialQuery={initialQuery}
@@ -339,10 +351,11 @@ export default component$(() => {
             <div class="flex items-center space-x-4">
               <button
                 onClick$={togglePersonalized}
-                class={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${state.showPersonalized
-                  ? "bg-indigo-600 dark:bg-indigo-700 text-white"
-                  : "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600"
-                  }`}
+                class={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                  state.showPersonalized
+                    ? "bg-indigo-600 dark:bg-indigo-700 text-white"
+                    : "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600"
+                }`}
               >
                 {state.showPersonalized
                   ? t("jobs.personalized_feed")
@@ -428,13 +441,13 @@ export default component$(() => {
         <div class="mb-4 text-sm font-medium text-gray-600 dark:text-gray-400">
           {state.hasNextPage
             ? t("jobs.showing_count").replace(
-              "{count}",
-              state.totalJobsCount.toString(),
-            )
+                "{count}",
+                state.totalJobsCount.toString(),
+              )
             : t("jobs.found_count").replace(
-              "{count}",
-              state.totalJobsCount.toString(),
-            )}
+                "{count}",
+                state.totalJobsCount.toString(),
+              )}
         </div>
       )}
 

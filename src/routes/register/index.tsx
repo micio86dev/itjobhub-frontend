@@ -1,4 +1,10 @@
-import { component$, useStore, $, useTask$, useStylesScoped$ } from "@builder.io/qwik";
+import {
+  component$,
+  useStore,
+  $,
+  useTask$,
+  useStylesScoped$,
+} from "@builder.io/qwik";
 import { useNavigate } from "@builder.io/qwik-city";
 import type { DocumentHead } from "@builder.io/qwik-city";
 import { useAuth } from "~/contexts/auth";
@@ -95,25 +101,16 @@ export default component$(() => {
     <div class="registerContainer">
       <div class="registerCard">
         <div>
-          <h2 class="title">
-            {t("auth.register_title")}
-          </h2>
+          <h2 class="title">{t("auth.register_title")}</h2>
           <p class="subtitle">
             {t("common.or")}{" "}
-            <a
-              href="/login"
-              class="link"
-            >
+            <a href="/login" class="link">
               {t("auth.have_account")}
             </a>
           </p>
         </div>
 
-        <form
-          class="form"
-          preventdefault:submit
-          onSubmit$={handleRegister}
-        >
+        <form class="form" preventdefault:submit onSubmit$={handleRegister}>
           <div class="rounded-md shadow-sm -space-y-px">
             <div>
               <label for="firstName" class="sr-only">
@@ -124,7 +121,7 @@ export default component$(() => {
                 name="firstName"
                 type="text"
                 required
-                data-testid="first-name-input"
+                data-testid="register-form-firstname-input"
                 class="inputTop"
                 placeholder={t("auth.first_name")}
                 value={form.firstName}
@@ -142,7 +139,7 @@ export default component$(() => {
                 name="lastName"
                 type="text"
                 required
-                data-testid="last-name-input"
+                data-testid="register-form-lastname-input"
                 class="inputMiddle"
                 placeholder={t("auth.last_name")}
                 value={form.lastName}
@@ -160,7 +157,7 @@ export default component$(() => {
                 name="email"
                 type="email"
                 required
-                data-testid="email-input"
+                data-testid="register-form-email-input"
                 class="inputMiddle"
                 placeholder={t("auth.email")}
                 value={form.email}
@@ -178,7 +175,7 @@ export default component$(() => {
                 name="password"
                 type="password"
                 required
-                data-testid="password-input"
+                data-testid="register-form-password-input"
                 class="inputMiddle"
                 placeholder={t("auth.password")}
                 value={form.password}
@@ -196,7 +193,7 @@ export default component$(() => {
                 name="confirmPassword"
                 type="password"
                 required
-                data-testid="confirm-password-input"
+                data-testid="register-form-confirm-password-input"
                 class="inputBottom"
                 placeholder={t("auth.confirm_password")}
                 value={form.confirmPassword}
@@ -207,15 +204,13 @@ export default component$(() => {
             </div>
           </div>
 
-          {form.error && (
-            <div class="errorMessage">{form.error}</div>
-          )}
+          {form.error && <div class="errorMessage">{form.error}</div>}
 
           <div>
             <button
               type="submit"
               disabled={form.loading}
-              data-testid="register-submit"
+              data-testid="register-form-submit-btn"
               class="submitButton"
             >
               {form.loading && form.provider === "email" ? (
@@ -255,9 +250,7 @@ export default component$(() => {
               <div class="divider" />
             </div>
             <div class="dividerTextWrapper">
-              <span class="dividerText">
-                {t("auth.or_register")}
-              </span>
+              <span class="dividerText">{t("auth.or_register")}</span>
             </div>
           </div>
 

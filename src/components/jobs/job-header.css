@@ -158,7 +158,6 @@
   @apply text-indigo-400 hover:text-indigo-300;
 }
 
-
 .badgesRow {
   @apply flex flex-wrap items-center gap-4 mt-8 pt-8 border-t border-gray-100;
 }
@@ -180,7 +179,8 @@
   @apply text-indigo-600;
 }
 
-:global(.dark) .seniorityValue, :global(.dark) .availabilityValue {
+:global(.dark) .seniorityValue,
+:global(.dark) .availabilityValue {
   @apply text-indigo-400;
 }
 

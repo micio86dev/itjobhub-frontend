@@ -1,7 +1,7 @@
-import { component$, type QRL, useStylesScoped$, $ } from "@builder.io/qwik";
+import { component$, useStylesScoped$, type QRL } from "@builder.io/qwik";
 import styles from "./job-header.css?inline";
 import { Link } from "@builder.io/qwik-city";
-import { useTranslate, interpolate } from "~/contexts/i18n";
+import { useTranslate } from "~/contexts/i18n";
 import type { JobListing } from "~/contexts/jobs";
 
 interface JobHeaderProps {
@@ -157,7 +157,7 @@ export const JobHeader = component$<JobHeaderProps>(
 
             {isAdmin && (
               <button
-                onClick$={$(() => onDelete$())}
+                onClick$={onDelete$}
                 class="deleteButton"
                 data-testid="delete-button"
               >

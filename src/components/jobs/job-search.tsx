@@ -122,7 +122,12 @@ export const JobSearch = component$<JobSearchProps>(
             <div class="relative">
               <LocationAutocomplete
                 value={state.location}
-                onInput$={(val) => (state.location = val)}
+                onInput$={(val) => {
+                  state.location = val;
+                  // Clear geo coordinates when user types manually to avoid mismatch
+                  // until they select a suggestion
+                  state.location_geo = undefined;
+                }}
                 onLocationSelect$={(loc, coords) => {
                   state.location = loc;
                   state.location_geo = coords;
@@ -233,6 +238,7 @@ export const JobSearch = component$<JobSearchProps>(
             >
               <option value="">{t("jobs.all_modes")}</option>
               <option value="remote">{t("jobs.remote")}</option>
+              <option value="hybrid">{t("jobs.hybrid")}</option>
               <option value="office">{t("jobs.office")}</option>
             </select>
           </div>

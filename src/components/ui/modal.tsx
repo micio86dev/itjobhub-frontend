@@ -1,4 +1,11 @@
-import { component$, Slot, type PropFunction, $ } from "@builder.io/qwik";
+import {
+  component$,
+  Slot,
+  type PropFunction,
+  $,
+  useStylesScoped$,
+} from "@builder.io/qwik";
+import styles from "./modal.css?inline";
 
 interface ModalProps {
   title: string;
@@ -22,38 +29,32 @@ export const Modal = component$<ModalProps>(
     isDestructive = false,
     isLoading = false,
   }) => {
+    useStylesScoped$(styles);
     if (!isOpen) return null;
 
     return (
       <div
-        class="fixed inset-0 z-50 overflow-y-auto"
+        class="modal-backdrop"
         aria-labelledby="modal-title"
         role="dialog"
         aria-modal="true"
       >
-        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="modal-content-wrapper">
           {/* Background overlay */}
-          <div
-            class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
-            aria-hidden="true"
-            onClick$={onClose$}
-          ></div>
+          <div class="overlay" aria-hidden="true" onClick$={onClose$}></div>
 
           {/* Center content */}
-          <span
-            class="hidden sm:inline-block sm:align-middle sm:h-screen"
-            aria-hidden="true"
-          >
+          <span class="modal-spacer" aria-hidden="true">
             &#8203;
           </span>
 
-          <div class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-            <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-              <div class="sm:flex sm:items-start">
+          <div class="modal-panel">
+            <div class="modal-header">
+              <div class="modal-body">
                 {isDestructive && (
-                  <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
+                  <div class="icon-wrapper icon-destructive">
                     <svg
-                      class="h-6 w-6 text-red-600"
+                      class="icon-svg"
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
                       viewBox="0 0 24 24"
@@ -70,39 +71,31 @@ export const Modal = component$<ModalProps>(
                   </div>
                 )}
                 <div
-                  class={`mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left ${!isDestructive ? "w-full" : ""}`}
+                  class={`content-section ${!isDestructive ? "content-section-full" : ""}`}
                 >
-                  <h3
-                    class="text-lg leading-6 font-medium text-gray-900 dark:text-white"
-                    id="modal-title"
-                  >
+                  <h3 class="title" id="modal-title">
                     {title}
                   </h3>
-                  <div class="mt-2">
-                    <div class="text-sm text-gray-500 dark:text-gray-300">
+                  <div class="slot-wrapper">
+                    <div class="slot-text">
                       <Slot />
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-            <div class="bg-gray-50 dark:bg-gray-700/50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+            <div class="footer">
               <button
                 type="button"
                 data-testid="modal-confirm"
                 disabled={isLoading}
-                class={`w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 text-base font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm ${isDestructive
-                  ? "bg-red-600 hover:bg-red-700 focus:ring-red-500"
-                  : "bg-indigo-600 hover:bg-indigo-700 focus:ring-indigo-500"
-                  } ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+                class={`btn-confirm ${
+                  isDestructive ? "btn-destructive" : "btn-primary"
+                } ${isLoading ? "btn-loading" : ""}`}
                 onClick$={$(() => onConfirm$())}
               >
                 {isLoading && (
-                  <svg
-                    class="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
+                  <svg class="spinner" fill="none" viewBox="0 0 24 24">
                     <circle
                       class="opacity-25"
                       cx="12"
@@ -123,7 +116,7 @@ export const Modal = component$<ModalProps>(
               <button
                 type="button"
                 data-testid="modal-cancel"
-                class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-2 bg-white dark:bg-gray-800 text-base font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+                class="btn-cancel"
                 onClick$={$(() => onClose$())}
               >
                 {cancelText}

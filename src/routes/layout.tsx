@@ -6,6 +6,7 @@ import { I18nProvider } from "~/contexts/i18n";
 import { ThemeProvider } from "~/contexts/theme";
 import { Navigation } from "~/components/navigation/navigation";
 import { Footer } from "~/components/footer/footer";
+import logger from "~/utils/logger";
 
 export const useAuthLoader = routeLoader$(async ({ cookie }) => {
   const token = cookie.get("auth_token")?.value;
@@ -52,7 +53,7 @@ export const useAuthLoader = routeLoader$(async ({ cookie }) => {
       }
     }
   } catch (e) {
-    console.error("[SSR] Failed to fetch user data:", e);
+    logger.error({ e }, "[SSR] Failed to fetch user data");
   }
 
   return {

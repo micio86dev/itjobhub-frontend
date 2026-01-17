@@ -1,0 +1,63 @@
+.featured-jobs {
+  @apply py-16 bg-white;
+}
+
+:global(.dark) .featured-jobs {
+  @apply bg-gray-900;
+}
+
+.container {
+  @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+.header {
+  @apply flex justify-between items-end mb-10;
+}
+
+.title {
+  @apply text-3xl font-bold text-gray-900;
+}
+
+:global(.dark) .title {
+  @apply text-gray-100;
+}
+
+.subtitle {
+  @apply mt-2 text-gray-600;
+}
+
+:global(.dark) .subtitle {
+  @apply text-gray-400;
+}
+
+.view-all-link {
+  @apply hidden sm:flex items-center text-indigo-600 font-medium transition-colors hover:text-indigo-700;
+}
+
+.link-icon {
+  @apply w-5 h-5 ml-1;
+}
+
+.jobs-grid {
+  @apply grid gap-6 md:grid-cols-2 lg:grid-cols-3;
+}
+
+.skeleton {
+  @apply bg-gray-100 rounded-lg h-64 animate-pulse;
+}
+
+:global(.dark) .skeleton {
+  @apply bg-gray-800;
+}
+
+.mobile-cta {
+  @apply mt-10 text-center sm:hidden;
+}
+
+.mobile-button {
+  @apply inline-flex items-center justify-center px-6 py-3 border border-gray-300 text-base font-medium rounded-md text-gray-700 bg-white transition-colors hover:bg-gray-50;
+}
+
+:global(.dark) .mobile-button {
+  @apply bg-gray-800 text-gray-200 border-gray-700 hover:bg-gray-700;
+}

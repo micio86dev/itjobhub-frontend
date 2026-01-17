@@ -1,0 +1,43 @@
+.cta-section {
+  @apply relative bg-indigo-900 py-16 sm:py-24;
+}
+
+.bg-overlay {
+  @apply absolute inset-0 overflow-hidden;
+}
+
+.bg-pattern {
+  @apply absolute inset-0 bg-[url('/grid.svg')] opacity-5;
+}
+
+.blob-1 {
+  @apply absolute right-0 top-0 -mt-20 -mr-20 w-96 h-96 bg-pink-600 rounded-full mix-blend-multiply filter blur-3xl opacity-20;
+}
+
+.blob-2 {
+  @apply absolute left-0 bottom-0 -mb-20 -ml-20 w-96 h-96 bg-purple-600 rounded-full mix-blend-multiply filter blur-3xl opacity-20;
+}
+
+.container {
+  @apply relative max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8;
+}
+
+.heading {
+  @apply text-3xl font-extrabold text-white sm:text-4xl mb-6;
+}
+
+.description {
+  @apply text-xl text-indigo-200 mb-10 max-w-2xl mx-auto;
+}
+
+.actions {
+  @apply flex justify-center space-x-4;
+}
+
+.btn-register {
+  @apply bg-white text-indigo-900 px-8 py-4 rounded-lg font-bold hover:bg-gray-100 transition-colors shadow-lg hover:shadow-xl transform hover:-translate-y-1;
+}
+
+.btn-login {
+  @apply bg-transparent border-2 border-indigo-400 text-indigo-100 px-8 py-4 rounded-lg font-bold hover:bg-indigo-800/50 transition-colors;
+}

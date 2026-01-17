@@ -4,14 +4,19 @@ import { Page, expect } from "@playwright/test";
  * Selectors for common UI elements using data-testid pattern
  */
 export const SELECTORS = {
-  // Auth
-  emailInput: '[data-testid="email-input"]',
-  passwordInput: '[data-testid="password-input"]',
-  firstNameInput: '[data-testid="first-name-input"]',
-  lastNameInput: '[data-testid="last-name-input"]',
-  confirmPasswordInput: '[data-testid="confirm-password-input"]',
-  loginSubmit: '[data-testid="login-submit"]',
-  registerSubmit: '[data-testid="register-submit"]',
+  // Auth - Login
+  loginEmailInput: '[data-testid="login-form-email-input"]',
+  loginPasswordInput: '[data-testid="login-form-password-input"]',
+  loginSubmit: '[data-testid="login-form-submit-btn"]',
+
+  // Auth - Register
+  registerFirstNameInput: '[data-testid="register-form-firstname-input"]',
+  registerLastNameInput: '[data-testid="register-form-lastname-input"]',
+  registerEmailInput: '[data-testid="register-form-email-input"]',
+  registerPasswordInput: '[data-testid="register-form-password-input"]',
+  registerConfirmPasswordInput:
+    '[data-testid="register-form-confirm-password-input"]',
+  registerSubmit: '[data-testid="register-form-submit-btn"]',
 
   // Navigation
   loginLink: 'a[href="/login"]',
@@ -61,6 +66,20 @@ export const SELECTORS = {
 export async function ensurePageReady(page: Page): Promise<void> {
   await page.waitForLoadState("domcontentloaded");
   await page.waitForLoadState("networkidle");
+  await checkForViteError(page);
+}
+
+/**
+ * Check for Vite error overlay and throw if present
+ */
+export async function checkForViteError(page: Page): Promise<void> {
+  const overlay = page.locator("vite-error-overlay");
+  if (await overlay.isVisible().catch(() => false)) {
+    const errorText = await overlay.evaluate(
+      (el) => el.shadowRoot?.textContent || el.textContent,
+    );
+    throw new Error(`Vite Error Overlay Detected: ${errorText}`);
+  }
 }
 
 /**
@@ -74,13 +93,14 @@ export async function loginViaUI(
   await page.goto("/login");
   await ensurePageReady(page);
 
-  await page.locator(SELECTORS.emailInput).fill(email);
-  await page.locator(SELECTORS.passwordInput).fill(password);
+  await page.locator(SELECTORS.loginEmailInput).fill(email);
+  await page.locator(SELECTORS.loginPasswordInput).fill(password);
 
   const responsePromise = page.waitForResponse(
     (response) =>
       response.url().includes("/auth/login") &&
       response.request().method() === "POST",
+    { timeout: 20000 },
   );
 
   await page.locator(SELECTORS.loginSubmit).click();
@@ -98,6 +118,7 @@ export async function logoutViaUI(page: Page): Promise<void> {
   const mobileMenu = page.locator(SELECTORS.mobileMenuButton);
   if (await mobileMenu.isVisible({ timeout: 1000 }).catch(() => false)) {
     await mobileMenu.click();
+    await page.waitForTimeout(500);
   }
 
   const logoutBtn = page.locator(SELECTORS.logoutButton).first();
@@ -179,16 +200,21 @@ export async function verifyAuthState(
   page: Page,
   shouldBeLoggedIn: boolean,
 ): Promise<void> {
-  const authState = await page.evaluate(() => ({
-    token: localStorage.getItem("auth_token"),
-    user: localStorage.getItem("auth_user"),
-  }));
+  // Check for auth_token cookie
+  const cookies = await page.context().cookies();
+  const authToken = cookies.find((c) => c.name === "auth_token");
 
   if (shouldBeLoggedIn) {
-    expect(authState.token).toBeTruthy();
-    expect(authState.user).toBeTruthy();
+    expect(authToken).toBeDefined();
+    // Also check UI - Logout button should be visible
+    const logoutBtn = page.locator(SELECTORS.logoutButton).first();
+    // We allow a small timeout because hydration might take a moment
+    await expect(logoutBtn).toBeVisible({ timeout: 5000 });
   } else {
-    expect(authState.token).toBeFalsy();
+    expect(authToken).toBeUndefined();
+    // Check UI - Login link should be visible
+    const loginLink = page.locator(SELECTORS.loginLink).first();
+    await expect(loginLink).toBeVisible({ timeout: 5000 });
   }
 }
 

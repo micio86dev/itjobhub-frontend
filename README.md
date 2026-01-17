@@ -33,11 +33,13 @@ Inside your project, you'll see the following directory structure:
 ## UI Components & Styling
 
 ### Component Architecture
+
 - **Scoped CSS**: Each component has its own CSS file using Qwik's scoped styling system
 - **Semantic Classes**: We use semantic CSS class names instead of inline Tailwind classes for better maintainability
 - **Dark Mode**: Full dark mode support using `:global(.dark)` selectors
 
 ### Key Components
+
 - **SocialLoginButtons** (`src/components/ui/social-login-buttons.tsx`): Premium-styled authentication buttons for Google, LinkedIn, and GitHub with:
   - Smooth hover animations and transitions
   - Loading states with spinners

@@ -14,6 +14,7 @@ import {
 import { useNavigate } from "@builder.io/qwik-city";
 import { request } from "../utils/api";
 import { setCookie, deleteCookie } from "../utils/cookies";
+import logger from "../utils/logger";
 
 export interface User {
   id: string;
@@ -249,7 +250,7 @@ export const AuthProvider = component$(
           };
         }
       } catch (error) {
-        console.error("Login error:", error);
+        logger.error({ error }, "Login error");
         loginResult.value = {
           success: false,
           error: "Network error or server unavailable",
@@ -309,7 +310,7 @@ export const AuthProvider = component$(
           };
         }
       } catch (error) {
-        console.error("Registration error:", error);
+        logger.error({ error }, "Registration error");
         registerResult.value = {
           success: false,
           error: "Network error or server unavailable",
@@ -334,7 +335,7 @@ export const AuthProvider = component$(
           credentials: "include",
         });
       } catch (e) {
-        console.error("Logout error", e);
+        logger.error({ e }, "Logout error");
       } finally {
         authState.user = null;
         authState.token = null;
@@ -394,7 +395,7 @@ export const AuthProvider = component$(
           };
         }
       } catch (error) {
-        console.error("Failed to update profile on server", error);
+        logger.error({ error }, "Failed to update profile on server");
         profileUpdateResult.value = {
           success: false,
           error: "Failed to save profile data",
@@ -447,7 +448,7 @@ export const AuthProvider = component$(
           };
         }
       } catch (error) {
-        console.error("Failed to update profile on server", error);
+        logger.error({ error }, "Failed to update profile on server");
         profileUpdateResult.value = {
           success: false,
           error: "Network error or server unavailable",
@@ -485,7 +486,7 @@ export const AuthProvider = component$(
           };
         }
       } catch (error) {
-        console.error("Failed to update avatar on server", error);
+        logger.error({ error }, "Failed to update avatar on server");
         avatarUpdateResult.value = {
           success: false,
           error: "Network error or server unavailable",

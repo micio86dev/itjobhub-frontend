@@ -6,7 +6,6 @@
   @apply bg-gray-800 border-gray-700;
 }
 
-
 .title {
   @apply text-xl font-bold text-gray-900 mb-6;
 }

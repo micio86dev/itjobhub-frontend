@@ -1,0 +1,31 @@
+.not-found-wrapper {
+  @apply text-center py-16 px-4 bg-white rounded-lg shadow-md max-w-md mx-auto;
+}
+
+:global(.dark) .not-found-wrapper {
+  @apply bg-gray-800;
+}
+
+.icon {
+  @apply text-6xl mb-6;
+}
+
+.title {
+  @apply text-2xl font-bold text-gray-900 mb-4;
+}
+
+:global(.dark) .title {
+  @apply text-white;
+}
+
+.description {
+  @apply text-gray-600 mb-8;
+}
+
+:global(.dark) .description {
+  @apply text-gray-400;
+}
+
+.back-link {
+  @apply inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 transition-colors hover:bg-indigo-700;
+}

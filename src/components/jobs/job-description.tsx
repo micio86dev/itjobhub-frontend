@@ -17,8 +17,12 @@ export const JobDescription = component$<JobDescriptionProps>(
       const raw = marked.parse(description, { async: false }) as string;
       if (typeof window === "undefined") return raw;
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let sanitizer: any = DOMPurify;
-      if (typeof sanitizer.sanitize !== "function" && typeof sanitizer === "function") {
+      if (
+        typeof sanitizer.sanitize !== "function" &&
+        typeof sanitizer === "function"
+      ) {
         sanitizer = sanitizer(window);
       }
 

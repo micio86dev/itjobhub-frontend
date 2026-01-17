@@ -1,11 +1,17 @@
+import logger from "./logger";
+
 export const request = async (url: string | URL, options: RequestInit = {}) => {
   try {
-    console.log(`[API] ${options.method || "GET"} ${url}`);
+    logger.info(
+      { method: options.method || "GET", url: url.toString() },
+      "[API] Request",
+    );
     const response = await fetch(url, options);
 
     if (response.status === 401) {
       if (typeof window !== "undefined") {
-        console.warn(
+        logger.warn(
+          { url: url.toString() },
           "Unauthorized request detected (401), triggering global logout",
         );
         window.dispatchEvent(new CustomEvent("unauthorized"));
@@ -14,7 +20,7 @@ export const request = async (url: string | URL, options: RequestInit = {}) => {
 
     return response;
   } catch (error) {
-    console.error(`Fetch error for URL: ${url}`, error);
+    logger.error({ error, url: url.toString() }, "Fetch error");
     throw error;
   }
 };

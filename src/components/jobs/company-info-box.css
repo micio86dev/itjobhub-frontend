@@ -6,7 +6,6 @@
   @apply bg-gray-800 border-gray-700;
 }
 
-
 .companyInfoHeader {
   @apply flex items-center justify-between mb-6;
 }

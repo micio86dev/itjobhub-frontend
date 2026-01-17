@@ -32,7 +32,6 @@ export const RouterHead = component$(() => {
   // Default to Italian for SEO - the actual user language is handled client-side
   // via the I18nProvider in layout.tsx
   const currentLang: SupportedLanguage = "it";
-  const currentUrl = loc.url.href;
   const pathname = loc.url.pathname;
 
   // Build canonical URL (without language prefix for now, as routing is cookie-based)

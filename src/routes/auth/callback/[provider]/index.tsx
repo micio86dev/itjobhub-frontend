@@ -10,6 +10,7 @@ import { useAuth } from "~/contexts/auth";
 import { useTranslate } from "~/contexts/i18n";
 import { request } from "~/utils/api";
 import { setCookie } from "~/utils/cookies";
+import logger from "~/utils/logger";
 
 interface CallbackState {
   loading: boolean;
@@ -206,7 +207,7 @@ export default component$(() => {
         state.error = data.message || "OAuth authentication failed";
       }
     } catch (err) {
-      console.error("OAuth callback error:", err);
+      logger.error({ err, provider }, "OAuth callback error");
       state.loading = false;
       state.error = "Failed to complete authentication. Please try again.";
     }

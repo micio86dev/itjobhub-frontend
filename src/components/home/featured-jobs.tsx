@@ -1,7 +1,8 @@
-import { component$ } from "@builder.io/qwik";
+import { component$, useStylesScoped$ } from "@builder.io/qwik";
 import { useTranslate } from "~/contexts/i18n";
 import { JobCard } from "~/components/jobs/job-card";
 import type { JobListing } from "~/contexts/jobs";
+import styles from "./featured-jobs.css?inline";
 
 interface FeaturedJobsProps {
   jobs: JobListing[];
@@ -14,27 +15,21 @@ interface FeaturedJobsProps {
 
 export const FeaturedJobs = component$<FeaturedJobsProps>(
   ({ jobs, matchScores, isLoading }) => {
+    useStylesScoped$(styles);
     const t = useTranslate();
 
     return (
-      <section class="py-16 bg-white dark:bg-gray-900">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div class="flex justify-between items-end mb-10">
+      <section class="featured-jobs">
+        <div class="container">
+          <div class="header">
             <div>
-              <h2 class="text-3xl font-bold text-gray-900 dark:text-gray-100">
-                {t("home.recent_jobs_title")}
-              </h2>
-              <p class="mt-2 text-gray-600 dark:text-gray-400">
-                {t("home.recent_jobs_subtitle")}
-              </p>
+              <h2 class="title">{t("home.recent_jobs_title")}</h2>
+              <p class="subtitle">{t("home.recent_jobs_subtitle")}</p>
             </div>
-            <a
-              href="/jobs"
-              class="hidden sm:flex items-center text-indigo-600 hover:text-indigo-700 font-medium transition-colors"
-            >
+            <a href="/jobs" class="view-all-link">
               {t("home.view_all_jobs")}
               <svg
-                class="w-5 h-5 ml-1"
+                class="link-icon"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -49,7 +44,7 @@ export const FeaturedJobs = component$<FeaturedJobsProps>(
             </a>
           </div>
 
-          <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <div class="jobs-grid">
             {!isLoading && jobs.length > 0
               ? jobs.map((job) => (
                   <JobCard
@@ -59,19 +54,11 @@ export const FeaturedJobs = component$<FeaturedJobsProps>(
                   />
                 ))
               : // Skeletons
-                [1, 2, 3].map((i) => (
-                  <div
-                    key={i}
-                    class="bg-gray-100 dark:bg-gray-800 rounded-lg h-64 animate-pulse"
-                  ></div>
-                ))}
+                [1, 2, 3].map((i) => <div key={i} class="skeleton"></div>)}
           </div>
 
-          <div class="mt-10 text-center sm:hidden">
-            <a
-              href="/jobs"
-              class="inline-flex items-center justify-center px-6 py-3 border border-gray-300 text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-700 dark:hover:bg-gray-700 transition-colors"
-            >
+          <div class="mobile-cta">
+            <a href="/jobs" class="mobile-button">
               {t("home.view_all_jobs")}
             </a>
           </div>

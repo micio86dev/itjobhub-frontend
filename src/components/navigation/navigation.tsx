@@ -1,10 +1,13 @@
-import { component$, $, useStore } from "@builder.io/qwik";
+import { component$, $, useStore, useStylesScoped$ } from "@builder.io/qwik";
+import logger from "../../utils/logger";
 import { Link } from "@builder.io/qwik-city";
 import { useAuth } from "~/contexts/auth";
 import { useI18n, useTranslate, type SupportedLanguage } from "~/contexts/i18n";
 import { useTheme } from "~/contexts/theme";
+import styles from "./navigation.css?inline";
 
 export const Navigation = component$(() => {
+  useStylesScoped$(styles);
   const auth = useAuth();
   const i18n = useI18n();
   const theme = useTheme();
@@ -36,11 +39,11 @@ export const Navigation = component$(() => {
   });
 
   const selectLanguage = $((lang: SupportedLanguage) => {
-    console.log("selectLanguage called with:", lang);
-    console.log("Current language before change:", currentLanguage);
+    logger.info({ lang }, "selectLanguage called");
+    logger.info({ currentLanguage }, "Current language before change");
     // Trigger language change through signal
     setLanguageSignal.value = { language: lang };
-    console.log("Signal set to:", { language: lang });
+    logger.info({ language: lang }, "Signal set");
     state.showLanguageDropdown = false;
   });
 
@@ -57,39 +60,27 @@ export const Navigation = component$(() => {
   );
 
   return (
-    <nav class="bg-white dark:bg-gray-900 shadow-sm border-b border-gray-200 dark:border-gray-700 relative">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between items-center h-16">
+    <nav class="nav-wrapper">
+      <div class="container">
+        <div class="nav-content">
           {/* Left Side: Brand & (Desktop) Links */}
-          <div class="flex items-center min-w-0 flex-1">
-            <Link
-              href="/"
-              class="text-xl font-bold text-gray-900 dark:text-white flex-shrink-0 mr-8"
-            >
+          <div class="nav-left">
+            <Link href="/" class="brand">
               {t("nav.brand")}
             </Link>
 
             {/* Desktop Navigation Links */}
-            <div class="hidden md:flex items-center space-x-1 sm:space-x-4 min-w-0">
-              <Link
-                href="/jobs"
-                class="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-2 sm:px-3 py-2 rounded-md text-sm font-medium whitespace-nowrap"
-              >
+            <div class="desktop-links">
+              <Link href="/jobs" class="nav-link">
                 {t("nav.jobs")}
               </Link>
               {auth.user?.role === "admin" && (
-                <Link
-                  href="/admin/stats"
-                  class="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-2 sm:px-3 py-2 rounded-md text-sm font-medium whitespace-nowrap"
-                >
+                <Link href="/admin/stats" class="nav-link">
                   {t("nav.dashboard")}
                 </Link>
               )}
               {auth.isAuthenticated && (
-                <Link
-                  href="/favorites"
-                  class="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-2 sm:px-3 py-2 rounded-md text-sm font-medium whitespace-nowrap"
-                >
+                <Link href="/favorites" class="nav-link">
                   {t("nav.favorites")}
                 </Link>
               )}
@@ -97,11 +88,11 @@ export const Navigation = component$(() => {
           </div>
 
           {/* Right Side: Theme, Lang, Auth (Desktop), Hamburger (Mobile) */}
-          <div class="flex items-center space-x-2 sm:space-x-4 flex-shrink-0">
+          <div class="nav-right">
             {/* Theme toggle - Always Visible */}
             <button
               onClick$={theme.toggleTheme}
-              class="p-2 rounded-md text-gray-700 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-800 transition-colors"
+              class="theme-toggle"
               aria-label="Toggle theme"
             >
               {theme.theme === "light" ? (
@@ -136,11 +127,8 @@ export const Navigation = component$(() => {
             </button>
 
             {/* Language selector - Always Visible */}
-            <div class="relative">
-              <button
-                onClick$={toggleLanguageDropdown}
-                class="flex items-center space-x-1 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-1 sm:px-2 py-1 rounded-md text-sm font-medium"
-              >
+            <div class="lang-selector">
+              <button onClick$={toggleLanguageDropdown} class="lang-btn">
                 <span>{currentLanguageObj?.flag}</span>
                 <span class="hidden md:inline">{currentLanguageObj?.name}</span>
                 <svg
@@ -159,16 +147,17 @@ export const Navigation = component$(() => {
               </button>
 
               {state.showLanguageDropdown && (
-                <div class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 dark:ring-gray-600 z-50">
+                <div class="lang-dropdown">
                   <div class="py-1">
                     {languages.map((lang) => (
                       <button
                         key={lang.code}
                         onClick$={$(() => selectLanguage(lang.code))}
-                        class={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 ${lang.code === currentLanguage
-                          ? "bg-indigo-50 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300"
-                          : "text-gray-700 dark:text-gray-300"
-                          }`}
+                        class={`lang-dropdown-item ${
+                          lang.code === currentLanguage
+                            ? "lang-dropdown-item-active"
+                            : "lang-dropdown-item-default"
+                        }`}
                       >
                         <span class="mr-2">{lang.flag}</span>
                         {lang.name}
@@ -180,34 +169,26 @@ export const Navigation = component$(() => {
             </div>
 
             {/* Desktop Auth Buttons */}
-            <div class="hidden md:flex items-center space-x-1 sm:space-x-3">
+            <div class="desktop-auth">
               {auth.isAuthenticated ? (
                 <>
-                  <Link
-                    href="/profile"
-                    class="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-2 sm:px-3 py-2 rounded-md text-sm font-medium"
-                  >
+                  <Link href="/profile" class="nav-link">
                     {t("nav.profile")}
                   </Link>
                   <button
                     onClick$={handleLogout}
-                    class="bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-800 text-white px-3 sm:px-4 py-2 rounded-md text-sm font-medium whitespace-nowrap"
+                    class="btn-logout"
+                    data-testid="logout-button"
                   >
                     {t("nav.logout")}
                   </button>
                 </>
               ) : (
                 <>
-                  <Link
-                    href="/login"
-                    class="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-2 sm:px-3 py-2 rounded-md text-sm font-medium"
-                  >
+                  <Link href="/login" class="nav-link">
                     {t("nav.login")}
                   </Link>
-                  <Link
-                    href="/register"
-                    class="bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-700 dark:hover:bg-indigo-800 text-white px-3 sm:px-4 py-2 rounded-md text-sm font-medium whitespace-nowrap"
-                  >
+                  <Link href="/register" class="btn-register">
                     {t("nav.register")}
                   </Link>
                 </>
@@ -215,12 +196,12 @@ export const Navigation = component$(() => {
             </div>
 
             {/* Mobile Hamburger Button */}
-            <div class="-mr-2 flex md:hidden">
+            <div class="mobile-menu-btn-wrapper">
               <button
                 onClick$={toggleMenu}
                 type="button"
                 data-testid="mobile-menu-button"
-                class="bg-white dark:bg-gray-900 h-10 w-10 inline-flex items-center justify-center rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
+                class="mobile-menu-btn"
                 aria-expanded="false"
               >
                 <span class="sr-only">{t("nav.open_menu")}</span>
@@ -265,59 +246,42 @@ export const Navigation = component$(() => {
 
       {/* Mobile Menu */}
       {state.isMenuOpen && (
-        <div class="md:hidden">
-          <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
-            <Link
-              href="/jobs"
-              class="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-800 block px-3 py-2 rounded-md text-base font-medium"
-            >
+        <div class="mobile-menu">
+          <div class="mobile-menu-panel">
+            <Link href="/jobs" class="mobile-nav-link">
               {t("nav.jobs")}
             </Link>
             {auth.user?.role === "admin" && (
-              <Link
-                href="/admin/stats"
-                class="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-800 block px-3 py-2 rounded-md text-base font-medium"
-              >
+              <Link href="/admin/stats" class="mobile-nav-link">
                 {t("nav.dashboard")}
               </Link>
             )}
             {auth.isAuthenticated && (
-              <Link
-                href="/favorites"
-                class="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-800 block px-3 py-2 rounded-md text-base font-medium"
-              >
+              <Link href="/favorites" class="mobile-nav-link">
                 {t("nav.favorites")}
               </Link>
             )}
 
-            <div class="border-t border-gray-200 dark:border-gray-700 pt-4 pb-3">
+            <div class="mobile-divider">
               {auth.isAuthenticated ? (
-                <div class="mt-3 px-2 space-y-1">
-                  <Link
-                    href="/profile"
-                    class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-800"
-                  >
+                <div class="mobile-auth-wrapper">
+                  <Link href="/profile" class="mobile-nav-link">
                     {t("nav.profile")}
                   </Link>
                   <button
                     onClick$={handleLogout}
-                    class="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/10"
+                    class="mobile-btn-logout"
+                    data-testid="logout-button"
                   >
                     {t("nav.logout")}
                   </button>
                 </div>
               ) : (
-                <div class="mt-3 px-2 space-y-1">
-                  <Link
-                    href="/login"
-                    class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-800"
-                  >
+                <div class="mobile-auth-wrapper">
+                  <Link href="/login" class="mobile-nav-link">
                     {t("nav.login")}
                   </Link>
-                  <Link
-                    href="/register"
-                    class="block px-3 py-2 rounded-md text-base font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-900/10"
-                  >
+                  <Link href="/register" class="mobile-btn-register">
                     {t("nav.register")}
                   </Link>
                 </div>

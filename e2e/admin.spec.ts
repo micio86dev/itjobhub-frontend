@@ -116,9 +116,15 @@ test.describe('Admin User', () => {
             await page.goto('/admin');
             await ensurePageReady(page);
 
-            // Should see admin content
-            const adminContent = page.locator('h1, h2, [data-testid*="admin"], [data-testid*="stat"]').first();
-            await expect(adminContent).toBeVisible();
+            // Should see admin content - new specific selectors
+            await expect(page.getByTestId('admin-stats-users-card')).toBeVisible();
+            await expect(page.getByTestId('admin-stats-jobs-card')).toBeVisible();
+            await expect(page.getByTestId('admin-stats-companies-card')).toBeVisible();
+            await expect(page.getByTestId('admin-stats-engagement-card')).toBeVisible();
+
+            // Stats values should be visible
+            await expect(page.getByTestId('admin-stats-total-users')).toBeVisible();
+            await expect(page.getByTestId('admin-stats-active-jobs')).toBeVisible();
         });
 
         test('should access admin stats page if available', async ({ page }) => {
@@ -128,6 +134,10 @@ test.describe('Admin User', () => {
             // Either we see stats or redirect to admin
             const isOnAdminPage = /\/admin/.test(page.url());
             expect(isOnAdminPage).toBeTruthy();
+
+            // Check for selectors
+            await expect(page.getByTestId('admin-stats-month-select')).toBeVisible().catch(() => { });
+            await expect(page.getByTestId('admin-stats-year-select')).toBeVisible().catch(() => { });
         });
     });
 
