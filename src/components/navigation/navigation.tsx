@@ -60,7 +60,7 @@ export const Navigation = component$(() => {
   );
 
   return (
-    <nav class="nav-wrapper">
+    <nav class="nav-wrapper dark:bg-gray-900 dark:border-gray-900">
       <div class="container">
         <div class="nav-content">
           {/* Left Side: Brand & (Desktop) Links */}
@@ -92,7 +92,7 @@ export const Navigation = component$(() => {
             {/* Theme toggle - Always Visible */}
             <button
               onClick$={theme.toggleTheme}
-              class="theme-toggle"
+              class="theme-toggle dark:text-white"
               aria-label="Toggle theme"
             >
               {theme.theme === "light" ? (
@@ -128,7 +128,10 @@ export const Navigation = component$(() => {
 
             {/* Language selector - Always Visible */}
             <div class="lang-selector">
-              <button onClick$={toggleLanguageDropdown} class="lang-btn">
+              <button
+                onClick$={toggleLanguageDropdown}
+                class="lang-btn dark:text-white"
+              >
                 <span>{currentLanguageObj?.flag}</span>
                 <span class="hidden md:inline">{currentLanguageObj?.name}</span>
                 <svg
