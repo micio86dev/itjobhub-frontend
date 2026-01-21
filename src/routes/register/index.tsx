@@ -10,6 +10,7 @@ import type { DocumentHead } from "@builder.io/qwik-city";
 import { useAuth } from "~/contexts/auth";
 import { useTranslate, translate, useI18n } from "~/contexts/i18n";
 import { SocialLoginButtons } from "~/components/ui/social-login-buttons";
+import { SubmitButton } from "~/components/ui/submit-button";
 import styles from "./index.css?inline";
 
 interface RegisterForm {
@@ -207,40 +208,14 @@ export default component$(() => {
           {form.error && <div class="errorMessage">{form.error}</div>}
 
           <div>
-            <button
-              type="submit"
-              disabled={form.loading}
-              data-testid="register-form-submit-btn"
+            <SubmitButton
+              loading={form.loading && form.provider === "email"}
+              loadingText={t("auth.registering")}
+              testId="register-form-submit-btn"
               class="submitButton"
             >
-              {form.loading && form.provider === "email" ? (
-                <>
-                  <svg
-                    class="spinner"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <circle
-                      class="spinnerBase"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      stroke-width="4"
-                    ></circle>
-                    <path
-                      class="spinnerPath"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    ></path>
-                  </svg>
-                  {t("auth.registering")}
-                </>
-              ) : (
-                t("auth.register_btn")
-              )}
-            </button>
+              {t("auth.register_btn")}
+            </SubmitButton>
           </div>
         </form>
 

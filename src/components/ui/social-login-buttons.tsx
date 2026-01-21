@@ -1,4 +1,5 @@
 import { component$, $, type QRL, useStylesScoped$ } from "@builder.io/qwik";
+import { Spinner } from "./spinner";
 import styles from "./social-login-buttons.css?inline";
 
 interface SocialLoginButtonsProps {
@@ -21,21 +22,7 @@ export const SocialLoginButtons = component$<SocialLoginButtonsProps>(
           data-testid="social-login-google-btn"
         >
           {loading && activeProvider === "google" ? (
-            <svg class="socialSpinner" fill="none" viewBox="0 0 24 24">
-              <circle
-                class="spinnerBase"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                stroke-width="4"
-              ></circle>
-              <path
-                class="spinnerPath"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-              ></path>
-            </svg>
+            <Spinner size="md" />
           ) : (
             <>
               <svg class="h-5 w-5" viewBox="0 0 24 24">
@@ -70,21 +57,7 @@ export const SocialLoginButtons = component$<SocialLoginButtonsProps>(
           data-testid="social-login-linkedin-btn"
         >
           {loading && activeProvider === "linkedin" ? (
-            <svg class="socialSpinner" fill="none" viewBox="0 0 24 24">
-              <circle
-                class="spinnerBase"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                stroke-width="4"
-              ></circle>
-              <path
-                class="spinnerPath"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-              ></path>
-            </svg>
+            <Spinner size="md" />
           ) : (
             <>
               <svg class="h-5 w-5" fill="#0A66C2" viewBox="0 0 24 24">
@@ -104,21 +77,7 @@ export const SocialLoginButtons = component$<SocialLoginButtonsProps>(
           data-testid="social-login-github-btn"
         >
           {loading && activeProvider === "github" ? (
-            <svg class="socialSpinner" fill="none" viewBox="0 0 24 24">
-              <circle
-                class="spinnerBase"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                stroke-width="4"
-              ></circle>
-              <path
-                class="spinnerPath"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-              ></path>
-            </svg>
+            <Spinner size="md" />
           ) : (
             <>
               <svg class="h-5 w-5" fill="#181717" viewBox="0 0 24 24">
