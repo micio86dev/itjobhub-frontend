@@ -10,7 +10,7 @@ import type { DocumentHead } from "@builder.io/qwik-city";
 import { useAuth } from "~/contexts/auth";
 import { useTranslate, translate, useI18n } from "~/contexts/i18n";
 import { SocialLoginButtons } from "~/components/ui/social-login-buttons";
-import { SubmitButton } from "~/components/ui/submit-button";
+import { Spinner } from "~/components/ui/spinner";
 import styles from "./index.css?inline";
 
 interface RegisterForm {
@@ -208,14 +208,19 @@ export default component$(() => {
           {form.error && <div class="errorMessage">{form.error}</div>}
 
           <div>
-            <SubmitButton
-              loading={form.loading && form.provider === "email"}
-              loadingText={t("auth.registering")}
-              testId="register-form-submit-btn"
+            <button
+              type="submit"
+              disabled={form.loading}
+              data-testid="register-form-submit-btn"
               class="submitButton"
             >
-              {t("auth.register_btn")}
-            </SubmitButton>
+              {form.loading && form.provider === "email" && (
+                <Spinner size="sm" class="-ml-1 mr-2 inline-block" />
+              )}
+              {form.loading && form.provider === "email"
+                ? t("auth.registering")
+                : t("auth.register_btn")}
+            </button>
           </div>
         </form>
 

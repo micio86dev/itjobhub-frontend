@@ -15,7 +15,7 @@ import {
   type SupportedLanguage,
 } from "~/contexts/i18n";
 import { SocialLoginButtons } from "~/components/ui/social-login-buttons";
-import { SubmitButton } from "~/components/ui/submit-button";
+import { Spinner } from "~/components/ui/spinner";
 import styles from "./index.css?inline";
 
 // Import translations for server-side DocumentHead
@@ -165,14 +165,19 @@ export default component$(() => {
           {form.error && <div class="errorMessage">{form.error}</div>}
 
           <div>
-            <SubmitButton
-              loading={form.loading && form.provider === "email"}
-              loadingText={t("auth.logging_in")}
-              testId="login-form-submit-btn"
+            <button
+              type="submit"
+              disabled={form.loading}
+              data-testid="login-form-submit-btn"
               class="submitButton"
             >
-              {t("auth.login_btn")}
-            </SubmitButton>
+              {form.loading && form.provider === "email" && (
+                <Spinner size="sm" class="-ml-1 mr-2 inline-block" />
+              )}
+              {form.loading && form.provider === "email"
+                ? t("auth.logging_in")
+                : t("auth.login_btn")}
+            </button>
           </div>
         </form>
 
