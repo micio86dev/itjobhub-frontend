@@ -81,13 +81,16 @@ export default component$(() => {
     form.loading = true;
     form.provider = "email";
 
-    // Trigger register through signal
-    auth.registerSignal.value = {
-      email: form.email,
-      password: form.password,
-      firstName: form.firstName,
-      lastName: form.lastName,
-    };
+    // Use setTimeout to ensure state update is rendered before triggering the signal
+    setTimeout(() => {
+      // Trigger register through signal
+      auth.registerSignal.value = {
+        email: form.email,
+        password: form.password,
+        firstName: form.firstName,
+        lastName: form.lastName,
+      };
+    }, 0);
   });
 
   const handleSocialLogin = $((provider: "google" | "linkedin" | "github") => {

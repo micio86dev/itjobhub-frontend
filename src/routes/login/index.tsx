@@ -90,15 +90,21 @@ export default component$(() => {
 
   const handleLogin = $((e: Event) => {
     e.preventDefault();
+
+    // Set loading state FIRST
     form.loading = true;
     form.provider = "email";
     form.error = "";
 
-    // Trigger login through signal
-    auth.loginSignal.value = {
-      email: form.email,
-      password: form.password,
-    };
+    // Use setTimeout to ensure state update is rendered before triggering the signal
+    // This gives Qwik a chance to re-render with the loading state
+    setTimeout(() => {
+      // Trigger login through signal
+      auth.loginSignal.value = {
+        email: form.email,
+        password: form.password,
+      };
+    }, 0);
   });
 
   const handleSocialLogin = $((provider: "google" | "linkedin" | "github") => {
