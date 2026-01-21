@@ -31,12 +31,12 @@
 }
 
 .nav-link {
-  @apply text-gray-700 px-3 sm:px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap relative;
+  @apply text-gray-900 px-3 sm:px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap relative;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 :global(.dark) .nav-link {
-  @apply text-white;
+  @apply text-gray-100;
 }
 
 .nav-link::before {
@@ -113,7 +113,7 @@
 }
 
 :global(.dark) .theme-toggle {
-  @apply text-gray-300;
+  @apply text-white;
 }
 
 .theme-toggle:hover {
@@ -137,7 +137,7 @@
 }
 
 :global(.dark) .lang-btn {
-  @apply text-gray-300;
+  @apply text-white;
 }
 
 .lang-btn:hover {
@@ -234,7 +234,7 @@
 }
 
 :global(.dark) .mobile-menu-btn {
-  @apply bg-gray-900 border-gray-800 text-gray-300;
+  @apply bg-gray-900 border-gray-800 text-white;
 }
 
 .mobile-menu {
@@ -250,12 +250,12 @@
 }
 
 .mobile-nav-link {
-  @apply block px-4 py-3 rounded-lg text-base font-medium text-gray-700 relative;
+  @apply block px-4 py-3 rounded-lg text-base font-medium text-gray-900 relative;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 :global(.dark) .mobile-nav-link {
-  @apply text-gray-300;
+  @apply text-gray-100;
 }
 
 .mobile-nav-link:hover {

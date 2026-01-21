@@ -35,9 +35,9 @@
 }
 
 .btn-register {
-  @apply bg-white text-indigo-900 px-8 py-4 rounded-lg font-bold hover:bg-gray-100 transition-colors shadow-lg hover:shadow-xl transform hover:-translate-y-1;
+  @apply inline-flex items-center justify-center bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white px-8 py-3 rounded-lg font-bold shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all;
 }
 
 .btn-login {
-  @apply bg-transparent border-2 border-indigo-400 text-indigo-100 px-8 py-4 rounded-lg font-bold hover:bg-indigo-800/50 transition-colors;
+  @apply inline-flex items-center justify-center bg-transparent border-2 border-indigo-400 text-indigo-100 px-8 py-3 rounded-lg font-bold hover:bg-indigo-800/50 transition-colors;
 }
