@@ -1,0 +1,99 @@
+.news-card {
+  @apply bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6 mb-4 hover:shadow-md transition-shadow relative flex flex-col h-full;
+}
+
+:global(.dark) .news-card {
+  @apply bg-gray-900 border-gray-800;
+}
+
+.card-image-container {
+  @apply relative w-full h-48 mb-4 overflow-hidden rounded-md;
+}
+
+.card-image {
+  @apply w-full h-full object-cover transition-transform duration-300 hover:scale-105;
+}
+
+.header {
+  @apply mb-2;
+}
+
+.news-title {
+  @apply text-lg font-semibold text-gray-900 mb-2 hover:text-indigo-600 transition-colors line-clamp-2;
+}
+
+:global(.dark) .news-title {
+  @apply text-gray-100 hover:text-indigo-400;
+}
+
+.meta-row {
+  @apply flex items-center gap-2 text-xs text-gray-500 mb-3;
+}
+
+:global(.dark) .meta-row {
+  @apply text-gray-400;
+}
+
+.category-badge {
+  @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 uppercase tracking-wider;
+}
+
+:global(.dark) .category-badge {
+  @apply bg-blue-900 text-blue-200;
+}
+
+.summary {
+  @apply text-gray-600 text-sm mb-4 line-clamp-3 flex-grow;
+}
+
+:global(.dark) .summary {
+  @apply text-gray-400;
+}
+
+.footer-actions {
+  @apply flex items-center justify-between pt-4 border-t border-gray-100 mt-auto;
+}
+
+:global(.dark) .footer-actions {
+  @apply border-gray-700;
+}
+
+.reaction-buttons {
+  @apply flex items-center space-x-3;
+}
+
+.reaction-btn {
+  @apply flex items-center space-x-1 px-2 py-1 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer text-sm;
+}
+
+.reaction-btn-like-active {
+  @apply bg-green-100 text-green-700;
+}
+
+:global(.dark) .reaction-btn-like-active {
+  @apply bg-green-900 text-green-200;
+}
+
+.reaction-btn-like-inactive {
+  @apply text-gray-500 hover:text-green-600 hover:bg-green-50;
+}
+
+:global(.dark) .reaction-btn-like-inactive {
+  @apply text-gray-400 hover:text-green-400 hover:bg-green-900/20;
+}
+
+.stats-container {
+  @apply flex items-center space-x-3 text-xs text-gray-400 ml-2 border-l border-gray-200 pl-3;
+}
+
+:global(.dark) .stats-container {
+  @apply text-gray-500 border-gray-700;
+}
+
+.read-more-btn {
+  @apply text-indigo-600 hover:text-indigo-800 text-sm font-medium flex items-center gap-1;
+}
+
+:global(.dark) .read-more-btn {
+  @apply text-indigo-400 hover:text-indigo-300;
+}

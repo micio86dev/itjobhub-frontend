@@ -76,3 +76,33 @@ export interface MatchScore {
     locationStatus: string;
   };
 }
+
+export interface ApiNewsTranslation {
+  language: string;
+  title: string;
+  summary?: string | null;
+  content?: string | null;
+}
+
+export interface ApiNews {
+  id: string;
+  title: string;
+  slug: string;
+  summary?: string | null;
+  content?: string | null;
+  source_url?: string | null;
+  image_url?: string | null;
+  category?: string | null;
+  language?: string | null;
+  translations?: ApiNewsTranslation[];
+  is_published: boolean;
+  published_at?: string | null;
+  created_at?: string;
+  updated_at?: string;
+  likes: number;
+  dislikes: number;
+  user_reaction?: "LIKE" | "DISLIKE" | null;
+  comments_count: number;
+  views_count: number;
+  clicks_count: number;
+}

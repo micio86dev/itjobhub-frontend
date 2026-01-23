@@ -2,85 +2,194 @@ import {
   component$,
   useStore,
   useTask$,
+  isBrowser,
   useResource$,
   Resource,
   $,
-  isBrowser,
 } from "@builder.io/qwik";
-import { useLocation, Link, useNavigate } from "@builder.io/qwik-city";
-import { request } from "~/utils/api";
-import { useAuth } from "~/contexts/auth";
-import { useTranslate, useI18n } from "~/contexts/i18n";
 import {
-  BaseCommentsSection,
-  type UIComment,
-} from "~/components/ui/comments-section";
-import { Spinner } from "~/components/ui/spinner";
-import logger from "~/utils/logger";
+  useLocation,
+  Link,
+  useNavigate,
+  type DocumentHead,
+} from "@builder.io/qwik-city";
+import { marked } from "marked";
+import { request } from "~/utils/api";
 import { Modal } from "~/components/ui/modal";
-
-interface NewsTranslation {
-  language: string;
-  title: string;
-  summary?: string;
-  content?: string;
-}
-
-interface NewsDetail {
-  id: string;
-  title: string;
-  slug: string;
-  summary?: string;
-  content?: string;
-  image_url?: string;
-  category?: string;
-  language?: string;
-  translations?: NewsTranslation[];
-  published_at?: string;
-  likes: number;
-  dislikes: number;
-  user_reaction?: "LIKE" | "DISLIKE" | null;
-  comments_count: number;
-  views_count: number;
-}
+import { Spinner } from "~/components/ui/spinner";
+// import logger from "~/utils/logger";
+import { useTranslate, useI18n } from "~/contexts/i18n";
+import { useAuth } from "~/contexts/auth";
+import { NewsCommentsSection } from "~/components/news/comments-section";
+import type { ApiNews } from "~/types/models";
+// No specific styles file yet, simpler layout or inline tailwind
+// import styles from "./index.css?inline";
 
 export default component$(() => {
+  // useStylesScoped$(styles);
   const loc = useLocation();
   const auth = useAuth();
   const t = useTranslate();
-  const { currentLanguage } = useI18n();
+  const i18n = useI18n();
   const nav = useNavigate();
-  const API_URL = import.meta.env.PUBLIC_API_URL || "http://localhost:3001";
+  const lang = i18n.currentLanguage;
 
   const state = useStore({
-    news: null as NewsDetail | null,
-    comments: [] as UIComment[],
-    isLoadingComments: false,
+    news: null as ApiNews | null,
     showDeleteModal: false,
     isDeleting: false,
   });
 
-  const newsResource = useResource$(async ({ track }) => {
+  const newsResource = useResource$<ApiNews | null>(async ({ track }) => {
     const slug = track(() => loc.params.slug);
-    track(() => auth.token);
+    track(() => auth.token); // Re-fetch on auth change for user_reaction
 
     if (!slug) return null;
 
     try {
+      // Pass auth token if available to get user_reaction
       const headers: Record<string, string> = {};
-      if (auth.token) headers["Authorization"] = `Bearer ${auth.token}`;
+      if (auth.token) {
+        headers["Authorization"] = `Bearer ${auth.token}`;
+      }
 
-      const res = await request(`${API_URL}/news/${slug}`, { headers });
-      const json = await res.json();
+      const res = await fetch(
+        `${import.meta.env.PUBLIC_API_URL || "http://localhost:3001"}/news/${slug}`,
+        {
+          headers,
+        },
+      );
 
-      if (json.success) {
-        state.news = json.data;
-        return json.data;
+      if (!res.ok) {
+        if (res.status === 404) return null;
+        throw new Error("Failed to fetch news");
+      }
+
+      const data = await res.json();
+      if (data.success) {
+        state.news = data.data;
+        return data.data;
+      }
+      return null;
+    } catch (e) {
+      console.error("Error fetching news", e);
+      return null;
+    }
+  });
+
+  const handleLike = $(async () => {
+    if (!auth.isAuthenticated || !state.news) return;
+    const news = state.news;
+    const currentReaction = news.user_reaction;
+    const token = auth.token;
+
+    // Optimistic Update
+    if (currentReaction === "LIKE") {
+      news.likes = Math.max(0, news.likes - 1);
+      news.user_reaction = null;
+      // API Call DELETE
+      try {
+        await request(
+          `${import.meta.env.PUBLIC_API_URL}/likes?newsId=${news.id}&type=LIKE`,
+          {
+            method: "DELETE",
+            headers: { Authorization: `Bearer ${token}` },
+          },
+        );
+      } catch (e) {
+        console.error(e);
+      }
+    } else {
+      news.likes++;
+      news.user_reaction = "LIKE";
+      if (currentReaction === "DISLIKE") {
+        news.dislikes = Math.max(0, news.dislikes - 1);
+      }
+      // API Call POST
+      try {
+        await request(`${import.meta.env.PUBLIC_API_URL}/likes`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ newsId: news.id, type: "LIKE" }),
+        });
+      } catch (e) {
+        console.error(e);
+      }
+    }
+    // Force re-render if needed (Qwik stores are reactive)
+  });
+
+  const handleDislike = $(async () => {
+    if (!auth.isAuthenticated || !state.news) return;
+    const news = state.news;
+    const currentReaction = news.user_reaction;
+    const token = auth.token;
+
+    // Optimistic Update
+    if (currentReaction === "DISLIKE") {
+      news.dislikes = Math.max(0, news.dislikes - 1);
+      news.user_reaction = null;
+      // API Call DELETE
+      try {
+        await request(
+          `${import.meta.env.PUBLIC_API_URL}/likes?newsId=${news.id}&type=DISLIKE`,
+          {
+            method: "DELETE",
+            headers: { Authorization: `Bearer ${token}` },
+          },
+        );
+      } catch (e) {
+        console.error(e);
+      }
+    } else {
+      news.dislikes++;
+      news.user_reaction = "DISLIKE";
+      if (currentReaction === "LIKE") {
+        news.likes = Math.max(0, news.likes - 1);
+      }
+      // API Call POST
+      try {
+        await request(`${import.meta.env.PUBLIC_API_URL}/likes`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ newsId: news.id, type: "DISLIKE" }),
+        });
+      } catch (e) {
+        console.error(e);
+      }
+    }
+  });
+
+  const handleDelete = $(async () => {
+    if (!state.news || !auth.token) return;
+    state.isDeleting = true;
+    try {
+      const res = await request(
+        `${import.meta.env.PUBLIC_API_URL}/news/${state.news.id}`,
+        {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${auth.token}` },
+        },
+      );
+
+      if (res.ok) {
+        await nav("/news");
+      } else {
+        alert("Failed to delete news");
       }
     } catch (e) {
-      logger.error({ e }, "Failed to fetch news");
+      console.error("Error deleting news", e);
+      alert("Error deleting news");
+    } finally {
+      state.isDeleting = false;
+      state.showDeleteModal = false;
     }
-    return null;
   });
 
   // Track View
@@ -88,387 +197,313 @@ export default component$(() => {
     const newsId = track(() => state.news?.id);
     if (newsId && isBrowser) {
       // Fire and forget tracking
-      request(`${API_URL}/news/${newsId}/track`, {
+      request(`${import.meta.env.PUBLIC_API_URL}/news/${newsId}/track`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ type: "VIEW" }),
-      }).catch((err) => console.error("Tracking Error", err));
+      }).catch(console.error);
     }
   });
 
-  // Fetch Comments
-  const fetchComments = $(async () => {
-    if (!state.news?.id) return;
-    state.isLoadingComments = true;
-    try {
-      const res = await request(`${API_URL}/comments/news/${state.news.id}`);
-      const json = await res.json();
-      if (json.success) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        state.comments = json.data.comments.map((c: any) => ({
-          id: c.id,
-          userId: c.user_id,
-          author: {
-            name: `${c.user.first_name} ${c.user.last_name}`,
-            avatar: c.user.avatar,
-          },
-          text: c.content,
-          date: c.created_at,
-        }));
-      }
-    } catch (e) {
-      logger.error(e, "Failed to fetch comments");
-    } finally {
-      state.isLoadingComments = false;
-    }
-  });
-
-  // Load comments on mount if news calls succeeds
-  useTask$(({ track }) => {
-    const newsId = track(() => state.news?.id);
-    if (newsId) {
-      fetchComments();
-    }
-  });
-
-  const handleLike = $(async () => {
-    if (!auth.isAuthenticated || !state.news) return;
-
-    const current = state.news.user_reaction;
-    // Optimistic
-    if (current === "LIKE") {
-      state.news.user_reaction = null;
-      state.news.likes--;
-      await request(`${API_URL}/likes?newsId=${state.news.id}&type=LIKE`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${auth.token}` },
-      });
-    } else {
-      state.news.user_reaction = "LIKE";
-      state.news.likes++;
-      if (current === "DISLIKE") {
-        state.news.dislikes--;
-      }
-      await request(`${API_URL}/likes`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${auth.token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ newsId: state.news.id, type: "LIKE" }),
-      });
-    }
-  });
-
-  const handleDislike = $(async () => {
-    if (!auth.isAuthenticated || !state.news) return;
-
-    const current = state.news.user_reaction;
-    // Optimistic
-    if (current === "DISLIKE") {
-      state.news.user_reaction = null;
-      state.news.dislikes--;
-      await request(`${API_URL}/likes?newsId=${state.news.id}&type=DISLIKE`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${auth.token}` },
-      });
-    } else {
-      state.news.user_reaction = "DISLIKE";
-      state.news.dislikes++;
-      if (current === "LIKE") {
-        state.news.likes--;
-      }
-      await request(`${API_URL}/likes`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${auth.token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ newsId: state.news.id, type: "DISLIKE" }),
-      });
-    }
-  });
-
-  const handleDeleteNews = $(async () => {
-    if (!state.news || !auth.token) return;
-    state.isDeleting = true;
-    try {
-      const res = await request(`${API_URL}/news/${state.news.id}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${auth.token}` },
-      });
-      if (res.ok) {
-        await nav("/news");
-      }
-    } catch (e) {
-      console.error(e);
-    } finally {
-      state.isDeleting = false;
-    }
-  });
-
-  // Comment Actions
-  const handleAddComment = $(async (text: string) => {
-    if (!state.news || !auth.token) return;
-    try {
-      const res = await request(`${API_URL}/comments`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${auth.token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          content: text,
-          commentableId: state.news.id,
-          commentableType: "news",
-        }),
-      });
-      if (res.ok) {
-        await fetchComments();
-        state.news.comments_count++;
-      }
-    } catch (e) {
-      logger.error(e, "Failed to add comment");
-    }
-  });
-
-  const handleDeleteComment = $(async (id: string) => {
-    if (!auth.token) return;
-    try {
-      const res = await request(`${API_URL}/comments/${id}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${auth.token}` },
-      });
-      if (res.ok) {
-        state.comments = state.comments.filter((c) => c.id !== id);
-        if (state.news) state.news.comments_count--;
-      }
-    } catch (e) {
-      logger.error(e, "Failed to delete comment");
-    }
-  });
-
-  const handleEditComment = $(async (id: string, text: string) => {
-    if (!auth.token) return;
-    try {
-      const res = await request(`${API_URL}/comments/${id}`, {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${auth.token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ content: text }),
-      });
-      if (res.ok) {
-        const idx = state.comments.findIndex((c) => c.id === id);
-        if (idx !== -1) {
-          state.comments[idx].text = text;
-          state.comments = [...state.comments]; // Trigger reactivity
-        }
-      }
-    } catch (e) {
-      logger.error(e, "Failed to edit comment");
-    }
-  });
-
-  const formatDate = $((dateString?: string) => {
+  // Date formatter
+  const formatDate = (dateString?: string | null) => {
     if (!dateString) return "";
-    return new Date(dateString).toLocaleDateString(currentLanguage, {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  });
+    try {
+      return new Date(dateString).toLocaleDateString(lang, {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
+    } catch {
+      return dateString;
+    }
+  };
 
   return (
-    <div class="min-h-screen bg-white pb-20 dark:bg-slate-950">
-      <Resource
-        value={newsResource}
-        onPending={() => (
-          <div class="flex h-screen items-center justify-center">
-            <Spinner size="lg" />
-          </div>
-        )}
-        onResolved={(news) => {
-          if (!news) return <div class="p-10 text-center">News not found</div>;
+    <div class="min-h-screen bg-slate-50 pb-20 dark:bg-slate-950 pt-24">
+      <div class="container mx-auto px-4 max-w-4xl">
+        <Link
+          href="/news"
+          class="group flex items-center gap-2 w-fit px-3 py-2 -ml-3 text-sm font-bold text-gray-600 dark:text-white hover:text-indigo-600 dark:hover:text-indigo-400 rounded-xl hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all duration-300 mb-8"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="transition-transform duration-300 group-hover:-translate-x-1.5"
+          >
+            <path d="m15 18-6-6 6-6" />
+          </svg>
+          <span>{t("Back to News")}</span>
+        </Link>
 
-          // Translation logic
-          const translation = news.translations?.find(
-            (tr: NewsTranslation) => tr.language === currentLanguage,
-          );
-          const displayTitle = translation?.title || news.title;
-          const displayContent = translation?.content || news.content || "";
-
-          // Simple markdown to html for content (if necessary, or just text)
-          // Using simple text replacement for newlines if not markdown
-          // Assuming content is HTML or Markdown? Plan didn't specify. Assuming text/markdown.
-
-          return (
-            <article class="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
+        <Resource
+          value={newsResource}
+          onPending={() => (
+            <div class="flex justify-center py-20">
+              <Spinner size="lg" />
+            </div>
+          )}
+          onRejected={() => (
+            <div class="text-center py-20">
+              <h2 class="text-2xl font-bold text-red-500">
+                Error loading news
+              </h2>
               <Link
                 href="/news"
-                class="mb-6 flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-blue-600 dark:text-slate-400 dark:hover:text-blue-400"
-                data-testid="back-link"
+                class="text-blue-600 hover:underline mt-4 inline-block"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  class="h-4 w-4"
-                >
-                  <path d="m12 19-7-7 7-7" />
-                  <path d="M19 12H5" />
-                </svg>
-                {t("news.back")}
+                Go back
               </Link>
+            </div>
+          )}
+          onResolved={(news) => {
+            if (!news) {
+              return (
+                <div class="text-center py-20">
+                  <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-200">
+                    News Not Found
+                  </h2>
+                  <Link
+                    href="/news"
+                    class="text-blue-600 hover:underline mt-4 inline-block"
+                  >
+                    Go back
+                  </Link>
+                </div>
+              );
+            }
 
-              <h1 class="mb-4 text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white sm:text-4xl">
-                {displayTitle}
-              </h1>
+            // Content translation logic could go here if "translations" array is used on frontend
+            // But assume backend returns normalized object or we render 'content' directly.
+            // The ApiNews model has `translations`. IF the backend `fetchJobById` logic does "deriveLang",
+            // it might already pick the right one.
+            // But for News, we implemented `getNewsBySlug` which returns the raw object.
+            // We might want to find the translation here.
 
-              <div class="mb-8 flex flex-wrap items-center gap-4 text-sm text-slate-500 dark:text-slate-400">
-                {news.category && (
-                  <span class="rounded-full bg-blue-100 px-3 py-1 font-medium text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">
-                    {news.category}
-                  </span>
+            let displayTitle = news.title;
+            let displayContent = news.content;
+            // let displaySummary = news.summary;
+
+            const translation = news.translations?.find(
+              (tr) => tr.language === lang,
+            );
+            if (translation) {
+              displayTitle = translation.title;
+              displayContent = translation.content || displayContent;
+              // displaySummary = translation.summary || displaySummary;
+            }
+
+            return (
+              <article class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm overflow-hidden">
+                {/* Hero Image */}
+                {news.image_url && (
+                  <div class="w-full h-64 md:h-96 relative">
+                    <img
+                      src={news.image_url}
+                      alt={displayTitle}
+                      class="w-full h-full object-cover"
+                      width="1200"
+                      height="600"
+                    />
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                    <div class="absolute bottom-0 left-0 p-6 md:p-8 text-white">
+                      {news.category && (
+                        <span class="px-3 py-1 bg-indigo-600 rounded-full text-xs font-bold uppercase tracking-wide mb-3 inline-block">
+                          {news.category}
+                        </span>
+                      )}
+                      <h1 class="text-3xl md:text-5xl font-bold leading-tight mb-2">
+                        {displayTitle}
+                      </h1>
+                      <div class="flex items-center text-sm md:text-base text-gray-200 gap-4">
+                        <span>
+                          {formatDate(news.published_at || news.created_at)}
+                        </span>
+                        {news.source_url && (
+                          <a
+                            href={news.source_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="hover:text-white underline decoration-dotted"
+                          >
+                            Source
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  </div>
                 )}
-                <div class="flex items-center gap-1">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    class="h-4 w-4"
-                  >
-                    <rect width="18" height="18" x="3" y="4" rx="2" ry="2" />
-                    <line x1="16" x2="16" y1="2" y2="6" />
-                    <line x1="8" x2="8" y1="2" y2="6" />
-                    <line x1="3" x2="21" y1="10" y2="10" />
-                  </svg>
-                  <span>{formatDate(news.published_at)}</span>
-                </div>
-                {auth.user?.role === "admin" && (
-                  <button
-                    onClick$={() => (state.showDeleteModal = true)}
-                    class="ml-auto text-red-600 hover:text-red-700"
-                    data-testid="delete-article-btn"
-                  >
-                    {t("news.delete_article")}
-                  </button>
+
+                {!news.image_url && (
+                  <div class="p-8 border-b border-gray-100 dark:border-gray-800">
+                    {news.category && (
+                      <span class="px-3 py-1 bg-indigo-600 text-white rounded-full text-xs font-bold uppercase tracking-wide mb-3 inline-block">
+                        {news.category}
+                      </span>
+                    )}
+                    <h1 class="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+                      {displayTitle}
+                    </h1>
+                    <div class="flex items-center text-sm text-gray-500 dark:text-gray-400 gap-4">
+                      <span>
+                        {formatDate(news.published_at || news.created_at)}
+                      </span>
+                      {news.source_url && (
+                        <a
+                          href={news.source_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          class="hover:text-indigo-600 underline decoration-dotted"
+                        >
+                          Source
+                        </a>
+                      )}
+                    </div>
+                  </div>
                 )}
-              </div>
 
-              {news.image_url && (
-                <div class="mb-10 overflow-hidden rounded-xl bg-slate-100 dark:bg-slate-800">
-                  <img
-                    src={news.image_url}
-                    alt={displayTitle}
-                    class="h-auto w-full object-cover"
-                    width={800}
-                    height={400}
-                  />
+                {/* Content */}
+                <div class="p-6 md:p-10">
+                  {/* Admin Actions */}
+                  {auth.user?.role === "admin" && (
+                    <div class="flex justify-end mb-6">
+                      <button
+                        onClick$={() => (state.showDeleteModal = true)}
+                        class="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="18"
+                          height="18"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        >
+                          <path d="M3 6h18" />
+                          <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+                          <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+                          <line x1="10" x2="10" y1="11" y2="17" />
+                          <line x1="14" x2="14" y1="11" y2="17" />
+                        </svg>
+                        Delete Article
+                      </button>
+                    </div>
+                  )}
+
+                  {displayContent && (
+                    <div
+                      class="prose prose-lg dark:prose-invert max-w-none"
+                      dangerouslySetInnerHTML={
+                        marked.parse(displayContent) as string
+                      }
+                    ></div>
+                  )}
                 </div>
-              )}
 
-              <div class="prose prose-lg prose-slate mb-12 max-w-none dark:prose-invert">
-                {/* We should probably sanitize if it is HTML, or parse Markdown */}
-                {/* For now, simplified rendering */}
-                <div dangerouslySetInnerHTML={displayContent} />
-              </div>
+                {/* Interactions Footer */}
+                <div class="border-t border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50 p-6 md:p-8">
+                  <div class="flex items-center justify-between mb-8">
+                    <div class="flex gap-4">
+                      <button
+                        onClick$={handleLike}
+                        disabled={!auth.isAuthenticated}
+                        class={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all ${
+                          news.user_reaction === "LIKE"
+                            ? "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300"
+                            : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                        }`}
+                      >
+                        <span class="text-xl">👍</span>
+                        <span class="font-bold">{news.likes}</span>
+                      </button>
+                      <button
+                        onClick$={handleDislike}
+                        disabled={!auth.isAuthenticated}
+                        class={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all ${
+                          news.user_reaction === "DISLIKE"
+                            ? "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300"
+                            : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                        }`}
+                      >
+                        <span class="text-xl">👎</span>
+                        <span class="font-bold">{news.dislikes}</span>
+                      </button>
+                    </div>
+                    <div class="text-gray-500 text-sm flex gap-4">
+                      <span class="flex items-center gap-1">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        >
+                          <path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                          <circle cx="12" cy="12" r="3" />
+                        </svg>
+                        {news.views_count}
+                      </span>
+                      <span class="flex items-center gap-1">
+                        <svg
+                          class="w-4 h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"
+                          ></path>
+                        </svg>
+                        {news.clicks_count}
+                      </span>
+                    </div>
+                  </div>
 
-              {/* Interactions */}
-              <div class="mb-12 flex items-center justify-between border-y border-slate-200 py-6 dark:border-slate-800">
-                <div class="flex items-center gap-4">
-                  <button
-                    onClick$={handleLike}
-                    data-testid="like-btn"
-                    class={`flex items-center gap-2 rounded-lg px-4 py-2 font-medium transition-colors ${
-                      news.user_reaction === "LIKE"
-                        ? "bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400"
-                        : "bg-slate-50 text-slate-600 hover:bg-slate-100 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
-                    }`}
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="20"
-                      height="20"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      class="h-5 w-5"
-                    >
-                      <path d="M7 10v12" />
-                      <path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2h0a3.13 3.13 0 0 1 3 3.88Z" />
-                    </svg>
-                    <span>{news.likes}</span>
-                  </button>
-                  <button
-                    onClick$={handleDislike}
-                    data-testid="dislike-btn"
-                    class={`flex items-center gap-2 rounded-lg px-4 py-2 font-medium transition-colors ${
-                      news.user_reaction === "DISLIKE"
-                        ? "bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400"
-                        : "bg-slate-50 text-slate-600 hover:bg-slate-100 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
-                    }`}
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="20"
-                      height="20"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      class="h-5 w-5"
-                    >
-                      <path d="M17 14V2" />
-                      <path d="M9 18.12 10 14H4.17a2 2 0 0 1-1.92-2.56l2.33-8A2 2 0 0 1 6.5 2H20a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.76a2 2 0 0 0-1.79 1.11L12 22h0a3.13 3.13 0 0 1-3-3.88Z" />
-                    </svg>
-                    <span>{news.dislikes}</span>
-                  </button>
+                  <NewsCommentsSection newsId={news.id} />
                 </div>
-              </div>
+              </article>
+            );
+          }}
+        />
 
-              <BaseCommentsSection
-                comments={state.comments}
-                isLoading={state.isLoadingComments}
-                onAddComment$={handleAddComment}
-                onEditComment$={handleEditComment}
-                onDeleteComment$={handleDeleteComment}
-                title={t("news.discussion")}
-              />
-
-              <Modal
-                title={t("news.delete_article")}
-                isOpen={state.showDeleteModal}
-                onClose$={() => (state.showDeleteModal = false)}
-                onConfirm$={handleDeleteNews}
-                isDestructive={true}
-                confirmText={t("common.delete")}
-                cancelText={t("common.cancel")}
-              >
-                <p>{t("news.confirm_delete")}</p>
-              </Modal>
-            </article>
-          );
-        }}
-      />
+        <Modal
+          title={t("job.confirm_delete_title") || "Confirm Deletion"}
+          isOpen={state.showDeleteModal}
+          onClose$={() => (state.showDeleteModal = false)}
+          onConfirm$={handleDelete}
+          isDestructive={true}
+          isLoading={state.isDeleting}
+          confirmText={t("common.delete") || "Delete"}
+          cancelText={t("common.cancel") || "Cancel"}
+        >
+          <p>
+            {t(
+              "Are you sure you want to delete this news article? This action cannot be undone.",
+            )}
+          </p>
+        </Modal>
+      </div>
     </div>
   );
 });
+
+export const head: DocumentHead = {
+  title: "News Detail - IT Job Hub",
+};

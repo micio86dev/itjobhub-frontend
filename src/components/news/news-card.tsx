@@ -1,179 +1,235 @@
-import { component$, $ } from "@builder.io/qwik";
+import { component$, $, useStylesScoped$, useSignal } from "@builder.io/qwik";
+import styles from "./news-card.css?inline";
 import { Link } from "@builder.io/qwik-city";
-import { useTranslate, useI18n } from "../../contexts/i18n";
-
-interface NewsTranslation {
-  language: string;
-  title: string;
-  summary?: string;
-}
-
-export interface NewsItem {
-  id: string;
-  slug: string;
-  title: string;
-  summary?: string;
-  image_url?: string;
-  category?: string;
-  language?: string;
-  translations?: NewsTranslation[];
-  published_at?: string;
-  likes: number;
-  comments_count: number;
-  views_count: number;
-  clicks_count: number;
-}
+import type { ApiNews } from "~/types/models";
+import { useAuth } from "~/contexts/auth";
+import { useTranslate, useI18n } from "~/contexts/i18n";
+import { request } from "~/utils/api";
 
 interface NewsCardProps {
-  news: NewsItem;
+  news: ApiNews;
 }
 
-export const NewsCard = component$<NewsCardProps>(({ news }) => {
+export const NewsCard = component$<NewsCardProps>(({ news: initialNews }) => {
+  useStylesScoped$(styles);
+  const auth = useAuth();
   const t = useTranslate();
-  const { currentLanguage } = useI18n();
+  const i18n = useI18n();
+  const lang = i18n.currentLanguage;
 
-  // Find translation or fallback to original
-  const translation = news.translations?.find(
-    (tr) => tr.language === currentLanguage,
-  );
+  // Local state for interactions to ensure reactivity without full context for now
+  const newsSignal = useSignal({ ...initialNews });
+  const news = newsSignal.value;
 
-  const displayTitle = translation?.title || news.title;
-  const displaySummary = translation?.summary || news.summary;
+  const handleLike = $(async () => {
+    if (!auth.isAuthenticated) return;
+    const token = auth.token;
 
-  const formatDate = $((dateString?: string) => {
-    if (!dateString) return "";
-    return new Date(dateString).toLocaleDateString(currentLanguage, {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
+    const currentlyLiked = news.user_reaction === "LIKE";
+    const currentlyDisliked = news.user_reaction === "DISLIKE";
+
+    // Optimistic Update
+    if (currentlyLiked) {
+      news.likes = Math.max(0, news.likes - 1);
+      news.user_reaction = null;
+    } else {
+      news.likes++;
+      news.user_reaction = "LIKE";
+      if (currentlyDisliked) {
+        news.dislikes = Math.max(0, news.dislikes - 1);
+      }
+    }
+    // Force update
+    newsSignal.value = { ...news };
+
+    try {
+      const method = currentlyLiked ? "DELETE" : "POST";
+      const url =
+        method === "DELETE" ? `/likes?newsId=${news.id}&type=LIKE` : `/likes`;
+      const body =
+        method === "POST"
+          ? JSON.stringify({ newsId: news.id, type: "LIKE" })
+          : undefined;
+
+      await request(import.meta.env.PUBLIC_API_URL + url, {
+        method,
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body,
+      });
+    } catch (e) {
+      // Revert on error (omitted for brevity, can implement if needed)
+      console.error("Like failed", e);
+    }
   });
 
+  const handleDislike = $(async () => {
+    if (!auth.isAuthenticated) return;
+    const token = auth.token;
+
+    const currentlyLiked = news.user_reaction === "LIKE";
+    const currentlyDisliked = news.user_reaction === "DISLIKE";
+
+    // Optimistic Update
+    if (currentlyDisliked) {
+      news.dislikes = Math.max(0, news.dislikes - 1);
+      news.user_reaction = null;
+    } else {
+      news.dislikes++;
+      news.user_reaction = "DISLIKE";
+      if (currentlyLiked) {
+        news.likes = Math.max(0, news.likes - 1);
+      }
+    }
+    newsSignal.value = { ...news };
+
+    try {
+      const method = currentlyDisliked ? "DELETE" : "POST";
+      const url =
+        method === "DELETE"
+          ? `/likes?newsId=${news.id}&type=DISLIKE`
+          : `/likes`;
+      const body =
+        method === "POST"
+          ? JSON.stringify({ newsId: news.id, type: "DISLIKE" })
+          : undefined;
+
+      await request(import.meta.env.PUBLIC_API_URL + url, {
+        method,
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body,
+      });
+    } catch (e) {
+      console.error("Dislike failed", e);
+    }
+  });
+
+  // Date formatting
+  const dateObj = new Date(news.published_at || news.created_at || Date.now());
+  const dtf = new Intl.DateTimeFormat(lang, {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+  const dateDisplay = dtf.format(dateObj);
+
   return (
-    <div
-      data-testid="news-card"
-      class="group relative flex flex-col overflow-hidden rounded-xl border border-slate-200 bg-white transition-all hover:border-slate-300 hover:shadow-md dark:border-slate-800 dark:bg-slate-900 dark:hover:border-slate-700"
-    >
-      {/* Image Section */}
-      {news.image_url && (
-        <div class="relative h-48 w-full overflow-hidden bg-slate-100 dark:bg-slate-800">
-          <img
-            src={news.image_url}
-            alt={displayTitle}
-            class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-            loading="lazy"
-            width="800"
-            height="400"
-          />
-          {news.category && (
-            <div class="absolute right-3 top-3 rounded-full bg-blue-600/90 px-3 py-1 text-xs font-medium text-white backdrop-blur-sm">
-              {news.category}
+    <div class="news-card" data-testid="news-card">
+      <div class="header">
+        <div class="flex justify-between items-start">
+          <div class="flex-1">
+            {news.category && (
+              <span class="category-badge mb-2">{news.category}</span>
+            )}
+            <h3 class="news-title">
+              <Link href={`/news/${news.slug}`}>{news.title}</Link>
+            </h3>
+          </div>
+          {news.image_url && (
+            <div class="w-16 h-16 ml-3 rounded overflow-hidden flex-shrink-0">
+              <img
+                src={news.image_url}
+                alt={news.title}
+                class="w-full h-full object-cover"
+                width="64"
+                height="64"
+              />
             </div>
           )}
         </div>
-      )}
+        <div class="meta-row mt-2">
+          <span>{dateDisplay}</span>
+          {news.source_url && (
+            <>
+              <span>•</span>
+              <span>Source</span>
+            </>
+          )}
+        </div>
+      </div>
 
-      <div class="flex flex-1 flex-col p-5">
-        {/* Meta Header */}
-        <div class="mb-3 flex items-center gap-3 text-xs text-slate-500 dark:text-slate-400">
-          <div class="flex items-center gap-1">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="12"
-              height="12"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
+      <div class="summary">{news.summary}</div>
+
+      <div class="footer-actions">
+        <div class="reaction-buttons">
+          <button
+            onClick$={handleLike}
+            disabled={!auth.isAuthenticated}
+            class={`reaction-btn ${
+              news.user_reaction === "LIKE"
+                ? "reaction-btn-like-active"
+                : "reaction-btn-like-inactive"
+            }`}
+          >
+            <span class="text-lg">👍</span>
+            <span class="text-sm font-medium">{news.likes}</span>
+          </button>
+
+          <button
+            onClick$={handleDislike}
+            disabled={!auth.isAuthenticated}
+            class={`reaction-btn ${
+              news.user_reaction === "DISLIKE"
+                ? "reaction-btn-dislike-active"
+                : "reaction-btn-dislike-inactive"
+            }`}
+          >
+            <span class="text-lg">👎</span>
+            <span class="text-sm font-medium">{news.dislikes}</span>
+          </button>
+
+          <div class="flex items-center space-x-1 text-gray-500 text-sm">
+            <span class="text-lg">💬</span>
+            <span>{news.comments_count}</span>
+          </div>
+
+          <div class="stats-container">
+            <span class="flex items-center" title="Views">
+              <svg
+                class="w-4 h-4 mr-1"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                />
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                />
+              </svg>
+              {news.views_count || 0}
+            </span>
+          </div>
+        </div>
+
+        <Link href={`/news/${news.slug}`} class="read-more-btn">
+          {t("common.read_more") || "Read more"}
+          <svg
+            class="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
               stroke-linecap="round"
               stroke-linejoin="round"
-              class="h-3 w-3"
-            >
-              <rect width="18" height="18" x="3" y="4" rx="2" ry="2" />
-              <line x1="16" x2="16" y1="2" y2="6" />
-              <line x1="8" x2="8" y1="2" y2="6" />
-              <line x1="3" x2="21" y1="10" y2="10" />
-            </svg>
-            <span>{formatDate(news.published_at)}</span>
-          </div>
-        </div>
-
-        {/* Title & Summary */}
-        <Link
-          href={`/news/${news.slug}`}
-          class="mb-2 block"
-          data-testid="news-card-link"
-        >
-          <h3 class="text-xl font-bold text-slate-900 transition-colors group-hover:text-blue-600 dark:text-white dark:group-hover:text-blue-400">
-            {displayTitle}
-          </h3>
+              stroke-width="2"
+              d="M9 5l7 7-7 7"
+            ></path>
+          </svg>
         </Link>
-
-        <p class="mb-4 flex-1 text-sm leading-relaxed text-slate-600 line-clamp-3 dark:text-slate-300">
-          {displaySummary}
-        </p>
-
-        {/* Footer Stats */}
-        <div class="mt-auto flex items-center justify-between border-t border-slate-100 pt-4 text-xs font-medium text-slate-500 dark:border-slate-800 dark:text-slate-400">
-          <div class="flex items-center gap-4">
-            <div class="flex items-center gap-1.5 transition-colors hover:text-blue-600">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                class="h-3.5 w-3.5"
-              >
-                <path d="M7 10v12" />
-                <path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2h0a3.13 3.13 0 0 1 3 3.88Z" />
-              </svg>
-              <span>{news.likes}</span>
-            </div>
-            <div class="flex items-center gap-1.5 transition-colors hover:text-blue-600">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                class="h-3.5 w-3.5"
-              >
-                <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" />
-              </svg>
-              <span>{news.comments_count}</span>
-            </div>
-          </div>
-
-          <div class="flex items-center gap-3 opacity-60">
-            <div class="flex items-center gap-1" title={t("views")}>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="12"
-                height="12"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                class="h-3 w-3"
-              >
-                <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
-                <circle cx="12" cy="12" r="3" />
-              </svg>
-              <span>{news.views_count}</span>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );

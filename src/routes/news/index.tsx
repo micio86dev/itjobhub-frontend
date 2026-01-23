@@ -1,7 +1,9 @@
 import { component$, useStore, useVisibleTask$, $ } from "@builder.io/qwik";
 import { type DocumentHead, useLocation } from "@builder.io/qwik-city";
 import { useTranslate } from "../../contexts/i18n";
-import { NewsCard, type NewsItem } from "../../components/news/news-card";
+import { NewsList } from "../../components/news/news-list";
+import type { ApiNews } from "~/types/models";
+import { useInfiniteScroll } from "~/hooks/use-infinite-scroll";
 import { Spinner } from "../../components/ui/spinner";
 
 export const head: DocumentHead = {
@@ -30,7 +32,7 @@ export default component$(() => {
   const loc = useLocation();
 
   const state = useStore({
-    news: [] as NewsItem[],
+    news: [] as ApiNews[],
     page: 1,
     isLoading: true,
     hasMore: true,
@@ -44,6 +46,8 @@ export default component$(() => {
         state.isLoading = true;
         state.news = [];
       } else {
+        // Infinite scroll loading state can be handled by the hook usually,
+        // but here we track if we are fetching to prevent double fetches
         state.isLoading = true;
       }
 
@@ -60,7 +64,12 @@ export default component$(() => {
         if (reset) {
           state.news = data.data.news;
         } else {
-          state.news = [...state.news, ...data.data.news];
+          // Deduplicate based on ID just in case
+          const existingIds = new Set(state.news.map((n) => n.id));
+          const newItems = (data.data.news as ApiNews[]).filter(
+            (n) => !existingIds.has(n.id),
+          );
+          state.news = [...state.news, ...newItems];
         }
 
         state.hasMore = data.data.pagination.page < data.data.pagination.pages;
@@ -74,35 +83,22 @@ export default component$(() => {
     }
   });
 
-  // Initial load - use useTask$ to fetch data, which can run on server and client
+  // Initial load
   // eslint-disable-next-line qwik/no-use-visible-task
   useVisibleTask$(({ track }) => {
     track(() => state.selectedCategory);
     fetchNews(1, true);
   });
 
-  // Infinite scroll - needs DOM access, so useVisibleTask$ is necessary
-  // eslint-disable-next-line qwik/no-use-visible-task
-  useVisibleTask$(({ cleanup }) => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const first = entries[0];
-        if (
-          first.isIntersecting &&
-          !state.isLoading &&
-          state.hasMore &&
-          state.initialLoadDone
-        ) {
-          fetchNews(state.page + 1, false);
-        }
-      },
-      { threshold: 0.5 }, // Trigger when 50% visible
-    );
+  const loadMore = $(async () => {
+    if (!state.isLoading && state.hasMore) {
+      await fetchNews(state.page + 1, false);
+    }
+  });
 
-    const target = document.querySelector("#load-more-trigger");
-    if (target) observer.observe(target);
-
-    cleanup(() => observer.disconnect());
+  const { ref: infiniteScrollRef } = useInfiniteScroll({
+    loadMore$: loadMore,
+    threshold: 100,
   });
 
   return (
@@ -176,51 +172,23 @@ export default component$(() => {
       </div>
 
       <div class="container mx-auto px-4 py-8">
-        {state.news.length === 0 &&
-        !state.isLoading &&
-        state.initialLoadDone ? (
-          <div class="flex flex-col items-center justify-center py-20 text-center">
-            <div class="mb-4 rounded-full bg-slate-100 p-6 dark:bg-slate-800">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="40"
-                height="40"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                class="h-10 w-10 text-slate-400"
-              >
-                <path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2" />
-                <path d="M18 14h-8" />
-                <path d="M15 18h-5" />
-                <path d="M10 6h8a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-8Z" />
-              </svg>
-            </div>
-            <h3 class="text-xl font-bold text-slate-900 dark:text-white">
-              No news found
-            </h3>
-            <p class="mt-2 text-slate-500">
-              Try adjusting your filters or come back later.
-            </p>
-          </div>
-        ) : (
-          <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {state.news.map((item) => (
-              <NewsCard key={item.id} news={item} />
-            ))}
+        <NewsList
+          news={state.news}
+          isLoading={state.isLoading && state.page === 1}
+        />
+
+        {/* Infinite Scroll Trigger */}
+        {state.hasMore && (
+          <div ref={infiniteScrollRef} class="flex justify-center py-12">
+            {state.isLoading && state.page > 1 && <Spinner size="lg" />}
           </div>
         )}
 
-        {/* Loading / Infinite Scroll Trigger */}
-        <div id="load-more-trigger" class="flex justify-center py-12">
-          {state.isLoading && <Spinner size="lg" />}
-          {!state.hasMore && state.news.length > 0 && (
-            <p class="text-sm text-slate-400">{t("You've reached the end")}</p>
-          )}
-        </div>
+        {!state.hasMore && state.news.length > 0 && (
+          <p class="text-sm text-slate-400 text-center py-8">
+            {t("You've reached the end")}
+          </p>
+        )}
       </div>
     </div>
   );
