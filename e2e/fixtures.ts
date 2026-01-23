@@ -1,7 +1,13 @@
-import { test as base, expect, Page, BrowserContext } from "@playwright/test";
+import {
+  test as base,
+  expect,
+  Page,
+  BrowserContext,
+  APIRequestContext,
+} from "@playwright/test";
 
 // API base URL for direct API calls
-const API_BASE = "http://localhost:3001";
+export const API_BASE = "http://localhost:3001";
 
 // Test users credentials
 export const TEST_USERS = {
@@ -138,6 +144,67 @@ export async function deleteTestJob(
 
   if (!response.ok() && response.status() !== 404) {
     throw new Error(`Failed to delete job: ${response.status()}`);
+  }
+}
+
+/**
+ * Create a test news article via API
+ */
+export async function createTestNews(
+  request: APIRequestContext,
+  token: string,
+  newsData?: Partial<{
+    title: string;
+    slug: string;
+    summary: string;
+    content: string;
+    category: string;
+    is_published: boolean;
+  }>,
+): Promise<string> {
+  const timestamp = Date.now();
+  const defaultNews = {
+    title: `E2E Test News ${timestamp}`,
+    slug: `e2e-test-news-${timestamp}`,
+    summary: "Test news summary",
+    content: "<p>Test news content</p>",
+    category: "Development",
+    ...newsData,
+  };
+
+  const response = await request.post(`${API_BASE}/news`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    data: defaultNews,
+  });
+
+  if (!response.ok()) {
+    throw new Error(
+      `Failed to create news: ${response.status()} ${await response.text()}`,
+    );
+  }
+
+  const body = await response.json();
+  return body.data.id;
+}
+
+/**
+ * Delete a test news article via API
+ */
+export async function deleteTestNews(
+  request: APIRequestContext,
+  token: string,
+  newsId: string,
+): Promise<void> {
+  const response = await request.delete(`${API_BASE}/news/${newsId}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok() && response.status() !== 404) {
+    throw new Error(`Failed to delete news: ${response.status()}`);
   }
 }
 

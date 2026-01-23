@@ -74,6 +74,9 @@ export const Navigation = component$(() => {
               <Link href="/jobs" class="nav-link dark:text-white">
                 {t("nav.jobs")}
               </Link>
+              <Link href="/news" class="nav-link dark:text-white">
+                {t("nav.news")}
+              </Link>
               {auth.user?.role === "admin" && (
                 <Link href="/admin/stats" class="nav-link dark:text-white">
                   {t("nav.dashboard")}
@@ -253,6 +256,9 @@ export const Navigation = component$(() => {
           <div class="mobile-menu-panel">
             <Link href="/jobs" class="mobile-nav-link dark:text-white">
               {t("nav.jobs")}
+            </Link>
+            <Link href="/news" class="mobile-nav-link dark:text-white">
+              {t("nav.news")}
             </Link>
             {auth.user?.role === "admin" && (
               <Link href="/admin/stats" class="mobile-nav-link dark:text-white">

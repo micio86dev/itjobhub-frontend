@@ -18,7 +18,8 @@ The IT Job Hub frontend is a high-performance web application designed for devel
 5.  **Admin Dashboard**: Rich statistical insights including "Top Seniority", user growth, and engagement metrics.
 6.  **Multi-language Support**: Comprehensive localization for IT, EN, FR, ES, and DE.
 7.  **Job Type Variety**: Support for Full-time, Part-time, Contract, Freelance, and Internship positions.
-8.  **Performance**: Near-zero hydration, ensuring instant interaction on page load.
+8.  **News Hub**: Integrated tech news feed with infinite scroll, category filtering, and engagement tracking (likes/comments).
+9.  **Performance**: Near-zero hydration, ensuring instant interaction on page load.
 
 ## Code Quality
 
@@ -27,6 +28,16 @@ The IT Job Hub frontend is a high-performance web application designed for devel
 - **Responsive**: Mobile-first design principles applied consistently.
 
 ## Recent Changes
+
+### 2026-01-23: Tech News Feature Implementation
+
+- Implemented **News Feed** (`/news`) with infinite scroll using `IntersectionObserver`.
+- Added **News Detail** (`/news/[slug]`) with support for multi-language translations.
+- Integrated **Interactions**: Users can like/dislike news articles and add comments.
+- Created `NewsCard` component with optimistic UI updates and skeleton loading states.
+- Replaced `@qwikest/icons/lucide` with **Inline SVGs** to optimize build size and fix dependency issues.
+- Added comprehensive **E2E tests** (`e2e/news.spec.ts`) and API test helpers.
+- Enhanced backend to expose **News Management** endpoints for testing and content management.
 
 ### 2026-01-17: Persistent Language Selection (Cookies)
 

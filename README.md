@@ -50,6 +50,11 @@ Inside your project, you'll see the following directory structure:
   - Scoped styling for actions and details
   - "Apply" button with gradient and hover effects (using global selectors for Link component compatibility)
   - Interactive "Like" and "Dislike" buttons
+- **NewsCard** (`src/components/news/news-card.tsx`): Displays news articles with:
+  - Responsive layout for news list and detail views
+  - Optimistic UI updates for likes and dislikes
+  - Integration with comments and translation selection
+  - High-performance infinite scroll support
 
 ## Add Integrations and deployment
 
