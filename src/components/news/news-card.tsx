@@ -214,7 +214,7 @@ export const NewsCard = component$<NewsCardProps>(({ news: initialNews }) => {
           </div>
         </div>
 
-        <Link href={`/news/${news.slug}`} class="read-more-btn">
+        <a href={`/news/${news.slug}`} class="read-more-btn">
           {t("common.read_more") || "Read more"}
           <svg
             class="w-4 h-4"
@@ -229,7 +229,7 @@ export const NewsCard = component$<NewsCardProps>(({ news: initialNews }) => {
               d="M9 5l7 7-7 7"
             ></path>
           </svg>
-        </Link>
+        </a>
       </div>
     </div>
   );
