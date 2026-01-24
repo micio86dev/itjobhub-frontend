@@ -161,7 +161,7 @@ export async function createTestNews(
     category: string;
     is_published: boolean;
   }>,
-): Promise<string> {
+): Promise<{ id: string; slug: string }> {
   const timestamp = Date.now();
   const defaultNews = {
     title: `E2E Test News ${timestamp}`,
@@ -186,7 +186,7 @@ export async function createTestNews(
   }
 
   const body = await response.json();
-  return body.data.id;
+  return { id: body.data.id, slug: body.data.slug, title: body.data.title };
 }
 
 /**

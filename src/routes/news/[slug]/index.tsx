@@ -224,6 +224,7 @@ export default component$(() => {
       <div class="container mx-auto px-4 max-w-4xl">
         <Link
           href="/news"
+          data-testid="back-link"
           class="group flex items-center gap-2 w-fit px-3 py-2 -ml-3 text-sm font-bold text-gray-600 dark:text-white hover:text-indigo-600 dark:hover:text-indigo-400 rounded-xl hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all duration-300 mb-8"
         >
           <svg
@@ -240,7 +241,7 @@ export default component$(() => {
           >
             <path d="m15 18-6-6 6-6" />
           </svg>
-          <span>{t("Back to News")}</span>
+          <span>{t("news.back")}</span>
         </Link>
 
         <Resource
@@ -376,6 +377,7 @@ export default component$(() => {
                     <div class="flex justify-end mb-6">
                       <button
                         onClick$={() => (state.showDeleteModal = true)}
+                        data-testid="delete-article-btn"
                         class="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors"
                       >
                         <svg
@@ -417,6 +419,7 @@ export default component$(() => {
                       <button
                         onClick$={handleLike}
                         disabled={!auth.isAuthenticated}
+                        data-testid="like-btn"
                         class={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all ${
                           news.user_reaction === "LIKE"
                             ? "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300"
@@ -429,6 +432,7 @@ export default component$(() => {
                       <button
                         onClick$={handleDislike}
                         disabled={!auth.isAuthenticated}
+                        data-testid="dislike-btn"
                         class={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all ${
                           news.user_reaction === "DISLIKE"
                             ? "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300"

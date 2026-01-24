@@ -18,13 +18,13 @@ export const head: DocumentHead = {
 };
 
 const CATEGORIES = [
-  "All",
-  "AI",
-  "DevOps",
-  "Cybersecurity",
-  "Development",
-  "Cloud",
-  "Data Science",
+  { key: "All", i18nKey: "news.category.all" },
+  { key: "AI", i18nKey: "news.category.ai" },
+  { key: "DevOps", i18nKey: "news.category.devops" },
+  { key: "Cybersecurity", i18nKey: "news.category.cybersecurity" },
+  { key: "Development", i18nKey: "news.category.development" },
+  { key: "Cloud", i18nKey: "news.category.cloud" },
+  { key: "Data Science", i18nKey: "news.category.datascience" },
 ];
 
 export default component$(() => {
@@ -156,15 +156,15 @@ export default component$(() => {
             </svg>
             {CATEGORIES.map((cat) => (
               <button
-                key={cat}
-                onClick$={() => (state.selectedCategory = cat)}
+                key={cat.key}
+                onClick$={() => (state.selectedCategory = cat.key)}
                 class={`whitespace-nowrap rounded-full px-4 py-1.5 text-sm font-medium transition-all ${
-                  state.selectedCategory === cat
+                  state.selectedCategory === cat.key
                     ? "bg-blue-600 text-white shadow-md shadow-blue-500/20"
                     : "bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700"
                 }`}
               >
-                {t(cat)}
+                {t(cat.i18nKey)}
               </button>
             ))}
           </div>

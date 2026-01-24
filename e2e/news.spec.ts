@@ -4,6 +4,7 @@ import { SELECTORS, ensurePageReady, navigateTo } from "./helpers";
 test.describe("News Feature", () => {
     let newsId: string;
     let newsSlug: string;
+    let newsTitle: string;
     let adminToken: string;
 
     test.beforeAll(async ({ request }) => {
@@ -19,15 +20,17 @@ test.describe("News Feature", () => {
 
         // Create a test news article
         const timestamp = Date.now();
-        newsSlug = `e2e-news-${timestamp}`;
-        newsId = await createTestNews(request, adminToken, {
+        const testNews = await createTestNews(request, adminToken, {
             title: `E2E News Title ${timestamp}`,
-            slug: newsSlug,
+            slug: `e2e-news-${timestamp}`,
             summary: "This is a summary for E2E testing",
             content: "<p>This is the content for E2E testing</p>",
             category: "Development",
             is_published: true
         });
+        newsId = testNews.id;
+        newsSlug = testNews.slug;
+        newsTitle = testNews.title;
     });
 
     test.afterAll(async ({ request }) => {
@@ -43,21 +46,19 @@ test.describe("News Feature", () => {
         await expect(page.locator("h1")).toContainText("Tech News & Insights");
 
         // filters should be visible
-        await expect(page.getByText("All")).toBeVisible();
-        await expect(page.getByText("Development")).toBeVisible();
+        await expect(page.getByText("All", { exact: true })).toBeVisible();
+        await expect(page.getByRole("button", { name: "Development" })).toBeVisible();
 
         // Check if our created news is present using the title
         // We might need to wait for hydration or list loading
-        await expect(page.getByText(/E2E News Title/)).toBeVisible();
+        await expect(page.getByText(newsTitle, { exact: true })).toBeVisible();
     });
 
     test("Guest can navigate to news detail", async ({ page }) => {
         await navigateTo(page, "/news");
 
-        // Click on the news card
-        // Need to find the specific card. 
-        // Since we don't have unique data-testid per item easily, we search by text
-        await page.getByText(/E2E News Title/).first().click();
+        // Click on the news card link
+        await page.getByText(newsTitle, { exact: true }).first().click();
 
         await expect(page).toHaveURL(new RegExp(`/news/${newsSlug}`));
         await ensurePageReady(page);
@@ -67,9 +68,7 @@ test.describe("News Feature", () => {
         await expect(page.locator("article")).toBeVisible();
 
         // Verify back link works
-        const backLink = page.getByTestId("back-link");
-        await expect(backLink).toBeVisible();
-        await backLink.click();
+        await page.click('[data-testid="back-link"]');
         await expect(page).toHaveURL(/\/news$/);
     });
 
