@@ -1,0 +1,100 @@
+.wizard-overlay {
+  @apply fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 overflow-y-auto;
+}
+
+.wizard-card {
+  @apply bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-lg w-full p-6 my-8;
+}
+
+.progress-section {
+  @apply mb-6;
+}
+
+.progress-header {
+  @apply flex items-center justify-between mb-2;
+}
+
+.progress-title {
+  @apply text-sm font-medium text-gray-900 dark:text-white;
+}
+
+.progress-percent {
+  @apply text-sm text-gray-500 dark:text-gray-400;
+}
+
+.progress-bar-bg {
+  @apply w-full bg-gray-200 rounded-full h-2;
+}
+
+.progress-bar-fill {
+  @apply bg-indigo-600 h-2 rounded-full transition-all duration-300;
+}
+
+.step-container {
+  @apply space-y-4;
+}
+
+.step-heading {
+  @apply text-xl font-semibold text-gray-900 dark:text-white mb-2;
+}
+
+.step-description {
+  @apply text-sm text-gray-600 dark:text-gray-400 mb-4;
+}
+
+.options-stack {
+  @apply space-y-3;
+}
+
+.option-card {
+  @apply flex items-start p-3 rounded-lg border-2 cursor-pointer transition-colors;
+}
+
+.option-card-selected {
+  @apply border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20;
+}
+
+.option-card-default {
+  @apply border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600;
+}
+
+.option-input {
+  @apply mt-0.5 h-4 w-4 text-indigo-600 focus:ring-indigo-500 rounded;
+  /* 'rounded' is for checkbox, radio ignores it usually but safe to keep or split */
+}
+
+.option-content {
+  @apply ml-3;
+}
+
+.option-title {
+  @apply font-medium text-gray-900 dark:text-white;
+}
+
+.option-desc {
+  @apply text-sm text-gray-500 dark:text-gray-400;
+}
+
+.nav-buttons {
+  @apply flex justify-between pt-6 mt-6 border-t border-gray-200 dark:border-gray-700;
+}
+
+.nav-left {
+  @apply flex space-x-2;
+}
+
+.btn-secondary {
+  @apply px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-indigo-400;
+}
+
+.btn-primary {
+  @apply px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.btn-success {
+  @apply inline-flex items-center px-6 py-2 text-sm font-medium text-white bg-green-600 border border-transparent rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.spinner-icon {
+  @apply -ml-1 mr-2;
+}

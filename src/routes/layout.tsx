@@ -52,6 +52,15 @@ export const useAuthLoader = routeLoader$(async ({ cookie }) => {
             profileCompleted: !!bu.profile,
           };
         }
+      } else if (response.status === 401) {
+        // Token is invalid or expired
+        cookie.delete("auth_token", { path: "/" });
+        // Return null token to ensure proper logout state
+        return {
+          token: null,
+          user: null,
+          lang: lang || "it",
+        };
       }
     } catch (e) {
       logger.error({ e }, "[SSR] Failed to fetch user data");

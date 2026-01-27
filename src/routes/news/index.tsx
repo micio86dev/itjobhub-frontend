@@ -27,6 +27,8 @@ const CATEGORIES = [
   { key: "Data Science", i18nKey: "news.category.datascience" },
 ];
 
+import { request } from "~/utils/api";
+
 export default component$(() => {
   const t = useTranslate();
   const loc = useLocation();
@@ -57,7 +59,7 @@ export default component$(() => {
           : "";
       const endpoint = `${import.meta.env.PUBLIC_API_URL}/news?page=${page}&limit=12${categoryParam}`;
 
-      const res = await fetch(endpoint);
+      const res = await request(endpoint);
       const data = await res.json();
 
       if (data.success) {

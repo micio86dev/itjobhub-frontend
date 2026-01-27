@@ -131,8 +131,8 @@ export const NewsCard = component$<NewsCardProps>(({ news: initialNews }) => {
   return (
     <div class="news-card" data-testid="news-card">
       <div class="header">
-        <div class="flex justify-between items-start">
-          <div class="flex-1">
+        <div class="header-content">
+          <div class="title-container">
             {news.category && (
               <span class="category-badge mb-2">{news.category}</span>
             )}
@@ -141,11 +141,11 @@ export const NewsCard = component$<NewsCardProps>(({ news: initialNews }) => {
             </h3>
           </div>
           {news.image_url && (
-            <div class="w-16 h-16 ml-3 rounded overflow-hidden flex-shrink-0">
+            <div class="image-wrapper">
               <img
                 src={news.image_url}
                 alt={displayTitle}
-                class="w-full h-full object-cover"
+                class="card-image-small"
                 width="64"
                 height="64"
               />
@@ -193,7 +193,7 @@ export const NewsCard = component$<NewsCardProps>(({ news: initialNews }) => {
             <span class="text-sm font-medium">{news.dislikes}</span>
           </button>
 
-          <div class="flex items-center space-x-1 text-gray-500 text-sm">
+          <div class="comments-wrapper">
             <span class="text-lg">💬</span>
             <span>{news.comments_count}</span>
           </div>

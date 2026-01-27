@@ -53,7 +53,7 @@ export default component$(() => {
         headers["Authorization"] = `Bearer ${auth.token}`;
       }
 
-      const res = await fetch(
+      const res = await request(
         `${import.meta.env.PUBLIC_API_URL || "http://localhost:3001"}/news/${slug}`,
         {
           headers,

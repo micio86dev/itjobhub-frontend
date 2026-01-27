@@ -14,6 +14,14 @@
   @apply text-gray-100;
 }
 
+.header-flex {
+  @apply flex items-center justify-between w-full;
+}
+
+.toggle-btn {
+  @apply text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200;
+}
+
 .comment-form {
   @apply mb-4;
 }
@@ -171,7 +179,7 @@
 }
 
 .save-btn {
-  @apply text-xs px-2 py-1 bg-indigo-600 text-white rounded hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200;
+  @apply inline-flex items-center text-xs px-2 py-1 bg-indigo-600 text-white rounded hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200;
 }
 
 :global(.dark) .save-btn {
