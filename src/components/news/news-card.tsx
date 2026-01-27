@@ -118,6 +118,16 @@ export const NewsCard = component$<NewsCardProps>(({ news: initialNews }) => {
   });
   const dateDisplay = dtf.format(dateObj);
 
+  // Localization
+  let displayTitle = news.title;
+  let displaySummary = news.summary;
+
+  const translation = news.translations?.find((tr) => tr.language === lang);
+  if (translation) {
+    displayTitle = translation.title;
+    displaySummary = translation.summary || displaySummary;
+  }
+
   return (
     <div class="news-card" data-testid="news-card">
       <div class="header">
@@ -127,14 +137,14 @@ export const NewsCard = component$<NewsCardProps>(({ news: initialNews }) => {
               <span class="category-badge mb-2">{news.category}</span>
             )}
             <h3 class="news-title">
-              <Link href={`/news/${news.slug}`}>{news.title}</Link>
+              <Link href={`/news/${news.slug}`}>{displayTitle}</Link>
             </h3>
           </div>
           {news.image_url && (
             <div class="w-16 h-16 ml-3 rounded overflow-hidden flex-shrink-0">
               <img
                 src={news.image_url}
-                alt={news.title}
+                alt={displayTitle}
                 class="w-full h-full object-cover"
                 width="64"
                 height="64"
@@ -153,7 +163,7 @@ export const NewsCard = component$<NewsCardProps>(({ news: initialNews }) => {
         </div>
       </div>
 
-      <div class="summary">{news.summary}</div>
+      <div class="summary">{displaySummary}</div>
 
       <div class="footer-actions">
         <div class="reaction-buttons">
