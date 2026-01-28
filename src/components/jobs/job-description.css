@@ -1,5 +1,5 @@
 .descriptionSection {
-  @apply bg-brand-light-card dark:bg-brand-dark-card rounded-sm border border-gray-200 dark:border-gray-800 p-8 shadow-none transition-all duration-300;
+  @apply p-8 transition-all duration-300;
 }
 
 .descriptionTitle {
