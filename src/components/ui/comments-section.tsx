@@ -35,15 +35,8 @@ interface BaseCommentsSectionProps {
 }
 
 export const BaseCommentsSection = component$<BaseCommentsSectionProps>(
-  ({
-    comments,
-    title,
-    onAddComment$,
-    onEditComment$,
-    onDeleteComment$,
-    onClose$,
-    isExpandedDefault = true,
-  }) => {
+  (props) => {
+    const { comments, title, isExpandedDefault = true } = props;
     useStylesScoped$(styles);
     const auth = useAuth();
     const t = useTranslate();
@@ -69,7 +62,7 @@ export const BaseCommentsSection = component$<BaseCommentsSectionProps>(
 
       state.isEditingSubmitting = true;
       try {
-        await onEditComment$(state.editingId, state.editContent.trim());
+        await props.onEditComment$(state.editingId, state.editContent.trim());
         state.editingId = null;
         state.editContent = "";
       } finally {
@@ -79,7 +72,7 @@ export const BaseCommentsSection = component$<BaseCommentsSectionProps>(
 
     const confirmDelete = $(async () => {
       if (state.commentToDelete) {
-        await onDeleteComment$(state.commentToDelete);
+        await props.onDeleteComment$(state.commentToDelete);
         state.showDeleteModal = false;
         state.commentToDelete = null;
       }
@@ -91,10 +84,10 @@ export const BaseCommentsSection = component$<BaseCommentsSectionProps>(
 
       state.isSubmitting = true;
       try {
-        await onAddComment$(state.commentText.trim());
+        await props.onAddComment$(state.commentText.trim());
         state.commentText = "";
-        if (onClose$) {
-          await onClose$();
+        if (props.onClose$) {
+          await props.onClose$();
         }
       } catch (err) {
         logger.error({ error: err }, "Failed to submit comment");
@@ -251,11 +244,21 @@ export const BaseCommentsSection = component$<BaseCommentsSectionProps>(
               comments.map((comment) => (
                 <div key={comment.id} class="comment-item">
                   <div class="comment-avatar-container">
-                    <div class="comment-avatar-placeholder">
-                      <span class="avatar-initials">
-                        {getInitials(comment.author.name || anonymousUser)}
-                      </span>
-                    </div>
+                    {comment.author.avatar ? (
+                      <img
+                        src={comment.author.avatar}
+                        alt={comment.author.name || ""}
+                        class="comment-avatar-image"
+                        width="24"
+                        height="24"
+                      />
+                    ) : (
+                      <div class="comment-avatar-placeholder">
+                        <span class="avatar-initials">
+                          {getInitials(comment.author.name || anonymousUser)}
+                        </span>
+                      </div>
+                    )}
                   </div>
 
                   <div class="comment-body">

@@ -281,7 +281,7 @@ export default component$(() => {
                   onLike$={handleLike}
                   onDislike$={handleDislike}
                   onToggleFavorite$={handleToggleFavorite}
-                  onDelete$={$(async () => await handleShowDeleteModal())}
+                  onDelete$={handleShowDeleteModal}
                   onApplyClick$={handleApplyClick}
                 />
               </div>

@@ -15,5 +15,14 @@
 }
 
 .descriptionContent {
-  @apply text-gray-700 dark:text-gray-400 leading-relaxed space-y-4 font-sans;
+  @apply text-gray-600 leading-relaxed space-y-4 font-sans;
+}
+
+.descriptionContent :global(p) {
+  @apply text-gray-600;
+}
+
+:global(.dark) .descriptionContent,
+:global(.dark) .descriptionContent :global(p) {
+  @apply text-gray-400;
 }

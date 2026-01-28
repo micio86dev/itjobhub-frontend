@@ -29,6 +29,21 @@ The IT Job Hub frontend is a high-performance web application designed for devel
 
 ## Recent Changes
 
+### 2026-01-28: Favorite Button Visual Refinement
+
+- Realigned `.favoriteButton` in `JobHeader` to match the visual style of reaction buttons (like/dislike).
+- Updated padding from `p-3` to `p-2` to match standard button sizes.
+- Replaced solid borders and backgrounds with transparent defaults and consistent hover states (`bg-brand-neon/10`).
+- Synchronized icon size (`w-5 h-5`) and added micro-animations (`scale-110`) on hover.
+- Verified dark mode consistency and E2E persistence for favoritism actions.
+
+### 2026-01-28: Job Description Text Color Sync
+
+- Synchronized `.descriptionContent p` text color with `.companyAboutText` for both light and dark modes.
+- Light mode: `text-gray-600`.
+- Dark mode: `text-gray-400`.
+- Used `:global(p)` to correctly target elements inside `dangerouslySetInnerHTML`.
+
 ### 2026-01-28: Job Description UI Consistency Fix
 
 - Fixed job description box background in dark mode to match the standard card styling (`bg-gray-800`).

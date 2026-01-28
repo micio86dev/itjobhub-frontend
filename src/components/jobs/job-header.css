@@ -116,11 +116,15 @@
 }
 
 .favoriteButton {
-  @apply p-3 rounded-sm border transition-all bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-400 hover:border-brand-neon/50 hover:text-brand-neon;
+  @apply p-2 rounded-sm transition-all border border-transparent flex items-center text-gray-500 dark:text-gray-400;
+}
+
+.favoriteButton:hover {
+  @apply text-brand-neon bg-brand-neon/10;
 }
 
 .favoriteButtonActive {
-  @apply bg-brand-neon/10 border-brand-neon/30 text-brand-neon shadow-neon-sm;
+  @apply bg-brand-neon/10 border-brand-neon/30 text-brand-neon;
 }
 
 :global(.dark) .favoriteButtonActive {
@@ -136,7 +140,11 @@
 }
 
 .favoriteIcon {
-  @apply w-6 h-6;
+  @apply w-5 h-5 transition-transform duration-200;
+}
+
+.favoriteButton:hover .favoriteIcon {
+  @apply scale-110;
 }
 
 .applyLoginContainer {

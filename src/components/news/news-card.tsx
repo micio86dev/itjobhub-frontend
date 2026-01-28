@@ -10,7 +10,8 @@ interface NewsCardProps {
   news: ApiNews;
 }
 
-export const NewsCard = component$<NewsCardProps>(({ news: initialNews }) => {
+export const NewsCard = component$<NewsCardProps>((props) => {
+  const { news: initialNews } = props;
   useStylesScoped$(styles);
   const auth = useAuth();
   const t = useTranslate();
