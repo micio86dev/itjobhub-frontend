@@ -1,4 +1,9 @@
-import { component$, useStylesScoped$, type QRL } from "@builder.io/qwik";
+import {
+  component$,
+  useStylesScoped$,
+  type PropFunction,
+  $,
+} from "@builder.io/qwik";
 import styles from "./job-header.css?inline";
 import { Link } from "@builder.io/qwik-city";
 import { useTranslate } from "~/contexts/i18n";
@@ -8,11 +13,11 @@ interface JobHeaderProps {
   job: JobListing;
   isAuthenticated: boolean;
   isAdmin: boolean;
-  onLike$: QRL<() => void>;
-  onDislike$: QRL<() => void>;
-  onToggleFavorite$: QRL<() => void>;
-  onDelete$: QRL<() => void>;
-  onApplyClick$: QRL<() => void>;
+  onLike$: PropFunction<() => void>;
+  onDislike$: PropFunction<() => void>;
+  onToggleFavorite$: PropFunction<() => void>;
+  onDelete$: PropFunction<() => void>;
+  onApplyClick$: PropFunction<() => void>;
 }
 
 export const JobHeader = component$<JobHeaderProps>(
@@ -92,7 +97,7 @@ export const JobHeader = component$<JobHeaderProps>(
           <div class="actionsContainer">
             <div class="reactionButtons">
               <button
-                onClick$={onLike$}
+                onClick$={$(async () => await onLike$())}
                 disabled={!isAuthenticated}
                 title={t("job.like")}
                 data-testid="like-button"
@@ -116,7 +121,7 @@ export const JobHeader = component$<JobHeaderProps>(
                 </span>
               </button>
               <button
-                onClick$={onDislike$}
+                onClick$={$(async () => await onDislike$())}
                 disabled={!isAuthenticated}
                 title={t("job.dislike")}
                 data-testid="dislike-button"
@@ -144,7 +149,7 @@ export const JobHeader = component$<JobHeaderProps>(
             </div>
 
             <button
-              onClick$={onToggleFavorite$}
+              onClick$={$(async () => await onToggleFavorite$())}
               disabled={!isAuthenticated}
               data-testid="favorite-button"
               class={`favoriteButton ${job.is_favorite ? "favoriteButtonActive" : ""} ${!isAuthenticated ? "opacity-50 cursor-not-allowed" : ""} `}
@@ -174,7 +179,7 @@ export const JobHeader = component$<JobHeaderProps>(
               href={job.externalLink}
               target="_blank"
               rel="noopener noreferrer"
-              onClick$={onApplyClick$}
+              onClick$={$(async () => await onApplyClick$())}
               class="applyButton"
               data-testid="apply-button"
             >
@@ -183,7 +188,7 @@ export const JobHeader = component$<JobHeaderProps>(
 
             {isAdmin && (
               <button
-                onClick$={onDelete$}
+                onClick$={$(async () => await onDelete$())}
                 class="deleteButton"
                 data-testid="delete-button"
               >

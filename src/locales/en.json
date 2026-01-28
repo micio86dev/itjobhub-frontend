@@ -145,6 +145,7 @@
   "job.delete": "Delete",
   "job.like": "Like",
   "job.dislike": "Dislike",
+  "comments.just_now": "Just now",
   "comments.title": "Comments",
   "comments.placeholder": "Write a comment...",
   "comments.submit": "Comment",

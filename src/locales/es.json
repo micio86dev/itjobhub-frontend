@@ -138,6 +138,7 @@
   "job.delete": "Eliminar",
   "job.like": "Me gusta",
   "job.dislike": "No me gusta",
+  "comments.just_now": "Justo ahora",
   "comments.title": "Comentarios",
   "comments.placeholder": "Escribe un comentario...",
   "comments.submit": "Comentar",

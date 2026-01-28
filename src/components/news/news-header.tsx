@@ -1,4 +1,4 @@
-import { component$, useStylesScoped$, type QRL } from "@builder.io/qwik";
+import { component$, useStylesScoped$, $, type QRL } from "@builder.io/qwik";
 import styles from "./news-header.css?inline";
 import { useTranslate, useI18n } from "~/contexts/i18n";
 import { ReactionButtons } from "../ui/reaction-buttons";
@@ -121,7 +121,7 @@ export const NewsHeader = component$<NewsHeaderProps>(
 
             {isAdmin && (
               <button
-                onClick$={onDelete$}
+                onClick$={$(async () => await onDelete$())}
                 class="deleteButton"
                 data-testid="delete-button"
               >

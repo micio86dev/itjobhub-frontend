@@ -26,9 +26,7 @@ export const NewsCommentsSection = component$<CommentsSectionProps>(
   ({ newsId }) => {
     const auth = useAuth();
     const t = useTranslate();
-
-    // Extract translation to serializable string
-    const anonymousUser = t("comments.anonymous_user");
+    const anonymousUserLabel = t("comments.anonymous_user");
 
     const state = useStore({
       comments: [] as Comment[],
@@ -104,7 +102,7 @@ export const NewsCommentsSection = component$<CommentsSectionProps>(
               name:
                 auth.user?.name ||
                 `${auth.user?.firstName} ${auth.user?.lastName}` ||
-                anonymousUser,
+                anonymousUserLabel,
               avatar: auth.user?.avatar,
             },
             text: text,

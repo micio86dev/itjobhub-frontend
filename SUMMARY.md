@@ -106,11 +106,17 @@ The IT Job Hub frontend is a high-performance web application designed for devel
 - Implemented `.job-card :global(.apply-btn)` selector pattern to ensure styles reach the inner anchor tag of the Link component
 - Verified persistence of style in both light and dark modes
 
-### 2026-01-16: Fix 'p0 is not a function' on Delete Actions
+### 2026-01-16: Fixed QRL Serialization (Resumability) in Confirm Modals
 
-- Resolved `TypeError: p0 is not a function` when clicking "Delete" button in Job Detail page and Confirm Modal
-- Wrapped `onDelete$` and `onConfirm$`/`onClose$` prop invocations in `$(() => prop.invoke())` explicit QRL pattern
-- Updated `src/components/jobs/job-header.tsx` and `src/components/ui/modal.tsx` to handle QRL props safely
+- Resolved TypeError: p0 is not a function affecting Delete actions after page refresh by ensuring stable QRL references.
+- Eliminated props destructuring in Modal and JobHeader components to maintain proxy reactivity and prevent serialization breaks during the "Resume" phase.
+- Standardized PropFunction execution using explicit await props.onAction$() patterns and inlined simple state mutations to reduce closure capturing errors.
+
+### 2026-01-16: Resolved Qwik.js Resumability Bugs
+
+- Fixed critical p0 runtime errors in Delete confirmation workflows triggered after browser refresh.
+- Refactored job-header.tsx and modal.tsx to follow Qwik best practices for QRL prop handling and closure serialization.
+- Optimized component architecture to ensure UI stability across server-to-client handoffs.
 
 ### 2026-01-16: Profile Wizard Work Mode Persistence Fix
 

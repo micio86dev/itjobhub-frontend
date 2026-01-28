@@ -1,4 +1,4 @@
-import { component$, $, useTask$, type QRL } from "@builder.io/qwik";
+import { component$, $, useTask$, type PropFunction } from "@builder.io/qwik";
 import { useJobs, getCommentsFromState } from "~/contexts/jobs";
 import { useAuth } from "~/contexts/auth";
 import { useTranslate } from "~/contexts/i18n";
@@ -9,7 +9,7 @@ import {
 
 interface CommentsSectionProps {
   jobId: string;
-  onClose$?: QRL<() => void>;
+  onClose$?: PropFunction<() => void>;
 }
 
 export const CommentsSection = component$<CommentsSectionProps>(
@@ -17,9 +17,7 @@ export const CommentsSection = component$<CommentsSectionProps>(
     const jobsContext = useJobs();
     const auth = useAuth();
     const t = useTranslate();
-
-    // Extract translation to serializable string
-    const anonymousUser = t("comments.anonymous_user");
+    const anonymousUserLabel = t("comments.anonymous_user");
 
     const comments = getCommentsFromState(jobsContext.comments, jobId);
 
@@ -38,7 +36,8 @@ export const CommentsSection = component$<CommentsSectionProps>(
           name:
             auth.user?.name ||
             `${auth.user?.firstName || ""} ${auth.user?.lastName || ""}`.trim() ||
-            anonymousUser,
+            `${auth.user?.firstName || ""} ${auth.user?.lastName || ""}`.trim() ||
+            anonymousUserLabel,
           avatar: auth.user?.avatar,
         },
         text,

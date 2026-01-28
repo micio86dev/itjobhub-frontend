@@ -96,7 +96,7 @@ The delete button visibility is controlled in `job-header.tsx`:
 
 ```tsx
 {isAdmin && (
-  <button onClick$={onDelete$} ...>
+  <button onClick$={$(async () => await onDelete$())} ...>
     {t("job.delete")}
   </button>
 )}

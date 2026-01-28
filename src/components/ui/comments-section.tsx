@@ -2,10 +2,10 @@ import {
   component$,
   $,
   useStore,
-  type QRL,
+  type PropFunction,
   useStylesScoped$,
 } from "@builder.io/qwik";
-import styles from "./comments-section.css?inline"; // Copied CSS
+import styles from "./comments-section.css?inline";
 import { useAuth } from "~/contexts/auth";
 import { useTranslate, useI18n } from "~/contexts/i18n";
 import { Modal } from "~/components/ui/modal";
@@ -27,10 +27,10 @@ interface BaseCommentsSectionProps {
   comments: UIComment[];
   title?: string;
   isLoading?: boolean;
-  onAddComment$: QRL<(text: string) => Promise<void>>;
-  onEditComment$: QRL<(id: string, text: string) => Promise<void>>;
-  onDeleteComment$: QRL<(id: string) => Promise<void>>;
-  onClose$?: QRL<() => void>;
+  onAddComment$: PropFunction<(text: string) => Promise<void>>;
+  onEditComment$: PropFunction<(id: string, text: string) => Promise<void>>;
+  onDeleteComment$: PropFunction<(id: string) => Promise<void>>;
+  onClose$?: PropFunction<() => void>;
   isExpandedDefault?: boolean;
 }
 
@@ -62,16 +62,8 @@ export const BaseCommentsSection = component$<BaseCommentsSectionProps>(
 
     const anonymousUser = t("comments.anonymous_user");
 
-    const startEditing = $((commentId: string, currentText: string) => {
-      state.editingId = commentId;
-      state.editContent = currentText;
-    });
-
-    const cancelEditing = $(() => {
-      state.editingId = null;
-      state.editContent = "";
-    });
-
+    // --- FUNZIONI ASINCRONE (QRL) ---
+    // Queste rimangono QRL perché sono asincrone e complesse
     const saveEdit = $(async () => {
       if (!state.editingId || !state.editContent.trim()) return;
 
@@ -85,15 +77,6 @@ export const BaseCommentsSection = component$<BaseCommentsSectionProps>(
       }
     });
 
-    const toggleExpanded = $(() => {
-      state.isExpanded = !state.isExpanded;
-    });
-
-    const handleDelete = $((commentId: string) => {
-      state.commentToDelete = commentId;
-      state.showDeleteModal = true;
-    });
-
     const confirmDelete = $(async () => {
       if (state.commentToDelete) {
         await onDeleteComment$(state.commentToDelete);
@@ -104,65 +87,54 @@ export const BaseCommentsSection = component$<BaseCommentsSectionProps>(
 
     const handleSubmitComment = $(async (e: Event) => {
       e.preventDefault();
-
-      if (!auth.isAuthenticated || !state.commentText.trim()) {
-        return;
-      }
+      if (!auth.isAuthenticated || !state.commentText.trim()) return;
 
       state.isSubmitting = true;
-
       try {
         await onAddComment$(state.commentText.trim());
         state.commentText = "";
-
-        // Close the comments section if callback provided (optional behavior)
         if (onClose$) {
           await onClose$();
         }
-      } catch (e) {
-        logger.error({ error: e }, "Failed to submit comment");
+      } catch (err) {
+        logger.error({ error: err }, "Failed to submit comment");
       } finally {
         state.isSubmitting = false;
       }
     });
 
-    // Get locale from current language
-    const localeMap: Record<string, string> = {
-      it: "it-IT",
-      en: "en-US",
-      es: "es-ES",
-      de: "de-DE",
-      fr: "fr-FR",
-    };
-    const locale = localeMap[i18n.currentLanguage] || "it-IT";
-
-    const formatCommentDate = $((date: Date) => {
-      // Ensure date is a Date object (serialization safety)
+    // --- HELPER SINCRO (NON QRL) ---
+    // Devono essere funzioni normali per essere usate nel render o catturate correttamente
+    const formatCommentDate = (date: Date) => {
       const d = new Date(date);
+      const localeMap: Record<string, string> = {
+        it: "it-IT",
+        en: "en-US",
+        es: "es-ES",
+        de: "de-DE",
+        fr: "fr-FR",
+      };
+      const locale = localeMap[i18n.currentLanguage] || "it-IT";
       const now = new Date();
       const diffTime = now.getTime() - d.getTime();
-      const diffSeconds = Math.floor(diffTime / 1000);
       const diffMinutes = Math.floor(diffTime / (1000 * 60));
       const diffHours = Math.floor(diffTime / (1000 * 60 * 60));
       const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
-      // Use Intl.RelativeTimeFormat for consistent locale-aware formatting
       const rtf = new Intl.RelativeTimeFormat(locale, { numeric: "auto" });
 
-      if (diffSeconds < 60) return rtf.format(0, "second");
+      if (diffMinutes < 1) return t("comments.just_now") || "just now";
       if (diffMinutes < 60) return rtf.format(-diffMinutes, "minute");
       if (diffHours < 24) return rtf.format(-diffHours, "hour");
       if (diffDays < 7) return rtf.format(-diffDays, "day");
 
-      // For older dates, use date formatter
-      const dtf = new Intl.DateTimeFormat(locale, {
+      return new Intl.DateTimeFormat(locale, {
         day: "numeric",
         month: "short",
         hour: "2-digit",
         minute: "2-digit",
-      });
-      return dtf.format(d);
-    });
+      }).format(d);
+    };
 
     const getInitials = (name: string) => {
       if (!name) return "U";
@@ -186,7 +158,10 @@ export const BaseCommentsSection = component$<BaseCommentsSectionProps>(
             <h4 class="comments-title">
               {title || t("comments.title")} ({comments.length})
             </h4>
-            <button onClick$={toggleExpanded} class="toggle-btn">
+            <button
+              onClick$={() => (state.isExpanded = !state.isExpanded)}
+              class="toggle-btn"
+            >
               <svg
                 class={`w-5 h-5 transform transition-transform ${state.isExpanded ? "rotate-180" : ""}`}
                 fill="none"
@@ -203,7 +178,6 @@ export const BaseCommentsSection = component$<BaseCommentsSectionProps>(
             </button>
           </div>
 
-          {/* Comment form */}
           {auth.isAuthenticated ? (
             <form
               onSubmit$={handleSubmitComment}
@@ -215,7 +189,7 @@ export const BaseCommentsSection = component$<BaseCommentsSectionProps>(
                   {auth.user?.avatar ? (
                     <img
                       src={auth.user.avatar}
-                      alt={auth.user.name || t("nav.profile")}
+                      alt={auth.user.name || ""}
                       class="avatar-image"
                       width="32"
                       height="32"
@@ -226,7 +200,6 @@ export const BaseCommentsSection = component$<BaseCommentsSectionProps>(
                     </div>
                   )}
                 </div>
-
                 <div class="form-body">
                   <textarea
                     value={state.commentText}
@@ -239,7 +212,6 @@ export const BaseCommentsSection = component$<BaseCommentsSectionProps>(
                     rows={2}
                     class="comment-textarea"
                   />
-
                   <div class="form-actions">
                     <button
                       type="submit"
@@ -269,48 +241,21 @@ export const BaseCommentsSection = component$<BaseCommentsSectionProps>(
           )}
         </div>
 
-        {/* Comments list */}
         {state.isExpanded && (
           <div class="comments-list">
             {comments.length === 0 ? (
               <div class="no-comments-container">
-                <div class="no-comments-icon-container">
-                  <svg
-                    class="no-comments-icon"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-                    />
-                  </svg>
-                </div>
                 <p class="no-comments-text">{t("comments.no_comments")}</p>
-                <p class="be-first-text">{t("comments.be_first")}</p>
               </div>
             ) : (
               comments.map((comment) => (
                 <div key={comment.id} class="comment-item">
                   <div class="comment-avatar-container">
-                    {comment.author.avatar ? (
-                      <img
-                        src={comment.author.avatar}
-                        alt={comment.author.name}
-                        class="comment-avatar-image"
-                        width="24"
-                        height="24"
-                      />
-                    ) : (
-                      <div class="comment-avatar-placeholder">
-                        <span class="avatar-initials">
-                          {getInitials(comment.author.name || anonymousUser)}
-                        </span>
-                      </div>
-                    )}
+                    <div class="comment-avatar-placeholder">
+                      <span class="avatar-initials">
+                        {getInitials(comment.author.name || anonymousUser)}
+                      </span>
+                    </div>
                   </div>
 
                   <div class="comment-body">
@@ -327,7 +272,13 @@ export const BaseCommentsSection = component$<BaseCommentsSectionProps>(
                           rows={2}
                         />
                         <div class="edit-actions">
-                          <button onClick$={cancelEditing} class="cancel-btn">
+                          <button
+                            onClick$={() => {
+                              state.editingId = null;
+                              state.editContent = "";
+                            }}
+                            class="cancel-btn"
+                          >
                             {t("common.cancel")}
                           </button>
                           <button
@@ -338,12 +289,11 @@ export const BaseCommentsSection = component$<BaseCommentsSectionProps>(
                               state.isEditingSubmitting
                             }
                           >
-                            {state.isEditingSubmitting && (
-                              <Spinner size="sm" class="mr-2 -ml-1" />
+                            {state.isEditingSubmitting ? (
+                              <Spinner size="sm" />
+                            ) : (
+                              t("common.save")
                             )}
-                            {state.isEditingSubmitting
-                              ? t("common.saving")
-                              : t("common.save")}
                           </button>
                         </div>
                       </div>
@@ -362,11 +312,11 @@ export const BaseCommentsSection = component$<BaseCommentsSectionProps>(
                               <div class="comment-actions">
                                 {auth.user?.id === comment.userId && (
                                   <button
-                                    onClick$={() =>
-                                      startEditing(comment.id, comment.text)
-                                    }
+                                    onClick$={() => {
+                                      state.editingId = comment.id;
+                                      state.editContent = comment.text;
+                                    }}
                                     class="action-btn-edit"
-                                    title={t("common.edit")}
                                   >
                                     <svg
                                       class="action-icon"
@@ -384,9 +334,11 @@ export const BaseCommentsSection = component$<BaseCommentsSectionProps>(
                                   </button>
                                 )}
                                 <button
-                                  onClick$={() => handleDelete(comment.id)}
+                                  onClick$={() => {
+                                    state.commentToDelete = comment.id;
+                                    state.showDeleteModal = true;
+                                  }}
                                   class="action-btn-delete"
-                                  title={t("common.delete")}
                                 >
                                   <svg
                                     class="action-icon"

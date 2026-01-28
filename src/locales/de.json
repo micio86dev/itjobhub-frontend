@@ -138,6 +138,7 @@
   "job.delete": "Löschen",
   "job.like": "Gefällt mir",
   "job.dislike": "Gefällt mir nicht",
+  "comments.just_now": "Gerade eben",
   "comments.title": "Kommentare",
   "comments.placeholder": "Schreiben Sie einen Kommentar...",
   "comments.submit": "Kommentieren",

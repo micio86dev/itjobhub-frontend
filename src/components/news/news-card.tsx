@@ -24,31 +24,34 @@ export const NewsCard = component$<NewsCardProps>(({ news: initialNews }) => {
   const handleLike = $(async () => {
     if (!auth.isAuthenticated) return;
     const token = auth.token;
+    const currentNews = newsSignal.value;
 
-    const currentlyLiked = news.user_reaction === "LIKE";
-    const currentlyDisliked = news.user_reaction === "DISLIKE";
+    const currentlyLiked = currentNews.user_reaction === "LIKE";
+    const currentlyDisliked = currentNews.user_reaction === "DISLIKE";
 
     // Optimistic Update
     if (currentlyLiked) {
-      news.likes = Math.max(0, news.likes - 1);
-      news.user_reaction = null;
+      currentNews.likes = Math.max(0, currentNews.likes - 1);
+      currentNews.user_reaction = null;
     } else {
-      news.likes++;
-      news.user_reaction = "LIKE";
+      currentNews.likes++;
+      currentNews.user_reaction = "LIKE";
       if (currentlyDisliked) {
-        news.dislikes = Math.max(0, news.dislikes - 1);
+        currentNews.dislikes = Math.max(0, currentNews.dislikes - 1);
       }
     }
     // Force update
-    newsSignal.value = { ...news };
+    newsSignal.value = { ...currentNews };
 
     try {
       const method = currentlyLiked ? "DELETE" : "POST";
       const url =
-        method === "DELETE" ? `/likes?newsId=${news.id}&type=LIKE` : `/likes`;
+        method === "DELETE"
+          ? `/likes?newsId=${currentNews.id}&type=LIKE`
+          : `/likes`;
       const body =
         method === "POST"
-          ? JSON.stringify({ newsId: news.id, type: "LIKE" })
+          ? JSON.stringify({ newsId: currentNews.id, type: "LIKE" })
           : undefined;
 
       await request(import.meta.env.PUBLIC_API_URL + url, {
@@ -68,32 +71,33 @@ export const NewsCard = component$<NewsCardProps>(({ news: initialNews }) => {
   const handleDislike = $(async () => {
     if (!auth.isAuthenticated) return;
     const token = auth.token;
+    const currentNews = newsSignal.value;
 
-    const currentlyLiked = news.user_reaction === "LIKE";
-    const currentlyDisliked = news.user_reaction === "DISLIKE";
+    const currentlyLiked = currentNews.user_reaction === "LIKE";
+    const currentlyDisliked = currentNews.user_reaction === "DISLIKE";
 
     // Optimistic Update
     if (currentlyDisliked) {
-      news.dislikes = Math.max(0, news.dislikes - 1);
-      news.user_reaction = null;
+      currentNews.dislikes = Math.max(0, currentNews.dislikes - 1);
+      currentNews.user_reaction = null;
     } else {
-      news.dislikes++;
-      news.user_reaction = "DISLIKE";
+      currentNews.dislikes++;
+      currentNews.user_reaction = "DISLIKE";
       if (currentlyLiked) {
-        news.likes = Math.max(0, news.likes - 1);
+        currentNews.likes = Math.max(0, currentNews.likes - 1);
       }
     }
-    newsSignal.value = { ...news };
+    newsSignal.value = { ...currentNews };
 
     try {
       const method = currentlyDisliked ? "DELETE" : "POST";
       const url =
         method === "DELETE"
-          ? `/likes?newsId=${news.id}&type=DISLIKE`
+          ? `/likes?newsId=${currentNews.id}&type=DISLIKE`
           : `/likes`;
       const body =
         method === "POST"
-          ? JSON.stringify({ newsId: news.id, type: "DISLIKE" })
+          ? JSON.stringify({ newsId: currentNews.id, type: "DISLIKE" })
           : undefined;
 
       await request(import.meta.env.PUBLIC_API_URL + url, {
@@ -266,7 +270,7 @@ export const NewsCard = component$<NewsCardProps>(({ news: initialNews }) => {
           </div>
         </div>
 
-        <a href={`/news/${news.slug}`} class="read-more-btn">
+        <a href={`/news/${news.slug}`} class="btn-secondary read-more-btn">
           {t("common.read_more") || "Read more"}
           <svg
             class="w-4 h-4"
