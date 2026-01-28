@@ -247,7 +247,7 @@ export const BaseCommentsSection = component$<BaseCommentsSectionProps>(
                       class="submit-btn"
                     >
                       {state.isSubmitting && (
-                        <Spinner size="sm" class="-ml-1 mr-2" />
+                        <Spinner size="sm" class="mr-2 -ml-1" />
                       )}
                       {state.isSubmitting
                         ? t("comments.submitting")
@@ -339,7 +339,7 @@ export const BaseCommentsSection = component$<BaseCommentsSectionProps>(
                             }
                           >
                             {state.isEditingSubmitting && (
-                              <Spinner size="sm" class="-ml-1 mr-2" />
+                              <Spinner size="sm" class="mr-2 -ml-1" />
                             )}
                             {state.isEditingSubmitting
                               ? t("common.saving")
@@ -348,7 +348,7 @@ export const BaseCommentsSection = component$<BaseCommentsSectionProps>(
                         </div>
                       </div>
                     ) : (
-                      <div class="comment-content-container group">
+                      <div class="group comment-content-container">
                         <div class="comment-header">
                           <span class="comment-author">
                             {comment.author.name || anonymousUser}
@@ -419,10 +419,10 @@ export const BaseCommentsSection = component$<BaseCommentsSectionProps>(
         <Modal
           title={t("job.confirm_delete_title")}
           isOpen={state.showDeleteModal}
-          onClose$={() => {
+          onClose$={$(() => {
             state.showDeleteModal = false;
             state.commentToDelete = null;
-          }}
+          })}
           onConfirm$={confirmDelete}
           isDestructive={true}
           confirmText={t("common.delete")}
