@@ -29,6 +29,12 @@ The IT Job Hub frontend is a high-performance web application designed for devel
 
 ## Recent Changes
 
+### 2026-01-28: Job Description UI Consistency Fix
+
+- Fixed job description box background in dark mode to match the standard card styling (`bg-gray-800`).
+- Removed redundant borders and backgrounds from `JobDescription` component to ensure seamless integration into its parent card container.
+- Verified visual consistency across all job detail sections.
+
 ### 2026-01-23: Tech News Feature Implementation
 
 - Implemented **News Feed** (`/news`) with infinite scroll using `IntersectionObserver`.

@@ -169,6 +169,7 @@ export const JobSearch = component$<JobSearchProps>(
                 (state.dateRange = (e.target as HTMLSelectElement).value)
               }
               class="select"
+              aria-label={t("jobs.published_label")}
             >
               <option value="">{t("jobs.all_dates")}</option>
               <option value="today">{t("jobs.today")}</option>
@@ -192,6 +193,7 @@ export const JobSearch = component$<JobSearchProps>(
               }
               data-testid="search-seniority"
               class="select"
+              aria-label={t("jobs.seniority_label")}
             >
               <option value="">{t("jobs.all_levels")}</option>
               <option value="junior">{t("jobs.junior")}</option>
@@ -212,6 +214,7 @@ export const JobSearch = component$<JobSearchProps>(
               }
               data-testid="search-availability"
               class="select"
+              aria-label={t("jobs.work_type_label")}
             >
               <option value="">{t("jobs.all_types")}</option>
               <option value="full-time">{t("jobs.full_time")}</option>
@@ -234,6 +237,7 @@ export const JobSearch = component$<JobSearchProps>(
               }
               data-testid="search-remote"
               class="select"
+              aria-label={t("jobs.mode_label")}
             >
               <option value="">{t("jobs.all_modes")}</option>
               <option value="remote">{t("jobs.remote")}</option>

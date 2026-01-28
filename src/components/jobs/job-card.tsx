@@ -211,6 +211,7 @@ export const JobCard = component$<JobCardProps>(
 
           <div class="action-column">
             <div class="date-display">
+              <span class="sr-only">{t("job.posted")}</span>
               <span>{dateDisplay}</span>
               {auth.isAuthenticated && (
                 <button
