@@ -5,7 +5,6 @@ import {
   useStylesScoped$,
   useSignal,
   useVisibleTask$,
-  $,
 } from "@builder.io/qwik";
 import { Spinner } from "./spinner";
 import styles from "./modal.css?inline";
@@ -36,24 +35,11 @@ export const Modal = component$<ModalProps>(
     const modalRef = useSignal<HTMLDivElement>();
     const confirmButtonRef = useSignal<HTMLButtonElement>();
 
-    // Create a stable QRL for the close handler
-    const handleClose = $(() => {
-      if (onClose$) {
-        onClose$();
-      }
-    });
-
-    // Create a stable QRL for the confirm handler
-    const handleConfirm = $(() => {
-      if (onConfirm$) {
-        onConfirm$();
-      }
-    });
-
     // Focus trap and ESC key handler - WCAG 2.1 AA requirement
     // eslint-disable-next-line qwik/no-use-visible-task
     useVisibleTask$(({ track, cleanup }) => {
       const open = track(() => isOpen);
+      const closeHandler = track(() => onClose$);
 
       if (!open) return;
 
@@ -66,7 +52,7 @@ export const Modal = component$<ModalProps>(
       const handleKeyDown = (e: KeyboardEvent) => {
         if (e.key === "Escape") {
           e.preventDefault();
-          // Dispatch custom event instead of calling QRL directly
+          // Call the QRL directly in the event handler (outside useVisibleTask$ scope)
           modalRef.value?.dispatchEvent(new CustomEvent("modal-close"));
         }
 
@@ -90,8 +76,8 @@ export const Modal = component$<ModalProps>(
       };
 
       const handleModalClose = () => {
-        if (onClose$) {
-          onClose$();
+        if (closeHandler) {
+          closeHandler();
         }
       };
 
@@ -122,7 +108,7 @@ export const Modal = component$<ModalProps>(
       >
         <div class="modal-content-wrapper">
           {/* Background overlay */}
-          <div class="overlay" aria-hidden="true" onClick$={handleClose}></div>
+          <div class="overlay" aria-hidden="true" onClick$={onClose$}></div>
 
           {/* Center content */}
           <span class="modal-spacer" aria-hidden="true">
@@ -174,7 +160,7 @@ export const Modal = component$<ModalProps>(
                 class={`btn-confirm ${
                   isDestructive ? "btn-destructive" : "btn-primary"
                 } ${isLoading ? "btn-loading" : ""}`}
-                onClick$={handleConfirm}
+                onClick$={onConfirm$}
                 aria-busy={isLoading}
               >
                 {isLoading && <Spinner size="sm" class="mr-2 -ml-1" />}
@@ -184,7 +170,7 @@ export const Modal = component$<ModalProps>(
                 type="button"
                 data-testid="modal-cancel"
                 class="btn-cancel"
-                onClick$={handleClose}
+                onClick$={onClose$}
               >
                 {cancelText}
               </button>
