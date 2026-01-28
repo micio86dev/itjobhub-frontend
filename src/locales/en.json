@@ -113,6 +113,7 @@
   "jobs.showing_count": "Showing {count} jobs (scroll for more)",
   "jobs.not_specified": "Not specified",
   "jobs.unknown": "Unknown",
+  "jobs.unknown_skills": "Unknown",
   "job.skills_required": "Required Skills",
   "job.salary": "Salary",
   "job.location": "Location",

@@ -1,13 +1,13 @@
 .skillsSection {
-  @apply p-8 md:p-10 border-t border-gray-100 bg-gray-50/30;
+  @apply p-8 md:p-10 border-t border-gray-100 bg-gray-50/10;
 }
 
 :global(.dark) .skillsSection {
-  @apply border-gray-700 bg-gray-900/10;
+  @apply border-gray-800 bg-gray-900/10;
 }
 
 .skillsTitle {
-  @apply text-xl font-bold text-gray-900 mb-6;
+  @apply text-xl font-bold text-gray-900 mb-6 flex items-center gap-2;
 }
 
 :global(.dark) .skillsTitle {
@@ -15,13 +15,37 @@
 }
 
 .skillsList {
-  @apply flex flex-wrap gap-2;
+  @apply flex flex-wrap gap-3;
 }
 
-.skillItem {
-  @apply px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-600 shadow-sm;
+.skillBadge {
+  @apply flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-600 shadow-sm transition-all duration-300;
 }
 
-:global(.dark) .skillItem {
-  @apply bg-gray-800 border-gray-600 text-gray-400;
+:global(.dark) .skillBadge {
+  @apply bg-gray-800 border-gray-700 text-gray-300;
+}
+
+.skillBadge.matched {
+  @apply bg-emerald-50 border-emerald-200 text-emerald-700 shadow-emerald-100/50;
+}
+
+:global(.dark) .skillBadge.matched {
+  @apply bg-emerald-900/20 border-emerald-800 text-emerald-400;
+}
+
+.skillBadge.missing:hover {
+  @apply border-brand-neon bg-brand-neon/5 shadow-md -translate-y-0.5;
+}
+
+.matchIcon {
+  @apply text-emerald-500 flex items-center justify-center;
+}
+
+.addSkillBtn {
+  @apply p-1 rounded-md hover:bg-brand-neon/10 text-gray-400 hover:text-brand-neon transition-colors duration-200;
+}
+
+:global(.dark) .addSkillBtn {
+  @apply hover:bg-brand-neon/20;
 }

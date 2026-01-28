@@ -15,7 +15,7 @@
 }
 
 .stat-item {
-  @apply p-6 border border-gray-200 rounded-sm hover:shadow-neon-sm transition-shadow duration-300;
+  @apply p-6 border border-gray-200 rounded-sm hover:shadow-neon-sm transition-shadow duration-300 bg-white;
 }
 
 :global(.dark) .stat-item {

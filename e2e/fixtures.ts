@@ -51,7 +51,7 @@ export async function loginViaAPI(
     throw new Error("No token received from login");
   }
 
-  // Store token in localStorage via page evaluation
+  // Store token in localStorage and cookie
   const page = await context.newPage();
   await page.goto("/");
   await page.evaluate(
@@ -61,6 +61,17 @@ export async function loginViaAPI(
     },
     { token, user },
   );
+
+  // Also set the cookie for SSR support
+  await context.addCookies([
+    {
+      name: "auth_token",
+      value: token,
+      domain: "localhost",
+      path: "/",
+    },
+  ]);
+
   await page.close();
 
   return { token, user };

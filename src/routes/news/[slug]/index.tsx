@@ -153,14 +153,17 @@ export default component$(() => {
   });
 
   const handleDelete = $(async () => {
-    if (!state.news || !auth.token) return;
+    const token = auth.token;
+    const newsId = state.news?.id;
+    if (!newsId || !token) return;
+
     state.isDeleting = true;
     try {
       const res = await request(
-        `${import.meta.env.PUBLIC_API_URL}/news/${state.news.id}`,
+        `${import.meta.env.PUBLIC_API_URL}/news/${newsId}`,
         {
           method: "DELETE",
-          headers: { Authorization: `Bearer ${auth.token}` },
+          headers: { Authorization: `Bearer ${token}` },
         },
       );
 
@@ -176,14 +179,6 @@ export default component$(() => {
       state.isDeleting = false;
       state.showDeleteModal = false;
     }
-  });
-
-  const handleCloseDeleteModal = $(() => {
-    state.showDeleteModal = false;
-  });
-
-  const handleOpenDeleteModal = $(() => {
-    state.showDeleteModal = true;
   });
 
   // Track View
@@ -339,7 +334,7 @@ export default component$(() => {
             {auth.user?.role === "admin" && (
               <div class="flex justify-end mb-6">
                 <button
-                  onClick$={handleOpenDeleteModal}
+                  onClick$={$(() => (state.showDeleteModal = true))}
                   data-testid="delete-article-btn"
                   class="flex items-center gap-2 bg-red-50 hover:bg-red-100 px-4 py-2 rounded-lg text-red-600 transition-colors"
                 >
@@ -448,7 +443,7 @@ export default component$(() => {
         <Modal
           title={t("job.confirm_delete_title")}
           isOpen={state.showDeleteModal}
-          onClose$={handleCloseDeleteModal}
+          onClose$={$(() => (state.showDeleteModal = false))}
           onConfirm$={handleDelete}
           isDestructive={true}
           isLoading={state.isDeleting}

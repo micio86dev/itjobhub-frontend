@@ -177,6 +177,24 @@ export default component$(() => {
     }
   });
 
+  const handleAddSkill = $(async (skill: string) => {
+    if (!auth.isAuthenticated || !auth.user || !auth.token) return;
+
+    const currentSkills = auth.user.skills || [];
+    if (currentSkills.includes(skill)) return;
+
+    const newSkills = [...currentSkills, skill];
+
+    // Use the existing updateProfileSignal to update skills
+    auth.updateProfileSignal.value = {
+      languages: auth.user.languages || [],
+      skills: newSkills,
+      seniority: auth.user.seniority || "",
+      availability: auth.user.availability || "",
+      workModes: auth.user.workModes || [],
+    };
+  });
+
   // Track VIEW Interaction at top level of component
   useTask$(({ track }) => {
     const jobId = track(() => state.job?.id);
@@ -307,7 +325,11 @@ export default component$(() => {
               {/* Skills Card */}
               {job.skills && job.skills.length > 0 && (
                 <div class="card">
-                  <JobSkillsList skills={job.skills || []} />
+                  <JobSkillsList
+                    skills={job.skills || []}
+                    userSkills={auth.user?.skills || []}
+                    onAddSkill$={handleAddSkill}
+                  />
                 </div>
               )}
 

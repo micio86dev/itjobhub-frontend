@@ -100,10 +100,38 @@ test.describe("News Feature", () => {
         await expect(likeBtn).toHaveClass(/bg-brand-neon|text-brand-neon|border-brand-neon/);
     });
 
-    test("Admin can see delete button", async ({ adminPage }) => {
-        await navigateTo(adminPage, `/news/${newsSlug}`);
+    test("Admin can delete news", async ({ adminPage, request }) => {
+        // Create another news article specifically for deletion test to avoid affecting other tests
+        const timestamp = Date.now();
+        const testNews = await createTestNews(request, adminToken, {
+            title: `Delete Me News ${timestamp}`,
+            slug: `delete-me-${timestamp}`,
+            summary: "This news will be deleted",
+            content: "<p>Content</p>",
+            category: "Testing",
+            is_published: true
+        });
+
+        await navigateTo(adminPage, `/news/${testNews.slug}`);
+        await ensurePageReady(adminPage);
 
         const deleteBtn = adminPage.getByTestId("delete-article-btn");
         await expect(deleteBtn).toBeVisible();
+        await deleteBtn.click();
+
+        // Modal should appear
+        const modal = adminPage.locator('[role="dialog"]');
+        await expect(modal).toBeVisible();
+        await expect(modal).toContainText(/confirm|delete|sicuro|eliminare/i);
+
+        // Confirm
+        const confirmBtn = adminPage.getByTestId("modal-confirm");
+        await confirmBtn.click();
+
+        // Should redirect to news list
+        await expect(adminPage).toHaveURL(/\/news$/);
+
+        // Should not be visible in the list anymore
+        await expect(adminPage.getByText(testNews.title)).not.toBeVisible();
     });
 });

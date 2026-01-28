@@ -43,7 +43,7 @@
 }
 
 .search-input-wrapper {
-  @apply relative bg-gray-900 border border-brand-neon/50 rounded-md p-2 shadow-xl flex items-center transition-all duration-300 group-hover:shadow-neon-sm;
+  @apply relative gap-x-4 bg-gray-900 border border-brand-neon/50 rounded-md p-2 shadow-xl flex items-center transition-all duration-300 group-hover:shadow-neon-sm;
 }
 
 .search-icon-wrapper {

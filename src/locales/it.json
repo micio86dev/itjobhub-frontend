@@ -113,6 +113,7 @@
   "jobs.showing_count": "Mostrati {count} annunci (scrolla per altri)",
   "jobs.not_specified": "Non specificato",
   "jobs.unknown": "Sconosciuto",
+  "jobs.unknown_skills": "Sconosciute",
   "job.skills_required": "Skills richieste",
   "job.salary": "Retribuzione",
   "job.location": "Località",

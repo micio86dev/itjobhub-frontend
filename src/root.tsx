@@ -5,6 +5,7 @@ import {
   ServiceWorkerRegister,
 } from "@builder.io/qwik-city";
 import { RouterHead } from "./components/router-head/router-head";
+import { ScrollButtons } from "./components/ui/scroll-buttons";
 
 import "./global.css";
 
@@ -63,6 +64,7 @@ export default component$(() => {
       </head>
       <body>
         <RouterOutlet />
+        <ScrollButtons />
         {!isDev && <ServiceWorkerRegister />}
       </body>
     </QwikCityProvider>

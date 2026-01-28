@@ -1,8 +1,43 @@
-import { component$, $, useStylesScoped$ } from "@builder.io/qwik";
+import {
+  component$,
+  $,
+  useStylesScoped$,
+  useSignal,
+  useOnWindow,
+  useVisibleTask$,
+} from "@builder.io/qwik";
 import styles from "./scroll-buttons.css?inline";
 
 export const ScrollButtons = component$(() => {
   useStylesScoped$(styles);
+  const showButtons = useSignal(false);
+
+  const checkScroll = $(() => {
+    if (typeof window === "undefined") return;
+    showButtons.value =
+      document.documentElement.scrollHeight > window.innerHeight;
+  });
+
+  useOnWindow(
+    "scroll",
+    $(() => {
+      // Optional: hide/show based on scroll position if desired,
+      // but user asked "if the page scrolls vertically".
+      // Usually this means "is there scrollable content?".
+      checkScroll();
+    }),
+  );
+
+  useOnWindow("resize", checkScroll);
+
+  // eslint-disable-next-line qwik/no-use-visible-task
+  useVisibleTask$(() => {
+    checkScroll();
+
+    // Check periodically for dynamic content changes
+    const interval = setInterval(checkScroll, 1000);
+    return () => clearInterval(interval);
+  });
 
   const scrollToTop = $(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -11,6 +46,8 @@ export const ScrollButtons = component$(() => {
   const scrollToBottom = $(() => {
     window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
   });
+
+  if (!showButtons.value) return null;
 
   return (
     <div class="scroll-buttons-container">

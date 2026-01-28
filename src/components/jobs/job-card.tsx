@@ -300,14 +300,16 @@ export const JobCard = component$<JobCardProps>(
         </div>
 
         {/* Salary */}
-        {job.salary && (
-          <div class="mb-4">
-            <span class="detail-label">{t("job.salary")}</span>
-            <div class="detail-value-container">
+        <div class="mb-4">
+          <span class="detail-label">{t("job.salary")}</span>
+          <div class="detail-value-container">
+            {job.salary ? (
               <span class="salary-text">{job.salary}</span>
-            </div>
+            ) : (
+              <span class="badge-base badge-red">{t("jobs.unknown")}</span>
+            )}
           </div>
-        )}
+        </div>
 
         {/* Skills */}
         <div class="skills-container">
@@ -315,11 +317,17 @@ export const JobCard = component$<JobCardProps>(
             {t("job.skills_required")}
           </span>
           <div class="skills-list">
-            {job.skills.map((skill) => (
-              <span key={skill} class="badge-base badge-gray">
-                {skill}
+            {job.skills && job.skills.length > 0 ? (
+              job.skills.map((skill) => (
+                <span key={skill} class="badge-base badge-gray">
+                  {skill}
+                </span>
+              ))
+            ) : (
+              <span class="badge-base badge-red">
+                {t("jobs.unknown_skills")}
               </span>
-            ))}
+            )}
           </div>
         </div>
 

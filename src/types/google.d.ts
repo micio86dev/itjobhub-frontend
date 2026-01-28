@@ -24,6 +24,7 @@ declare global {
         Animation: {
           DROP: number;
         };
+        Point: new (x: number, y: number) => GooglePoint;
       };
     };
   }
@@ -39,6 +40,24 @@ declare global {
     map: GoogleMap | null;
     title?: string;
     animation?: number;
+    icon?:
+      | string
+      | {
+          path: string;
+          fillColor?: string;
+          fillOpacity?: number;
+          strokeColor?: string;
+          strokeWeight?: number;
+          scale?: number;
+          anchor?: GooglePoint;
+          rotation?: number;
+        };
+  }
+
+  interface GooglePoint {
+    x: number;
+    y: number;
+    equals: (other: GooglePoint) => boolean;
   }
 
   interface GoogleInfoWindowOptions {

@@ -27,7 +27,7 @@ export const ValueProps = component$(() => {
             <h3 class="card-title">{t("home.opportunities_title")}</h3>
             <p class="card-desc">{t("home.opportunities_desc")}</p>
           </div>
-          <div class="card">
+          <div class="group card">
             <div class="icon-wrapper">
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
@@ -41,7 +41,7 @@ export const ValueProps = component$(() => {
             <h3 class="card-title">{t("home.growth_title")}</h3>
             <p class="card-desc">{t("home.growth_desc")}</p>
           </div>
-          <div class="card">
+          <div class="group card">
             <div class="icon-wrapper">
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
