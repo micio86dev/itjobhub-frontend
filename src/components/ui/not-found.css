@@ -27,5 +27,5 @@
 }
 
 .back-link {
-  @apply inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 transition-colors hover:bg-indigo-700;
+  @apply inline-flex items-center px-6 py-3 border border-transparent text-base font-bold font-mono uppercase tracking-wide rounded-sm text-black bg-brand-neon transition-colors hover:bg-[#33ff66] hover:shadow-neon-strong;
 }

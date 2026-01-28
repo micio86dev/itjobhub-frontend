@@ -34,14 +34,14 @@ export default component$(() => {
 
   if (!auth.isAuthenticated || auth.user?.profileCompleted) {
     return (
-      <div class="min-h-screen flex items-center justify-center bg-gray-50">
-        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+      <div class="flex justify-center items-center bg-gray-50 min-h-screen">
+        <div class="border-brand-neon border-b-2 rounded-full w-12 h-12 animate-spin"></div>
       </div>
     );
   }
 
   return (
-    <div class="min-h-screen bg-gray-50 py-12">
+    <div class="bg-gray-50 py-12 min-h-screen">
       <ProfileWizard
         onComplete$={handleWizardComplete}
         onCancel$={handleCancel}

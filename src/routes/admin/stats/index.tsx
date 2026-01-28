@@ -122,16 +122,16 @@ export default component$(() => {
   if (state.isLoading) {
     return (
       <div class="flex justify-center items-center min-h-[60vh]">
-        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+        <div class="border-brand-neon border-b-2 rounded-full w-12 h-12 animate-spin"></div>
       </div>
     );
   }
 
   if (state.error) {
     return (
-      <div class="max-w-7xl mx-auto py-12 px-4">
-        <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6 text-center">
-          <h2 class="text-red-800 dark:text-red-300 text-lg font-bold mb-2">
+      <div class="mx-auto px-4 py-12 max-w-7xl">
+        <div class="bg-red-50 dark:bg-red-900/20 p-6 border border-red-200 dark:border-red-800 rounded-lg text-center">
+          <h2 class="mb-2 font-bold text-red-800 dark:text-red-300 text-lg">
             {t("common.error")}
           </h2>
           <p class="text-red-700 dark:text-red-400">{state.error}</p>
@@ -143,10 +143,10 @@ export default component$(() => {
   const stats = state.stats!;
 
   return (
-    <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-      <div class="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
+    <div class="mx-auto px-4 sm:px-6 lg:px-8 py-8 max-w-7xl">
+      <div class="flex md:flex-row flex-col justify-between md:items-end gap-4 mb-8">
         <div>
-          <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
+          <h1 class="font-bold text-gray-900 dark:text-white text-3xl">
             {t("admin.dashboard")}
           </h1>
           <p class="mt-2 text-gray-600 dark:text-gray-400">
@@ -163,7 +163,7 @@ export default component$(() => {
                   (e.target as HTMLSelectElement).value,
                 ))
               }
-              class="bg-white dark:bg-gray-800 dark:text-white border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
+              class="bg-white dark:bg-gray-800 px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg outline-none focus:ring-2 focus:ring-brand-neon dark:text-white text-sm"
               data-testid="admin-stats-month-select"
             >
               <option value="0">{t("admin.total")}</option>
@@ -184,7 +184,7 @@ export default component$(() => {
                 (e.target as HTMLSelectElement).value,
               ))
             }
-            class="bg-white dark:bg-gray-800 dark:text-white border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
+            class="bg-white dark:bg-gray-800 px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg outline-none focus:ring-2 focus:ring-brand-neon dark:text-white text-sm"
             data-testid="admin-stats-year-select"
           >
             <option value="0">{t("admin.all_time")}</option>
@@ -201,14 +201,14 @@ export default component$(() => {
       </div>
 
       {/* Stats Cards */}
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div class="gap-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 mb-8">
         {/* Users Card */}
         <div
-          class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6"
+          class="bg-white dark:bg-gray-800 shadow-sm p-6 border border-gray-100 dark:border-gray-700 rounded-xl"
           data-testid="admin-stats-users-card"
         >
-          <div class="flex items-center justify-between mb-4">
-            <span class="p-2 bg-blue-50 dark:bg-blue-900/30 rounded-lg text-blue-600 dark:text-blue-400">
+          <div class="flex justify-between items-center mb-4">
+            <span class="bg-blue-50 dark:bg-blue-900/30 p-2 rounded-lg text-blue-600 dark:text-blue-400">
               <svg
                 class="w-6 h-6"
                 fill="none"
@@ -223,18 +223,18 @@ export default component$(() => {
                 />
               </svg>
             </span>
-            <span class="text-xs font-semibold text-green-600 bg-green-50 dark:bg-green-900/30 px-2 py-1 rounded">
+            <span class="bg-green-50 dark:bg-green-900/30 px-2 py-1 rounded font-semibold text-green-600 text-xs">
               {t("admin.new_growth").replace(
                 "{count}",
                 stats.overview.users.new.toString(),
               )}
             </span>
           </div>
-          <h3 class="text-gray-500 dark:text-gray-400 text-sm font-medium">
+          <h3 class="font-medium text-gray-500 dark:text-gray-400 text-sm">
             {t("admin.total_users")}
           </h3>
           <p
-            class="text-2xl font-bold text-gray-900 dark:text-white"
+            class="font-bold text-gray-900 dark:text-white text-2xl"
             data-testid="admin-stats-total-users"
           >
             {stats.overview.users.total}
@@ -243,11 +243,11 @@ export default component$(() => {
 
         {/* Jobs Card */}
         <div
-          class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6"
+          class="bg-white dark:bg-gray-800 shadow-sm p-6 border border-gray-100 dark:border-gray-700 rounded-xl"
           data-testid="admin-stats-jobs-card"
         >
-          <div class="flex items-center justify-between mb-4">
-            <span class="p-2 bg-indigo-50 dark:bg-indigo-900/30 rounded-lg text-indigo-600 dark:text-indigo-400">
+          <div class="flex justify-between items-center mb-4">
+            <span class="bg-brand-neon/10 dark:bg-brand-neon/20 p-2 rounded-lg text-brand-neon dark:text-brand-neon">
               <svg
                 class="w-6 h-6"
                 fill="none"
@@ -262,18 +262,18 @@ export default component$(() => {
                 />
               </svg>
             </span>
-            <span class="text-xs font-semibold text-green-600 bg-green-50 dark:bg-green-900/30 px-2 py-1 rounded">
+            <span class="bg-green-50 dark:bg-green-900/30 px-2 py-1 rounded font-semibold text-green-600 text-xs">
               {t("admin.new_growth").replace(
                 "{count}",
                 stats.overview.jobs.new.toString(),
               )}
             </span>
           </div>
-          <h3 class="text-gray-500 dark:text-gray-400 text-sm font-medium">
+          <h3 class="font-medium text-gray-500 dark:text-gray-400 text-sm">
             {t("admin.active_jobs")}
           </h3>
           <p
-            class="text-2xl font-bold text-gray-900 dark:text-white"
+            class="font-bold text-gray-900 dark:text-white text-2xl"
             data-testid="admin-stats-active-jobs"
           >
             {stats.overview.jobs.total}
@@ -282,11 +282,11 @@ export default component$(() => {
 
         {/* Companies Card */}
         <div
-          class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6"
+          class="bg-white dark:bg-gray-800 shadow-sm p-6 border border-gray-100 dark:border-gray-700 rounded-xl"
           data-testid="admin-stats-companies-card"
         >
-          <div class="flex items-center justify-between mb-4">
-            <span class="p-2 bg-purple-50 dark:bg-purple-900/30 rounded-lg text-purple-600 dark:text-purple-400">
+          <div class="flex justify-between items-center mb-4">
+            <span class="bg-purple-50 dark:bg-purple-900/30 p-2 rounded-lg text-purple-600 dark:text-purple-400">
               <svg
                 class="w-6 h-6"
                 fill="none"
@@ -301,18 +301,18 @@ export default component$(() => {
                 />
               </svg>
             </span>
-            <span class="text-xs font-semibold text-green-600 bg-green-50 dark:bg-green-900/30 px-2 py-1 rounded">
+            <span class="bg-green-50 dark:bg-green-900/30 px-2 py-1 rounded font-semibold text-green-600 text-xs">
               {t("admin.new_growth").replace(
                 "{count}",
                 stats.overview.companies.new.toString(),
               )}
             </span>
           </div>
-          <h3 class="text-gray-500 dark:text-gray-400 text-sm font-medium">
+          <h3 class="font-medium text-gray-500 dark:text-gray-400 text-sm">
             {t("admin.companies")}
           </h3>
           <p
-            class="text-2xl font-bold text-gray-900 dark:text-white"
+            class="font-bold text-gray-900 dark:text-white text-2xl"
             data-testid="admin-stats-companies"
           >
             {stats.overview.companies.total}
@@ -321,11 +321,11 @@ export default component$(() => {
 
         {/* Engagement Card */}
         <div
-          class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6"
+          class="bg-white dark:bg-gray-800 shadow-sm p-6 border border-gray-100 dark:border-gray-700 rounded-xl"
           data-testid="admin-stats-engagement-card"
         >
-          <div class="flex items-center justify-between mb-4">
-            <span class="p-2 bg-pink-50 dark:bg-pink-900/30 rounded-lg text-pink-600 dark:text-pink-400">
+          <div class="flex justify-between items-center mb-4">
+            <span class="bg-pink-50 dark:bg-pink-900/30 p-2 rounded-lg text-pink-600 dark:text-pink-400">
               <svg
                 class="w-6 h-6"
                 fill="none"
@@ -341,40 +341,40 @@ export default component$(() => {
               </svg>
             </span>
           </div>
-          <h3 class="text-gray-500 dark:text-gray-400 text-sm font-medium">
+          <h3 class="font-medium text-gray-500 dark:text-gray-400 text-sm">
             {t("admin.engagement")}
           </h3>
           <div class="flex items-center gap-4">
             <p
-              class="text-2xl font-bold text-gray-900 dark:text-white flex items-center"
+              class="flex items-center font-bold text-gray-900 dark:text-white text-2xl"
               data-testid="admin-stats-comments"
             >
               {stats.overview.engagement.comments}{" "}
-              <span class="text-xs font-normal ml-1">
+              <span class="ml-1 font-normal text-xs">
                 {t("admin.comments")}
               </span>
             </p>
             <p
-              class="text-2xl font-bold text-gray-900 dark:text-white flex items-center"
+              class="flex items-center font-bold text-gray-900 dark:text-white text-2xl"
               data-testid="admin-stats-likes"
             >
               {stats.overview.engagement.likes}{" "}
-              <span class="text-xs font-normal ml-1">{t("admin.likes")}</span>
+              <span class="ml-1 font-normal text-xs">{t("admin.likes")}</span>
             </p>
           </div>
         </div>
       </div>
 
       {/* Job Map Section */}
-      <div class="mb-8 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
-        <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-6">
+      <div class="bg-white dark:bg-gray-800 shadow-sm mb-8 p-6 border border-gray-100 dark:border-gray-700 rounded-xl">
+        <h3 class="mb-6 font-bold text-gray-900 dark:text-white text-lg">
           {t("admin.map_title")}
         </h3>
         <div class="w-full">
           {stats.charts.locations && stats.charts.locations.length > 0 ? (
             <JobMap jobs={stats.charts.locations} />
           ) : (
-            <div class="h-64 flex items-center justify-center bg-gray-50 dark:bg-gray-700 rounded-lg">
+            <div class="flex justify-center items-center bg-gray-50 dark:bg-gray-700 rounded-lg h-64">
               <p class="text-gray-500">{t("admin.no_data")}</p>
             </div>
           )}
@@ -382,8 +382,8 @@ export default component$(() => {
       </div>
 
       {/* Charts Section */}
-      <div class="mb-8 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
-        <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-6">
+      <div class="bg-white dark:bg-gray-800 shadow-sm mb-8 p-6 border border-gray-100 dark:border-gray-700 rounded-xl">
+        <h3 class="mb-6 font-bold text-gray-900 dark:text-white text-lg">
           {t("admin.job_trend")} -{" "}
           {state.selectedYear || new Date().getFullYear()}
         </h3>
@@ -401,21 +401,21 @@ export default component$(() => {
         </div>
       </div>
 
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div class="gap-8 grid grid-cols-1 lg:grid-cols-2">
         {/* Jobs by Seniority */}
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+        <div class="bg-white dark:bg-gray-800 shadow-sm p-6 border border-gray-100 dark:border-gray-700 rounded-xl">
           {(() => {
             const topSeniority =
               stats.charts.seniority.length > 0
                 ? stats.charts.seniority[0]
                 : null;
             return (
-              <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-6">
+              <h3 class="mb-6 font-bold text-gray-900 dark:text-white text-lg">
                 {t("admin.jobs_by_seniority")}
                 {topSeniority && (
-                  <span class="ml-2 text-sm font-normal text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 px-2 py-1 rounded-full">
+                  <span class="bg-brand-neon/10 dark:bg-brand-neon/20 ml-2 px-2 py-1 rounded-full font-normal text-brand-neon dark:text-brand-neon text-sm">
                     Top:{" "}
-                    <span class="capitalize font-semibold">
+                    <span class="font-semibold capitalize">
                       {topSeniority.label}
                     </span>
                   </span>
@@ -440,9 +440,9 @@ export default component$(() => {
                         {item.value}
                       </span>
                     </div>
-                    <div class="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2">
+                    <div class="bg-gray-100 dark:bg-gray-700 rounded-full w-full h-2">
                       <div
-                        class="bg-indigo-600 h-2 rounded-full transition-all duration-500"
+                        class="bg-brand-neon rounded-full h-2 transition-all duration-500"
                         style={{ width: `${percentage}%` }}
                       ></div>
                     </div>
@@ -456,8 +456,8 @@ export default component$(() => {
         </div>
 
         {/* Jobs by Employment Type */}
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
-          <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-6">
+        <div class="bg-white dark:bg-gray-800 shadow-sm p-6 border border-gray-100 dark:border-gray-700 rounded-xl">
+          <h3 class="mb-6 font-bold text-gray-900 dark:text-white text-lg">
             {t("admin.jobs_by_employment")}
           </h3>
           <div class="space-y-4">
@@ -477,9 +477,9 @@ export default component$(() => {
                         {item.value}
                       </span>
                     </div>
-                    <div class="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2">
+                    <div class="bg-gray-100 dark:bg-gray-700 rounded-full w-full h-2">
                       <div
-                        class="bg-purple-600 h-2 rounded-full transition-all duration-500"
+                        class="bg-purple-600 rounded-full h-2 transition-all duration-500"
                         style={{ width: `${percentage}%` }}
                       ></div>
                     </div>
@@ -492,8 +492,8 @@ export default component$(() => {
           </div>
         </div>
         {/* Jobs by Source */}
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
-          <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-6">
+        <div class="bg-white dark:bg-gray-800 shadow-sm p-6 border border-gray-100 dark:border-gray-700 rounded-xl">
+          <h3 class="mb-6 font-bold text-gray-900 dark:text-white text-lg">
             {t("admin.jobs_by_source") || "Annunci per Sorgente"}
           </h3>
           <div class="space-y-4">
@@ -519,9 +519,9 @@ export default component$(() => {
                         {item.value}
                       </span>
                     </div>
-                    <div class="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2">
+                    <div class="bg-gray-100 dark:bg-gray-700 rounded-full w-full h-2">
                       <div
-                        class="bg-blue-600 h-2 rounded-full transition-all duration-500"
+                        class="bg-blue-600 rounded-full h-2 transition-all duration-500"
                         style={{ width: `${percentage}%` }}
                       ></div>
                     </div>
@@ -535,8 +535,8 @@ export default component$(() => {
         </div>
 
         {/* Jobs by City */}
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
-          <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-6">
+        <div class="bg-white dark:bg-gray-800 shadow-sm p-6 border border-gray-100 dark:border-gray-700 rounded-xl">
+          <h3 class="mb-6 font-bold text-gray-900 dark:text-white text-lg">
             {t("admin.jobs_by_city") || "Annunci per Città"}
           </h3>
           <div class="space-y-4">
@@ -560,9 +560,9 @@ export default component$(() => {
                         {item.value}
                       </span>
                     </div>
-                    <div class="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2">
+                    <div class="bg-gray-100 dark:bg-gray-700 rounded-full w-full h-2">
                       <div
-                        class="bg-emerald-600 h-2 rounded-full transition-all duration-500"
+                        class="bg-emerald-600 rounded-full h-2 transition-all duration-500"
                         style={{ width: `${percentage}%` }}
                       ></div>
                     </div>
@@ -576,10 +576,10 @@ export default component$(() => {
         </div>
       </div>
 
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
+      <div class="gap-8 grid grid-cols-1 lg:grid-cols-2 mt-8">
         {/* Jobs by Language */}
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
-          <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-6">
+        <div class="bg-white dark:bg-gray-800 shadow-sm p-6 border border-gray-100 dark:border-gray-700 rounded-xl">
+          <h3 class="mb-6 font-bold text-gray-900 dark:text-white text-lg">
             {t("admin.jobs_by_language") || "Annunci per Lingua"}
           </h3>
           <div class="space-y-4">
@@ -605,9 +605,9 @@ export default component$(() => {
                         {item.value}
                       </span>
                     </div>
-                    <div class="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2">
+                    <div class="bg-gray-100 dark:bg-gray-700 rounded-full w-full h-2">
                       <div
-                        class="bg-indigo-500 h-2 rounded-full transition-all duration-500"
+                        class="bg-brand-neon rounded-full h-2 transition-all duration-500"
                         style={{ width: `${percentage}%` }}
                       ></div>
                     </div>
@@ -622,20 +622,20 @@ export default component$(() => {
       </div>
 
       {/* Top Skills Section */}
-      <div class="mb-8 mt-8 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
-        <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-6">
+      <div class="bg-white dark:bg-gray-800 shadow-sm mt-8 mb-8 p-6 border border-gray-100 dark:border-gray-700 rounded-xl">
+        <h3 class="mb-6 font-bold text-gray-900 dark:text-white text-lg">
           {t("admin.top_skills") || "Top Skills"}
         </h3>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div class="gap-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
           {stats.charts.topSkills && stats.charts.topSkills.length > 0 ? (
             stats.charts.topSkills.map((item, index) => (
               <div
                 key={item.label}
-                class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3 flex items-center justify-between"
+                class="flex justify-between items-center bg-gray-50 dark:bg-gray-700/50 p-3 rounded-lg"
               >
                 <div class="flex items-center gap-3">
                   <span
-                    class={`flex-shrink-0 w-6 h-6 flex items-center justify-center rounded-full text-xs font-bold ${index < 3 ? "bg-indigo-100 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300" : "bg-gray-200 text-gray-700 dark:bg-gray-600 dark:text-gray-300"}`}
+                    class={`flex-shrink-0 w-6 h-6 flex items-center justify-center rounded-full text-xs font-bold ${index < 3 ? "bg-brand-neon/10 text-brand-neon dark:bg-brand-neon/20 dark:text-brand-neon" : "bg-gray-200 text-gray-700 dark:bg-gray-600 dark:text-gray-300"}`}
                   >
                     {index + 1}
                   </span>
@@ -643,13 +643,13 @@ export default component$(() => {
                     {item.label}
                   </span>
                 </div>
-                <span class="text-indigo-600 dark:text-indigo-400 font-bold">
+                <span class="font-bold text-brand-neon dark:text-brand-neon">
                   {item.value}
                 </span>
               </div>
             ))
           ) : (
-            <div class="col-span-full text-center py-8 text-gray-500">
+            <div class="col-span-full py-8 text-gray-500 text-center">
               {t("admin.no_data")}
             </div>
           )}

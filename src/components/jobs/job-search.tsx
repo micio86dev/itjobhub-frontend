@@ -72,11 +72,11 @@ export const JobSearch = component$<JobSearchProps>(
       state.dateRange;
 
     return (
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6 mb-6">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div class="bg-brand-light-card dark:bg-brand-dark-card shadow-none mb-6 p-4 sm:p-6 border border-gray-200 dark:border-gray-800 rounded-sm">
+        <div class="gap-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
           {/* Search query */}
           <div class="lg:col-span-1">
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label class="block mb-2 font-medium text-gray-700 dark:text-gray-300 text-sm">
               {t("jobs.search_label")}
             </label>
             <div class="relative">
@@ -88,16 +88,16 @@ export const JobSearch = component$<JobSearchProps>(
                 }
                 data-testid="search-query"
                 placeholder={t("jobs.search_placeholder")}
-                class="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:ring-indigo-500 focus:border-indigo-500 dark:focus:ring-indigo-400 dark:focus:border-indigo-400"
+                class="pl-10 input"
                 onKeyDown$={(e) => {
                   if (e.key === "Enter") {
                     handleSearch();
                   }
                 }}
               />
-              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <div class="left-0 absolute inset-y-0 flex items-center pl-3 pointer-events-none">
                 <svg
-                  class="h-5 w-5 text-gray-400 dark:text-gray-500"
+                  class="w-5 h-5 text-gray-400 dark:text-gray-500"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -115,7 +115,7 @@ export const JobSearch = component$<JobSearchProps>(
 
           {/* Location search */}
           <div class="lg:col-span-1">
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label class="block mb-2 font-medium text-gray-700 dark:text-gray-300 text-sm">
               {t("jobs.location_label")}
             </label>
             <div class="relative">
@@ -132,11 +132,11 @@ export const JobSearch = component$<JobSearchProps>(
                   state.location_geo = coords;
                   handleSearch();
                 }}
-                class="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:ring-indigo-500 focus:border-indigo-500 dark:focus:ring-indigo-400 dark:focus:border-indigo-400"
+                class="pl-10 input"
               />
-              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <div class="left-0 absolute inset-y-0 flex items-center pl-3 pointer-events-none">
                 <svg
-                  class="h-5 w-5 text-gray-400 dark:text-gray-500"
+                  class="w-5 h-5 text-gray-400 dark:text-gray-500"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -160,7 +160,7 @@ export const JobSearch = component$<JobSearchProps>(
 
           {/* Date range */}
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label class="block mb-2 font-medium text-gray-700 dark:text-gray-300 text-sm">
               {t("jobs.published_label")}
             </label>
             <select
@@ -168,7 +168,7 @@ export const JobSearch = component$<JobSearchProps>(
               onChange$={(e) =>
                 (state.dateRange = (e.target as HTMLSelectElement).value)
               }
-              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:ring-indigo-500 focus:border-indigo-500 dark:focus:ring-indigo-400 dark:focus:border-indigo-400"
+              class="select"
             >
               <option value="">{t("jobs.all_dates")}</option>
               <option value="today">{t("jobs.today")}</option>
@@ -179,10 +179,10 @@ export const JobSearch = component$<JobSearchProps>(
           </div>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
+        <div class="gap-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 mt-4">
           {/* Seniority */}
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label class="block mb-2 font-medium text-gray-700 dark:text-gray-300 text-sm">
               {t("jobs.seniority_label")}
             </label>
             <select
@@ -191,7 +191,7 @@ export const JobSearch = component$<JobSearchProps>(
                 (state.seniority = (e.target as HTMLSelectElement).value)
               }
               data-testid="search-seniority"
-              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:ring-indigo-500 focus:border-indigo-500 dark:focus:ring-indigo-400 dark:focus:border-indigo-400"
+              class="select"
             >
               <option value="">{t("jobs.all_levels")}</option>
               <option value="junior">{t("jobs.junior")}</option>
@@ -202,7 +202,7 @@ export const JobSearch = component$<JobSearchProps>(
 
           {/* Availability */}
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label class="block mb-2 font-medium text-gray-700 dark:text-gray-300 text-sm">
               {t("jobs.work_type_label")}
             </label>
             <select
@@ -211,7 +211,7 @@ export const JobSearch = component$<JobSearchProps>(
                 (state.availability = (e.target as HTMLSelectElement).value)
               }
               data-testid="search-availability"
-              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:ring-indigo-500 focus:border-indigo-500 dark:focus:ring-indigo-400 dark:focus:border-indigo-400"
+              class="select"
             >
               <option value="">{t("jobs.all_types")}</option>
               <option value="full-time">{t("jobs.full_time")}</option>
@@ -224,7 +224,7 @@ export const JobSearch = component$<JobSearchProps>(
 
           {/* Remote */}
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label class="block mb-2 font-medium text-gray-700 dark:text-gray-300 text-sm">
               {t("jobs.mode_label")}
             </label>
             <select
@@ -233,7 +233,7 @@ export const JobSearch = component$<JobSearchProps>(
                 (state.remote = (e.target as HTMLSelectElement).value)
               }
               data-testid="search-remote"
-              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:ring-indigo-500 focus:border-indigo-500 dark:focus:ring-indigo-400 dark:focus:border-indigo-400"
+              class="select"
             >
               <option value="">{t("jobs.all_modes")}</option>
               <option value="remote">{t("jobs.remote")}</option>
@@ -247,16 +247,13 @@ export const JobSearch = component$<JobSearchProps>(
             <button
               onClick$={handleSearch}
               data-testid="search-submit"
-              class="flex-1 px-4 py-2 bg-indigo-600 dark:bg-indigo-700 text-white rounded-md hover:bg-indigo-700 dark:hover:bg-indigo-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-colors"
+              class="flex-1 btn-primary"
             >
               {t("jobs.search_btn")}
             </button>
 
             {hasFilters && (
-              <button
-                onClick$={handleReset}
-                class="px-3 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 dark:bg-gray-700 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-colors"
-              >
+              <button onClick$={handleReset} class="px-3 btn-secondary">
                 <svg
                   class="w-4 h-4"
                   fill="none"
@@ -277,26 +274,26 @@ export const JobSearch = component$<JobSearchProps>(
 
         {/* Active filters display */}
         {hasFilters && (
-          <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+          <div class="mt-4 pt-4 border-gray-200 dark:border-gray-700 border-t">
             <div class="flex flex-wrap items-center gap-2">
-              <span class="text-sm text-gray-500 dark:text-gray-400">
+              <span class="text-gray-500 dark:text-gray-400 text-sm">
                 {t("jobs.active_filters")}
               </span>
 
               {state.query && (
-                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
+                <span class="inline-flex items-center bg-brand-neon/10 px-2.5 py-0.5 border border-brand-neon/20 rounded-full font-mono font-bold text-brand-neon text-xs">
                   "{state.query}"
                 </span>
               )}
 
               {state.location && (
-                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                <span class="inline-flex items-center bg-brand-neon/10 px-2.5 py-0.5 border border-brand-neon/20 rounded-full font-mono font-bold text-brand-neon text-xs">
                   {state.location}
                 </span>
               )}
 
               {state.seniority && (
-                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                <span class="inline-flex items-center bg-brand-neon/10 px-2.5 py-0.5 border border-brand-neon/20 rounded-full font-mono font-bold text-brand-neon text-xs">
                   {state.seniority === "mid"
                     ? t("jobs.mid")
                     : state.seniority === "junior"
@@ -308,7 +305,7 @@ export const JobSearch = component$<JobSearchProps>(
               )}
 
               {state.availability && (
-                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                <span class="inline-flex items-center bg-brand-neon/10 px-2.5 py-0.5 border border-brand-neon/20 rounded-full font-mono font-bold text-brand-neon text-xs">
                   {state.availability === "full-time"
                     ? t("jobs.full_time")
                     : state.availability === "part-time"
@@ -326,7 +323,7 @@ export const JobSearch = component$<JobSearchProps>(
               )}
 
               {state.remote && (
-                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                <span class="inline-flex items-center bg-brand-neon/10 px-2.5 py-0.5 border border-brand-neon/20 rounded-full font-mono font-bold text-brand-neon text-xs">
                   {state.remote === "remote"
                     ? t("jobs.remote")
                     : t("jobs.office")}
@@ -334,7 +331,7 @@ export const JobSearch = component$<JobSearchProps>(
               )}
 
               {state.dateRange && (
-                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                <span class="inline-flex items-center bg-brand-neon/10 px-2.5 py-0.5 border border-brand-neon/20 rounded-full font-mono font-bold text-brand-neon text-xs">
                   {state.dateRange === "today"
                     ? t("jobs.today")
                     : state.dateRange === "week"

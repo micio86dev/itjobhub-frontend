@@ -18,7 +18,7 @@ export const Footer = component$(() => {
             href="https://micio86dev.it/"
             target="_blank"
             rel="noopener noreferrer"
-            class={styles.link}
+            class="link"
             aria-label="Visit developer portfolio"
           >
             @miciodev

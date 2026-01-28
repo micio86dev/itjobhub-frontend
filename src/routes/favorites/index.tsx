@@ -30,42 +30,42 @@ export default component$(() => {
   });
 
   return (
-    <div class="container mx-auto py-6 sm:px-6 lg:px-8">
-      <div class="px-4 py-6 sm:px-0">
-        <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-6">
+    <div class="mx-auto sm:px-6 lg:px-8 py-6 container">
+      <div class="px-4 sm:px-0 py-6">
+        <h1 class="mb-6 font-bold text-gray-900 dark:text-gray-100 text-3xl">
           {t("nav.favorites")}
         </h1>
 
         {!auth.isAuthenticated ? (
-          <div class="text-center py-12">
-            <p class="text-lg text-gray-600 dark:text-gray-300">
+          <div class="py-12 text-center">
+            <p class="text-gray-600 dark:text-gray-300 text-lg">
               {t("auth.login_required")}
             </p>
             <a
               href="/login"
-              class="mt-4 inline-flex items-center justify-center px-4 py-2 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700"
+              class="inline-flex justify-center items-center bg-brand-neon hover:bg-[#33ff66] mt-4 px-4 py-2 border border-transparent rounded-sm font-mono font-bold text-black text-base uppercase tracking-wide"
             >
               {t("home.login")}
             </a>
           </div>
         ) : state.isLoading ? (
           <div class="flex justify-center items-center py-12">
-            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+            <div class="border-brand-neon border-b-2 rounded-full w-12 h-12 animate-spin"></div>
           </div>
         ) : jobsState.favorites.length === 0 ? (
-          <div class="text-center py-12">
-            <p class="text-lg text-gray-600 dark:text-gray-300 mb-4">
+          <div class="py-12 text-center">
+            <p class="mb-4 text-gray-600 dark:text-gray-300 text-lg">
               {t("jobs.no_favorites")}
             </p>
             <a
               href="/jobs"
-              class="text-indigo-600 hover:text-indigo-500 font-medium"
+              class="font-medium text-brand-neon hover:text-[#33ff66]"
             >
               {t("home.find_opportunities")}
             </a>
           </div>
         ) : (
-          <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <div class="gap-6 grid md:grid-cols-2 lg:grid-cols-3">
             {jobsState.favorites.map((job) => (
               <JobCard key={job.id} job={job} />
             ))}

@@ -201,7 +201,7 @@ export default component$(() => {
     <div class="container">
       <Link
         href="/jobs"
-        class="group flex items-center gap-2 w-fit px-3 py-2 -ml-3 text-sm font-bold text-gray-600 dark:text-white hover:text-indigo-600 dark:hover:text-indigo-400 rounded-xl hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all duration-300 mb-8"
+        class="group flex items-center gap-2 hover:bg-brand-neon/10 dark:hover:bg-brand-neon/5 mb-8 -ml-3 px-3 py-2 rounded-xl w-fit font-bold text-gray-600 hover:text-brand-neon dark:hover:text-brand-neon dark:text-white text-sm transition-all duration-300"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -213,7 +213,7 @@ export default component$(() => {
           stroke-width="2.5"
           stroke-linecap="round"
           stroke-linejoin="round"
-          class="transition-transform duration-300 group-hover:-translate-x-1.5"
+          class="transition-transform group-hover:-translate-x-1.5 duration-300"
         >
           <path d="m15 18-6-6 6-6" />
         </svg>

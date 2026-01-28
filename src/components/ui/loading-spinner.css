@@ -3,15 +3,15 @@
 }
 
 .spinner {
-  @apply animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600;
+  @apply animate-spin rounded-full border-4 border-brand-neon/20 border-t-brand-neon;
 }
 
 :global(.dark) .spinner {
-  @apply border-indigo-900 border-t-indigo-400;
+  @apply border-brand-neon/10 border-t-brand-neon;
 }
 
 .spinner-sm {
-  @apply w-6 h-6;
+  @apply w-6 h-6 border-2;
 }
 
 .spinner-md {

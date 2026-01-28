@@ -314,10 +314,10 @@ export default component$(() => {
   );
 
   return (
-    <div class="max-w-4xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+    <div class="mx-auto px-4 sm:px-6 lg:px-8 py-6 max-w-4xl">
       {/* Header */}
       <div class="mb-8">
-        <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+        <h1 class="mb-4 font-bold text-gray-900 dark:text-white text-3xl">
           {t("jobs.title")}
         </h1>
 
@@ -347,14 +347,14 @@ export default component$(() => {
 
         {/* Filter toggle for authenticated users */}
         {canShowPersonalized && (
-          <div class="flex items-center justify-between mb-6">
+          <div class="flex justify-between items-center mb-6">
             <div class="flex items-center space-x-4">
               <button
                 onClick$={togglePersonalized}
                 class={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
                   state.showPersonalized
-                    ? "bg-indigo-600 dark:bg-indigo-700 text-white"
-                    : "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600"
+                    ? "bg-brand-neon text-black font-bold font-mono uppercase"
+                    : "bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-700"
                 }`}
               >
                 {state.showPersonalized
@@ -363,7 +363,7 @@ export default component$(() => {
               </button>
 
               {state.showPersonalized && (
-                <span class="text-sm text-gray-600 dark:text-gray-400">
+                <span class="font-mono text-gray-600 dark:text-gray-400 text-sm">
                   {t("jobs.skills_based_on")} {auth.user?.skills?.join(", ")}
                 </span>
               )}
@@ -373,11 +373,11 @@ export default component$(() => {
 
         {/* Info for non-authenticated users */}
         {!auth.isAuthenticated && (
-          <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-md p-4 mb-6">
+          <div class="bg-brand-neon/5 mb-6 p-4 border border-brand-neon/20 rounded-sm">
             <div class="flex">
               <div class="flex-shrink-0">
                 <svg
-                  class="h-5 w-5 text-blue-400 dark:text-blue-300"
+                  class="w-5 h-5 text-brand-neon"
                   fill="currentColor"
                   viewBox="0 0 20 20"
                 >
@@ -389,10 +389,10 @@ export default component$(() => {
                 </svg>
               </div>
               <div class="ml-3">
-                <p class="text-sm text-blue-700 dark:text-blue-300">
+                <p class="text-gray-700 dark:text-gray-300 text-sm">
                   <a
                     href="/register"
-                    class="font-medium hover:text-blue-600 dark:hover:text-blue-200"
+                    class="font-bold text-brand-neon hover:underline"
                   >
                     {t("common.register")}
                   </a>{" "}
@@ -405,11 +405,11 @@ export default component$(() => {
 
         {/* Info for authenticated users without completed profile */}
         {auth.isAuthenticated && !auth.user?.profileCompleted && (
-          <div class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-md p-4 mb-6">
+          <div class="bg-brand-neon/5 mb-6 p-4 border border-brand-neon/20 rounded-sm">
             <div class="flex">
               <div class="flex-shrink-0">
                 <svg
-                  class="h-5 w-5 text-yellow-400 dark:text-yellow-300"
+                  class="w-5 h-5 text-brand-neon"
                   fill="currentColor"
                   viewBox="0 0 20 20"
                 >
@@ -421,10 +421,10 @@ export default component$(() => {
                 </svg>
               </div>
               <div class="ml-3">
-                <p class="text-sm text-yellow-700 dark:text-yellow-300">
+                <p class="text-gray-700 dark:text-gray-300 text-sm">
                   <a
                     href="/wizard"
-                    class="font-medium hover:text-yellow-600 dark:hover:text-yellow-200"
+                    class="font-bold text-brand-neon hover:underline"
                   >
                     {t("profile.complete_profile")}
                   </a>{" "}
@@ -438,7 +438,7 @@ export default component$(() => {
 
       {/* Results count */}
       {state.totalJobsCount > 0 && (
-        <div class="mb-4 text-sm font-medium text-gray-600 dark:text-gray-400">
+        <div class="mb-4 font-mono font-medium text-gray-600 dark:text-gray-400 text-sm">
           {state.hasNextPage
             ? t("jobs.showing_count").replace(
                 "{count}",
@@ -454,8 +454,8 @@ export default component$(() => {
       {/* Jobs list */}
       <div class="space-y-6">
         {state.displayedJobs.length === 0 && !state.isLoading ? (
-          <div class="text-center py-12">
-            <div class="w-16 h-16 mx-auto mb-4 text-gray-400 dark:text-gray-500">
+          <div class="py-12 text-center">
+            <div class="mx-auto mb-4 w-16 h-16 text-gray-400 dark:text-gray-500">
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   stroke-linecap="round"
@@ -465,7 +465,7 @@ export default component$(() => {
                 />
               </svg>
             </div>
-            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">
+            <h3 class="mb-2 font-medium text-gray-900 dark:text-white text-lg">
               {t("jobs.no_jobs")}
             </h3>
             <p class="text-gray-500 dark:text-gray-400">
@@ -484,7 +484,7 @@ export default component$(() => {
               />
 
               {state.openComments[job.id] && (
-                <div class="ml-4 sm:ml-6 mr-4 sm:mr-6">
+                <div class="mr-4 sm:mr-6 ml-4 sm:ml-6">
                   <CommentsSection jobId={job.id} />
                 </div>
               )}
@@ -498,7 +498,7 @@ export default component$(() => {
         <div class="flex justify-center py-8">
           <div class="flex items-center space-x-2">
             <svg
-              class="animate-spin -ml-1 mr-3 h-5 w-5 text-indigo-600"
+              class="mr-3 -ml-1 w-5 h-5 text-brand-neon animate-spin"
               fill="none"
               viewBox="0 0 24 24"
             >
@@ -527,11 +527,11 @@ export default component$(() => {
       {state.hasNextPage && !state.isLoading && (
         <div
           ref={infiniteScrollRef}
-          class="h-20 flex items-center justify-center"
+          class="flex justify-center items-center h-20"
         >
           <div class="text-gray-400 dark:text-gray-500">
             <svg
-              class="w-6 h-6 mx-auto mb-2"
+              class="mx-auto mb-2 w-6 h-6"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -550,10 +550,10 @@ export default component$(() => {
 
       {/* End of results */}
       {!state.hasNextPage && state.displayedJobs.length > 0 && (
-        <div class="text-center py-8">
-          <div class="text-gray-400 dark:text-gray-500 mb-2">
+        <div class="py-8 text-center">
+          <div class="mb-2 text-gray-400 dark:text-gray-500">
             <svg
-              class="w-8 h-8 mx-auto"
+              class="mx-auto w-8 h-8"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"

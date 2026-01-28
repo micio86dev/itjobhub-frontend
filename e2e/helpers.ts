@@ -121,7 +121,9 @@ export async function logoutViaUI(page: Page): Promise<void> {
     await page.waitForTimeout(500);
   }
 
-  const logoutBtn = page.locator(SELECTORS.logoutButton).first();
+  const logoutBtn = page
+    .locator(SELECTORS.logoutButton)
+    .locator("visible=true");
   await logoutBtn.click();
 
   await expect(page).toHaveURL(/\/(login)?$/);

@@ -14,17 +14,17 @@ export const ValueProps = component$(() => {
         </div>
         <div class="gridContainer">
           <div class="card">
-            <div class="icon-wrapper icon-wrapper-indigo">💼</div>
+            <div class="icon-wrapper">💼</div>
             <h3 class="card-title">{t("home.opportunities_title")}</h3>
             <p class="card-desc">{t("home.opportunities_desc")}</p>
           </div>
           <div class="card">
-            <div class="icon-wrapper icon-wrapper-pink">🚀</div>
+            <div class="icon-wrapper">🚀</div>
             <h3 class="card-title">{t("home.growth_title")}</h3>
             <p class="card-desc">{t("home.growth_desc")}</p>
           </div>
           <div class="card">
-            <div class="icon-wrapper icon-wrapper-purple">🌐</div>
+            <div class="icon-wrapper">🌐</div>
             <h3 class="card-title">{t("home.remote_title")}</h3>
             <p class="card-desc">{t("home.remote_desc")}</p>
           </div>

@@ -63,7 +63,7 @@
 }
 
 .progress-bar-fill {
-  @apply bg-indigo-600 h-2 rounded-full;
+  @apply bg-brand-neon h-2 rounded-full;
 }
 
 .grid-container {
@@ -71,21 +71,21 @@
 }
 
 .grid-item {
-  @apply bg-gray-50 p-3 rounded-lg text-center;
+  @apply bg-gray-50 p-3 rounded-lg text-center border border-gray-100;
 }
 
 :global(.dark) .grid-item {
-  @apply bg-gray-900/50;
+  @apply bg-gray-900/50 border-gray-800;
 }
 
 .grid-label {
-  @apply text-xs text-gray-500 uppercase;
+  @apply text-xs text-gray-500 uppercase font-mono;
 }
 
 .grid-value {
-  @apply font-bold text-indigo-600;
+  @apply font-bold text-brand-neon;
 }
 
 :global(.dark) .grid-value {
-  @apply text-indigo-400;
+  @apply text-brand-neon;
 }

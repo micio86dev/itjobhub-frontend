@@ -22,10 +22,8 @@
   @apply text-sm flex items-center justify-center gap-1;
 }
 
-.link {
-  @apply text-blue-600 hover:text-blue-800 font-medium transition-colors;
-}
+/* .link is global */
 
 :global(.dark) .link {
-  @apply text-blue-400 hover:text-blue-300;
+  @apply text-brand-neon hover:text-brand-neon/80;
 }

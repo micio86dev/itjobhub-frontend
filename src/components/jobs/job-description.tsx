@@ -31,7 +31,7 @@ export const JobDescription = component$<JobDescriptionProps>(
 
     return (
       <div class="descriptionSection">
-        <div class="prose prose-indigo max-w-none dark:prose-invert">
+        <div class="dark:prose-invert max-w-none prose prose-slate">
           <h3 class="descriptionTitle">
             <span class="descriptionBar"></span>
             {t("job.description_title")}

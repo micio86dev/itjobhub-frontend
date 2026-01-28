@@ -220,12 +220,12 @@ export default component$(() => {
   };
 
   return (
-    <div class="min-h-screen bg-slate-50 pb-20 dark:bg-slate-950 pt-24">
-      <div class="container mx-auto px-4 max-w-4xl">
+    <div class="bg-slate-50 dark:bg-slate-950 pt-24 pb-20 min-h-screen">
+      <div class="mx-auto px-4 max-w-4xl container">
         <Link
           href="/news"
           data-testid="back-link"
-          class="group flex items-center gap-2 w-fit px-3 py-2 -ml-3 text-sm font-bold text-gray-600 dark:text-white hover:text-indigo-600 dark:hover:text-indigo-400 rounded-xl hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all duration-300 mb-8"
+          class="group flex items-center gap-2 hover:bg-brand-neon/10 dark:hover:bg-brand-neon/5 mb-8 -ml-3 px-3 py-2 rounded-xl w-fit font-bold text-gray-600 hover:text-brand-neon dark:hover:text-brand-neon dark:text-white text-sm transition-all duration-300"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -237,7 +237,7 @@ export default component$(() => {
             stroke-width="2.5"
             stroke-linecap="round"
             stroke-linejoin="round"
-            class="transition-transform duration-300 group-hover:-translate-x-1.5"
+            class="transition-transform group-hover:-translate-x-1.5 duration-300"
           >
             <path d="m15 18-6-6 6-6" />
           </svg>
@@ -252,13 +252,13 @@ export default component$(() => {
             </div>
           )}
           onRejected={() => (
-            <div class="text-center py-20">
-              <h2 class="text-2xl font-bold text-red-500">
+            <div class="py-20 text-center">
+              <h2 class="font-bold text-red-500 text-2xl">
                 Error loading news
               </h2>
               <Link
                 href="/news"
-                class="text-blue-600 hover:underline mt-4 inline-block"
+                class="inline-block mt-4 text-blue-600 hover:underline"
               >
                 Go back
               </Link>
@@ -267,13 +267,13 @@ export default component$(() => {
           onResolved={(news) => {
             if (!news) {
               return (
-                <div class="text-center py-20">
-                  <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-200">
+                <div class="py-20 text-center">
+                  <h2 class="font-bold text-gray-800 dark:text-gray-200 text-2xl">
                     News Not Found
                   </h2>
                   <Link
                     href="/news"
-                    class="text-blue-600 hover:underline mt-4 inline-block"
+                    class="inline-block mt-4 text-blue-600 hover:underline"
                   >
                     Go back
                   </Link>
@@ -302,10 +302,10 @@ export default component$(() => {
             }
 
             return (
-              <article class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm overflow-hidden">
+              <article class="bg-white dark:bg-slate-900 shadow-sm rounded-2xl overflow-hidden">
                 {/* Hero Image */}
                 {news.image_url && (
-                  <div class="w-full h-64 md:h-96 relative">
+                  <div class="relative w-full h-64 md:h-96">
                     <img
                       src={news.image_url}
                       alt={displayTitle}
@@ -314,16 +314,16 @@ export default component$(() => {
                       height="600"
                     />
                     <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                    <div class="absolute bottom-0 left-0 p-6 md:p-8 text-white">
+                    <div class="bottom-0 left-0 absolute p-6 md:p-8 text-white">
                       {news.category && (
-                        <span class="px-3 py-1 bg-indigo-600 rounded-full text-xs font-bold uppercase tracking-wide mb-3 inline-block">
+                        <span class="inline-block bg-brand-neon mb-3 px-3 py-1 rounded-full font-bold text-black text-xs uppercase tracking-wide">
                           {news.category}
                         </span>
                       )}
-                      <h1 class="text-3xl md:text-5xl font-bold leading-tight mb-2">
+                      <h1 class="mb-2 font-bold text-3xl md:text-5xl leading-tight">
                         {displayTitle}
                       </h1>
-                      <div class="flex items-center text-sm md:text-base text-gray-200 gap-4">
+                      <div class="flex items-center gap-4 text-gray-200 text-sm md:text-base">
                         <span>
                           {formatDate(news.published_at || news.created_at)}
                         </span>
@@ -332,7 +332,7 @@ export default component$(() => {
                             href={news.source_url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            class="hover:text-white underline decoration-dotted"
+                            class="hover:text-white decoration-dotted underline"
                           >
                             Source
                           </a>
@@ -343,16 +343,16 @@ export default component$(() => {
                 )}
 
                 {!news.image_url && (
-                  <div class="p-8 border-b border-gray-100 dark:border-gray-800">
+                  <div class="p-8 border-gray-100 dark:border-gray-800 border-b">
                     {news.category && (
-                      <span class="px-3 py-1 bg-indigo-600 text-white rounded-full text-xs font-bold uppercase tracking-wide mb-3 inline-block">
+                      <span class="inline-block bg-brand-neon mb-3 px-3 py-1 rounded-full font-bold text-black text-xs uppercase tracking-wide">
                         {news.category}
                       </span>
                     )}
-                    <h1 class="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+                    <h1 class="mb-4 font-bold text-gray-900 dark:text-white text-3xl md:text-4xl">
                       {displayTitle}
                     </h1>
-                    <div class="flex items-center text-sm text-gray-500 dark:text-gray-400 gap-4">
+                    <div class="flex items-center gap-4 text-gray-500 dark:text-gray-400 text-sm">
                       <span>
                         {formatDate(news.published_at || news.created_at)}
                       </span>
@@ -361,7 +361,7 @@ export default component$(() => {
                           href={news.source_url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          class="hover:text-indigo-600 underline decoration-dotted"
+                          class="hover:text-brand-neon decoration-dotted underline"
                         >
                           Source
                         </a>
@@ -378,7 +378,7 @@ export default component$(() => {
                       <button
                         onClick$={() => (state.showDeleteModal = true)}
                         data-testid="delete-article-btn"
-                        class="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors"
+                        class="flex items-center gap-2 bg-red-50 hover:bg-red-100 px-4 py-2 rounded-lg text-red-600 transition-colors"
                       >
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
@@ -404,7 +404,7 @@ export default component$(() => {
 
                   {displayContent && (
                     <div
-                      class="prose prose-lg dark:prose-invert max-w-none"
+                      class="dark:prose-invert max-w-none prose prose-lg"
                       dangerouslySetInnerHTML={
                         marked.parse(displayContent) as string
                       }
@@ -413,8 +413,8 @@ export default component$(() => {
                 </div>
 
                 {/* Interactions Footer */}
-                <div class="border-t border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50 p-6 md:p-8">
-                  <div class="flex items-center justify-between mb-8">
+                <div class="bg-gray-50 dark:bg-gray-800/50 p-6 md:p-8 border-gray-100 dark:border-gray-800 border-t">
+                  <div class="flex justify-between items-center mb-8">
                     <div class="flex gap-4">
                       <button
                         onClick$={handleLike}
@@ -422,7 +422,7 @@ export default component$(() => {
                         data-testid="like-btn"
                         class={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all ${
                           news.user_reaction === "LIKE"
-                            ? "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300"
+                            ? "bg-brand-neon/20 text-brand-neon dark:bg-brand-neon/20 dark:text-brand-neon border border-brand-neon/50"
                             : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
                         }`}
                       >
@@ -443,7 +443,7 @@ export default component$(() => {
                         <span class="font-bold">{news.dislikes}</span>
                       </button>
                     </div>
-                    <div class="text-gray-500 text-sm flex gap-4">
+                    <div class="flex gap-4 text-gray-500 text-sm">
                       <span class="flex items-center gap-1">
                         <svg
                           xmlns="http://www.w3.org/2000/svg"

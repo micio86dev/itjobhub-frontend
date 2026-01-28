@@ -1,5 +1,5 @@
 .cta-section {
-  @apply relative bg-indigo-900 py-16 sm:py-24;
+  @apply relative bg-brand-dark-bg py-16 sm:py-24 border-t border-brand-neon/20;
 }
 
 .bg-overlay {
@@ -11,11 +11,11 @@
 }
 
 .blob-1 {
-  @apply absolute right-0 top-0 -mt-20 -mr-20 w-96 h-96 bg-pink-600 rounded-full mix-blend-multiply filter blur-3xl opacity-20;
+  @apply absolute right-0 top-0 -mt-20 -mr-20 w-96 h-96 bg-brand-neon rounded-full mix-blend-multiply filter blur-3xl opacity-10;
 }
 
 .blob-2 {
-  @apply absolute left-0 bottom-0 -mb-20 -ml-20 w-96 h-96 bg-purple-600 rounded-full mix-blend-multiply filter blur-3xl opacity-20;
+  @apply absolute left-0 bottom-0 -mb-20 -ml-20 w-96 h-96 bg-[#33ff66] rounded-full mix-blend-multiply filter blur-3xl opacity-10;
 }
 
 .container {
@@ -27,17 +27,18 @@
 }
 
 .description {
-  @apply text-xl text-indigo-200 mb-10 max-w-2xl mx-auto;
+  @apply text-xl text-gray-300 mb-10 max-w-2xl mx-auto;
 }
 
 .actions {
   @apply flex justify-center space-x-4;
 }
 
+/* Match global .btn-primary */
 .btn-register {
-  @apply inline-flex items-center justify-center bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white px-8 py-3 rounded-lg font-bold shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all;
+  @apply inline-flex items-center justify-center px-8 py-3 border border-transparent text-lg font-bold font-mono uppercase tracking-wide rounded-sm shadow-sm text-black bg-brand-neon hover:bg-[#33ff66] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-neon transition-all duration-200 hover:shadow-neon-strong transform hover:-translate-y-1;
 }
 
 .btn-login {
-  @apply inline-flex items-center justify-center bg-transparent border-2 border-indigo-400 text-indigo-100 px-8 py-3 rounded-lg font-bold hover:bg-indigo-800/50 transition-colors;
+  @apply inline-flex items-center justify-center bg-transparent border-2 border-brand-neon text-brand-neon px-8 py-3 rounded-sm font-bold font-mono uppercase tracking-wide hover:bg-brand-neon/10 transition-colors;
 }

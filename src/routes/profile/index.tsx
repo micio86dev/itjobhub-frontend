@@ -284,8 +284,8 @@ export default component$(() => {
   });
 
   return (
-    <div class="max-w-4xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-      <div class="bg-white dark:bg-gray-800 shadow rounded-lg">
+    <div class="mx-auto px-4 sm:px-6 lg:px-8 py-6 max-w-4xl">
+      <div class="bg-brand-light-card dark:bg-brand-dark-card shadow-none border border-gray-200 dark:border-gray-800 rounded-sm overflow-hidden">
         {/* Feedback Message */}
         {state.message.text && (
           <div
@@ -299,11 +299,11 @@ export default component$(() => {
           </div>
         )}
         {/* Header */}
-        <div class="px-4 py-5 sm:px-6 border-b border-gray-200 dark:border-gray-700">
-          <div class="flex items-center justify-between">
+        <div class="px-4 sm:px-6 py-5 border-gray-200 dark:border-gray-700 border-b">
+          <div class="flex justify-between items-center">
             <div class="flex items-center">
               <div class="relative">
-                <div class="w-20 h-20 bg-indigo-500 dark:bg-indigo-600 rounded-full flex items-center justify-center overflow-hidden">
+                <div class="flex justify-center items-center bg-gray-100 dark:bg-gray-900 shadow-neon-sm border-2 border-brand-neon rounded-full w-20 h-20 overflow-hidden">
                   {auth.user?.avatar ? (
                     <img
                       src={auth.user.avatar}
@@ -313,14 +313,14 @@ export default component$(() => {
                       height="80"
                     />
                   ) : (
-                    <span class="text-2xl font-bold text-white">
+                    <span class="font-bold text-gray-500 dark:text-gray-400 text-2xl">
                       {auth.user?.name?.charAt(0).toUpperCase() ||
                         auth.user?.email?.charAt(0).toUpperCase()}
                     </span>
                   )}
                 </div>
                 <button
-                  class="absolute -bottom-1 -right-1 w-6 h-6 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-full flex items-center justify-center border-2 border-white dark:border-gray-800"
+                  class="-right-1 -bottom-1 absolute flex justify-center items-center bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 border-2 border-white dark:border-gray-800 rounded-full w-6 h-6"
                   onClick$={handleAvatarClick}
                   title={t("profile.change_avatar")}
                 >
@@ -348,16 +348,16 @@ export default component$(() => {
                 />
               </div>
               <div class="ml-4">
-                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+                <h1 class="font-bold text-gray-900 dark:text-white text-2xl">
                   {auth.user?.name || t("profile.title")}
                 </h1>
-                <p class="text-sm text-gray-500 dark:text-gray-400">
+                <p class="text-gray-500 dark:text-gray-400 text-sm">
                   {auth.user?.email}
                 </p>
                 {auth.user?.location && (
-                  <p class="text-sm text-gray-500 dark:text-gray-400 flex items-center mt-1">
+                  <p class="flex items-center mt-1 text-gray-500 dark:text-gray-400 text-sm">
                     <svg
-                      class="w-4 h-4 mr-1"
+                      class="mr-1 w-4 h-4"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -379,7 +379,7 @@ export default component$(() => {
                   </p>
                 )}
                 {auth.user?.profileCompleted && (
-                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-300 mt-1">
+                  <span class="inline-flex items-center bg-brand-neon/10 mt-1 px-2.5 py-0.5 border border-brand-neon/20 rounded-sm font-mono font-bold text-[10px] text-brand-neon uppercase">
                     {t("profile.completed")}
                   </span>
                 )}
@@ -389,10 +389,10 @@ export default component$(() => {
         </div>
 
         {/* Profile content */}
-        <div class="px-4 py-5 sm:p-6">
+        <div class="sm:p-6 px-4 py-5">
           {!auth.user?.profileCompleted ? (
-            <div class="text-center py-12">
-              <div class="w-12 h-12 mx-auto mb-4 text-gray-400 dark:text-gray-500">
+            <div class="py-12 text-center">
+              <div class="mx-auto mb-4 w-12 h-12 text-gray-400 dark:text-gray-500">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
                     stroke-linecap="round"
@@ -402,16 +402,16 @@ export default component$(() => {
                   />
                 </svg>
               </div>
-              <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">
+              <h3 class="mb-2 font-medium text-gray-900 dark:text-white text-lg">
                 {t("profile.complete_profile")}
               </h3>
-              <p class="text-gray-500 dark:text-gray-400 mb-4">
+              <p class="mb-4 text-gray-500 dark:text-gray-400">
                 {t("profile.complete_desc")}
               </p>
               <div class="flex justify-center">
                 <button
                   onClick$={handleEditProfile}
-                  class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-700 dark:hover:bg-indigo-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-indigo-400"
+                  class="inline-flex items-center bg-brand-neon hover:bg-[#33ff66] px-4 py-2 border border-transparent rounded-sm focus:outline-none focus:ring-2 focus:ring-brand-neon focus:ring-offset-2 font-mono font-bold text-black text-sm uppercase tracking-wide"
                 >
                   {t("profile.complete_profile")}
                 </button>
@@ -420,17 +420,17 @@ export default component$(() => {
           ) : (
             <div class="space-y-8">
               {/* Personal Information */}
-              <div class="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-6">
-                <div class="flex items-center justify-between mb-4">
-                  <h3 class="text-lg font-medium text-gray-900 dark:text-white">
+              <div class="bg-gray-50 dark:bg-gray-900/50 p-6 rounded-lg">
+                <div class="flex justify-between items-center mb-4">
+                  <h3 class="font-medium text-gray-900 dark:text-white text-lg">
                     {t("profile.personal_info")}
                   </h3>
                   <button
                     onClick$={handleEditPersonal}
-                    class="inline-flex items-center px-3 py-1 border border-gray-300 dark:border-gray-600 shadow-sm text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-indigo-400"
+                    class="text-xs btn-secondary"
                   >
                     <svg
-                      class="w-4 h-4 mr-2"
+                      class="mr-2 w-4 h-4"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -448,9 +448,9 @@ export default component$(() => {
 
                 {state.isEditing && state.editingSection === "personal" ? (
                   <div class="space-y-4">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="gap-4 grid grid-cols-1 md:grid-cols-2">
                       <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        <label class="block mb-1 font-medium text-gray-700 dark:text-gray-300 text-sm">
                           {t("profile.name_label")}
                         </label>
                         <input
@@ -461,12 +461,11 @@ export default component$(() => {
                               e.target as HTMLInputElement
                             ).value)
                           }
-                          data-testid="profile-name"
-                          class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:ring-indigo-500 focus:border-indigo-500 dark:focus:ring-indigo-400 dark:focus:border-indigo-400"
+                          class="input"
                         />
                       </div>
                       <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        <label class="block mb-1 font-mono font-bold text-gray-700 dark:text-gray-300 text-xs uppercase tracking-wider">
                           {t("profile.phone_label")}
                         </label>
                         <input
@@ -477,13 +476,13 @@ export default component$(() => {
                               e.target as HTMLInputElement
                             ).value)
                           }
-                          class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:ring-indigo-500 focus:border-indigo-500 dark:focus:ring-indigo-400 dark:focus:border-indigo-400"
+                          class="input"
                         />
                       </div>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="gap-4 grid grid-cols-1 md:grid-cols-2">
                       <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        <label class="block mb-1 font-mono font-bold text-gray-700 dark:text-gray-300 text-xs uppercase tracking-wider">
                           {t("profile.location_label")}
                         </label>
                         <LocationAutocomplete
@@ -491,17 +490,13 @@ export default component$(() => {
                           onInput$={(val) => (state.formData.location = val)}
                           onLocationSelect$={(location, coordinates) => {
                             state.formData.location = location;
-                            // Store coordinates in formData (need to add coordinates to EditFormData interface first)
-                            // Assuming I will add it in a subsequent step or previous step was missed?
-                            // I need to update EditFormData interface in this file too!
-                            // For now I'll cast to any or add it.
                             state.formData.coordinates = coordinates;
                           }}
-                          class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:ring-indigo-500 focus:border-indigo-500 dark:focus:ring-indigo-400 dark:focus:border-indigo-400"
+                          class="input"
                         />
                       </div>
                       <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        <label class="block mb-1 font-mono font-bold text-gray-700 dark:text-gray-300 text-xs uppercase tracking-wider">
                           {t("profile.birth_date_label")}
                         </label>
                         <input
@@ -512,12 +507,12 @@ export default component$(() => {
                               e.target as HTMLInputElement
                             ).value)
                           }
-                          class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:ring-indigo-500 focus:border-indigo-500 dark:focus:ring-indigo-400 dark:focus:border-indigo-400"
+                          class="input"
                         />
                       </div>
                     </div>
                     <div>
-                      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      <label class="block mb-1 font-mono font-bold text-gray-700 dark:text-gray-300 text-xs uppercase tracking-wider">
                         {t("profile.bio_label")}
                       </label>
                       <textarea
@@ -529,7 +524,7 @@ export default component$(() => {
                         }
                         rows={4}
                         data-testid="profile-bio"
-                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:ring-indigo-500 focus:border-indigo-500 dark:focus:ring-indigo-400 dark:focus:border-indigo-400"
+                        class="input"
                         placeholder={t("profile.complete_desc")}
                       />
                     </div>
@@ -538,71 +533,68 @@ export default component$(() => {
                         onClick$={handleSavePersonal}
                         disabled={state.isSavingPersonal}
                         data-testid="profile-save"
-                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-700 dark:hover:bg-indigo-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 disabled:opacity-50 disabled:cursor-not-allowed"
+                        class="btn-primary"
                       >
                         {state.isSavingPersonal && (
-                          <Spinner size="sm" class="-ml-1 mr-2" />
+                          <Spinner size="sm" class="mr-2 -ml-1" />
                         )}
                         {state.isSavingPersonal
                           ? t("common.saving")
                           : t("profile.save_changes")}
                       </button>
-                      <button
-                        onClick$={handleCancelEdit}
-                        class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-indigo-400"
-                      >
+                      <button onClick$={handleCancelEdit} class="btn-secondary">
                         {t("profile.cancel")}
                       </button>
                     </div>
                   </div>
                 ) : (
-                  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div class="gap-6 grid grid-cols-1 md:grid-cols-2">
                     <div>
-                      <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">
+                      <dt class="font-medium text-gray-500 dark:text-gray-400 text-sm">
                         {t("profile.name_label")}
                       </dt>
-                      <dd class="mt-1 text-sm text-gray-900 dark:text-white">
+                      <dd class="mt-1 text-gray-900 dark:text-white text-sm">
                         {auth.user?.name || "-"}
                       </dd>
                     </div>
                     <div>
-                      <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">
+                      <dt class="font-medium text-gray-500 dark:text-gray-400 text-sm">
                         {t("profile.email_label")}
                       </dt>
-                      <dd class="mt-1 text-sm text-gray-900 dark:text-white">
+                      <dd class="mt-1 text-gray-900 dark:text-white text-sm">
                         {auth.user?.email || "-"}
                       </dd>
                     </div>
                     <div>
-                      <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">
+                      <dt class="font-medium text-gray-500 dark:text-gray-400 text-sm">
                         {t("profile.phone_label")}
                       </dt>
-                      <dd class="mt-1 text-sm text-gray-900 dark:text-white">
+                      <dd class="mt-1 text-gray-900 dark:text-white text-sm">
                         {auth.user?.phone || "-"}
                       </dd>
                     </div>
                     <div>
-                      <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">
+                      <dt class="font-medium text-gray-500 dark:text-gray-400 text-sm">
                         {t("profile.location_label")}
                       </dt>
-                      <dd class="mt-1 text-sm text-gray-900 dark:text-white">
+                      <dd class="mt-1 text-gray-900 dark:text-white text-sm">
                         {auth.user?.location || "-"}
                       </dd>
                     </div>
                     <div>
-                      <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">
+                      <dt class="font-medium text-gray-500 dark:text-gray-400 text-sm">
                         {t("profile.birth_date_label")}
                       </dt>
-                      <dd class="mt-1 text-sm text-gray-900 dark:text-white">
+                      <dd class="mt-1 text-gray-900 dark:text-white text-sm">
                         {auth.user?.birthDate || "-"}
                       </dd>
                     </div>
                     {auth.user?.bio && (
                       <div class="md:col-span-2">
-                        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">
+                        <dt class="font-medium text-gray-500 dark:text-gray-400 text-sm">
                           {t("profile.bio_label")}
                         </dt>
-                        <dd class="mt-1 text-sm text-gray-900 dark:text-white">
+                        <dd class="mt-1 text-gray-900 dark:text-white text-sm">
                           {auth.user.bio}
                         </dd>
                       </div>
@@ -612,17 +604,17 @@ export default component$(() => {
               </div>
 
               {/* Professional Information */}
-              <div class="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-6">
-                <div class="flex items-center justify-between mb-4">
-                  <h3 class="text-lg font-medium text-gray-900 dark:text-white">
+              <div class="bg-gray-50 dark:bg-gray-900/50 p-6 rounded-lg">
+                <div class="flex justify-between items-center mb-4">
+                  <h3 class="font-medium text-gray-900 dark:text-white text-lg">
                     {t("profile.professional_info")}
                   </h3>
                   <button
                     onClick$={handleEditProfile}
-                    class="inline-flex items-center px-3 py-1 border border-gray-300 dark:border-gray-600 shadow-sm text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-indigo-400"
+                    class="text-xs btn-secondary"
                   >
                     <svg
-                      class="w-4 h-4 mr-2"
+                      class="mr-2 w-4 h-4"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -641,7 +633,7 @@ export default component$(() => {
                 <div class="space-y-6">
                   {/* Languages */}
                   <div>
-                    <h4 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3">
+                    <h4 class="mb-3 font-medium text-gray-500 dark:text-gray-400 text-sm">
                       {t("profile.languages_title")}
                     </h4>
                     <div class="flex flex-wrap gap-2">
@@ -657,7 +649,7 @@ export default component$(() => {
                         return (
                           <span
                             key={lang}
-                            class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-300"
+                            class="inline-flex items-center bg-brand-neon/10 px-3 py-1 border border-brand-neon/20 rounded-sm font-mono font-bold text-brand-neon text-xs"
                           >
                             {displayLang}
                           </span>
@@ -668,14 +660,14 @@ export default component$(() => {
 
                   {/* Skills */}
                   <div>
-                    <h4 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3">
+                    <h4 class="mb-3 font-medium text-gray-500 dark:text-gray-400 text-sm">
                       {t("profile.skills_title")}
                     </h4>
                     <div class="flex flex-wrap gap-2">
                       {auth.user?.skills?.map((skill) => (
                         <span
                           key={skill}
-                          class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-300"
+                          class="inline-flex items-center bg-brand-neon/10 px-3 py-1 border border-brand-neon/20 rounded-sm font-mono font-bold text-brand-neon text-xs"
                         >
                           {skill}
                         </span>
@@ -684,26 +676,26 @@ export default component$(() => {
                   </div>
 
                   {/* Seniority & Availability */}
-                  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div class="gap-6 grid grid-cols-1 md:grid-cols-2">
                     <div>
-                      <h4 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3">
+                      <h4 class="mb-3 font-medium text-gray-500 dark:text-gray-400 text-sm">
                         {t("profile.seniority_title")}
                       </h4>
                       <div class="flex items-center">
-                        <div class="w-3 h-3 bg-indigo-500 dark:bg-indigo-400 rounded-full mr-3"></div>
-                        <span class="text-sm font-medium text-gray-900 dark:text-white capitalize">
+                        <div class="bg-brand-neon mr-3 rounded-full w-3 h-3"></div>
+                        <span class="font-medium text-gray-900 dark:text-white text-sm capitalize">
                           {formatSeniority(auth.user?.seniority || "")}
                         </span>
                       </div>
                     </div>
 
                     <div>
-                      <h4 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3">
+                      <h4 class="mb-3 font-medium text-gray-500 dark:text-gray-400 text-sm">
                         {t("profile.availability_title")}
                       </h4>
                       <div class="flex items-center">
-                        <div class="w-3 h-3 bg-green-500 dark:bg-green-400 rounded-full mr-3"></div>
-                        <span class="text-sm font-medium text-gray-900 dark:text-white capitalize">
+                        <div class="bg-green-500 dark:bg-green-400 mr-3 rounded-full w-3 h-3"></div>
+                        <span class="font-medium text-gray-900 dark:text-white text-sm capitalize">
                           {formatAvailability(auth.user?.availability || "")}
                         </span>
                       </div>
@@ -712,14 +704,14 @@ export default component$(() => {
 
                   {/* Work Modes */}
                   <div>
-                    <h4 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3">
+                    <h4 class="mb-3 font-medium text-gray-500 dark:text-gray-400 text-sm">
                       {t("profile.work_modes_title")}
                     </h4>
                     <div class="flex flex-wrap gap-2">
                       {auth.user?.workModes?.map((mode) => (
                         <span
                           key={mode}
-                          class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-amber-100 dark:bg-amber-900/20 text-amber-800 dark:text-amber-300"
+                          class="inline-flex items-center bg-brand-neon/10 px-3 py-1 border border-brand-neon/20 rounded-sm font-mono font-bold text-brand-neon text-xs"
                         >
                           {t(`wizard.${mode}_label`)}
                         </span>

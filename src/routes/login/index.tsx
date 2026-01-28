@@ -175,10 +175,10 @@ export default component$(() => {
               type="submit"
               disabled={form.loading}
               data-testid="login-form-submit-btn"
-              class="submitButton"
+              class="w-full btn-primary"
             >
               {form.loading && form.provider === "email" && (
-                <Spinner size="sm" class="-ml-1 mr-2 inline-block" />
+                <Spinner size="sm" class="inline-block mr-2 -ml-1" />
               )}
               {form.loading && form.provider === "email"
                 ? t("auth.logging_in")

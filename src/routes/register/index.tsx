@@ -115,7 +115,7 @@ export default component$(() => {
         </div>
 
         <form class="form" preventdefault:submit onSubmit$={handleRegister}>
-          <div class="rounded-md shadow-sm -space-y-px">
+          <div class="-space-y-px shadow-sm rounded-md">
             <div>
               <label for="firstName" class="sr-only">
                 {t("auth.first_name")}
@@ -215,10 +215,10 @@ export default component$(() => {
               type="submit"
               disabled={form.loading}
               data-testid="register-form-submit-btn"
-              class="submitButton"
+              class="w-full btn-primary"
             >
               {form.loading && form.provider === "email" && (
-                <Spinner size="sm" class="-ml-1 mr-2 inline-block" />
+                <Spinner size="sm" class="inline-block mr-2 -ml-1" />
               )}
               {form.loading && form.provider === "email"
                 ? t("auth.registering")

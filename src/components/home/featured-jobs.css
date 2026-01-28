@@ -31,7 +31,7 @@
 }
 
 .view-all-link {
-  @apply hidden sm:flex items-center text-indigo-600 font-medium transition-colors hover:text-indigo-700;
+  @apply hidden sm:flex items-center text-brand-neon font-bold font-mono uppercase tracking-wide transition-all hover:underline;
 }
 
 .link-icon {
@@ -55,9 +55,5 @@
 }
 
 .mobile-button {
-  @apply inline-flex items-center justify-center px-6 py-3 border border-gray-300 text-base font-medium rounded-md text-gray-700 bg-white transition-colors hover:bg-gray-50;
-}
-
-:global(.dark) .mobile-button {
-  @apply bg-gray-800 text-gray-200 border-gray-700 hover:bg-gray-700;
+  @apply btn-secondary w-full;
 }

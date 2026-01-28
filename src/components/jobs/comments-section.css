@@ -1,5 +1,5 @@
 .comments-container {
-  @apply border-t border-gray-100 pt-4 mt-4;
+  @apply border-t border-gray-100 dark:border-gray-800 pt-4 mt-4;
 }
 
 .comments-header-container {
@@ -7,11 +7,11 @@
 }
 
 .comments-title {
-  @apply text-sm font-medium text-gray-900 mb-3;
+  @apply text-sm font-bold font-mono uppercase tracking-wider text-gray-900 mb-3;
 }
 
 :global(.dark) .comments-title {
-  @apply text-gray-100;
+  @apply text-brand-neon;
 }
 
 .comment-form {
@@ -27,15 +27,15 @@
 }
 
 .avatar-image {
-  @apply w-8 h-8 rounded-full object-cover;
+  @apply w-8 h-8 rounded-full object-cover border border-gray-200 dark:border-gray-700;
 }
 
 .avatar-placeholder {
-  @apply w-8 h-8 bg-indigo-500 rounded-full flex items-center justify-center;
+  @apply w-8 h-8 bg-brand-neon rounded-full flex items-center justify-center text-black font-bold text-xs;
 }
 
 .avatar-initials {
-  @apply text-xs font-medium text-white;
+  @apply text-xs font-bold text-black;
 }
 
 .form-body {
@@ -43,11 +43,7 @@
 }
 
 .comment-textarea {
-  @apply w-full p-2 text-sm border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 resize-none;
-}
-
-:global(.dark) .comment-textarea {
-  @apply bg-gray-700 border-gray-600 text-white placeholder-gray-400;
+  @apply input resize-none;
 }
 
 .form-actions {
@@ -55,15 +51,11 @@
 }
 
 .submit-btn {
-  @apply inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200;
-}
-
-:global(.dark) .submit-btn {
-  @apply bg-indigo-500 hover:bg-indigo-600 focus:ring-indigo-400;
+  @apply btn-primary text-xs px-4 py-1.5;
 }
 
 .loading-spinner {
-  @apply animate-spin -ml-0.5 mr-1.5 h-3 w-3 text-white inline-block;
+  @apply animate-spin -ml-0.5 mr-1.5 h-3 w-3 text-black inline-block;
 }
 
 .spinner-circle {
@@ -75,27 +67,15 @@
 }
 
 .login-prompt {
-  @apply mb-4 p-3 bg-gray-50 rounded-md;
-}
-
-:global(.dark) .login-prompt {
-  @apply bg-gray-700;
+  @apply mb-4 p-3 bg-brand-neon/5 border border-brand-neon/10 rounded-sm;
 }
 
 .login-text {
-  @apply text-sm text-gray-600 text-center;
-}
-
-:global(.dark) .login-text {
-  @apply text-gray-300;
+  @apply text-sm text-gray-700 dark:text-gray-300 text-center;
 }
 
 .login-link {
-  @apply text-indigo-600 hover:text-indigo-500 font-medium;
-}
-
-:global(.dark) .login-link {
-  @apply text-indigo-400 hover:text-indigo-300;
+  @apply text-brand-neon font-bold hover:underline;
 }
 
 .comments-list {
@@ -107,7 +87,7 @@
 }
 
 .no-comments-icon-container {
-  @apply text-gray-400 mb-2;
+  @apply text-gray-400 dark:text-gray-600 mb-2;
 }
 
 .no-comments-icon {
@@ -115,15 +95,15 @@
 }
 
 .no-comments-text {
-  @apply text-sm text-gray-500;
+  @apply text-sm text-gray-500 font-sans;
 }
 
 .be-first-text {
-  @apply text-xs text-gray-400;
+  @apply text-xs text-gray-400 font-mono italic;
 }
 
 .comment-item {
-  @apply flex gap-3;
+  @apply flex gap-3 group;
 }
 
 .comment-avatar-container {
@@ -131,11 +111,11 @@
 }
 
 .comment-avatar-image {
-  @apply w-6 h-6 rounded-full object-cover;
+  @apply w-6 h-6 rounded-full object-cover border border-gray-200 dark:border-gray-700;
 }
 
 .comment-avatar-placeholder {
-  @apply w-6 h-6 bg-gradient-to-br from-indigo-400 to-purple-500 rounded-full flex items-center justify-center;
+  @apply w-6 h-6 bg-brand-neon rounded-full flex items-center justify-center text-black font-bold text-[10px];
 }
 
 .comment-body {
@@ -143,19 +123,11 @@
 }
 
 .edit-container {
-  @apply bg-white rounded-lg p-3 border border-indigo-200 shadow-sm;
-}
-
-:global(.dark) .edit-container {
-  @apply bg-gray-700 border-indigo-500;
+  @apply bg-brand-light-card dark:bg-brand-dark-card rounded-sm p-3 border border-brand-neon/30 shadow-neon-sm;
 }
 
 .edit-textarea {
-  @apply w-full p-2 text-sm border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 resize-none mb-2;
-}
-
-:global(.dark) .edit-textarea {
-  @apply bg-gray-800 border-gray-600 text-white placeholder-gray-400;
+  @apply input resize-none mb-2;
 }
 
 .edit-actions {
@@ -163,27 +135,15 @@
 }
 
 .cancel-btn {
-  @apply text-xs px-2 py-1 text-gray-500 hover:text-gray-700;
-}
-
-:global(.dark) .cancel-btn {
-  @apply text-gray-400 hover:text-gray-200;
+  @apply btn-secondary text-[10px] px-2 py-1;
 }
 
 .save-btn {
-  @apply text-xs px-2 py-1 bg-indigo-600 text-white rounded hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200;
-}
-
-:global(.dark) .save-btn {
-  @apply bg-indigo-500 hover:bg-indigo-600;
+  @apply btn-primary text-[10px] px-2 py-1;
 }
 
 .comment-content-container {
-  @apply bg-gray-50 rounded-lg p-3 relative;
-}
-
-:global(.dark) .comment-content-container {
-  @apply bg-gray-700;
+  @apply bg-gray-50 dark:bg-gray-900/50 rounded-sm p-3 relative border border-transparent hover:border-brand-neon/20 transition-colors;
 }
 
 .comment-header {
@@ -191,11 +151,7 @@
 }
 
 .comment-author {
-  @apply text-sm font-medium text-gray-900;
-}
-
-:global(.dark) .comment-author {
-  @apply text-gray-100;
+  @apply text-sm font-bold text-gray-900 dark:text-white font-mono;
 }
 
 .comment-meta {
@@ -203,7 +159,7 @@
 }
 
 .comment-date {
-  @apply text-xs text-gray-500;
+  @apply text-[10px] text-gray-500 font-mono uppercase;
 }
 
 .comment-actions {
@@ -211,21 +167,17 @@
 }
 
 .action-btn-edit {
-  @apply p-1 text-gray-400 hover:text-indigo-600;
+  @apply p-1 text-gray-400 hover:text-brand-neon transition-colors;
 }
 
 .action-btn-delete {
-  @apply p-1 text-gray-400 hover:text-red-600;
+  @apply p-1 text-gray-400 hover:text-red-500 transition-colors;
 }
 
 .action-icon {
-  @apply w-4 h-4;
+  @apply w-3.5 h-3.5;
 }
 
 .comment-text {
-  @apply text-sm text-gray-700 whitespace-pre-wrap;
-}
-
-:global(.dark) .comment-text {
-  @apply text-gray-300;
+  @apply text-sm text-gray-700 dark:text-gray-300 font-sans whitespace-pre-wrap leading-relaxed;
 }

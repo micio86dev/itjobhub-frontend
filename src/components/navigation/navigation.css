@@ -1,9 +1,5 @@
 .nav-wrapper {
-  @apply bg-white shadow-sm border-b border-gray-200 relative;
-}
-
-:global(.dark) .nav-wrapper {
-  @apply bg-gray-900 border-gray-700;
+  @apply bg-brand-light-bg dark:bg-brand-dark-bg transition-colors duration-300 border-b border-gray-200 dark:border-gray-800 relative z-50;
 }
 
 .container {
@@ -18,12 +14,8 @@
   @apply flex items-center min-w-0 flex-1 gap-x-6;
 }
 
-.brand {
-  @apply text-xl font-bold text-gray-900 flex-shrink-0 mr-8;
-}
-
-:global(.dark) .brand {
-  @apply text-white;
+.brand-link {
+  @apply flex items-center flex-shrink-0 mr-8;
 }
 
 .desktop-links {
@@ -31,76 +23,15 @@
 }
 
 .nav-link {
-  @apply text-gray-900 px-3 sm:px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap relative;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-:global(.dark) .nav-link {
-  @apply text-gray-100;
-}
-
-.nav-link::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    135deg,
-    rgba(99, 102, 241, 0.1),
-    rgba(139, 92, 246, 0.1)
-  );
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  border-radius: 0.5rem;
-}
-
-:global(.dark) .nav-link::before {
-  background: linear-gradient(
-    135deg,
-    rgba(99, 102, 241, 0.15),
-    rgba(139, 92, 246, 0.15)
-  );
-}
-
-.nav-link::after {
-  content: "";
-  position: absolute;
-  bottom: 4px;
-  left: 50%;
-  transform: translateX(-50%) scaleX(0);
-  width: 70%;
-  height: 2px;
-  background: linear-gradient(90deg, #6366f1, #8b5cf6, #ec4899);
-  border-radius: 1px;
-  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-  box-shadow: 0 0 8px rgba(99, 102, 241, 0.4);
-}
-
-:global(.dark) .nav-link::after {
-  background: linear-gradient(90deg, #818cf8, #a78bfa, #f472b6);
-  box-shadow: 0 0 12px rgba(129, 140, 248, 0.5);
-}
-
-.nav-link:hover::before {
-  opacity: 1;
-}
-
-.nav-link:hover::after {
-  transform: translateX(-50%) scaleX(1);
+  @apply text-gray-700 dark:text-gray-300 px-3 sm:px-4 py-2 rounded-sm text-sm font-sans font-semibold whitespace-nowrap relative transition-all duration-200;
 }
 
 .nav-link:hover {
-  @apply text-indigo-600;
-  transform: translateY(-1px);
-  text-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
+  @apply text-brand-neon bg-brand-neon/10 shadow-neon-sm;
 }
 
-:global(.dark) .nav-link:hover {
-  @apply text-indigo-400;
-  text-shadow: 0 0 20px rgba(129, 140, 248, 0.4);
-}
-
-.nav-link:active {
-  transform: translateY(0);
+.nav-link.active {
+  @apply text-brand-neon font-bold;
 }
 
 .nav-right {
@@ -108,23 +39,18 @@
 }
 
 .theme-toggle {
-  @apply p-2 rounded-lg text-gray-700 relative;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-:global(.dark) .theme-toggle {
-  @apply text-white;
+  @apply p-2 rounded-sm text-gray-500 dark:text-gray-400 hover:text-brand-neon transition-all duration-200 hover:shadow-neon-sm;
 }
 
 .theme-toggle:hover {
-  @apply text-indigo-600;
+  @apply text-brand-neon;
   transform: rotate(180deg) scale(1.1);
-  filter: drop-shadow(0 0 8px rgba(99, 102, 241, 0.4));
+  filter: drop-shadow(0 0 8px rgba(0, 255, 65, 0.4));
 }
 
 :global(.dark) .theme-toggle:hover {
-  @apply text-indigo-400;
-  filter: drop-shadow(0 0 8px rgba(129, 140, 248, 0.5));
+  @apply text-brand-neon;
+  filter: drop-shadow(0 0 8px rgba(0, 255, 65, 0.5));
 }
 
 .lang-selector {
@@ -132,97 +58,50 @@
 }
 
 .lang-btn {
-  @apply flex items-center space-x-1 sm:space-x-2 text-gray-700 px-2 sm:px-3 py-2 rounded-lg text-sm font-medium;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-:global(.dark) .lang-btn {
-  @apply text-white;
+  @apply flex items-center space-x-1 sm:space-x-2 text-gray-700 dark:text-gray-300 px-2 sm:px-3 py-2 rounded-sm text-[10px] font-mono font-bold uppercase tracking-widest transition-all duration-200 hover:text-brand-neon hover:bg-brand-neon/10;
 }
 
 .lang-btn:hover {
-  @apply text-indigo-600 bg-indigo-50;
+  @apply text-brand-neon bg-brand-neon/10;
   transform: translateY(-1px);
 }
 
-:global(.dark) .lang-btn:hover {
-  @apply text-indigo-400 bg-indigo-900/20;
-}
-
 .lang-dropdown {
-  @apply absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 z-50;
-}
-
-:global(.dark) .lang-dropdown {
-  @apply bg-gray-800 ring-gray-600;
+  @apply absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-sm shadow-xl ring-1 ring-black ring-opacity-5 dark:ring-gray-700 z-50 overflow-hidden;
 }
 
 .lang-dropdown-item {
-  @apply block w-full text-left px-4 py-2 text-sm hover:bg-gray-100;
+  @apply block w-full text-left px-4 py-2 text-sm font-sans transition-colors duration-150;
 }
 
-:global(.dark) .lang-dropdown-item {
-  @apply hover:bg-gray-700;
+.lang-dropdown-item:hover {
+  @apply bg-gray-100 dark:bg-gray-700 text-brand-neon;
 }
 
 .lang-dropdown-item-active {
-  @apply bg-indigo-50 text-indigo-700;
-}
-
-:global(.dark) .lang-dropdown-item-active {
-  @apply bg-indigo-900 text-indigo-300;
+  @apply bg-brand-neon/10 text-brand-neon font-bold;
 }
 
 .lang-dropdown-item-default {
-  @apply text-gray-700;
-}
-
-:global(.dark) .lang-dropdown-item-default {
-  @apply text-gray-300;
+  @apply text-gray-700 dark:text-gray-300;
 }
 
 .desktop-auth {
-  @apply hidden md:flex items-center space-x-1 sm:space-x-3 gap-x-3;
+  @apply hidden md:flex items-center space-x-3 gap-x-3;
 }
 
 .btn-logout {
-  @apply bg-gradient-to-r from-red-600 to-red-700 text-white px-3 sm:px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap shadow-sm;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  overflow: hidden;
-}
-
-:global(.dark) .btn-logout {
-  @apply from-red-700 to-red-800;
-}
-
-.btn-logout:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
-}
-
-:global(.dark) .btn-logout:hover {
-  box-shadow: 0 4px 12px rgba(185, 28, 28, 0.5);
+  @apply px-4 py-2 rounded-sm text-sm font-bold font-mono tracking-wide uppercase 
+    text-red-500 border border-red-500/50 hover:bg-red-500/10 hover:border-red-500 hover:shadow-[0_0_10px_rgba(239,68,68,0.4)]
+    transition-all duration-300 bg-transparent;
 }
 
 .btn-register {
-  @apply bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white px-3 sm:px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap shadow-sm;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  overflow: hidden;
-}
-
-:global(.dark) .btn-register {
-  @apply from-indigo-700 via-purple-700 to-pink-700;
-}
-
-.btn-register:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.5);
-}
-
-:global(.dark) .btn-register:hover {
-  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.6);
+  @apply px-4 py-2 rounded-sm text-sm font-bold font-mono tracking-wide uppercase
+    text-black bg-brand-neon border border-transparent
+    hover:bg-[#33ff66] hover:shadow-neon-strong
+    transform hover:-translate-y-0.5 active:translate-y-0
+    transition-all duration-200;
 }
 
 .mobile-menu-btn-wrapper {
@@ -230,98 +109,37 @@
 }
 
 .mobile-menu-btn {
-  @apply bg-white h-10 w-10 inline-flex items-center justify-center rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500;
-}
-
-:global(.dark) .mobile-menu-btn {
-  @apply bg-gray-900 border-gray-800 text-white;
+  @apply h-10 w-10 inline-flex items-center justify-center rounded-sm text-gray-500 dark:text-gray-400 hover:text-brand-neon hover:bg-brand-neon/10 transition-colors duration-200 focus:outline-none;
 }
 
 .mobile-menu {
-  @apply md:hidden;
+  @apply md:hidden absolute top-16 left-0 right-0 bg-brand-light-bg dark:bg-brand-dark-bg border-b border-gray-200 dark:border-gray-800 shadow-xl z-40;
 }
 
 .mobile-menu-panel {
-  @apply px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white border-b border-gray-200;
-}
-
-:global(.dark) .mobile-menu-panel {
-  @apply bg-gray-900 border-gray-800;
+  @apply px-2 pt-2 pb-3 space-y-1 sm:px-3;
 }
 
 .mobile-nav-link {
-  @apply block px-4 py-3 rounded-lg text-base font-medium text-gray-900 relative;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-:global(.dark) .mobile-nav-link {
-  @apply text-gray-100;
+  @apply block px-4 py-3 rounded-sm text-base font-sans font-semibold text-gray-700 dark:text-gray-300 transition-all duration-200;
 }
 
 .mobile-nav-link:hover {
-  @apply text-indigo-600 bg-indigo-50;
-  transform: translateX(4px);
-}
-
-:global(.dark) .mobile-nav-link:hover {
-  @apply text-indigo-400 bg-indigo-900/20;
-}
-
-.mobile-nav-link::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 50%;
-  transform: translateY(-50%) scaleX(0);
-  width: 3px;
-  height: 60%;
-  background: linear-gradient(180deg, #6366f1, #8b5cf6);
-  border-radius: 0 2px 2px 0;
-  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-:global(.dark) .mobile-nav-link::before {
-  background: linear-gradient(180deg, #818cf8, #a78bfa);
+  @apply text-brand-neon bg-brand-neon/10 pl-6;
 }
 
 .mobile-divider {
-  @apply border-t border-gray-200 pt-4 pb-3;
-}
-
-:global(.dark) .mobile-divider {
-  @apply border-gray-700;
+  @apply border-t border-gray-200 dark:border-gray-700 pt-4 pb-3 mx-4;
 }
 
 .mobile-auth-wrapper {
-  @apply mt-3 px-2 space-y-1;
+  @apply mt-3 px-4 space-y-3;
 }
 
 .mobile-btn-logout {
-  @apply block w-full text-left px-3 py-2 rounded-md text-base font-medium text-red-600 hover:text-red-700 hover:bg-red-50 transition-all duration-200;
-}
-
-:global(.dark) .mobile-btn-logout {
-  @apply hover:bg-red-900/10;
+  @apply block w-full text-center px-4 py-3 rounded-sm text-base font-bold font-mono uppercase text-red-500 border border-red-500/30 hover:bg-red-500/10 hover:border-red-500 transition-all duration-200;
 }
 
 .mobile-btn-register {
-  @apply block px-4 py-3 rounded-lg text-base font-medium text-white text-center shadow-sm;
-  background: linear-gradient(90deg, #6366f1, #8b5cf6, #ec4899);
-  background-size: 200% 100%;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-:global(.dark) .mobile-btn-register {
-  background: linear-gradient(90deg, #818cf8, #a78bfa, #f472b6);
-  background-size: 200% 100%;
-}
-
-.mobile-btn-register:hover {
-  background-position: 100% 0;
-  transform: scale(1.02);
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.5);
-}
-
-:global(.dark) .mobile-btn-register:hover {
-  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.6);
+  @apply block w-full text-center px-4 py-3 rounded-sm text-base font-bold font-mono uppercase text-black bg-brand-neon hover:bg-[#33ff66] hover:shadow-neon-strong transition-all duration-200;
 }

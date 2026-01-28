@@ -151,18 +151,22 @@ test.describe('Authentication', () => {
             await loginViaUI(page, 'seeker@test.com', 'password123');
 
             // Find and click logout
-            // Try mobile menu first
-            const mobileMenu = page.locator(SELECTORS.mobileMenuButton);
-            if (await mobileMenu.isVisible({ timeout: 1000 }).catch(() => false)) {
-                await mobileMenu.click();
+            // Check for mobile menu visibility using the class we verified
+            const mobileMenuBtn = page.locator('.mobile-menu-btn');
+
+            if (await mobileMenuBtn.isVisible()) {
+                await mobileMenuBtn.click();
+                // Wait for menu animation
+                await page.waitForTimeout(500);
+                // Click mobile logout
+                await page.locator('.mobile-btn-logout').click();
+            } else {
+                // Desktop logout
+                await page.locator('.btn-logout').click();
             }
 
-            const logoutBtn = page.locator(SELECTORS.logoutButton).first();
-            if (await logoutBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
-                await logoutBtn.click();
-                await expect(page).toHaveURL(/\/(login)?$/);
-                await verifyAuthState(page, false);
-            }
+            await expect(page).toHaveURL(/\/(login)?$/);
+            await verifyAuthState(page, false);
         });
     });
 });

@@ -1,9 +1,5 @@
 .value-props-section {
-  @apply py-16 bg-brand-light-bg;
-}
-
-:global(.dark) .value-props-section {
-  @apply bg-brand-dark-bg;
+  @apply py-16 bg-brand-light-bg dark:bg-brand-dark-bg transition-colors duration-300;
 }
 
 .container {
@@ -15,123 +11,29 @@
 }
 
 .title {
-  @apply text-3xl font-bold text-gray-900 font-sans;
-}
-
-:global(.dark) .title {
-  @apply text-white;
+  @apply text-3xl font-bold text-gray-900 dark:text-white font-sans tracking-tight;
 }
 
 .gridContainer {
-  display: grid;
-  @apply grid-cols-1 md:grid-cols-3 gap-10;
+  @apply grid grid-cols-1 md:grid-cols-3 gap-10;
 }
 
 .card {
-  @apply text-center p-6 rounded-md transition-all duration-300 border border-transparent hover:border-brand-neon/50 hover:bg-brand-light-card hover:shadow-neon-sm;
-}
-
-:global(.dark) .card {
-  @apply hover:bg-brand-dark-card border-gray-800 hover:border-brand-neon;
+  @apply text-center p-8 rounded-sm transition-all duration-300 border border-gray-200 dark:border-gray-800 bg-brand-light-card dark:bg-brand-dark-card hover:border-brand-neon hover:shadow-neon-sm;
 }
 
 .icon-wrapper {
-  @apply mx-auto h-16 w-16 flex items-center justify-center rounded-sm mb-6 transition-transform group-hover:scale-110 border border-dashed border-gray-300;
+  @apply mx-auto h-16 w-16 flex items-center justify-center rounded-sm mb-6 transition-transform group-hover:scale-110 border border-dashed border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-2xl;
 }
 
-:global(.dark) .icon-wrapper {
-  @apply border-gray-700 bg-gray-900;
-}
-
-.icon-wrapper-indigo,
-.icon-wrapper-pink,
-.icon-wrapper-purple {
-  @apply bg-gray-100 text-gray-700;
-}
-
-:global(.dark) .icon-wrapper-indigo,
-:global(.dark) .icon-wrapper-pink,
-:global(.dark) .icon-wrapper-purple {
-  @apply bg-gray-800 text-brand-neon;
+.icon-wrapper-brand {
+  @apply text-brand-neon;
 }
 
 .card-title {
-  @apply text-xl font-bold text-gray-900 mb-3 font-mono;
-}
-
-:global(.dark) .card-title {
-  @apply text-gray-100;
+  @apply text-xl font-bold text-gray-900 dark:text-gray-100 mb-3 font-mono uppercase tracking-wide;
 }
 
 .card-desc {
-  @apply text-gray-600 leading-relaxed font-light text-sm;
-}
-
-:global(.dark) .card-desc {
-  @apply text-gray-400;
-}
-
-:global(.dark) .value-props-section {
-  @apply bg-black/20;
-}
-
-.container {
-  @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
-}
-
-.header {
-  @apply text-center mb-16;
-}
-
-.title {
-  @apply text-3xl font-bold text-gray-900;
-}
-
-:global(.dark) .title {
-  @apply text-gray-100;
-}
-
-.gridContainer {
-  display: grid;
-  @apply grid-cols-1 md:grid-cols-3 gap-10;
-}
-
-.card {
-  @apply text-center p-6 rounded-2xl transition-all duration-300 hover:shadow-xl hover:bg-white;
-}
-
-:global(.dark) .card {
-  @apply hover:bg-gray-800;
-}
-
-.icon-wrapper {
-  @apply mx-auto h-16 w-16 flex items-center justify-center rounded-2xl mb-6 transition-transform group-hover:scale-110;
-}
-
-.icon-wrapper-indigo {
-  @apply bg-indigo-100 text-indigo-600;
-}
-
-.icon-wrapper-pink {
-  @apply bg-pink-100 text-pink-600;
-}
-
-.icon-wrapper-purple {
-  @apply bg-purple-100 text-purple-600;
-}
-
-.card-title {
-  @apply text-xl font-bold text-gray-900 mb-3;
-}
-
-:global(.dark) .card-title {
-  @apply text-gray-100;
-}
-
-.card-desc {
-  @apply text-gray-600 leading-relaxed;
-}
-
-:global(.dark) .card-desc {
-  @apply text-gray-400;
+  @apply text-gray-600 dark:text-gray-400 leading-relaxed font-sans text-sm;
 }

@@ -1,13 +1,9 @@
 .descriptionSection {
-  @apply bg-white rounded-2xl shadow-xl border border-gray-100 p-8;
-}
-
-:global(.dark) .descriptionSection {
-  @apply bg-gray-800 border-gray-700;
+  @apply bg-brand-light-card dark:bg-brand-dark-card rounded-sm border border-gray-200 dark:border-gray-800 p-8 shadow-none transition-all duration-300;
 }
 
 .descriptionTitle {
-  @apply text-xl font-bold text-gray-900 mb-6 flex items-center;
+  @apply text-xl font-bold font-mono uppercase tracking-wide text-gray-900 mb-6 flex items-center;
 }
 
 :global(.dark) .descriptionTitle {
@@ -15,13 +11,9 @@
 }
 
 .descriptionBar {
-  @apply w-1.5 h-8 bg-indigo-600 rounded-full mr-3;
+  @apply w-1.5 h-6 bg-brand-neon rounded-none mr-4 shadow-neon-sm;
 }
 
 .descriptionContent {
-  @apply text-gray-700 leading-relaxed space-y-4;
-}
-
-:global(.dark) .descriptionContent {
-  @apply text-gray-300;
+  @apply text-gray-700 dark:text-gray-300 leading-relaxed space-y-4 font-sans;
 }

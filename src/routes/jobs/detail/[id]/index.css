@@ -6,7 +6,7 @@
   display: flex !important;
   align-items: center;
   gap: 0.5rem;
-  @apply px-3 py-1.5 -ml-3 text-sm font-semibold text-gray-600 dark:text-white hover:text-indigo-600 dark:hover:text-indigo-400 rounded-full hover:bg-slate-100 dark:hover:bg-gray-800 transition-all duration-300 mb-6;
+  @apply px-3 py-1.5 -ml-3 text-sm font-semibold text-gray-600 dark:text-white hover:text-brand-neon rounded-full hover:bg-slate-100 dark:hover:bg-gray-800 transition-all duration-300 mb-6;
 }
 
 .backIcon {
@@ -22,7 +22,7 @@
 }
 
 .spinner {
-  @apply animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600;
+  @apply animate-spin rounded-full h-12 w-12 border-b-2 border-brand-neon;
 }
 
 .notFoundCard {
@@ -54,11 +54,11 @@
 }
 
 .notFoundButton {
-  @apply inline-block px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition-colors;
+  @apply inline-block px-6 py-3 bg-brand-neon text-black font-bold font-mono uppercase tracking-wide rounded-sm hover:bg-[#33ff66] transition-colors shadow-sm;
 }
 
 :global(.dark) .notFoundButton {
-  @apply text-white bg-indigo-500 hover:bg-indigo-600;
+  @apply text-black bg-brand-neon hover:bg-[#33ff66];
 }
 
 .mainContent {

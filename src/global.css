@@ -11,6 +11,40 @@
   .dark body {
     @apply bg-brand-dark-bg text-gray-100;
   }
+
+  /* Default Typography */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-sans font-bold tracking-tight;
+  }
+}
+
+@layer components {
+  /* Button Standardization */
+  .btn-primary {
+    @apply inline-flex items-center justify-center px-6 py-2 border border-transparent text-sm font-bold font-mono uppercase tracking-wide rounded-sm shadow-sm text-black bg-brand-neon hover:bg-[#33ff66] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-neon transition-all duration-200 hover:shadow-neon-strong transform hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center px-6 py-2 border border-brand-neon text-sm font-bold font-mono uppercase tracking-wide rounded-sm shadow-sm text-brand-neon bg-transparent hover:bg-brand-neon/10 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-neon transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium font-sans rounded-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-brand-neon focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-neon transition-colors duration-200;
+  }
+
+  /* Form Elements Standardization */
+  .input {
+    @apply block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-neon focus:border-brand-neon sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-500 transition-colors duration-200;
+  }
+
+  .select {
+    @apply block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-neon focus:border-brand-neon sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-colors duration-200;
+  }
 }
 
 /* =========================================
@@ -23,12 +57,13 @@
   left: -9999px;
   z-index: 9999;
   padding: 1rem 1.5rem;
-  background: #4f46e5;
-  color: white;
+  background: #00ff41;
+  color: black;
   text-decoration: none;
-  font-weight: 600;
+  font-weight: 700;
+  font-family: "JetBrains Mono", monospace;
   border-radius: 0 0 0.5rem 0;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 20px rgba(0, 255, 65, 0.4);
 }
 
 .skip-link:focus {
@@ -38,12 +73,13 @@
 
 /* Dark mode skip link */
 .dark .skip-link {
-  background: #6366f1;
+  background: #00ff41;
+  color: black;
 }
 
 /* Global Focus-Visible Styles for Accessibility */
 :focus-visible {
-  outline: 3px solid #4f46e5;
+  outline: 2px solid #00ff41;
   outline-offset: 2px;
 }
 
@@ -53,7 +89,7 @@
 
 /* Dark mode focus styles */
 .dark :focus-visible {
-  outline-color: #818cf8;
+  outline-color: #00ff41;
 }
 
 /* High contrast focus for buttons and interactive elements */
@@ -64,9 +100,9 @@ select:focus-visible,
 textarea:focus-visible,
 [role="button"]:focus-visible,
 [tabindex]:focus-visible {
-  outline: 3px solid #4f46e5;
+  outline: 2px solid #00ff41;
   outline-offset: 2px;
-  box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.2);
+  box-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
 }
 
 .dark button:focus-visible,
@@ -76,8 +112,8 @@ textarea:focus-visible,
 .dark textarea:focus-visible,
 .dark [role="button"]:focus-visible,
 .dark [tabindex]:focus-visible {
-  outline-color: #818cf8;
-  box-shadow: 0 0 0 4px rgba(129, 140, 248, 0.2);
+  outline-color: #00ff41;
+  box-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
 }
 
 /* Screen reader only class */
@@ -112,4 +148,9 @@ textarea:focus-visible,
   width: 1px;
   height: 1px;
   overflow: hidden;
+}
+
+/* Global Link Style */
+.link {
+  @apply text-gray-600 dark:text-gray-400 font-medium transition-colors duration-200 hover:text-brand-neon underline decoration-transparent hover:decoration-brand-neon underline-offset-4 cursor-pointer;
 }

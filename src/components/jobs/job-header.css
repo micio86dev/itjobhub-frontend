@@ -43,11 +43,11 @@
 }
 
 .companyName {
-  @apply font-semibold text-indigo-600;
+  @apply font-bold text-brand-neon hover:underline transition-colors;
 }
 
 :global(.dark) .companyName {
-  @apply text-indigo-400;
+  @apply text-brand-neon;
 }
 
 .location {
@@ -103,23 +103,19 @@
 }
 
 .favoriteButton {
-  @apply p-3 rounded-xl border transition-all bg-white border-gray-200 text-gray-400 hover:border-yellow-300 hover:text-yellow-400;
-}
-
-:global(.dark) .favoriteButton {
-  @apply bg-gray-700 border-gray-600;
+  @apply p-3 rounded-sm border transition-all bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-400 hover:border-brand-neon/50 hover:text-brand-neon;
 }
 
 .favoriteButtonActive {
-  @apply bg-yellow-50 border-yellow-200 text-yellow-500 shadow-sm;
+  @apply bg-brand-neon/10 border-brand-neon/30 text-brand-neon shadow-neon-sm;
 }
 
 :global(.dark) .favoriteButtonActive {
-  @apply bg-yellow-900/30 border-yellow-700;
+  @apply bg-brand-neon/20 border-brand-neon/50;
 }
 
 .applyButton {
-  @apply px-8 py-3 bg-indigo-600 text-white font-bold rounded-xl shadow-lg shadow-indigo-500/30 hover:bg-indigo-700 hover:scale-[1.02] active:scale-[0.98] transition-all;
+  @apply btn-primary px-8 py-3 text-base;
 }
 
 .deleteButton {
@@ -151,11 +147,11 @@
 }
 
 .link {
-  @apply text-indigo-600 hover:text-indigo-500 font-semibold hover:underline transition-colors;
+  @apply font-bold text-brand-neon hover:underline transition-colors;
 }
 
 :global(.dark) .link {
-  @apply text-indigo-400 hover:text-indigo-300;
+  @apply text-brand-neon;
 }
 
 .badgesRow {
@@ -176,20 +172,15 @@
 
 .seniorityValue,
 .availabilityValue {
-  @apply text-indigo-600;
-}
-
-:global(.dark) .seniorityValue,
-:global(.dark) .availabilityValue {
-  @apply text-indigo-400;
+  @apply text-brand-neon font-bold;
 }
 
 .remoteBadge {
-  @apply bg-blue-50 px-4 py-2 rounded-full text-sm font-extrabold text-blue-700 border border-blue-200 shadow-sm animate-pulse-subtle;
+  @apply bg-brand-neon/10 px-4 py-2 rounded-sm text-sm font-bold font-mono text-brand-neon border border-brand-neon/20 shadow-neon-sm animate-pulse-subtle uppercase;
 }
 
 :global(.dark) .remoteBadge {
-  @apply bg-blue-900/40 text-blue-300 border-blue-700;
+  @apply bg-brand-neon/20 text-brand-neon border-brand-neon/30;
 }
 
 .salaryBadge {

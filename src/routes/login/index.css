@@ -1,17 +1,21 @@
 .loginContainer {
-  @apply min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8;
+  @apply min-h-screen flex items-center justify-center bg-brand-light-bg py-12 px-4 sm:px-6 lg:px-8;
 }
 
 :global(.dark) .loginContainer {
-  @apply bg-gray-900;
+  @apply bg-brand-dark-bg;
 }
 
 .loginCard {
-  @apply max-w-md w-full space-y-8;
+  @apply max-w-md w-full space-y-8 p-8 rounded-lg border border-gray-200 bg-brand-light-card shadow-lg transition-all duration-300;
+}
+
+:global(.dark) .loginCard {
+  @apply bg-brand-dark-card border-gray-800;
 }
 
 .title {
-  @apply mt-6 text-center text-3xl font-extrabold text-gray-900;
+  @apply mt-2 text-center text-3xl font-bold font-sans text-gray-900 tracking-tight;
 }
 
 :global(.dark) .title {
@@ -19,7 +23,7 @@
 }
 
 .subtitle {
-  @apply mt-2 text-center text-sm text-gray-600;
+  @apply mt-2 text-center text-sm text-gray-600 font-sans;
 }
 
 :global(.dark) .subtitle {
@@ -27,11 +31,7 @@
 }
 
 .link {
-  @apply font-medium text-indigo-600 hover:text-indigo-500;
-}
-
-:global(.dark) .link {
-  @apply text-indigo-400 hover:text-indigo-300;
+  @apply font-semibold text-brand-neon hover:text-brand-neon/80 transition-colors;
 }
 
 .form {
@@ -43,37 +43,29 @@
 }
 
 .inputTop {
-  appearance: none;
-  @apply rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm;
+  @apply block w-full px-4 py-3 border border-gray-300 rounded-none rounded-t-sm border-b-0 bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-neon focus:border-brand-neon z-10 sm:text-sm transition-all duration-200;
 }
 
 :global(.dark) .inputTop {
-  @apply bg-gray-800 border-gray-600 text-white placeholder-gray-400;
+  @apply bg-gray-900 text-white border-gray-600 placeholder-gray-500;
 }
 
 .inputBottom {
-  appearance: none;
-  @apply rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm;
+  @apply block w-full px-4 py-3 border border-gray-300 rounded-none rounded-b-sm bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-neon focus:border-brand-neon z-10 sm:text-sm transition-all duration-200;
 }
 
 :global(.dark) .inputBottom {
-  @apply bg-gray-800 border-gray-600 text-white placeholder-gray-400;
+  @apply bg-gray-900 text-white border-gray-600 placeholder-gray-500;
 }
 
 .errorMessage {
-  @apply text-red-600 text-sm text-center;
+  @apply text-red-500 text-sm text-center font-mono bg-red-50 dark:bg-red-900/20 p-2 rounded border border-red-200 dark:border-red-800;
 }
 
-.submitButton {
-  @apply relative w-full flex justify-center items-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200;
-}
-
-:global(.dark) .submitButton {
-  @apply bg-indigo-500 hover:bg-indigo-600 focus:ring-indigo-400;
-}
+/* btn-primary used directly */
 
 .spinner {
-  @apply animate-spin -ml-1 mr-2 h-4 w-4 text-white inline-block;
+  @apply animate-spin -ml-1 mr-2 h-4 w-4 text-black inline-block;
 }
 
 .spinnerBase {
@@ -100,14 +92,18 @@
   @apply w-full border-t border-gray-300;
 }
 
+:global(.dark) .divider {
+  @apply border-gray-700;
+}
+
 .dividerTextWrapper {
   @apply relative flex justify-center text-sm;
 }
 
 .dividerText {
-  @apply px-2 bg-gray-50 text-gray-500;
+  @apply px-4 bg-brand-light-card text-gray-500 font-sans text-xs uppercase tracking-wider font-semibold;
 }
 
 :global(.dark) .dividerText {
-  @apply bg-gray-900 text-gray-400;
+  @apply bg-brand-dark-card text-gray-500;
 }

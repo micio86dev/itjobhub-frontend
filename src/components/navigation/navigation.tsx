@@ -61,7 +61,7 @@ export const Navigation = component$(() => {
   );
 
   return (
-    <nav class="dark:bg-gray-900 dark:border-gray-900 nav-wrapper">
+    <nav class="nav-wrapper">
       <div class="container">
         <div class="nav-content">
           {/* Left Side: Brand & (Desktop) Links */}
@@ -72,19 +72,19 @@ export const Navigation = component$(() => {
 
             {/* Desktop Navigation Links */}
             <div class="desktop-links">
-              <Link href="/jobs" class="dark:text-white nav-link">
+              <Link href="/jobs" class="nav-link">
                 {t("nav.jobs")}
               </Link>
-              <Link href="/news" class="dark:text-white nav-link">
+              <Link href="/news" class="nav-link">
                 {t("nav.news")}
               </Link>
               {auth.user?.role === "admin" && (
-                <Link href="/admin/stats" class="dark:text-white nav-link">
+                <Link href="/admin/stats" class="nav-link">
                   {t("nav.dashboard")}
                 </Link>
               )}
               {auth.isAuthenticated && (
-                <Link href="/favorites" class="dark:text-white nav-link">
+                <Link href="/favorites" class="nav-link">
                   {t("nav.favorites")}
                 </Link>
               )}
@@ -96,7 +96,7 @@ export const Navigation = component$(() => {
             {/* Theme toggle - Always Visible */}
             <button
               onClick$={theme.toggleTheme}
-              class="dark:text-white theme-toggle"
+              class="theme-toggle"
               aria-label="Toggle theme"
             >
               {theme.theme === "light" ? (
@@ -132,10 +132,7 @@ export const Navigation = component$(() => {
 
             {/* Language selector - Always Visible */}
             <div class="lang-selector">
-              <button
-                onClick$={toggleLanguageDropdown}
-                class="dark:text-white lang-btn"
-              >
+              <button onClick$={toggleLanguageDropdown} class="lang-btn">
                 <span>{currentLanguageObj?.flag}</span>
                 <span class="hidden md:inline">{currentLanguageObj?.name}</span>
                 <svg
@@ -179,7 +176,7 @@ export const Navigation = component$(() => {
             <div class="desktop-auth">
               {auth.isAuthenticated ? (
                 <>
-                  <Link href="/profile" class="dark:text-white nav-link">
+                  <Link href="/profile" class="nav-link">
                     {t("nav.profile")}
                   </Link>
                   <button
@@ -192,7 +189,7 @@ export const Navigation = component$(() => {
                 </>
               ) : (
                 <>
-                  <Link href="/login" class="dark:text-white nav-link">
+                  <Link href="/login" class="nav-link">
                     {t("nav.login")}
                   </Link>
                   <Link href="/register" class="btn-register">
@@ -255,19 +252,19 @@ export const Navigation = component$(() => {
       {state.isMenuOpen && (
         <div class="mobile-menu">
           <div class="mobile-menu-panel">
-            <Link href="/jobs" class="dark:text-white mobile-nav-link">
+            <Link href="/jobs" class="mobile-nav-link">
               {t("nav.jobs")}
             </Link>
-            <Link href="/news" class="dark:text-white mobile-nav-link">
+            <Link href="/news" class="mobile-nav-link">
               {t("nav.news")}
             </Link>
             {auth.user?.role === "admin" && (
-              <Link href="/admin/stats" class="dark:text-white mobile-nav-link">
+              <Link href="/admin/stats" class="mobile-nav-link">
                 {t("nav.dashboard")}
               </Link>
             )}
             {auth.isAuthenticated && (
-              <Link href="/favorites" class="dark:text-white mobile-nav-link">
+              <Link href="/favorites" class="mobile-nav-link">
                 {t("nav.favorites")}
               </Link>
             )}
@@ -275,7 +272,7 @@ export const Navigation = component$(() => {
             <div class="mobile-divider">
               {auth.isAuthenticated ? (
                 <div class="mobile-auth-wrapper">
-                  <Link href="/profile" class="dark:text-white mobile-nav-link">
+                  <Link href="/profile" class="mobile-nav-link">
                     {t("nav.profile")}
                   </Link>
                   <button
@@ -288,7 +285,7 @@ export const Navigation = component$(() => {
                 </div>
               ) : (
                 <div class="mobile-auth-wrapper">
-                  <Link href="/login" class="dark:text-white mobile-nav-link">
+                  <Link href="/login" class="mobile-nav-link">
                     {t("nav.login")}
                   </Link>
                   <Link href="/register" class="mobile-btn-register">

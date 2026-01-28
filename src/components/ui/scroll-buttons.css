@@ -3,11 +3,11 @@
 }
 
 .scroll-btn {
-  @apply p-3 bg-white text-indigo-600 rounded-full shadow-lg border border-gray-200 transition-transform hover:scale-110 focus:outline-none;
+  @apply p-3 bg-white dark:bg-gray-900 text-black dark:text-brand-neon rounded-full shadow-lg border border-gray-200 dark:border-brand-neon/30 transition-all hover:scale-110 hover:border-brand-neon hover:shadow-neon-sm focus:outline-none;
 }
 
-:global(.dark) .scroll-btn {
-  @apply bg-gray-800 text-indigo-400 border-gray-700;
+.scroll-btn-active {
+  @apply text-brand-neon;
 }
 
 .icon {

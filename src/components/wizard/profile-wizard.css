@@ -27,7 +27,7 @@
 }
 
 .progress-bar-fill {
-  @apply bg-indigo-600 h-2 rounded-full transition-all duration-300;
+  @apply bg-brand-neon h-2 rounded-full transition-all duration-300 shadow-neon-sm;
 }
 
 .step-container {
@@ -51,7 +51,7 @@
 }
 
 .option-card-selected {
-  @apply border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20;
+  @apply border-brand-neon bg-brand-neon/10;
 }
 
 .option-card-default {
@@ -59,8 +59,7 @@
 }
 
 .option-input {
-  @apply mt-0.5 h-4 w-4 text-indigo-600 focus:ring-indigo-500 rounded;
-  /* 'rounded' is for checkbox, radio ignores it usually but safe to keep or split */
+  @apply mt-0.5 h-4 w-4 text-brand-neon focus:ring-brand-neon rounded-sm;
 }
 
 .option-content {
@@ -84,15 +83,15 @@
 }
 
 .btn-secondary {
-  @apply px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-indigo-400;
+  @apply inline-flex items-center justify-center px-6 py-2 border border-brand-neon text-sm font-bold font-mono uppercase tracking-wide rounded-sm shadow-sm text-brand-neon bg-transparent hover:bg-brand-neon/10 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-neon transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed;
 }
 
 .btn-primary {
-  @apply px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed;
+  @apply inline-flex items-center justify-center px-6 py-2 border border-transparent text-sm font-bold font-mono uppercase tracking-wide rounded-sm shadow-sm text-black bg-brand-neon hover:bg-[#33ff66] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-neon transition-all duration-200 hover:shadow-neon-strong transform hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed;
 }
 
 .btn-success {
-  @apply inline-flex items-center px-6 py-2 text-sm font-medium text-white bg-green-600 border border-transparent rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed;
+  @apply inline-flex items-center px-6 py-2 text-sm font-bold font-mono uppercase rounded-sm text-black bg-brand-neon hover:bg-[#33ff66] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-neon disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200;
 }
 
 .spinner-icon {
