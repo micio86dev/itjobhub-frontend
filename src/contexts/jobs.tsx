@@ -815,7 +815,8 @@ export const JobsProvider = component$(() => {
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({
-            jobId: commentReq.jobId,
+            commentableId: commentReq.jobId,
+            commentableType: "job",
             content: commentReq.text,
           }),
         });

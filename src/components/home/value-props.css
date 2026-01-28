@@ -1,5 +1,12 @@
 .value-props-section {
-  @apply py-24 bg-brand-light-bg dark:bg-brand-dark-bg transition-colors duration-300 relative overflow-hidden border-b border-gray-200 dark:border-gray-800 border-t;
+  @apply relative bg-brand-light-bg py-12 border-b border-gray-200 border-t transition-colors duration-300;
+}
+
+:global(.dark) .value-props-section {
+  @apply bg-brand-dark-bg border-gray-800;
+  h2 {
+    @apply text-white;
+  }
 }
 
 .value-props-section::before {
@@ -24,7 +31,11 @@
 }
 
 .card {
-  @apply relative p-10 rounded-sm transition-all duration-500 border border-gray-100 dark:border-brand-neon/20 bg-white dark:bg-brand-dark-card hover:border-brand-neon hover:shadow-neon-sm hover:-translate-y-1;
+  @apply relative p-10 rounded-sm transition-all duration-500 border border-gray-100 bg-white hover:border-brand-neon hover:shadow-neon-sm hover:-translate-y-1;
+}
+
+:global(.dark) .card {
+  @apply border-brand-neon/20 bg-brand-dark-card;
 }
 
 .card::after {
@@ -33,7 +44,11 @@
 }
 
 .icon-wrapper {
-  @apply w-14 h-14 flex items-center justify-center rounded-sm mb-8 transition-all duration-500 border border-gray-200 dark:border-brand-neon/20 bg-gray-50 dark:bg-gray-900 text-gray-400 group-hover:text-brand-neon group-hover:border-brand-neon/50 group-hover:shadow-neon-sm;
+  @apply w-14 h-14 flex items-center justify-center rounded-sm mb-8 transition-all duration-500 border border-gray-200 bg-gray-50 text-gray-400 group-hover:text-brand-neon group-hover:border-brand-neon/50 group-hover:shadow-neon-sm;
+}
+
+:global(.dark) .icon-wrapper {
+  @apply border-brand-neon/20 bg-gray-900;
 }
 
 .icon-wrapper svg {
@@ -41,9 +56,17 @@
 }
 
 .card-title {
-  @apply text-xl font-bold text-gray-900 dark:text-gray-100 mb-4 font-mono uppercase tracking-wider;
+  @apply text-xl font-bold text-gray-900 mb-4 font-mono uppercase tracking-wider;
+}
+
+:global(.dark) .card-title {
+  @apply text-gray-100;
 }
 
 .card-desc {
-  @apply text-gray-600 dark:text-gray-400 leading-relaxed font-sans text-base;
+  @apply text-gray-600 leading-relaxed font-sans text-base;
+}
+
+:global(.dark) .card-desc {
+  @apply text-gray-400;
 }
