@@ -192,6 +192,10 @@ export default component$(() => {
     }
   });
 
+  const handleCloseDeleteModal = $(() => {
+    state.showDeleteModal = false;
+  });
+
   // Track View
   useTask$(({ track }) => {
     const newsId = track(() => state.news?.id);
@@ -492,9 +496,7 @@ export default component$(() => {
         <Modal
           title={t("job.confirm_delete_title") || "Confirm Deletion"}
           isOpen={state.showDeleteModal}
-          onClose$={$(() => {
-            state.showDeleteModal = false;
-          })}
+          onClose$={handleCloseDeleteModal}
           onConfirm$={handleDelete}
           isDestructive={true}
           isLoading={state.isDeleting}
