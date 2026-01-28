@@ -29,6 +29,13 @@ The IT Job Hub frontend is a high-performance web application designed for devel
 
 ## Recent Changes
 
+### 2026-01-28: News Filter Bar Refactoring and Sticky Navigation
+
+- **Refactored News Filter Bar**: Created a dedicated `news-index.css` with semantic classes (`.news-filter-bar`, `.category-btn`) to replace complex inline Tailwind classes.
+- **Fixed "Flying" Scroll Issue**: Resolved visual glitches where the news filter would appear "floating" with a gap when scrolling by making the main `Navigation` bar `sticky top-0`.
+- **Improved UX**: The news filter now sticks perfectly at `64px` from the top, aligned exactly below the navigation bar, with smooth `backdrop-blur` and transition effects.
+- **Enhanced Categorization UI**: Added custom thin scrollbar for category filtering on mobile and improved button transitions.
+
 ### 2026-01-28: Theme Toggle Icon Swap and Context Reactivity
 
 - **Swapped Theme Icons**: Changed theme toggle button to display **Sun icon** in Light mode and **Moon icon** in Dark mode for better semantic clarity.

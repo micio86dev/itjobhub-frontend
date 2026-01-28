@@ -1,4 +1,11 @@
-import { component$, useStore, useVisibleTask$, $ } from "@builder.io/qwik";
+import {
+  component$,
+  useStore,
+  useVisibleTask$,
+  $,
+  useStyles$,
+} from "@builder.io/qwik";
+import styles from "./news-index.css?inline";
 import {
   type DocumentHead,
   useLocation,
@@ -44,6 +51,7 @@ const CATEGORIES = [
 ];
 
 export default component$(() => {
+  useStyles$(styles);
   const t = useTranslate();
   const loc = useLocation();
 
@@ -151,9 +159,9 @@ export default component$(() => {
       </div>
 
       {/* Filters */}
-      <div class="top-16 z-10 sticky bg-white/80 dark:bg-slate-900/80 backdrop-blur-md px-4 py-3 border-slate-200 dark:border-slate-800 border-b">
-        <div class="mx-auto container">
-          <div class="flex items-center gap-2 pb-1 sm:pb-0 overflow-x-auto">
+      <div class="news-filter-bar">
+        <div class="news-filter-container">
+          <div class="news-filter-scroll">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="16"
@@ -172,10 +180,10 @@ export default component$(() => {
               <button
                 key={cat.key}
                 onClick$={() => (state.selectedCategory = cat.key)}
-                class={`whitespace-nowrap rounded-full px-4 py-1.5 text-sm font-medium transition-all ${
+                class={`category-btn ${
                   state.selectedCategory === cat.key
-                    ? "bg-blue-600 text-white shadow-md shadow-blue-500/20"
-                    : "bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700"
+                    ? "category-btn-active"
+                    : "category-btn-inactive"
                 }`}
               >
                 {t(cat.i18nKey)}
