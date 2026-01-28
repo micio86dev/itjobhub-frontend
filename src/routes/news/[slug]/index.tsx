@@ -376,7 +376,9 @@ export default component$(() => {
                   {auth.user?.role === "admin" && (
                     <div class="flex justify-end mb-6">
                       <button
-                        onClick$={() => (state.showDeleteModal = true)}
+                        onClick$={$(() => {
+                          state.showDeleteModal = true;
+                        })}
                         data-testid="delete-article-btn"
                         class="flex items-center gap-2 bg-red-50 hover:bg-red-100 px-4 py-2 rounded-lg text-red-600 transition-colors"
                       >
