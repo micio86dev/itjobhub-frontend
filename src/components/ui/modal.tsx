@@ -1,10 +1,11 @@
 import {
   component$,
   Slot,
-  type PropFunction,
+  type QRL,
   useStylesScoped$,
   useSignal,
   useVisibleTask$,
+  $,
 } from "@builder.io/qwik";
 import { Spinner } from "./spinner";
 import styles from "./modal.css?inline";
@@ -12,8 +13,8 @@ import styles from "./modal.css?inline";
 interface ModalProps {
   title: string;
   isOpen: boolean;
-  onClose$: PropFunction<() => void>;
-  onConfirm$: PropFunction<() => void>;
+  onClose$?: QRL<() => void>;
+  onConfirm$?: QRL<() => void>;
   confirmText?: string;
   cancelText?: string;
   isDestructive?: boolean;
@@ -35,6 +36,20 @@ export const Modal = component$<ModalProps>(
     const modalRef = useSignal<HTMLDivElement>();
     const confirmButtonRef = useSignal<HTMLButtonElement>();
 
+    // Create a stable QRL for the close handler
+    const handleClose = $(() => {
+      if (onClose$) {
+        onClose$();
+      }
+    });
+
+    // Create a stable QRL for the confirm handler
+    const handleConfirm = $(() => {
+      if (onConfirm$) {
+        onConfirm$();
+      }
+    });
+
     // Focus trap and ESC key handler - WCAG 2.1 AA requirement
     // eslint-disable-next-line qwik/no-use-visible-task
     useVisibleTask$(({ track, cleanup }) => {
@@ -51,7 +66,8 @@ export const Modal = component$<ModalProps>(
       const handleKeyDown = (e: KeyboardEvent) => {
         if (e.key === "Escape") {
           e.preventDefault();
-          onClose$();
+          // Dispatch custom event instead of calling QRL directly
+          modalRef.value?.dispatchEvent(new CustomEvent("modal-close"));
         }
 
         // Focus trap - Tab key handling
@@ -73,7 +89,14 @@ export const Modal = component$<ModalProps>(
         }
       };
 
+      const handleModalClose = () => {
+        if (onClose$) {
+          onClose$();
+        }
+      };
+
       document.addEventListener("keydown", handleKeyDown);
+      modalRef.value?.addEventListener("modal-close", handleModalClose);
 
       // Prevent body scroll when modal is open
       const originalOverflow = document.body.style.overflow;
@@ -81,6 +104,7 @@ export const Modal = component$<ModalProps>(
 
       cleanup(() => {
         document.removeEventListener("keydown", handleKeyDown);
+        modalRef.value?.removeEventListener("modal-close", handleModalClose);
         document.body.style.overflow = originalOverflow;
       });
     });
@@ -98,7 +122,7 @@ export const Modal = component$<ModalProps>(
       >
         <div class="modal-content-wrapper">
           {/* Background overlay */}
-          <div class="overlay" aria-hidden="true" onClick$={onClose$}></div>
+          <div class="overlay" aria-hidden="true" onClick$={handleClose}></div>
 
           {/* Center content */}
           <span class="modal-spacer" aria-hidden="true">
@@ -150,17 +174,17 @@ export const Modal = component$<ModalProps>(
                 class={`btn-confirm ${
                   isDestructive ? "btn-destructive" : "btn-primary"
                 } ${isLoading ? "btn-loading" : ""}`}
-                onClick$={onConfirm$}
+                onClick$={handleConfirm}
                 aria-busy={isLoading}
               >
-                {isLoading && <Spinner size="sm" class="-ml-1 mr-2" />}
+                {isLoading && <Spinner size="sm" class="mr-2 -ml-1" />}
                 {confirmText}
               </button>
               <button
                 type="button"
                 data-testid="modal-cancel"
                 class="btn-cancel"
-                onClick$={onClose$}
+                onClick$={handleClose}
               >
                 {cancelText}
               </button>
