@@ -11,7 +11,6 @@ import {
 
 import { useLocation, Link, useNavigate } from "@builder.io/qwik-city";
 import { request } from "~/utils/api";
-import { Modal } from "~/components/ui/modal";
 import logger from "~/utils/logger";
 import { useJobs, type JobListing } from "~/contexts/jobs";
 import type { MatchScore } from "~/types/models";
@@ -25,6 +24,7 @@ import { JobMapSection } from "~/components/jobs/job-map-section";
 import { JobDescription } from "~/components/jobs/job-description";
 import { JobSkillsList } from "~/components/jobs/job-skills-list";
 import { CompanyInfoBox } from "~/components/jobs/company-info-box";
+import { AdminDeleteButton } from "~/components/ui/admin-delete-button";
 import styles from "./index.css?inline";
 
 export default component$(() => {
@@ -39,7 +39,6 @@ export default component$(() => {
   const state = useStore({
     job: null as JobListing | null,
     matchScore: null as MatchScore | null,
-    showDeleteModal: false,
     isDeleting: false,
   });
 
@@ -165,7 +164,6 @@ export default component$(() => {
       logger.error({ e }, "Error deleting job");
     } finally {
       state.isDeleting = false;
-      state.showDeleteModal = false;
     }
   });
 
@@ -205,14 +203,6 @@ export default component$(() => {
         state.job.views_count = (state.job.views_count || 0) + 1;
       }
     }
-  });
-
-  const handleShowDeleteModal = $(() => {
-    state.showDeleteModal = true;
-  });
-
-  const handleCloseDeleteModal = $(() => {
-    state.showDeleteModal = false;
   });
 
   return (
@@ -299,9 +289,19 @@ export default component$(() => {
                   onLike$={handleLike}
                   onDislike$={handleDislike}
                   onToggleFavorite$={handleToggleFavorite}
-                  onDelete$={handleShowDeleteModal}
                   onApplyClick$={handleApplyClick}
                 />
+                <div class="px-8 md:px-10 pb-8">
+                  {auth.user?.role === "admin" && (
+                    <AdminDeleteButton
+                      onDelete$={handleDeleteJob}
+                      confirmTitle={t("job.confirm_delete_title")}
+                      confirmMessage={t("job.confirm_delete_msg")}
+                      buttonText={t("job.delete")}
+                      isDeleting={state.isDeleting}
+                    />
+                  )}
+                </div>
               </div>
 
               {/* Map Card - if GPS available */}
@@ -355,19 +355,6 @@ export default component$(() => {
           );
         }}
       />
-
-      <Modal
-        title={t("job.confirm_delete_title")}
-        isOpen={state.showDeleteModal}
-        onClose$={handleCloseDeleteModal}
-        onConfirm$={handleDeleteJob}
-        isDestructive={true}
-        isLoading={state.isDeleting}
-        confirmText={t("job.delete")}
-        cancelText={t("common.cancel")}
-      >
-        <p>{t("job.confirm_delete_msg")}</p>
-      </Modal>
     </div>
   );
 });

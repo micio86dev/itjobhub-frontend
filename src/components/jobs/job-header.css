@@ -62,59 +62,6 @@
   @apply flex flex-wrap items-center gap-3;
 }
 
-.reactionButtons {
-  @apply flex items-center bg-transparent gap-1 mr-2;
-}
-
-:global(.dark) .reactionButtons {
-  @apply bg-gray-700 border-gray-600;
-}
-
-.likeButton {
-  @apply p-2 rounded-sm transition-all border border-transparent flex items-center gap-1.5 text-gray-500 dark:text-gray-400 font-mono;
-}
-
-.likeButton:hover {
-  @apply text-brand-neon bg-brand-neon/10;
-}
-
-.reactionIcon {
-  @apply w-5 h-5 transition-transform duration-200;
-}
-
-.likeButton:hover .reactionIcon,
-.dislikeButton:hover .reactionIcon {
-  @apply scale-110;
-}
-
-.reactionCount {
-  @apply text-sm font-bold;
-}
-
-.likeButtonActive {
-  @apply bg-brand-neon/10 text-brand-neon border-brand-neon/30;
-}
-
-:global(.dark) .likeButtonActive {
-  @apply bg-brand-neon/20 border-brand-neon/50;
-}
-
-.dislikeButton {
-  @apply p-2 rounded-sm transition-all border border-transparent flex items-center gap-1.5 text-gray-500 dark:text-gray-400 font-mono;
-}
-
-.dislikeButton:hover {
-  @apply text-red-500 bg-red-500/10;
-}
-
-.dislikeButtonActive {
-  @apply bg-red-500/10 text-red-500 border-red-500/30;
-}
-
-:global(.dark) .dislikeButtonActive {
-  @apply bg-red-500/20 border-red-500/50;
-}
-
 .favoriteButton {
   @apply p-2 rounded-sm transition-all border border-transparent flex items-center text-gray-500 dark:text-gray-400;
 }
@@ -133,10 +80,6 @@
 
 .applyButton {
   @apply inline-flex items-center justify-center px-8 py-3 border border-transparent text-base font-bold font-mono uppercase tracking-wide rounded-sm shadow-sm text-black bg-brand-neon hover:bg-[#33ff66] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-neon transition-all duration-200 hover:shadow-neon-strong transform hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed;
-}
-
-.deleteButton {
-  @apply px-6 py-3 bg-red-600 text-white font-bold rounded-xl shadow-lg shadow-red-500/30 hover:bg-red-700 hover:scale-[1.02] active:scale-[0.98] transition-all;
 }
 
 .favoriteIcon {
@@ -210,20 +153,4 @@
 
 :global(.dark) .salaryBadge {
   @apply bg-green-900/30 text-green-400 border-green-800;
-}
-
-.trackingStats {
-  @apply flex items-center gap-4 mt-4 text-xs font-medium text-gray-500 px-4 md:px-0;
-}
-
-:global(.dark) .trackingStats {
-  @apply text-gray-400;
-}
-
-.statItem {
-  @apply flex items-center;
-}
-
-.statIcon {
-  @apply w-4 h-4 mr-1;
 }

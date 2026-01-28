@@ -9,11 +9,11 @@ import tsconfigPaths from "vite-tsconfig-paths";
 import pkg from "./package.json";
 
 type PkgDep = Record<string, string>;
-const { dependencies = {}, devDependencies = {} } = pkg as any as {
-  dependencies: PkgDep;
-  devDependencies: PkgDep;
-  [key: string]: unknown;
-};
+if (!pkg) {
+  throw new Error("Failed to load package.json in vite.config.ts");
+}
+
+const { dependencies = {}, devDependencies = {} } = (pkg as any).default || pkg;
 errorOnDuplicatesPkgDeps(devDependencies, dependencies);
 
 /**
@@ -21,7 +21,7 @@ errorOnDuplicatesPkgDeps(devDependencies, dependencies);
  */
 export default defineConfig(({ command, mode }): UserConfig => {
   return {
-    plugins: [qwikCity(), qwikVite(), tsconfigPaths({ root: "." })],
+    plugins: [qwikCity(), qwikVite(), tsconfigPaths()],
     // This tells Vite which dependencies to pre-build in dev mode.
     optimizeDeps: {
       // Put problematic deps that break bundling here, mostly those with binaries.

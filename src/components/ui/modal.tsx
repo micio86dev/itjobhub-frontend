@@ -5,6 +5,7 @@ import {
   useStylesScoped$,
   useSignal,
   useVisibleTask$,
+  $,
 } from "@builder.io/qwik";
 import { Spinner } from "./spinner";
 import styles from "./modal.css?inline";
@@ -89,9 +90,9 @@ export const Modal = component$<ModalProps>((props) => {
         <div
           class="overlay"
           aria-hidden="true"
-          onClick$={async () => {
+          onClick$={$(async () => {
             if (props.onClose$) await props.onClose$();
-          }}
+          })}
         ></div>
 
         <span class="modal-spacer" aria-hidden="true">
@@ -141,10 +142,10 @@ export const Modal = component$<ModalProps>((props) => {
               class={`btn-confirm ${
                 props.isDestructive ? "btn-destructive" : "btn-primary"
               } ${props.isLoading ? "btn-loading" : ""}`}
-              onClick$={async () => {
+              onClick$={$(async () => {
                 // IL FIX DEFINITIVO: Accedi alla prop tramite l'oggetto props
                 if (props.onConfirm$) await props.onConfirm$();
-              }}
+              })}
               aria-busy={props.isLoading}
             >
               {props.isLoading && <Spinner size="sm" class="mr-2 -ml-1" />}
@@ -154,9 +155,9 @@ export const Modal = component$<ModalProps>((props) => {
               type="button"
               data-testid="modal-cancel"
               class="btn-cancel"
-              onClick$={async () => {
+              onClick$={$(async () => {
                 if (props.onClose$) await props.onClose$();
-              }}
+              })}
             >
               {props.cancelText || "Cancel"}
             </button>

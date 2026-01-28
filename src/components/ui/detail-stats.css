@@ -1,0 +1,15 @@
+.trackingStats {
+  @apply flex items-center gap-4 mt-4 text-xs font-medium text-gray-500 px-4 md:px-0;
+}
+
+:global(.dark) .trackingStats {
+  @apply text-gray-400;
+}
+
+.statItem {
+  @apply flex items-center;
+}
+
+.statIcon {
+  @apply w-4 h-4 mr-1;
+}

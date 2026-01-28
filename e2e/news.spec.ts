@@ -20,9 +20,10 @@ test.describe("News Feature", () => {
 
         // Create a test news article
         const timestamp = Date.now();
+        const random = Math.floor(Math.random() * 1000000);
         const testNews = await createTestNews(request, adminToken, {
             title: `E2E News Title ${timestamp}`,
-            slug: `e2e-news-${timestamp}`,
+            slug: `e2e-news-${timestamp}-${random}`,
             summary: "This is a summary for E2E testing",
             content: "<p>This is the content for E2E testing</p>",
             category: "Development",
@@ -80,14 +81,14 @@ test.describe("News Feature", () => {
 
         // Verify back link works
         await page.click('[data-testid="back-link"]');
-        await expect(page).toHaveURL(/\/news$/);
+        await expect(page).toHaveURL(/\/news\/?$/);
     });
 
     test("Authenticated user can like news", async ({ userPage }) => {
         await navigateTo(userPage, `/news/${newsSlug}`);
 
-        const likeBtn = userPage.getByTestId("like-btn");
-        const dislikeBtn = userPage.getByTestId("dislike-btn");
+        const likeBtn = userPage.getByTestId("like-button");
+        const dislikeBtn = userPage.getByTestId("dislike-button");
 
         await expect(likeBtn).toBeVisible();
         await expect(dislikeBtn).toBeVisible();
@@ -96,16 +97,17 @@ test.describe("News Feature", () => {
         // We'll just click and verify no error toast/action happens
         await likeBtn.click();
 
-        // Check if the button has the active state class (brand-neon style)
-        await expect(likeBtn).toHaveClass(/bg-brand-neon|text-brand-neon|border-brand-neon/);
+        // Check if the button has the active state class
+        await expect(likeBtn).toHaveClass(/reaction-btn-like-active/);
     });
 
     test("Admin can delete news", async ({ adminPage, request }) => {
         // Create another news article specifically for deletion test to avoid affecting other tests
         const timestamp = Date.now();
+        const random = Math.floor(Math.random() * 1000000);
         const testNews = await createTestNews(request, adminToken, {
             title: `Delete Me News ${timestamp}`,
-            slug: `delete-me-${timestamp}`,
+            slug: `delete-me-${timestamp}-${random}`,
             summary: "This news will be deleted",
             content: "<p>Content</p>",
             category: "Testing",
@@ -115,6 +117,8 @@ test.describe("News Feature", () => {
         await navigateTo(adminPage, `/news/${testNews.slug}`);
         await ensurePageReady(adminPage);
 
+        // Ensure page is ready and some hydration time
+        await adminPage.waitForTimeout(1000);
         const deleteBtn = adminPage.getByTestId("delete-article-btn");
         await expect(deleteBtn).toBeVisible();
         await deleteBtn.click();

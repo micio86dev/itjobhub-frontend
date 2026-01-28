@@ -7,17 +7,18 @@ import {
 } from "@builder.io/qwik-city";
 import { marked } from "marked";
 import { request } from "~/utils/api";
-import { Modal } from "~/components/ui/modal";
 import { useTranslate, useI18n } from "~/contexts/i18n";
 import { useAuth } from "~/contexts/auth";
 import { NewsCommentsSection } from "~/components/news/comments-section";
+import { ReactionButtons } from "~/components/ui/reaction-buttons";
+import { DetailStats } from "~/components/ui/detail-stats";
+import { AdminDeleteButton } from "~/components/ui/admin-delete-button";
 import type { ApiNews } from "~/types/models";
 
 export const useNewsLoader = routeLoader$(async ({ params, cookie }) => {
   const slug = params.slug;
   const token = cookie.get("auth_token")?.value;
   const lang = cookie.get("preferred-language")?.value || "it";
-  // Debug log removed
   const API_URL = process.env.PUBLIC_API_URL || "http://localhost:3001";
 
   if (!slug) return { news: null, lang };
@@ -58,7 +59,6 @@ export default component$(() => {
 
   const state = useStore({
     news: newsSignal.value.news,
-    showDeleteModal: false,
     isDeleting: false,
   });
 
@@ -177,7 +177,6 @@ export default component$(() => {
       alert(deleteFailedMsg);
     } finally {
       state.isDeleting = false;
-      state.showDeleteModal = false;
     }
   });
 
@@ -331,34 +330,20 @@ export default component$(() => {
           {/* Content */}
           <div class="p-6 md:p-10">
             {/* Admin Actions */}
-            {auth.user?.role === "admin" && (
-              <div class="flex justify-end mb-6">
-                <button
-                  onClick$={$(() => (state.showDeleteModal = true))}
-                  data-testid="delete-article-btn"
-                  class="flex items-center gap-2 bg-red-50 hover:bg-red-100 px-4 py-2 rounded-lg text-red-600 transition-colors"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="18"
-                    height="18"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
-                    <path d="M3 6h18" />
-                    <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
-                    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
-                    <line x1="10" x2="10" y1="11" y2="17" />
-                    <line x1="14" x2="14" y1="11" y2="17" />
-                  </svg>
-                  {t("news.delete_article")}
-                </button>
+            <div class="flex justify-end mb-6">
+              <div class="px-8 pb-8">
+                {auth.user?.role === "admin" && (
+                  <AdminDeleteButton
+                    onDelete$={handleDelete}
+                    confirmTitle={t("news.confirm_delete_title")}
+                    confirmMessage={t("news.confirm_delete_msg")}
+                    buttonText={t("news.delete_article")}
+                    isDeleting={state.isDeleting}
+                    testId="delete-article-btn"
+                  />
+                )}
               </div>
-            )}
+            </div>
 
             {displayContent && (
               <div
@@ -371,87 +356,27 @@ export default component$(() => {
           {/* Interactions Footer */}
           <div class="bg-gray-50 dark:bg-gray-800/50 p-6 md:p-8 border-gray-100 dark:border-gray-800 border-t">
             <div class="flex justify-between items-center mb-8">
-              <div class="flex gap-4">
-                <button
-                  onClick$={handleLike}
-                  disabled={!auth.isAuthenticated}
-                  data-testid="like-btn"
-                  class={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all ${
-                    news.user_reaction === "LIKE"
-                      ? "bg-brand-neon/20 text-brand-neon dark:bg-brand-neon/20 dark:text-brand-neon border border-brand-neon/50"
-                      : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                  }`}
-                >
-                  <span class="text-xl">👍</span>
-                  <span class="font-bold">{news.likes}</span>
-                </button>
-                <button
-                  onClick$={handleDislike}
-                  disabled={!auth.isAuthenticated}
-                  data-testid="dislike-btn"
-                  class={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all ${
-                    news.user_reaction === "DISLIKE"
-                      ? "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300"
-                      : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                  }`}
-                >
-                  <span class="text-xl">👎</span>
-                  <span class="font-bold">{news.dislikes}</span>
-                </button>
-              </div>
-              <div class="flex gap-4 text-gray-500 text-sm">
-                <span class="flex items-center gap-1">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
-                    <path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                    <circle cx="12" cy="12" r="3" />
-                  </svg>
-                  {news.views_count}
-                </span>
-                <span class="flex items-center gap-1">
-                  <svg
-                    class="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"
-                    ></path>
-                  </svg>
-                  {news.clicks_count}
-                </span>
-              </div>
+              <ReactionButtons
+                likes={news.likes}
+                dislikes={news.dislikes}
+                userReaction={news.user_reaction}
+                onLike$={handleLike}
+                onDislike$={handleDislike}
+                isAuthenticated={auth.isAuthenticated}
+                likeTitle={t("news.like")}
+                dislikeTitle={t("news.dislike")}
+              />
+              <DetailStats
+                viewsCount={news.views_count}
+                clicksCount={news.clicks_count}
+                viewsLabel={t("news.views")}
+                clicksLabel={t("news.clicks")}
+              />
             </div>
 
             <NewsCommentsSection newsId={news.id} />
           </div>
         </article>
-
-        <Modal
-          title={t("job.confirm_delete_title")}
-          isOpen={state.showDeleteModal}
-          onClose$={$(() => (state.showDeleteModal = false))}
-          onConfirm$={handleDelete}
-          isDestructive={true}
-          isLoading={state.isDeleting}
-          confirmText={t("common.delete")}
-          cancelText={t("common.cancel")}
-        >
-          <p>{t("news.confirm_delete")}</p>
-        </Modal>
       </div>
     </div>
   );

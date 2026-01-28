@@ -7,6 +7,8 @@ import styles from "./job-header.css?inline";
 import { Link } from "@builder.io/qwik-city";
 import { useTranslate } from "~/contexts/i18n";
 import type { JobListing } from "~/contexts/jobs";
+import { ReactionButtons } from "~/components/ui/reaction-buttons";
+import { DetailStats } from "~/components/ui/detail-stats";
 
 interface JobHeaderProps {
   job: JobListing;
@@ -15,12 +17,11 @@ interface JobHeaderProps {
   onLike$: PropFunction<() => void>;
   onDislike$: PropFunction<() => void>;
   onToggleFavorite$: PropFunction<() => void>;
-  onDelete$: PropFunction<() => void>;
   onApplyClick$: PropFunction<() => void>;
 }
 
 export const JobHeader = component$<JobHeaderProps>((props) => {
-  const { job, isAuthenticated, isAdmin } = props;
+  const { job, isAuthenticated } = props;
   useStylesScoped$(styles);
   const t = useTranslate();
 
@@ -85,56 +86,16 @@ export const JobHeader = component$<JobHeaderProps>((props) => {
         </div>
 
         <div class="actionsContainer">
-          <div class="reactionButtons">
-            <button
-              onClick$={props.onLike$}
-              disabled={!isAuthenticated}
-              title={t("job.like")}
-              data-testid="like-button"
-              class={`likeButton ${job.user_reaction === "LIKE" ? "likeButtonActive" : ""} ${!isAuthenticated ? "opacity-50 cursor-not-allowed" : ""} `}
-            >
-              <svg
-                class="reactionIcon"
-                fill={job.user_reaction === "LIKE" ? "currentColor" : "none"}
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M14 10h4.708C19.743 10 20.5 10.895 20.5 12c0 .403-.122.778-.331 1.091l-2.43 3.645C17.431 17.203 16.746 18 15.865 18H9v-8l1.32-3.958a2 2 0 011.897-1.368H13a2 2 0 012 2v3.326L14 10zM9 18H5a2 2 0 01-2-2v-4a2 2 0 012-2h4v8z"
-                />
-              </svg>
-              <span class="reactionCount" data-testid="like-count">
-                {job.likes || 0}
-              </span>
-            </button>
-            <button
-              onClick$={props.onDislike$}
-              disabled={!isAuthenticated}
-              title={t("job.dislike")}
-              data-testid="dislike-button"
-              class={`dislikeButton ${job.user_reaction === "DISLIKE" ? "dislikeButtonActive" : ""} ${!isAuthenticated ? "opacity-50 cursor-not-allowed" : ""} `}
-            >
-              <svg
-                class="reactionIcon"
-                fill={job.user_reaction === "DISLIKE" ? "currentColor" : "none"}
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M10 14H5.292C4.257 14 3.5 13.105 3.5 12c0-.403.122-.778.331-1.091l2.43-3.645C6.569 6.797 7.254 6 8.135 6H15v8l-1.32 3.958a2 2 0 01-1.897 1.368H11a2 2 0 01-2-2v-3.326L10 14zM15 6h4a2 2 0 012 2v4a2 2 0 01-2 2h-4V6z"
-                />
-              </svg>
-              <span class="reactionCount" data-testid="dislike-count">
-                {job.dislikes || 0}
-              </span>
-            </button>
-          </div>
+          <ReactionButtons
+            likes={job.likes || 0}
+            dislikes={job.dislikes || 0}
+            userReaction={job.user_reaction}
+            onLike$={props.onLike$}
+            onDislike$={props.onDislike$}
+            isAuthenticated={isAuthenticated}
+            likeTitle={t("job.like")}
+            dislikeTitle={t("job.dislike")}
+          />
 
           <button
             onClick$={props.onToggleFavorite$}
@@ -172,16 +133,6 @@ export const JobHeader = component$<JobHeaderProps>((props) => {
             {t("job.apply")}
           </a>
 
-          {isAdmin && (
-            <button
-              onClick$={props.onDelete$}
-              class="deleteButton"
-              data-testid="delete-button"
-            >
-              {t("job.delete")}
-            </button>
-          )}
-
           {!isAuthenticated && (
             <span class="loginHint">
               <Link href="/login" class="link">
@@ -218,46 +169,14 @@ export const JobHeader = component$<JobHeaderProps>((props) => {
       </div>
 
       {/* Tracking Stats */}
-      <div class="trackingStats">
-        <span class="statItem" title={t("job.views_count")}>
-          <svg
-            class="statIcon"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-            />
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-            />
-          </svg>
-          {job.views_count || 0} {t("job.views")}
-        </span>
-        <span class="statItem" title={t("job.clicks_count")}>
-          <svg
-            class="statIcon"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"
-            />
-          </svg>
-          {job.clicks_count || 0} {t("job.applications")}
-        </span>
-      </div>
+      <DetailStats
+        viewsCount={job.views_count || 0}
+        clicksCount={job.clicks_count || 0}
+        viewsLabel={t("job.views")}
+        clicksLabel={t("job.applications")}
+        viewsTitle={t("job.views_count")}
+        clicksTitle={t("job.clicks_count")}
+      />
     </div>
   );
 });

@@ -162,7 +162,7 @@ export const NewsCard = component$<NewsCardProps>((props) => {
           {news.source_url && (
             <>
               <span>•</span>
-              <span>Source</span>
+              <span>{t("news.source")}</span>
             </>
           )}
         </div>
@@ -246,7 +246,7 @@ export const NewsCard = component$<NewsCardProps>((props) => {
           </div>
 
           <div class="stats-container">
-            <span class="flex items-center" title="Views">
+            <span class="flex items-center" title={t("news.views")}>
               <svg
                 class="mr-1 w-4 h-4"
                 fill="none"
