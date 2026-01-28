@@ -85,9 +85,8 @@ test.describe("News Feature", () => {
         // We'll just click and verify no error toast/action happens
         await likeBtn.click();
 
-        // We can check if the count increased or button class changed, but that's flaky without data-testid for counts specifically separate or analyzing class
-        // Let's check class change for active state (contains blue text)
-        await expect(likeBtn).toHaveClass(/text-blue-600/);
+        // Check if the button has the active state class (brand-neon style)
+        await expect(likeBtn).toHaveClass(/bg-brand-neon|text-brand-neon|border-brand-neon/);
     });
 
     test("Admin can see delete button", async ({ adminPage }) => {

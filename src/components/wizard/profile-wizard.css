@@ -3,7 +3,11 @@
 }
 
 .wizard-card {
-  @apply bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-lg w-full p-6 my-8;
+  @apply bg-white rounded-xl shadow-xl max-w-lg w-full p-6 my-8;
+}
+
+:global(.dark) .wizard-card {
+  @apply bg-gray-800;
 }
 
 .progress-section {
@@ -15,15 +19,27 @@
 }
 
 .progress-title {
-  @apply text-sm font-medium text-gray-900 dark:text-white;
+  @apply text-sm font-medium text-gray-900;
+}
+
+:global(.dark) .progress-title {
+  @apply text-white;
 }
 
 .progress-percent {
-  @apply text-sm text-gray-500 dark:text-gray-400;
+  @apply text-sm text-gray-500;
+}
+
+:global(.dark) .progress-percent {
+  @apply text-gray-400;
 }
 
 .progress-bar-bg {
   @apply w-full bg-gray-200 rounded-full h-2;
+}
+
+:global(.dark) .progress-bar-bg {
+  @apply bg-gray-700;
 }
 
 .progress-bar-fill {
@@ -35,11 +51,19 @@
 }
 
 .step-heading {
-  @apply text-xl font-semibold text-gray-900 dark:text-white mb-2;
+  @apply text-xl font-semibold text-gray-900 mb-2;
+}
+
+:global(.dark) .step-heading {
+  @apply text-white;
 }
 
 .step-description {
-  @apply text-sm text-gray-600 dark:text-gray-400 mb-4;
+  @apply text-sm text-gray-600 mb-4;
+}
+
+:global(.dark) .step-description {
+  @apply text-gray-400;
 }
 
 .options-stack {
@@ -55,7 +79,11 @@
 }
 
 .option-card-default {
-  @apply border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600;
+  @apply border-gray-200 hover:border-gray-300;
+}
+
+:global(.dark) .option-card-default {
+  @apply border-gray-700 hover:border-gray-600;
 }
 
 .option-input {
@@ -67,15 +95,27 @@
 }
 
 .option-title {
-  @apply font-medium text-gray-900 dark:text-white;
+  @apply font-medium text-gray-900;
+}
+
+:global(.dark) .option-title {
+  @apply text-white;
 }
 
 .option-desc {
-  @apply text-sm text-gray-500 dark:text-gray-400;
+  @apply text-sm text-gray-500;
+}
+
+:global(.dark) .option-desc {
+  @apply text-gray-400;
 }
 
 .nav-buttons {
-  @apply flex justify-between pt-6 mt-6 border-t border-gray-200 dark:border-gray-700;
+  @apply flex justify-between pt-6 mt-6 border-t border-gray-200;
+}
+
+:global(.dark) .nav-buttons {
+  @apply border-gray-700;
 }
 
 .nav-left {
@@ -86,12 +126,24 @@
   @apply inline-flex items-center justify-center px-6 py-2 border border-brand-neon text-sm font-bold font-mono uppercase tracking-wide rounded-sm shadow-sm text-brand-neon bg-transparent hover:bg-brand-neon/10 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-neon transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed;
 }
 
+:global(.dark) .btn-secondary {
+  @apply focus:ring-offset-gray-800;
+}
+
 .btn-primary {
   @apply inline-flex items-center justify-center px-6 py-2 border border-transparent text-sm font-bold font-mono uppercase tracking-wide rounded-sm shadow-sm text-black bg-brand-neon hover:bg-[#33ff66] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-neon transition-all duration-200 hover:shadow-neon-strong transform hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed;
 }
 
+:global(.dark) .btn-primary {
+  @apply focus:ring-offset-gray-800;
+}
+
 .btn-success {
   @apply inline-flex items-center px-6 py-2 text-sm font-bold font-mono uppercase rounded-sm text-black bg-brand-neon hover:bg-[#33ff66] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-neon disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200;
+}
+
+:global(.dark) .btn-success {
+  @apply focus:ring-offset-gray-800;
 }
 
 .spinner-icon {

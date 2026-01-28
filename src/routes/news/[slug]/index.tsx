@@ -490,7 +490,9 @@ export default component$(() => {
         <Modal
           title={t("job.confirm_delete_title") || "Confirm Deletion"}
           isOpen={state.showDeleteModal}
-          onClose$={() => (state.showDeleteModal = false)}
+          onClose$={$(() => {
+            state.showDeleteModal = false;
+          })}
           onConfirm$={handleDelete}
           isDestructive={true}
           isLoading={state.isDeleting}

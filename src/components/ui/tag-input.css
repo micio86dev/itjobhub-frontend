@@ -3,7 +3,11 @@
 }
 
 .input-container {
-  @apply min-h-[42px] w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-sm shadow-sm focus-within:ring-2 focus-within:ring-brand-neon focus-within:border-brand-neon bg-white dark:bg-gray-900 transition-all duration-200;
+  @apply min-h-[42px] w-full px-3 py-2 border border-gray-300 rounded-sm shadow-sm focus-within:ring-2 focus-within:ring-brand-neon focus-within:border-brand-neon bg-white transition-all duration-200;
+}
+
+:global(.dark) .input-container {
+  @apply bg-gray-900 border-gray-700;
 }
 
 .input-content {
@@ -19,13 +23,25 @@
 }
 
 .input-field {
-  @apply flex-1 min-w-[120px] border-0 outline-0 bg-transparent text-sm dark:text-white placeholder-gray-400 dark:placeholder-gray-500;
+  @apply flex-1 min-w-[120px] border-0 outline-0 bg-transparent text-sm placeholder-gray-400;
+}
+
+:global(.dark) .input-field {
+  @apply text-white placeholder-gray-500;
 }
 
 .suggestions-list {
-  @apply absolute z-10 w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-sm shadow-xl max-h-40 overflow-auto mt-1;
+  @apply absolute z-10 w-full bg-white border border-gray-200 rounded-sm shadow-xl max-h-40 overflow-auto mt-1;
+}
+
+:global(.dark) .suggestions-list {
+  @apply bg-gray-800 border-gray-700;
 }
 
 .suggestion-item {
-  @apply px-3 py-2 text-sm cursor-pointer hover:bg-brand-neon/10 hover:text-brand-neon dark:text-gray-300 transition-colors;
+  @apply px-3 py-2 text-sm cursor-pointer hover:bg-brand-neon/10 hover:text-brand-neon transition-colors;
+}
+
+:global(.dark) .suggestion-item {
+  @apply text-gray-300;
 }
