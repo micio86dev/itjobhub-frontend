@@ -29,6 +29,13 @@ The IT Job Hub frontend is a high-performance web application designed for devel
 
 ## Recent Changes
 
+### 2026-01-28: Theme Toggle Icon Swap and Context Reactivity
+
+- **Swapped Theme Icons**: Changed theme toggle button to display **Sun icon** in Light mode and **Moon icon** in Dark mode for better semantic clarity.
+- **Improved Theme Context**: Refactored `ThemeContext` to use proper Qwik store reactivity by passing the store wrapper instead of primitive values.
+- **Added Accessibility**: Included `aria-hidden="true"` attributes on theme toggle SVG icons for better screen reader compatibility.
+- **Verified Behavior**: Icons now correctly represent the current theme state and toggle smoothly between light and dark modes.
+
 ### 2026-01-28: Favorite Button Visual Refinement
 
 - Realigned `.favoriteButton` in `JobHeader` to match the visual style of reaction buttons (like/dislike).
