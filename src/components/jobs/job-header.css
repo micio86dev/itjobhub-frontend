@@ -63,7 +63,7 @@
 }
 
 .reactionButtons {
-  @apply flex items-center bg-gray-100 rounded-xl p-1 mr-2 border border-gray-200;
+  @apply flex items-center bg-transparent gap-1 mr-2;
 }
 
 :global(.dark) .reactionButtons {
@@ -71,11 +71,20 @@
 }
 
 .likeButton {
-  @apply p-2 rounded-lg transition-all flex items-center gap-1 text-gray-500 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400;
+  @apply p-2 rounded-sm transition-all border border-transparent flex items-center gap-1.5 text-gray-500 dark:text-gray-400 font-mono;
+}
+
+.likeButton:hover {
+  @apply text-brand-neon bg-brand-neon/10;
 }
 
 .reactionIcon {
-  @apply text-xl;
+  @apply w-5 h-5 transition-transform duration-200;
+}
+
+.likeButton:hover .reactionIcon,
+.dislikeButton:hover .reactionIcon {
+  @apply scale-110;
 }
 
 .reactionCount {
@@ -83,23 +92,27 @@
 }
 
 .likeButtonActive {
-  @apply bg-green-100 text-green-700 shadow-sm;
+  @apply bg-brand-neon/10 text-brand-neon border-brand-neon/30;
 }
 
 :global(.dark) .likeButtonActive {
-  @apply bg-green-900 text-green-200;
+  @apply bg-brand-neon/20 border-brand-neon/50;
 }
 
 .dislikeButton {
-  @apply p-2 rounded-lg transition-all flex items-center gap-1 text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400;
+  @apply p-2 rounded-sm transition-all border border-transparent flex items-center gap-1.5 text-gray-500 dark:text-gray-400 font-mono;
+}
+
+.dislikeButton:hover {
+  @apply text-red-500 bg-red-500/10;
 }
 
 .dislikeButtonActive {
-  @apply bg-red-100 text-red-700 shadow-sm;
+  @apply bg-red-500/10 text-red-500 border-red-500/30;
 }
 
 :global(.dark) .dislikeButtonActive {
-  @apply bg-red-900 text-red-200;
+  @apply bg-red-500/20 border-red-500/50;
 }
 
 .favoriteButton {

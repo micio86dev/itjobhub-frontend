@@ -239,7 +239,15 @@
 }
 
 .reaction-btn {
-  @apply flex items-center space-x-1 px-2 py-1 rounded-sm transition-all border border-transparent disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer text-xs font-mono;
+  @apply flex items-center space-x-1.5 px-2 py-1 rounded-sm transition-all border border-transparent disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer text-xs font-mono;
+}
+
+.reaction-icon-svg {
+  @apply w-4 h-4 transition-transform duration-200;
+}
+
+.reaction-btn:hover .reaction-icon-svg {
+  @apply scale-110;
 }
 
 .reaction-btn-like-active {
@@ -275,7 +283,7 @@
 }
 
 .comments-btn {
-  @apply flex items-center space-x-1 px-2 py-1 rounded-sm transition-all border border-transparent cursor-pointer text-xs font-mono;
+  @apply flex items-center space-x-1.5 px-2 py-1 rounded-sm transition-all border border-transparent cursor-pointer text-xs font-mono;
 }
 
 .comments-btn-active {

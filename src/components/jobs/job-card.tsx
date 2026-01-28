@@ -255,7 +255,7 @@ export const JobCard = component$<JobCardProps>(
         {/* Description */}
         {job.description && (
           <div
-            class="description prose prose-sm dark:prose-invert"
+            class="dark:prose-invert description prose prose-sm"
             dangerouslySetInnerHTML={marked.parse(job.description) as string}
           ></div>
         )}
@@ -310,7 +310,7 @@ export const JobCard = component$<JobCardProps>(
 
         {/* Skills */}
         <div class="skills-container">
-          <span class="detail-label mb-2 block">
+          <span class="block mb-2 detail-label">
             {t("job.skills_required")}
           </span>
           <div class="skills-list">
@@ -337,8 +337,20 @@ export const JobCard = component$<JobCardProps>(
                   : "reaction-btn-like-inactive"
               }`}
             >
-              <span class="text-lg">👍</span>
-              <span class="text-sm font-medium" data-testid="like-count">
+              <svg
+                class="reaction-icon-svg"
+                fill={job.user_reaction === "LIKE" ? "currentColor" : "none"}
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M14 10h4.708C19.743 10 20.5 10.895 20.5 12c0 .403-.122.778-.331 1.091l-2.43 3.645C17.431 17.203 16.746 18 15.865 18H9v-8l1.32-3.958a2 2 0 011.897-1.368H13a2 2 0 012 2v3.326L14 10zM9 18H5a2 2 0 01-2-2v-4a2 2 0 012-2h4v8z"
+                />
+              </svg>
+              <span class="font-medium text-sm" data-testid="like-count">
                 {job.likes}
               </span>
             </button>
@@ -354,8 +366,20 @@ export const JobCard = component$<JobCardProps>(
                   : "reaction-btn-dislike-inactive"
               }`}
             >
-              <span class="text-lg">👎</span>
-              <span class="text-sm font-medium" data-testid="dislike-count">
+              <svg
+                class="reaction-icon-svg"
+                fill={job.user_reaction === "DISLIKE" ? "currentColor" : "none"}
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M10 14H5.292C4.257 14 3.5 13.105 3.5 12c0-.403.122-.778.331-1.091l2.43-3.645C6.569 6.797 7.254 6 8.135 6H15v8l-1.32 3.958a2 2 0 01-1.897 1.368H11a2 2 0 01-2-2v-3.326L10 14zM15 6h4a2 2 0 012 2v4a2 2 0 01-2 2h-4V6z"
+                />
+              </svg>
+              <span class="font-medium text-sm" data-testid="dislike-count">
                 {job.dislikes}
               </span>
             </button>
@@ -368,8 +392,20 @@ export const JobCard = component$<JobCardProps>(
                   showComments ? "comments-btn-active" : "comments-btn-inactive"
                 }`}
               >
-                <span class="text-lg">💬</span>
-                <span class="text-sm font-medium">
+                <svg
+                  class="reaction-icon-svg"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"
+                  />
+                </svg>
+                <span class="font-medium text-sm">
                   {job.comments_count !== undefined
                     ? job.comments_count
                     : getCommentsFromState(jobsContext.comments, job.id).length}
@@ -381,7 +417,7 @@ export const JobCard = component$<JobCardProps>(
             <div class="stats-container">
               <span class="flex items-center" title={t("job.views_count")}>
                 <svg
-                  class="w-4 h-4 mr-1"
+                  class="mr-1 w-4 h-4"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -403,7 +439,7 @@ export const JobCard = component$<JobCardProps>(
               </span>
               <span class="flex items-center" title={t("job.clicks_count")}>
                 <svg
-                  class="w-4 h-4 mr-1"
+                  class="mr-1 w-4 h-4"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"

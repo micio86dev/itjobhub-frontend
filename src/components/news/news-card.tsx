@@ -134,7 +134,7 @@ export const NewsCard = component$<NewsCardProps>(({ news: initialNews }) => {
         <div class="header-content">
           <div class="title-container">
             {news.category && (
-              <span class="category-badge mb-2">{news.category}</span>
+              <span class="mb-2 category-badge">{news.category}</span>
             )}
             <h3 class="news-title">
               <Link href={`/news/${news.slug}`}>{displayTitle}</Link>
@@ -152,7 +152,7 @@ export const NewsCard = component$<NewsCardProps>(({ news: initialNews }) => {
             </div>
           )}
         </div>
-        <div class="meta-row mt-2">
+        <div class="mt-2 meta-row">
           <span>{dateDisplay}</span>
           {news.source_url && (
             <>
@@ -176,8 +176,20 @@ export const NewsCard = component$<NewsCardProps>(({ news: initialNews }) => {
                 : "reaction-btn-like-inactive"
             }`}
           >
-            <span class="text-lg">👍</span>
-            <span class="text-sm font-medium">{news.likes}</span>
+            <svg
+              class="reaction-icon-svg"
+              fill={news.user_reaction === "LIKE" ? "currentColor" : "none"}
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M14 10h4.708C19.743 10 20.5 10.895 20.5 12c0 .403-.122.778-.331 1.091l-2.43 3.645C17.431 17.203 16.746 18 15.865 18H9v-8l1.32-3.958a2 2 0 011.897-1.368H13a2 2 0 012 2v3.326L14 10zM9 18H5a2 2 0 01-2-2v-4a2 2 0 012-2h4v8z"
+              />
+            </svg>
+            <span class="font-medium text-sm">{news.likes}</span>
           </button>
 
           <button
@@ -189,19 +201,43 @@ export const NewsCard = component$<NewsCardProps>(({ news: initialNews }) => {
                 : "reaction-btn-dislike-inactive"
             }`}
           >
-            <span class="text-lg">👎</span>
-            <span class="text-sm font-medium">{news.dislikes}</span>
+            <svg
+              class="reaction-icon-svg"
+              fill={news.user_reaction === "DISLIKE" ? "currentColor" : "none"}
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M10 14H5.292C4.257 14 3.5 13.105 3.5 12c0-.403.122-.778.331-1.091l2.43-3.645C6.569 6.797 7.254 6 8.135 6H15v8l-1.32 3.958a2 2 0 01-1.897 1.368H11a2 2 0 01-2-2v-3.326L10 14zM15 6h4a2 2 0 012 2v4a2 2 0 01-2 2h-4V6z"
+              />
+            </svg>
+            <span class="font-medium text-sm">{news.dislikes}</span>
           </button>
 
           <div class="comments-wrapper">
-            <span class="text-lg">💬</span>
+            <svg
+              class="reaction-icon-svg"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"
+              />
+            </svg>
             <span>{news.comments_count}</span>
           </div>
 
           <div class="stats-container">
             <span class="flex items-center" title="Views">
               <svg
-                class="w-4 h-4 mr-1"
+                class="mr-1 w-4 h-4"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
