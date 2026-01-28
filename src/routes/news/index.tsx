@@ -114,7 +114,7 @@ export default component$(() => {
 
   const { ref: infiniteScrollRef } = useInfiniteScroll({
     loadMore$: loadMore,
-    threshold: 100,
+    threshold: 0.1,
   });
 
   return (
