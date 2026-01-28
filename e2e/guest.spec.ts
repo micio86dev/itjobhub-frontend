@@ -6,7 +6,7 @@ test.describe('Guest User', () => {
         await page.goto('/');
         await ensurePageReady(page);
 
-        await expect(page).toHaveTitle(/ITJobHub/i);
+        await expect(page).toHaveTitle(/DevBoards.io/i);
         await expect(page.locator('h1').first()).toBeVisible();
 
         // Check for login/register links (handle mobile menu)

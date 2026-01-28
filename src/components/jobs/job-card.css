@@ -1,5 +1,320 @@
 .job-card {
-  @apply bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6 mb-4 hover:shadow-md transition-shadow relative;
+  @apply bg-brand-light-card rounded-md shadow-none border border-gray-200 p-4 sm:p-6 mb-4 hover:border-brand-neon hover:shadow-neon-sm transition-all duration-300 relative;
+}
+
+:global(.dark) .job-card {
+  @apply bg-brand-dark-card border-gray-800 hover:border-brand-neon;
+}
+
+.header {
+  @apply flex items-start justify-between mb-4;
+}
+
+.header-content {
+  @apply flex-1;
+}
+
+.company-info {
+  @apply flex items-center gap-3 mb-2;
+}
+
+.logo-container {
+  @apply w-10 h-10 rounded-sm flex items-center justify-center bg-gray-50 border border-gray-200 flex-shrink-0 overflow-hidden;
+}
+
+:global(.dark) .logo-container {
+  @apply bg-gray-800 border-gray-700;
+}
+
+.logo-image {
+  @apply w-full h-full object-cover;
+}
+
+.logo-placeholder {
+  @apply w-6 h-6 text-gray-400;
+}
+
+:global(.dark) .logo-placeholder {
+  @apply text-gray-500;
+}
+
+.job-title {
+  @apply text-lg font-bold font-sans text-gray-900 mb-1 hover:text-brand-neon transition-colors;
+}
+
+:global(.dark) .job-title {
+  @apply text-gray-100;
+}
+
+.meta-row {
+  @apply flex items-center gap-2 flex-wrap font-mono text-xs;
+}
+
+.company-name {
+  @apply font-semibold text-gray-700;
+}
+
+:global(.dark) .company-name {
+  @apply text-gray-300;
+}
+
+.trust-badge {
+  @apply inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-gray-100 text-gray-600 border border-gray-200;
+}
+
+:global(.dark) .trust-badge {
+  @apply bg-gray-800 text-gray-400 border-gray-700;
+}
+
+.match-badge {
+  @apply inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider;
+}
+
+.match-excellent {
+  @apply bg-brand-neon/10 text-brand-neon border border-brand-neon/50;
+}
+
+:global(.dark) .match-excellent {
+  @apply bg-brand-neon/20 text-brand-neon border-brand-neon/50;
+}
+
+.match-good {
+  @apply bg-blue-100 text-blue-700 border border-blue-200;
+}
+
+:global(.dark) .match-good {
+  @apply bg-blue-900/30 text-blue-300 border-blue-800;
+}
+
+.match-fair {
+  @apply bg-amber-100 text-amber-700 border border-amber-200;
+}
+
+:global(.dark) .match-fair {
+  @apply bg-amber-900/30 text-amber-300 border-amber-800;
+}
+
+.match-low {
+  @apply bg-gray-100 text-gray-600 border border-gray-200;
+}
+
+:global(.dark) .match-low {
+  @apply bg-gray-800 text-gray-400 border-gray-700;
+}
+
+.action-column {
+  @apply text-right flex flex-col items-end gap-2;
+}
+
+.date-display {
+  @apply flex items-center gap-2 text-[10px] font-mono uppercase text-gray-500;
+}
+
+:global(.dark) .date-display {
+  @apply text-gray-500;
+}
+
+.favorite-btn {
+  @apply p-1.5 rounded-sm transition-all hover:bg-gray-100;
+}
+
+:global(.dark) .favorite-btn {
+  @apply hover:bg-gray-800;
+}
+
+.favorite-active {
+  @apply text-brand-neon;
+}
+
+.favorite-inactive {
+  @apply text-gray-400 hover:text-brand-neon;
+}
+
+.remote-badge {
+  @apply inline-flex items-center px-2 py-0.5 rounded-sm text-[10px] uppercase font-bold tracking-wider bg-purple-100 text-purple-700 border border-purple-200;
+}
+
+:global(.dark) .remote-badge {
+  @apply bg-purple-900/30 text-purple-300 border-purple-800;
+}
+
+.description {
+  @apply text-gray-600 text-sm mb-4 line-clamp-2 font-mono;
+}
+
+:global(.dark) .description {
+  @apply text-gray-400;
+}
+
+.details-grid {
+  @apply grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4 font-mono text-xs;
+}
+
+.detail-label {
+  @apply text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 block;
+}
+
+:global(.dark) .detail-label {
+  @apply text-gray-500;
+}
+
+.detail-value-container {
+  @apply mt-0;
+}
+
+.badge-base {
+  @apply inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium border;
+}
+
+.badge-green {
+  @apply bg-green-50 text-green-700 border-green-200;
+}
+
+:global(.dark) .badge-green {
+  @apply bg-green-900/20 text-green-400 border-green-800;
+}
+
+.badge-yellow {
+  @apply bg-amber-50 text-amber-700 border-amber-200;
+}
+
+:global(.dark) .badge-yellow {
+  @apply bg-amber-900/20 text-amber-400 border-amber-800;
+}
+
+.badge-red {
+  @apply bg-red-50 text-red-700 border-red-200;
+}
+
+:global(.dark) .badge-red {
+  @apply bg-red-900/20 text-red-400 border-red-800;
+}
+
+.badge-indigo {
+  @apply bg-indigo-50 text-indigo-700 border-indigo-200;
+}
+
+:global(.dark) .badge-indigo {
+  @apply bg-indigo-900/20 text-indigo-400 border-indigo-800;
+}
+
+.badge-gray {
+  @apply bg-gray-50 text-gray-600 border-gray-200;
+}
+
+:global(.dark) .badge-gray {
+  @apply bg-gray-800 text-gray-400 border-gray-700;
+}
+
+.location-text {
+  @apply text-sm text-gray-700 font-medium;
+}
+
+:global(.dark) .location-text {
+  @apply text-gray-300;
+}
+
+.salary-text {
+  @apply text-sm font-bold text-brand-neon tracking-wide;
+}
+
+.skills-container {
+  @apply mb-4;
+}
+
+.skills-list {
+  @apply flex flex-wrap gap-2 font-mono text-xs;
+}
+
+.footer-actions {
+  @apply flex items-center justify-between pt-4 border-t border-gray-100;
+}
+
+:global(.dark) .footer-actions {
+  @apply border-gray-800;
+}
+
+.reaction-buttons {
+  @apply flex items-center space-x-3;
+}
+
+.reaction-btn {
+  @apply flex items-center space-x-1 px-2 py-1 rounded-sm transition-all border border-transparent disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer text-xs font-mono;
+}
+
+.reaction-btn-like-active {
+  @apply bg-brand-neon/10 text-brand-neon border-brand-neon/30;
+}
+
+:global(.dark) .reaction-btn-like-active {
+  @apply bg-brand-neon/20 border-brand-neon/50;
+}
+
+.reaction-btn-like-inactive {
+  @apply text-gray-500 hover:text-brand-neon hover:border-brand-neon/30;
+}
+
+:global(.dark) .reaction-btn-like-inactive {
+  @apply text-gray-500 hover:text-brand-neon hover:border-brand-neon/50;
+}
+
+.reaction-btn-dislike-active {
+  @apply bg-red-100 text-red-600 border-red-200;
+}
+
+:global(.dark) .reaction-btn-dislike-active {
+  @apply bg-red-900/20 text-red-400 border-red-800;
+}
+
+.reaction-btn-dislike-inactive {
+  @apply text-gray-500 hover:text-red-600 hover:border-red-200;
+}
+
+:global(.dark) .reaction-btn-dislike-inactive {
+  @apply text-gray-500 hover:text-red-400 hover:border-red-800;
+}
+
+.comments-btn {
+  @apply flex items-center space-x-1 px-2 py-1 rounded-sm transition-all border border-transparent cursor-pointer text-xs font-mono;
+}
+
+.comments-btn-active {
+  @apply bg-blue-100 text-blue-600 border-blue-200;
+}
+
+:global(.dark) .comments-btn-active {
+  @apply bg-blue-900/20 text-blue-400 border-blue-800;
+}
+
+.comments-btn-inactive {
+  @apply text-gray-500 hover:text-blue-600 hover:border-blue-200;
+}
+
+:global(.dark) .comments-btn-inactive {
+  @apply text-gray-500 hover:text-blue-400 hover:border-blue-800;
+}
+
+.stats-container {
+  @apply flex items-center space-x-3 text-[10px] font-mono text-gray-400 ml-2 border-l border-gray-200 pl-3 uppercase tracking-wide;
+}
+
+:global(.dark) .stats-container {
+  @apply text-gray-600 border-gray-800;
+}
+
+.job-card :global(.apply-btn) {
+  @apply inline-flex items-center justify-center gap-2 px-6 py-2 
+         text-sm font-bold font-mono tracking-wide uppercase rounded-sm
+         text-black bg-brand-neon
+         hover:bg-[#33ff66]
+         focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-neon
+         shadow-none hover:shadow-neon-strong
+         transition-all duration-200
+         transform hover:-translate-y-0.5 active:translate-y-0;
+}
+
+:global(.dark) .job-card :global(.apply-btn) {
+  @apply focus:ring-offset-gray-900;
 }
 
 :global(.dark) .job-card {

@@ -1,5 +1,73 @@
 .hero-section {
-  @apply relative bg-gradient-to-br from-indigo-900 via-purple-800 to-pink-700 text-white py-24 sm:py-32;
+  @apply relative bg-brand-dark-bg text-white py-24 sm:py-32 overflow-hidden border-b border-gray-800;
+}
+
+.bg-overlay {
+  @apply absolute inset-0 overflow-hidden pointer-events-none;
+}
+
+.bg-pattern {
+  @apply absolute inset-0 bg-[url('/grid.svg')] opacity-5;
+}
+
+.container {
+  @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center;
+}
+
+.heading {
+  @apply text-4xl sm:text-7xl font-bold tracking-tight mb-6 font-sans;
+}
+
+.heading-main {
+  @apply block text-white mb-2;
+}
+
+.heading-sub {
+  @apply block text-brand-neon mt-2 text-2xl sm:text-4xl font-mono tracking-tighter;
+}
+
+.description {
+  @apply mt-6 max-w-2xl mx-auto text-xl text-gray-400 mb-10 font-light;
+}
+
+.search-container {
+  @apply max-w-3xl mx-auto;
+}
+
+.search-form {
+  @apply relative;
+}
+
+.search-glow {
+  @apply absolute inset-0 bg-brand-neon rounded-md blur opacity-20 transition duration-1000 group-hover:opacity-40;
+}
+
+.search-input-wrapper {
+  @apply relative bg-gray-900 border border-brand-neon/50 rounded-md p-2 shadow-xl flex items-center transition-all duration-300 group-hover:shadow-neon-sm;
+}
+
+.search-icon-wrapper {
+  @apply pl-4 text-brand-neon animate-pulse-subtle;
+}
+
+.search-input {
+  @apply flex-1 p-4 bg-transparent text-white placeholder-gray-500 rounded-md focus:outline-none font-mono text-lg;
+}
+
+.search-button {
+  @apply hidden sm:block bg-brand-neon text-black px-8 py-3 rounded-sm font-bold uppercase tracking-wide transition-all duration-200 hover:bg-[#33ff66] hover:shadow-neon-strong transform hover:-translate-y-0.5 active:translate-y-0;
+}
+
+.popular-tags {
+  @apply mt-6 text-sm text-gray-400 flex flex-wrap gap-2 items-center justify-center sm:justify-start font-mono;
+}
+
+.popular-label {
+  @apply font-bold text-gray-500 uppercase tracking-widest mr-1;
+}
+
+.tag-link {
+  @apply px-2 py-1 rounded-sm bg-gray-800/50 hover:bg-brand-neon/10 hover:text-brand-neon border border-gray-800 hover:border-brand-neon/30 transition-all duration-200 cursor-pointer text-xs uppercase;
 }
 
 .bg-overlay {

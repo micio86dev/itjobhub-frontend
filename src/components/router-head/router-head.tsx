@@ -65,7 +65,7 @@ export const RouterHead = component$(() => {
 
       {/* Open Graph tags */}
       <meta property="og:type" content="website" />
-      <meta property="og:site_name" content="ITJobHub" />
+      <meta property="og:site_name" content="DevBoards.io" />
       <meta property="og:title" content={head.title} />
       <meta property="og:url" content={canonicalUrl} />
       <meta property="og:locale" content={LOCALE_MAP[currentLang]} />
@@ -74,7 +74,7 @@ export const RouterHead = component$(() => {
       <meta property="og:image:height" content="630" />
       <meta
         property="og:image:alt"
-        content="ITJobHub - Find your ideal IT job"
+        content="DevBoards.io - Find your ideal IT job"
       />
       {SUPPORTED_LANGUAGES.filter((l) => l !== currentLang).map((lang) => (
         <meta
@@ -90,7 +90,7 @@ export const RouterHead = component$(() => {
       <meta name="twitter:image" content={`${SITE_URL}/og-image.png`} />
       <meta
         name="twitter:image:alt"
-        content="ITJobHub - Find your ideal IT job"
+        content="DevBoards.io - Find your ideal IT job"
       />
 
       {/* Iterate over DocumentHead meta tags */}

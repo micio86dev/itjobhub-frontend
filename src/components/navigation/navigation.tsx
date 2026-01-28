@@ -4,6 +4,7 @@ import { Link } from "@builder.io/qwik-city";
 import { useAuth } from "~/contexts/auth";
 import { useI18n, useTranslate, type SupportedLanguage } from "~/contexts/i18n";
 import { useTheme } from "~/contexts/theme";
+import { Logo } from "~/components/common/logo";
 import styles from "./navigation.css?inline";
 
 export const Navigation = component$(() => {
@@ -60,30 +61,30 @@ export const Navigation = component$(() => {
   );
 
   return (
-    <nav class="nav-wrapper dark:bg-gray-900 dark:border-gray-900">
+    <nav class="dark:bg-gray-900 dark:border-gray-900 nav-wrapper">
       <div class="container">
         <div class="nav-content">
           {/* Left Side: Brand & (Desktop) Links */}
           <div class="nav-left">
-            <Link href="/" class="brand dark:text-white">
-              {t("nav.brand")}
+            <Link href="/" class="brand-link" aria-label="DevBoards.io Home">
+              <Logo />
             </Link>
 
             {/* Desktop Navigation Links */}
             <div class="desktop-links">
-              <Link href="/jobs" class="nav-link dark:text-white">
+              <Link href="/jobs" class="dark:text-white nav-link">
                 {t("nav.jobs")}
               </Link>
-              <Link href="/news" class="nav-link dark:text-white">
+              <Link href="/news" class="dark:text-white nav-link">
                 {t("nav.news")}
               </Link>
               {auth.user?.role === "admin" && (
-                <Link href="/admin/stats" class="nav-link dark:text-white">
+                <Link href="/admin/stats" class="dark:text-white nav-link">
                   {t("nav.dashboard")}
                 </Link>
               )}
               {auth.isAuthenticated && (
-                <Link href="/favorites" class="nav-link dark:text-white">
+                <Link href="/favorites" class="dark:text-white nav-link">
                   {t("nav.favorites")}
                 </Link>
               )}
@@ -95,7 +96,7 @@ export const Navigation = component$(() => {
             {/* Theme toggle - Always Visible */}
             <button
               onClick$={theme.toggleTheme}
-              class="theme-toggle dark:text-white"
+              class="dark:text-white theme-toggle"
               aria-label="Toggle theme"
             >
               {theme.theme === "light" ? (
@@ -133,7 +134,7 @@ export const Navigation = component$(() => {
             <div class="lang-selector">
               <button
                 onClick$={toggleLanguageDropdown}
-                class="lang-btn dark:text-white"
+                class="dark:text-white lang-btn"
               >
                 <span>{currentLanguageObj?.flag}</span>
                 <span class="hidden md:inline">{currentLanguageObj?.name}</span>
@@ -178,7 +179,7 @@ export const Navigation = component$(() => {
             <div class="desktop-auth">
               {auth.isAuthenticated ? (
                 <>
-                  <Link href="/profile" class="nav-link dark:text-white">
+                  <Link href="/profile" class="dark:text-white nav-link">
                     {t("nav.profile")}
                   </Link>
                   <button
@@ -191,7 +192,7 @@ export const Navigation = component$(() => {
                 </>
               ) : (
                 <>
-                  <Link href="/login" class="nav-link dark:text-white">
+                  <Link href="/login" class="dark:text-white nav-link">
                     {t("nav.login")}
                   </Link>
                   <Link href="/register" class="btn-register">
@@ -214,7 +215,7 @@ export const Navigation = component$(() => {
                 {/* Icon when menu is closed */}
                 {!state.isMenuOpen ? (
                   <svg
-                    class="block h-6 w-6"
+                    class="block w-6 h-6"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -230,7 +231,7 @@ export const Navigation = component$(() => {
                 ) : (
                   /* Icon when menu is open */
                   <svg
-                    class="block h-6 w-6"
+                    class="block w-6 h-6"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -254,19 +255,19 @@ export const Navigation = component$(() => {
       {state.isMenuOpen && (
         <div class="mobile-menu">
           <div class="mobile-menu-panel">
-            <Link href="/jobs" class="mobile-nav-link dark:text-white">
+            <Link href="/jobs" class="dark:text-white mobile-nav-link">
               {t("nav.jobs")}
             </Link>
-            <Link href="/news" class="mobile-nav-link dark:text-white">
+            <Link href="/news" class="dark:text-white mobile-nav-link">
               {t("nav.news")}
             </Link>
             {auth.user?.role === "admin" && (
-              <Link href="/admin/stats" class="mobile-nav-link dark:text-white">
+              <Link href="/admin/stats" class="dark:text-white mobile-nav-link">
                 {t("nav.dashboard")}
               </Link>
             )}
             {auth.isAuthenticated && (
-              <Link href="/favorites" class="mobile-nav-link dark:text-white">
+              <Link href="/favorites" class="dark:text-white mobile-nav-link">
                 {t("nav.favorites")}
               </Link>
             )}
@@ -274,7 +275,7 @@ export const Navigation = component$(() => {
             <div class="mobile-divider">
               {auth.isAuthenticated ? (
                 <div class="mobile-auth-wrapper">
-                  <Link href="/profile" class="mobile-nav-link dark:text-white">
+                  <Link href="/profile" class="dark:text-white mobile-nav-link">
                     {t("nav.profile")}
                   </Link>
                   <button
@@ -287,7 +288,7 @@ export const Navigation = component$(() => {
                 </div>
               ) : (
                 <div class="mobile-auth-wrapper">
-                  <Link href="/login" class="mobile-nav-link dark:text-white">
+                  <Link href="/login" class="dark:text-white mobile-nav-link">
                     {t("nav.login")}
                   </Link>
                   <Link href="/register" class="mobile-btn-register">

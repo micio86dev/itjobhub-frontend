@@ -1,5 +1,114 @@
 .stats-section {
-  @apply bg-indigo-50 py-12 border-b border-gray-200;
+  @apply bg-brand-light-bg py-12 border-b border-gray-200 border-t;
+}
+
+:global(.dark) .stats-section {
+  @apply bg-brand-dark-bg border-gray-800;
+}
+
+.container {
+  @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+.stats-grid {
+  @apply grid grid-cols-1 md:grid-cols-3 gap-8 text-center mb-12;
+}
+
+.stat-item {
+  @apply p-6 border border-gray-200 rounded-sm hover:shadow-neon-sm transition-shadow duration-300;
+}
+
+:global(.dark) .stat-item {
+  @apply border-brand-neon/20 bg-brand-dark-card;
+}
+
+.stat-value {
+  @apply text-4xl font-bold mb-2 font-mono text-brand-neon;
+}
+
+.stat-value-indigo,
+.stat-value-pink,
+.stat-value-purple {
+  @apply text-brand-neon;
+}
+
+:global(.dark) .stat-value-indigo,
+:global(.dark) .stat-value-pink,
+:global(.dark) .stat-value-purple {
+  @apply text-brand-neon;
+}
+
+.stat-label {
+  @apply text-gray-600 font-bold uppercase tracking-widest text-xs font-mono;
+}
+
+:global(.dark) .stat-label {
+  @apply text-gray-400;
+}
+
+/* Chart Styles */
+.chart-card {
+  @apply bg-brand-light-card rounded-md shadow-none border border-gray-200 p-8 transform hover:border-brand-neon transition-all duration-300;
+}
+
+:global(.dark) .chart-card {
+  @apply bg-brand-dark-card border-brand-neon/20 hover:shadow-neon-sm;
+}
+
+.chart-title {
+  @apply text-2xl font-bold text-gray-900 mb-8 text-center font-mono;
+}
+
+:global(.dark) .chart-title {
+  @apply text-brand-neon;
+}
+
+.chart-grid {
+  @apply grid grid-cols-1 md:grid-cols-2 gap-6;
+}
+
+.skill-item {
+  @apply relative;
+}
+
+.skill-header {
+  @apply flex justify-between mb-2 font-mono text-xs uppercase;
+}
+
+.skill-name-wrapper {
+  @apply font-bold text-gray-700 flex items-center;
+}
+
+:global(.dark) .skill-name-wrapper {
+  @apply text-gray-300;
+}
+
+.skill-rank-badge {
+  @apply w-5 h-5 rounded-none bg-brand-neon text-black flex items-center justify-center text-[10px] font-bold mr-2;
+}
+
+:global(.dark) .skill-rank-badge {
+  @apply bg-brand-neon text-black;
+}
+
+.skill-count {
+  @apply text-xs text-gray-500 font-mono;
+}
+
+:global(.dark) .skill-count {
+  @apply text-gray-400;
+}
+
+.bar-bg {
+  @apply w-full bg-gray-200 rounded-none h-2 overflow-hidden;
+}
+
+:global(.dark) .bar-bg {
+  @apply bg-gray-800;
+}
+
+.bar-fill {
+  @apply bg-brand-neon h-2 rounded-none transition-all duration-1000 ease-out shadow-[0_0_10px_rgba(0,255,65,0.5)];
 }
 
 :global(.dark) .stats-section {

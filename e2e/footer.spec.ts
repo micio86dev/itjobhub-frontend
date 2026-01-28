@@ -9,7 +9,7 @@ test.describe('Footer', () => {
         await expect(footer).toBeVisible();
 
         // Check copyright
-        await expect(footer).toContainText('ITJobHub');
+        await expect(footer).toContainText('DevBoards.io');
 
         // Check developer link
         const devLink = footer.locator('a[href="https://micio86dev.it/"]');

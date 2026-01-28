@@ -10,7 +10,7 @@ export const Footer = component$(() => {
     <footer class={styles.footer}>
       <div class={`container ${styles.content}`}>
         <p class={styles.copyright}>
-          &copy; {year} ITJobHub. {t("footer.all_rights_reserved")}
+          &copy; {year} DevBoards.io. {t("footer.all_rights_reserved")}
         </p>
         <p class={styles.credits}>
           {t("footer.developed_by")}

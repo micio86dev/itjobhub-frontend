@@ -21,7 +21,7 @@ export default component$(() => {
       <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <meta name="theme-color" content="#4F46E5" />
+        <meta name="theme-color" content="#0d1117" />
 
         {/* Preconnect to critical origins for performance */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
