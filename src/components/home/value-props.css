@@ -1,5 +1,10 @@
 .value-props-section {
-  @apply py-16 bg-brand-light-bg dark:bg-brand-dark-bg transition-colors duration-300;
+  @apply py-24 bg-brand-light-bg dark:bg-brand-dark-bg transition-colors duration-300 relative overflow-hidden;
+}
+
+.value-props-section::before {
+  content: "";
+  @apply absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-gray-200 dark:via-gray-800 to-transparent;
 }
 
 .container {
@@ -7,33 +12,38 @@
 }
 
 .header {
-  @apply text-center mb-16;
+  @apply text-center mb-20;
 }
 
 .title {
-  @apply text-3xl font-bold text-gray-900 dark:text-white font-sans tracking-tight;
+  @apply text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white font-sans tracking-tight;
 }
 
 .gridContainer {
-  @apply grid grid-cols-1 md:grid-cols-3 gap-10;
+  @apply grid grid-cols-1 md:grid-cols-3 gap-8;
 }
 
 .card {
-  @apply text-center p-8 rounded-sm transition-all duration-300 border border-gray-200 dark:border-gray-800 bg-brand-light-card dark:bg-brand-dark-card hover:border-brand-neon hover:shadow-neon-sm;
+  @apply relative p-10 rounded-sm transition-all duration-500 border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900/50 hover:border-brand-neon hover:shadow-neon-sm hover:-translate-y-1;
+}
+
+.card::after {
+  content: "";
+  @apply absolute bottom-0 left-0 w-0 h-0.5 bg-brand-neon transition-all duration-500 group-hover:w-full;
 }
 
 .icon-wrapper {
-  @apply mx-auto h-16 w-16 flex items-center justify-center rounded-sm mb-6 transition-transform group-hover:scale-110 border border-dashed border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-2xl;
+  @apply w-14 h-14 flex items-center justify-center rounded-sm mb-8 transition-all duration-500 border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-gray-400 group-hover:text-brand-neon group-hover:border-brand-neon/50 group-hover:shadow-neon-sm;
 }
 
-.icon-wrapper-brand {
-  @apply text-brand-neon;
+.icon-wrapper svg {
+  @apply w-7 h-7;
 }
 
 .card-title {
-  @apply text-xl font-bold text-gray-900 dark:text-gray-100 mb-3 font-mono uppercase tracking-wide;
+  @apply text-xl font-bold text-gray-900 dark:text-gray-100 mb-4 font-mono uppercase tracking-wider;
 }
 
 .card-desc {
-  @apply text-gray-600 dark:text-gray-400 leading-relaxed font-sans text-sm;
+  @apply text-gray-600 dark:text-gray-400 leading-relaxed font-sans text-base;
 }
