@@ -318,5 +318,15 @@
   "a11y.loading": "Cargando",
   "a11y.close_modal": "Cerrar diálogo",
   "a11y.menu_expanded": "Menú expandido",
+  "news.not_found": "Noticia no encontrada",
+  "news.fetch_error": "Error al cargar la noticia",
+  "news.delete_failed": "Error al eliminar la noticia",
+  "news.go_back": "Volver",
+  "news.source": "Fuente",
+  "news.list_title": "Noticias & Insights Tech",
+  "news.list_subtitle": "Mantente actualizado con las últimas tendencias en desarrollo de software, IA e infraestructura en la nube.",
+  "news.end_of_results": "Has llegado al final",
+  "meta.news_title": "Noticias Tech - IT Job Hub",
+  "meta.news_description": "Últimas noticias para desarrolladores, ingenieros de software y profesionales de tecnología.",
   "a11y.menu_collapsed": "Menú contraído"
 }

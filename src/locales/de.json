@@ -313,5 +313,15 @@
   "a11y.loading": "Laden",
   "a11y.close_modal": "Dialog schließen",
   "a11y.menu_expanded": "Menü erweitert",
+  "news.not_found": "Nachricht nicht gefunden",
+  "news.fetch_error": "Fehler beim Laden der Nachricht",
+  "news.delete_failed": "Fehler beim Löschen der Nachricht",
+  "news.go_back": "Zurück",
+  "news.source": "Quelle",
+  "news.list_title": "Tech Nachrichten & Einblicke",
+  "news.list_subtitle": "Bleiben Sie auf dem Laufenden mit den neuesten Trends in Softwareentwicklung, KI und Cloud-Infrastruktur.",
+  "news.end_of_results": "Sie haben das Ende erreicht",
+  "meta.news_title": "Tech Nachrichten - IT Job Hub",
+  "meta.news_description": "Neueste Nachrichten für Entwickler, Softwareingenieure und Tech-Profis.",
   "a11y.menu_collapsed": "Menü eingeklappt"
 }

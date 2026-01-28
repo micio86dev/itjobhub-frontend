@@ -271,7 +271,7 @@ export const NewsCard = component$<NewsCardProps>(({ news: initialNews }) => {
         </div>
 
         <a href={`/news/${news.slug}`} class="btn-secondary read-more-btn">
-          {t("common.read_more") || "Read more"}
+          {t("common.read_more")}
           <svg
             class="w-4 h-4"
             fill="none"

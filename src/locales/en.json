@@ -327,5 +327,15 @@
   "a11y.loading": "Loading",
   "a11y.close_modal": "Close dialog",
   "a11y.menu_expanded": "Menu expanded",
+  "news.not_found": "News Not Found",
+  "news.fetch_error": "Failed to fetch news",
+  "news.delete_failed": "Failed to delete news",
+  "news.go_back": "Go back",
+  "news.source": "Source",
+  "news.list_title": "Tech News & Insights",
+  "news.list_subtitle": "Stay updated with the latest trends in software development, AI, and cloud infrastructure.",
+  "news.end_of_results": "You've reached the end",
+  "meta.news_title": "Tech News - IT Job Hub",
+  "meta.news_description": "Latest news for developers, software engineers, and tech professionals.",
   "a11y.menu_collapsed": "Menu collapsed"
 }

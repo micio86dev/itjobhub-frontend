@@ -39,6 +39,17 @@ test.describe("News Feature", () => {
         }
     });
 
+    test.beforeEach(async ({ page }) => {
+        if (page) {
+            await page.context().addCookies([{
+                name: "preferred-language",
+                value: "en",
+                domain: "localhost",
+                path: "/"
+            }]);
+        }
+    });
+
     test("Guest can view news list", async ({ page }) => {
         await navigateTo(page, "/news");
 
