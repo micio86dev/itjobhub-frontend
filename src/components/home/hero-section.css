@@ -55,7 +55,17 @@
 }
 
 .search-button {
-  @apply hidden sm:block bg-brand-neon text-black px-8 py-3 rounded-sm font-bold uppercase tracking-wide transition-all duration-200 hover:bg-[#33ff66] hover:shadow-neon-strong transform hover:-translate-y-0.5 active:translate-y-0;
+  @apply hidden sm:block bg-brand-neon text-white dark:text-black px-8 py-3 rounded-sm font-bold uppercase tracking-wide transition-all duration-200;
+}
+
+.search-button:hover {
+  background-color: var(--brand-neon-hover);
+  @apply shadow-neon-strong;
+  transform: translateY(-2px);
+}
+
+.search-button:active {
+  transform: translateY(0);
 }
 
 .popular-tags {

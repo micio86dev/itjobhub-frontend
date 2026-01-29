@@ -31,11 +31,11 @@
 }
 
 .avatar-placeholder {
-  @apply w-8 h-8 bg-brand-neon rounded-full flex items-center justify-center text-black font-bold text-xs;
+  @apply w-8 h-8 bg-brand-neon rounded-full flex items-center justify-center text-white dark:text-black font-bold text-xs;
 }
 
 .avatar-initials {
-  @apply text-xs font-bold text-black;
+  @apply text-xs font-bold text-white dark:text-black;
 }
 
 .form-body {
@@ -51,11 +51,21 @@
 }
 
 .submit-btn {
-  @apply inline-flex items-center justify-center px-4 py-1.5 border border-transparent text-xs font-bold font-mono uppercase tracking-wide rounded-sm shadow-sm text-black bg-brand-neon hover:bg-[#33ff66] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-neon transition-all duration-200 hover:shadow-neon-strong transform hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed;
+  @apply inline-flex items-center justify-center px-4 py-1.5 border border-transparent text-xs font-bold font-mono uppercase tracking-wide rounded-sm shadow-sm text-white dark:text-black bg-brand-neon focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-neon transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.submit-btn:hover:not(:disabled) {
+  background-color: var(--brand-neon-hover);
+  @apply shadow-neon-strong;
+  transform: translateY(-2px);
+}
+
+.submit-btn:active:not(:disabled) {
+  transform: translateY(0);
 }
 
 .loading-spinner {
-  @apply animate-spin -ml-0.5 mr-1.5 h-3 w-3 text-black inline-block;
+  @apply animate-spin -ml-0.5 mr-1.5 h-3 w-3 text-white dark:text-black inline-block;
 }
 
 .spinner-circle {
@@ -115,7 +125,7 @@
 }
 
 .comment-avatar-placeholder {
-  @apply w-6 h-6 bg-brand-neon rounded-full flex items-center justify-center text-black font-bold text-[10px];
+  @apply w-6 h-6 bg-brand-neon rounded-full flex items-center justify-center text-white dark:text-black font-bold text-[10px];
 }
 
 .comment-body {
@@ -139,7 +149,17 @@
 }
 
 .save-btn {
-  @apply inline-flex items-center justify-center px-2 py-1 border border-transparent text-[10px] font-bold font-mono uppercase tracking-wide rounded-sm shadow-sm text-black bg-brand-neon hover:bg-[#33ff66] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-neon transition-all duration-200 hover:shadow-neon-strong transform hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed;
+  @apply inline-flex items-center justify-center px-2 py-1 border border-transparent text-[10px] font-bold font-mono uppercase tracking-wide rounded-sm shadow-sm text-white dark:text-black bg-brand-neon focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-neon transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.save-btn:hover:not(:disabled) {
+  background-color: var(--brand-neon-hover);
+  @apply shadow-neon-strong;
+  transform: translateY(-1px);
+}
+
+.save-btn:active:not(:disabled) {
+  transform: translateY(0);
 }
 
 .comment-content-container {

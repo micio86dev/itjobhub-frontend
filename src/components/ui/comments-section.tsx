@@ -78,6 +78,11 @@ export const BaseCommentsSection = component$<BaseCommentsSectionProps>(
       }
     });
 
+    const cancelDelete = $(() => {
+      state.showDeleteModal = false;
+      state.commentToDelete = null;
+    });
+
     const handleSubmitComment = $(async (e: Event) => {
       e.preventDefault();
       if (!auth.isAuthenticated || !state.commentText.trim()) return;
@@ -152,7 +157,7 @@ export const BaseCommentsSection = component$<BaseCommentsSectionProps>(
               {title || t("comments.title")} ({comments.length})
             </h4>
             <button
-              onClick$={() => (state.isExpanded = !state.isExpanded)}
+              onClick$={$(() => (state.isExpanded = !state.isExpanded))}
               class="toggle-btn"
             >
               <svg
@@ -204,12 +209,14 @@ export const BaseCommentsSection = component$<BaseCommentsSectionProps>(
                     placeholder={t("comments.placeholder")}
                     rows={2}
                     class="comment-textarea"
+                    data-testid="comment-input"
                   />
                   <div class="form-actions">
                     <button
                       type="submit"
                       disabled={!state.commentText.trim() || state.isSubmitting}
                       class="submit-btn"
+                      data-testid="comment-submit"
                     >
                       {state.isSubmitting && (
                         <Spinner size="sm" class="mr-2 -ml-1" />
@@ -242,7 +249,11 @@ export const BaseCommentsSection = component$<BaseCommentsSectionProps>(
               </div>
             ) : (
               comments.map((comment) => (
-                <div key={comment.id} class="comment-item">
+                <div
+                  key={comment.id}
+                  class="comment-item"
+                  data-testid="comment-item"
+                >
                   <div class="comment-avatar-container">
                     {comment.author.avatar ? (
                       <img
@@ -315,11 +326,12 @@ export const BaseCommentsSection = component$<BaseCommentsSectionProps>(
                               <div class="comment-actions">
                                 {auth.user?.id === comment.userId && (
                                   <button
-                                    onClick$={() => {
+                                    onClick$={$(() => {
                                       state.editingId = comment.id;
                                       state.editContent = comment.text;
-                                    }}
+                                    })}
                                     class="action-btn-edit"
+                                    data-testid="comment-edit"
                                   >
                                     <svg
                                       class="action-icon"
@@ -337,11 +349,12 @@ export const BaseCommentsSection = component$<BaseCommentsSectionProps>(
                                   </button>
                                 )}
                                 <button
-                                  onClick$={() => {
+                                  onClick$={$(() => {
                                     state.commentToDelete = comment.id;
                                     state.showDeleteModal = true;
-                                  }}
+                                  })}
                                   class="action-btn-delete"
+                                  data-testid="comment-delete"
                                 >
                                   <svg
                                     class="action-icon"
@@ -374,10 +387,7 @@ export const BaseCommentsSection = component$<BaseCommentsSectionProps>(
         <Modal
           title={t("job.confirm_delete_title")}
           isOpen={state.showDeleteModal}
-          onClose$={$(() => {
-            state.showDeleteModal = false;
-            state.commentToDelete = null;
-          })}
+          onClose$={cancelDelete}
           onConfirm$={confirmDelete}
           isDestructive={true}
           confirmText={t("common.delete")}

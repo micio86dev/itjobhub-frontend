@@ -25,10 +25,10 @@
 }
 
 .socialButton:hover {
-  border-color: #00ff41; /* brand-neon */
-  color: #00ff41;
-  background: rgba(0, 255, 65, 0.05);
-  box-shadow: 0 0 8px rgba(0, 255, 65, 0.2);
+  border-color: var(--brand-neon); /* brand-neon */
+  color: var(--brand-neon);
+  background: color-mix(in srgb, var(--brand-neon), transparent 95%);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--brand-neon), transparent 80%);
   transform: translateY(-1px);
 }
 
@@ -51,10 +51,10 @@
 }
 
 :global(.dark) .socialButton:hover {
-  border-color: #00ff41;
-  color: #00ff41;
-  background: rgba(0, 255, 65, 0.1);
-  box-shadow: 0 0 10px rgba(0, 255, 65, 0.15);
+  border-color: var(--brand-neon);
+  color: var(--brand-neon);
+  background: color-mix(in srgb, var(--brand-neon), transparent 90%);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--brand-neon), transparent 85%);
 }
 
 /* Spinner Animation */
@@ -108,8 +108,8 @@
 /* Focus States for Accessibility */
 .socialButton:focus {
   outline: none;
-  border-color: #00ff41;
-  box-shadow: 0 0 0 1px #00ff41;
+  border-color: var(--brand-neon);
+  box-shadow: 0 0 0 1px var(--brand-neon);
 }
 
 /* Loading State */

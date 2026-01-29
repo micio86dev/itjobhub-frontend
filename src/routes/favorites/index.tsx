@@ -43,7 +43,7 @@ export default component$(() => {
             </p>
             <a
               href="/login"
-              class="inline-flex justify-center items-center bg-brand-neon hover:bg-[#33ff66] mt-4 px-4 py-2 border border-transparent rounded-sm font-mono font-bold text-black text-base uppercase tracking-wide"
+              class="inline-flex justify-center items-center bg-brand-neon hover:bg-brand-neon-hover mt-4 px-4 py-2 border border-transparent rounded-sm font-mono font-bold text-white dark:text-black text-base uppercase tracking-wide"
             >
               {t("home.login")}
             </a>
@@ -59,7 +59,7 @@ export default component$(() => {
             </p>
             <a
               href="/jobs"
-              class="font-medium text-brand-neon hover:text-[#33ff66]"
+              class="font-medium text-brand-neon hover:text-brand-neon-hover"
             >
               {t("home.find_opportunities")}
             </a>

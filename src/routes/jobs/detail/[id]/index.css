@@ -54,11 +54,19 @@
 }
 
 .notFoundButton {
-  @apply inline-block px-6 py-3 bg-brand-neon text-black font-bold font-mono uppercase tracking-wide rounded-sm hover:bg-[#33ff66] transition-colors shadow-sm;
+  @apply inline-block px-6 py-3 bg-brand-neon text-white dark:text-black font-bold font-mono uppercase tracking-wide rounded-sm transition-colors shadow-sm;
+}
+
+.notFoundButton:hover {
+  background-color: var(--brand-neon-hover);
 }
 
 :global(.dark) .notFoundButton {
-  @apply text-black bg-brand-neon hover:bg-[#33ff66];
+  @apply text-white dark:text-black bg-brand-neon;
+}
+
+:global(.dark) .notFoundButton:hover {
+  background-color: var(--brand-neon-hover);
 }
 
 .mainContent {

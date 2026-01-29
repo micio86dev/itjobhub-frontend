@@ -291,7 +291,7 @@ export default component$(() => {
               <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
               <div class="bottom-0 left-0 absolute p-6 md:p-8 text-white">
                 {news.category && (
-                  <span class="inline-block bg-brand-neon mb-3 px-3 py-1 rounded-full font-bold text-black text-xs uppercase tracking-wide">
+                  <span class="inline-block bg-brand-neon mb-3 px-3 py-1 rounded-full font-bold text-white dark:text-black text-xs uppercase tracking-wide">
                     {news.category}
                   </span>
                 )}
@@ -320,7 +320,7 @@ export default component$(() => {
           {!news.image_url && (
             <div class="p-8 border-gray-100 dark:border-gray-800 border-b">
               {news.category && (
-                <span class="inline-block bg-brand-neon mb-3 px-3 py-1 rounded-full font-bold text-black text-xs uppercase tracking-wide">
+                <span class="inline-block bg-brand-neon mb-3 px-3 py-1 rounded-full font-bold text-white dark:text-black text-xs uppercase tracking-wide">
                   {news.category}
                 </span>
               )}

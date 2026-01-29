@@ -76,11 +76,11 @@
 }
 
 .skill-rank-badge {
-  @apply w-5 h-5 rounded-none bg-brand-neon text-black flex items-center justify-center text-[10px] font-bold mr-2;
+  @apply w-5 h-5 rounded-none bg-brand-neon text-white dark:text-black flex items-center justify-center text-[10px] font-bold mr-2;
 }
 
 :global(.dark) .skill-rank-badge {
-  @apply bg-brand-neon text-black;
+  @apply bg-brand-neon text-white dark:text-black;
 }
 
 .skill-count {
@@ -100,5 +100,5 @@
 }
 
 .bar-fill {
-  @apply bg-brand-neon h-2 rounded-none transition-all duration-1000 ease-out shadow-[0_0_10px_rgba(0,255,65,0.5)];
+  @apply bg-brand-neon h-2 rounded-none transition-all duration-1000 ease-out shadow-neon-sm;
 }

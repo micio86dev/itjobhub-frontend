@@ -131,7 +131,13 @@
 }
 
 .btn-primary {
-  @apply inline-flex items-center justify-center px-6 py-2 border border-transparent text-sm font-bold font-mono uppercase tracking-wide rounded-sm shadow-sm text-black bg-brand-neon hover:bg-[#33ff66] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-neon transition-all duration-200 hover:shadow-neon-strong transform hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed;
+  @apply inline-flex items-center justify-center px-6 py-2 border border-transparent text-sm font-bold font-mono uppercase tracking-wide rounded-sm shadow-sm text-white dark:text-black bg-brand-neon focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-neon transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: var(--brand-neon-hover);
+  @apply shadow-neon-strong;
+  transform: translateY(-1px);
 }
 
 :global(.dark) .btn-primary {
@@ -139,7 +145,11 @@
 }
 
 .btn-success {
-  @apply inline-flex items-center px-6 py-2 text-sm font-bold font-mono uppercase rounded-sm text-black bg-brand-neon hover:bg-[#33ff66] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-neon disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200;
+  @apply inline-flex items-center px-6 py-2 text-sm font-bold font-mono uppercase rounded-sm text-white dark:text-black bg-brand-neon focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-neon disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200;
+}
+
+.btn-success:hover:not(:disabled) {
+  background-color: var(--brand-neon-hover);
 }
 
 :global(.dark) .btn-success {

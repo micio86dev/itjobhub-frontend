@@ -37,6 +37,12 @@ test.describe('Comments System', () => {
 
     test.describe('As Logged In User', () => {
         test.beforeEach(async ({ page }) => {
+            page.on('console', msg => {
+                if (msg.type() === 'error') console.log(`[Browser Error] ${msg.text()}`);
+            });
+            page.on('pageerror', err => {
+                console.log(`[Page Error] ${err.message}`);
+            });
             await loginViaUI(page, TEST_USERS.user.email, TEST_USERS.user.password);
         });
 

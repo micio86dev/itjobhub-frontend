@@ -27,5 +27,10 @@
 }
 
 .back-link {
-  @apply inline-flex items-center px-6 py-3 border border-transparent text-base font-bold font-mono uppercase tracking-wide rounded-sm text-black bg-brand-neon transition-colors hover:bg-[#33ff66] hover:shadow-neon-strong;
+  @apply inline-flex items-center px-6 py-3 border border-transparent text-base font-bold font-mono uppercase tracking-wide rounded-sm text-white dark:text-black bg-brand-neon transition-colors;
+}
+
+.back-link:hover {
+  background-color: var(--brand-neon-hover);
+  @apply shadow-neon-strong;
 }

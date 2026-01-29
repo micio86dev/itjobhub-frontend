@@ -353,7 +353,7 @@ export default component$(() => {
                 onClick$={togglePersonalized}
                 class={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
                   state.showPersonalized
-                    ? "bg-brand-neon text-black font-bold font-mono uppercase"
+                    ? "bg-brand-neon text-white dark:text-black font-bold font-mono uppercase"
                     : "bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-700"
                 }`}
               >

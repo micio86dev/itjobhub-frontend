@@ -91,7 +91,12 @@
 }
 
 .btn-primary {
-  @apply bg-brand-neon text-black font-bold font-mono uppercase tracking-wide hover:bg-[#33ff66] focus:ring-brand-neon hover:shadow-neon-strong;
+  @apply bg-brand-neon text-white dark:text-black font-bold font-mono uppercase tracking-wide focus:ring-brand-neon;
+}
+
+.btn-primary:hover {
+  background-color: var(--brand-neon-hover);
+  @apply shadow-neon-strong;
 }
 
 .btn-loading {

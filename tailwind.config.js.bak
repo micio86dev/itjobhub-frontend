@@ -9,9 +9,8 @@ export default {
     extend: {
       colors: {
         brand: {
-          neon: "rgb(var(--brand-neon-rgb) / <alpha-value>)",
-          "neon-hover": "rgb(var(--brand-neon-hover-rgb) / <alpha-value>)",
-          "neon-glow": "rgb(var(--brand-neon-rgb) / 0.15)",
+          neon: "#00FF41" /* The matrix/terminal green */,
+          "neon-glow": "rgba(0, 255, 65, 0.15)",
           "dark-bg": "#0d1117" /* Dark Mode Background */,
           "dark-card": "#161b22" /* Dark Mode Card */,
           "light-bg": "#f0f2f5" /* Light Mode Background */,
@@ -28,8 +27,8 @@ export default {
         mono: ["'JetBrains Mono'", "'Fira Code'", "monospace"],
       },
       boxShadow: {
-        "neon-sm": "0 0 10px rgb(var(--brand-neon-rgb) / 0.2)",
-        "neon-strong": "0 0 20px rgb(var(--brand-neon-rgb) / 0.4)",
+        "neon-sm": "0 0 10px rgba(0, 255, 65, 0.2)",
+        "neon-strong": "0 0 20px rgba(0, 255, 65, 0.4)",
       },
       animation: {
         "pulse-subtle": "pulse-subtle 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",

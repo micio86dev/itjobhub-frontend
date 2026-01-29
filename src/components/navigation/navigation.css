@@ -45,12 +45,16 @@
 .theme-toggle:hover {
   @apply text-brand-neon;
   transform: rotate(180deg) scale(1.1);
-  filter: drop-shadow(0 0 8px rgba(0, 255, 65, 0.4));
+  filter: drop-shadow(
+    0 0 8px color-mix(in srgb, var(--brand-neon), transparent 60%)
+  );
 }
 
 :global(.dark) .theme-toggle:hover {
   @apply text-brand-neon;
-  filter: drop-shadow(0 0 8px rgba(0, 255, 65, 0.5));
+  filter: drop-shadow(
+    0 0 8px color-mix(in srgb, var(--brand-neon), transparent 50%)
+  );
 }
 
 .lang-selector {
@@ -98,10 +102,18 @@
 
 .btn-register {
   @apply px-4 py-2 rounded-sm text-sm font-bold font-mono tracking-wide uppercase
-    text-black bg-brand-neon border border-transparent
-    hover:bg-[#33ff66] hover:shadow-neon-strong
-    transform hover:-translate-y-0.5 active:translate-y-0
+    text-white dark:text-black bg-brand-neon border border-transparent
     transition-all duration-200;
+}
+
+.btn-register:hover {
+  background-color: var(--brand-neon-hover);
+  @apply shadow-neon-strong;
+  transform: translateY(-2px);
+}
+
+.btn-register:active {
+  transform: translateY(0);
 }
 
 .mobile-menu-btn-wrapper {
@@ -141,5 +153,10 @@
 }
 
 .mobile-btn-register {
-  @apply block w-full text-center px-4 py-3 rounded-sm text-base font-bold font-mono uppercase text-black bg-brand-neon hover:bg-[#33ff66] hover:shadow-neon-strong transition-all duration-200;
+  @apply block w-full text-center px-4 py-3 rounded-sm text-base font-bold font-mono uppercase text-white dark:text-black bg-brand-neon transition-all duration-200;
+}
+
+.mobile-btn-register:hover {
+  background-color: var(--brand-neon-hover);
+  @apply shadow-neon-strong;
 }

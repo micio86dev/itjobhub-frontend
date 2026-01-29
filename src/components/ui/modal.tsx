@@ -1,4 +1,4 @@
-import { component$, Slot, type PropFunction } from "@builder.io/qwik";
+import { component$, Slot, type PropFunction, $ } from "@builder.io/qwik";
 // import styles from "./modal.css?inline";
 
 interface ModalProps {
@@ -28,7 +28,7 @@ export const Modal = component$<ModalProps>((props) => {
         <div
           class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
           aria-hidden="true"
-          onClick$={props.onClose$}
+          onClick$={$(() => props.onClose$?.())}
         ></div>
         <span
           class="hidden sm:inline-block sm:h-screen sm:align-middle"
@@ -53,7 +53,7 @@ export const Modal = component$<ModalProps>((props) => {
               type="button"
               class="inline-flex justify-center bg-red-600 hover:bg-red-700 shadow-sm sm:ml-3 px-4 py-2 border border-transparent rounded-md focus:outline-none w-full sm:w-auto font-medium text-white sm:text-sm text-base"
               data-testid="modal-confirm"
-              onClick$={props.onConfirm$}
+              onClick$={$(() => props.onConfirm$?.())}
             >
               {props.confirmText || "Confirm"}
             </button>
@@ -61,7 +61,7 @@ export const Modal = component$<ModalProps>((props) => {
               type="button"
               class="inline-flex justify-center bg-white hover:bg-gray-50 shadow-sm mt-3 sm:mt-0 sm:ml-3 px-4 py-2 border border-gray-300 rounded-md focus:outline-none w-full sm:w-auto font-medium text-gray-700 sm:text-sm text-base"
               data-testid="modal-cancel"
-              onClick$={props.onClose$}
+              onClick$={$(() => props.onClose$?.())}
             >
               {props.cancelText || "Cancel"}
             </button>

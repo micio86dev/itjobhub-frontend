@@ -5,20 +5,6 @@
 @tailwind utilities;
 
 @layer base {
-  :root {
-    --brand-neon-rgb: 21 128 61; /* green-700 */
-    --brand-neon-hover-rgb: 22 163 74; /* green-600 */
-    --brand-neon: rgb(var(--brand-neon-rgb));
-    --brand-neon-hover: rgb(var(--brand-neon-hover-rgb));
-  }
-
-  .dark {
-    --brand-neon-rgb: 0 255 65;
-    --brand-neon-hover-rgb: 51 255 102;
-    --brand-neon: rgb(var(--brand-neon-rgb));
-    --brand-neon-hover: rgb(var(--brand-neon-hover-rgb));
-  }
-
   body {
     @apply bg-brand-light-bg text-gray-900 font-sans transition-colors duration-300;
   }
@@ -40,11 +26,7 @@
 @layer components {
   /* Button Standardization */
   .btn-primary {
-    @apply inline-flex items-center justify-center px-6 py-2 border border-transparent text-sm font-bold font-mono uppercase tracking-wide rounded-sm shadow-sm text-white dark:text-black bg-brand-neon focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-neon transition-all duration-200 hover:shadow-neon-strong transform hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed;
-  }
-
-  .btn-primary:hover:not(:disabled) {
-    background-color: var(--brand-neon-hover);
+    @apply inline-flex items-center justify-center px-6 py-2 border border-transparent text-sm font-bold font-mono uppercase tracking-wide rounded-sm shadow-sm text-black bg-brand-neon hover:bg-[#33ff66] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-neon transition-all duration-200 hover:shadow-neon-strong transform hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed;
   }
 
   .btn-secondary {
@@ -75,13 +57,13 @@
   left: -9999px;
   z-index: 9999;
   padding: 1rem 1.5rem;
-  background: var(--brand-neon);
+  background: #00ff41;
   color: black;
   text-decoration: none;
   font-weight: 700;
   font-family: "JetBrains Mono", monospace;
   border-radius: 0 0 0.5rem 0;
-  box-shadow: 0 0 20px color-mix(in srgb, var(--brand-neon), transparent 60%);
+  box-shadow: 0 0 20px rgba(0, 255, 65, 0.4);
 }
 
 .skip-link:focus {
@@ -91,13 +73,13 @@
 
 /* Dark mode skip link */
 .dark .skip-link {
-  background: var(--brand-neon);
+  background: #00ff41;
   color: black;
 }
 
 /* Global Focus-Visible Styles for Accessibility */
 :focus-visible {
-  outline: 2px solid var(--brand-neon);
+  outline: 2px solid #00ff41;
   outline-offset: 2px;
 }
 
@@ -107,7 +89,7 @@
 
 /* Dark mode focus styles */
 .dark :focus-visible {
-  outline-color: var(--brand-neon);
+  outline-color: #00ff41;
 }
 
 /* High contrast focus for buttons and interactive elements */
@@ -118,9 +100,9 @@ select:focus-visible,
 textarea:focus-visible,
 [role="button"]:focus-visible,
 [tabindex]:focus-visible {
-  outline: 2px solid var(--brand-neon);
+  outline: 2px solid #00ff41;
   outline-offset: 2px;
-  box-shadow: 0 0 10px color-mix(in srgb, var(--brand-neon), transparent 70%);
+  box-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
 }
 
 .dark button:focus-visible,
@@ -130,8 +112,8 @@ textarea:focus-visible,
 .dark textarea:focus-visible,
 .dark [role="button"]:focus-visible,
 .dark [tabindex]:focus-visible {
-  outline-color: var(--brand-neon);
-  box-shadow: 0 0 10px color-mix(in srgb, var(--brand-neon), transparent 70%);
+  outline-color: #00ff41;
+  box-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
 }
 
 /* Screen reader only class */

@@ -29,6 +29,32 @@ The IT Job Hub frontend is a high-performance web application designed for devel
 
 ## Recent Changes
 
+### 2026-01-29: CSS Architecture Stabilization and Comments System Fixes
+
+- **Resolved Critical CSS Compilation Errors**:
+  - Fixed `bg-brand-neon-hover class does not exist` errors by separating Tailwind `@apply` directives from `:hover` states in `job-card.css`, `global.css`, and `cta-section.css`.
+  - Adopted a **hybrid CSS approach**: using `@apply` for structural utilities and standard CSS/PostCSS blocks for dynamic/variable-based colors to ensure robustness.
+  - Standardized `tailwind.config.js` color keys from `neon-hover` to `neonHover` to prevent parsing ambiguity.
+  - Migrated all codebase references to use the new `neonHover` camelCase naming convention.
+- **Fixed Comments System QRL Serialization**:
+  - Refactored `BaseCommentsSection` and `Modal` components to use `PropFunction` instead of `QRL` for event props.
+  - Removed explicit `.invoke()` calls in favor of direct function calls, aligning with Qwik's standard event handling patterns to fix TypeScript errors and `p0 is not a function` runtime issues.
+  - Added missing `$` import in `Modal.tsx`.
+- **E2E Test Verification**:
+  - Restored passing status for `e2e/comments.spec.ts` covering comment creation, edition, and deletion.
+  - Verified `e2e/news.spec.ts` to ensure no regressions in admin capabilities.
+
+### 2026-01-29: QRL Serialization Fix and Admin Deletion Refinement
+
+- **Resolved QRL Serialization Error**: Fixed persistent `TypeError: p0 is not a function` by replacing the `AdminDeleteButton` component with an **inline modal implementation** in both News and Job details pages. This ensures stable function serialization across Qwik resumes.
+- **Deprecated AdminDeleteButton**: Deleted the `AdminDeleteButton` component to simplify the codebase and prevent future rendering/serialization issues.
+- **Improved E2E Test Stability**:
+  - Enhanced `Admin can delete news` test with more robust URL matching (`/\/news\/?$/`).
+  - Implemented explicit cache bypassing (`cache: "no-store"`) for news list fetching to ensure data freshness.
+  - Added strategic page reloads and network idle waits to E2E workflows for higher reliability.
+- **Modal Component Cleanup**: Refactored the base `Modal` component with proper `PropFunction` types and removed unused QRL imports.
+- **Zero-Bug Navigation**: Verified that delete actions now navigate correctly back to the list and refresh the UI without stale results.
+
 ### 2026-01-28: News Filter Bar Refactoring and Sticky Navigation
 
 - **Refactored News Filter Bar**: Created a dedicated `news-index.css` with semantic classes (`.news-filter-bar`, `.category-btn`) to replace complex inline Tailwind classes.

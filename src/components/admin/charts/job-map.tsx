@@ -60,10 +60,10 @@ export const JobMap = component$((props: Props) => {
       // Placeholder/Logo logic - Styled for Dark Mode/IT Theme
       const logoHtml = job.companyLogo
         ? `<img src="${job.companyLogo}" alt="${job.companyName}" style="width: 48px; height: 48px; border-radius: 4px; object-fit: contain; background: #111827; border: 1px solid #374151;">`
-        : `<div style="width: 48px; height: 48px; border-radius: 4px; background: #000000; color: #00FF41; display: flex; align-items: center; justify-content: center; font-weight: bold; font-family: monospace; border: 1px solid #00FF41; box-shadow: 0 0 5px rgba(0, 255, 65, 0.3); font-size: 20px;">${job.companyName.charAt(0).toUpperCase()}</div>`;
+        : `<div style="width: 48px; height: 48px; border-radius: 4px; background: #000000; color: #00FF41; display: flex; align-items: center; justify-content: center; font-weight: bold; font-family: monospace; border: 1px solid #00FF41; box-shadow: 0 0 5px rgb(var(--brand-neon-rgb) / 0.3); font-size: 20px;">${job.companyName.charAt(0).toUpperCase()}</div>`;
 
       const typeBadge = job.type
-        ? `<span style="background: rgba(0, 255, 65, 0.1); color: #00FF41; font-size: 10px; padding: 2px 8px; border-radius: 2px; font-family: monospace; border: 1px solid rgba(0, 255, 65, 0.3); letter-spacing: 0.5px;">${job.type.toUpperCase()}</span>`
+        ? `<span style="background: rgb(var(--brand-neon-rgb) / 0.1); color: #00FF41; font-size: 10px; padding: 2px 8px; border-radius: 2px; font-family: monospace; border: 1px solid rgb(var(--brand-neon-rgb) / 0.3); letter-spacing: 0.5px;">${job.type.toUpperCase()}</span>`
         : "";
       const salaryHtml = job.salary
         ? `<div style="margin-top: 8px; font-size: 12px; color: #e5e7eb; font-family: monospace;">${job.salary}</div>`
@@ -104,7 +104,7 @@ export const JobMap = component$((props: Props) => {
                         gap: 4px;
                         transition: all 0.2s;
                     "
-                    onmouseover="this.style.textShadow='0 0 8px rgba(0,255,65,0.5)'"
+                    onmouseover="this.style.textShadow='0 0 8px rgb(var(--brand-neon-rgb) / 0.5)'"
                     onmouseout="this.style.textShadow='none'"
                     >
                         Vedi Offerta <span style="font-size: 16px;">&rarr;</span>

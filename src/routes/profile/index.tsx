@@ -411,7 +411,7 @@ export default component$(() => {
               <div class="flex justify-center">
                 <button
                   onClick$={handleEditProfile}
-                  class="inline-flex items-center bg-brand-neon hover:bg-[#33ff66] px-4 py-2 border border-transparent rounded-sm focus:outline-none focus:ring-2 focus:ring-brand-neon focus:ring-offset-2 font-mono font-bold text-black text-sm uppercase tracking-wide"
+                  class="inline-flex items-center bg-brand-neon hover:bg-brand-neon-hover px-4 py-2 border border-transparent rounded-sm focus:outline-none focus:ring-2 focus:ring-brand-neon focus:ring-offset-2 font-mono font-bold text-white dark:text-black text-sm uppercase tracking-wide"
                 >
                   {t("profile.complete_profile")}
                 </button>

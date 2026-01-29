@@ -63,11 +63,19 @@
 }
 
 .submit-btn {
-  @apply inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-bold font-mono uppercase rounded text-black bg-brand-neon hover:bg-[#33ff66] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-neon disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200;
+  @apply inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-bold font-mono uppercase rounded text-white dark:text-black bg-brand-neon focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-neon disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200;
+}
+
+.submit-btn:hover:not(:disabled) {
+  background-color: var(--brand-neon-hover);
 }
 
 :global(.dark) .submit-btn {
-  @apply bg-brand-neon hover:bg-[#33ff66] focus:ring-brand-neon;
+  @apply bg-brand-neon focus:ring-brand-neon;
+}
+
+:global(.dark) .submit-btn:hover:not(:disabled) {
+  background-color: var(--brand-neon-hover);
 }
 
 .loading-spinner {
@@ -99,11 +107,19 @@
 }
 
 .login-link {
-  @apply text-brand-neon hover:text-[#33ff66] font-medium;
+  @apply text-brand-neon font-medium;
+}
+
+.login-link:hover {
+  color: var(--brand-neon-hover);
 }
 
 :global(.dark) .login-link {
-  @apply text-brand-neon hover:text-[#33ff66];
+  @apply text-brand-neon;
+}
+
+:global(.dark) .login-link:hover {
+  color: var(--brand-neon-hover);
 }
 
 .comments-list {
@@ -179,11 +195,19 @@
 }
 
 .save-btn {
-  @apply inline-flex items-center text-xs px-2 py-1 bg-brand-neon text-black font-bold uppercase rounded hover:bg-[#33ff66] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200;
+  @apply inline-flex items-center text-xs px-2 py-1 bg-brand-neon text-white dark:text-black font-bold uppercase rounded disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200;
+}
+
+.save-btn:hover:not(:disabled) {
+  background-color: var(--brand-neon-hover);
 }
 
 :global(.dark) .save-btn {
-  @apply bg-brand-neon hover:bg-[#33ff66];
+  @apply bg-brand-neon;
+}
+
+:global(.dark) .save-btn:hover:not(:disabled) {
+  background-color: var(--brand-neon-hover);
 }
 
 .comment-content-container {

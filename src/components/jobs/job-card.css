@@ -330,12 +330,15 @@
 .job-card :global(.apply-btn) {
   @apply inline-flex items-center justify-center gap-2 px-6 py-2 
          text-sm font-bold font-mono tracking-wide uppercase rounded-sm
-         text-black bg-brand-neon
-         hover:bg-[#33ff66]
+         text-white dark:text-black bg-brand-neon
          focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-neon
          shadow-none hover:shadow-neon-strong
          transition-all duration-200
          transform hover:-translate-y-0.5 active:translate-y-0;
+}
+
+.job-card :global(.apply-btn):hover {
+  background-color: var(--brand-neon-hover);
 }
 
 :global(.dark) .job-card :global(.apply-btn) {

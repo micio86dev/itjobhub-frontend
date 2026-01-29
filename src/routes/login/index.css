@@ -63,13 +63,27 @@
 }
 
 .submitButton {
-  @apply inline-flex items-center justify-center w-full px-6 py-3 border border-transparent text-sm font-bold font-mono uppercase tracking-wide rounded-sm shadow-sm text-black bg-brand-neon hover:bg-[#33ff66] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-neon transition-all duration-200 hover:shadow-neon-strong transform hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed;
+  @apply inline-flex items-center justify-center w-full px-6 py-3 border border-transparent text-sm font-bold font-mono uppercase tracking-wide rounded-sm shadow-sm text-white bg-brand-neon focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-neon transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+:global(.dark) .submitButton {
+  @apply text-black;
+}
+
+.submitButton:hover:not(:disabled) {
+  background-color: var(--brand-neon-hover);
+  @apply shadow-neon-strong;
+  transform: translateY(-2px);
+}
+
+.submitButton:active:not(:disabled) {
+  transform: translateY(0);
 }
 
 /* btn-primary used directly */
 
 .spinner {
-  @apply animate-spin -ml-1 mr-2 h-4 w-4 text-black inline-block;
+  @apply animate-spin -ml-1 mr-2 h-4 w-4 text-white dark:text-black inline-block;
 }
 
 .spinnerBase {

@@ -1,4 +1,4 @@
-import { component$, $, useTask$, type PropFunction } from "@builder.io/qwik";
+import { component$, $, useTask$, type QRL } from "@builder.io/qwik";
 import { useJobs, getCommentsFromState } from "~/contexts/jobs";
 import { useAuth } from "~/contexts/auth";
 import { useTranslate } from "~/contexts/i18n";
@@ -9,7 +9,7 @@ import {
 
 interface CommentsSectionProps {
   jobId: string;
-  onClose$?: PropFunction<() => void>;
+  onClose$?: QRL<() => void>;
 }
 
 export const CommentsSection = component$<CommentsSectionProps>((props) => {
