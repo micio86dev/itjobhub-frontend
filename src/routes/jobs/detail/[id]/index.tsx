@@ -297,6 +297,7 @@ export default component$(() => {
                   {auth.user?.role === "admin" && (
                     <>
                       <button
+                        data-testid="delete-button"
                         onClick$={$(() => (showDeleteModal.value = true))}
                         class="hover:bg-red-50 px-4 py-2 border border-red-200 rounded font-bold text-red-600"
                       >

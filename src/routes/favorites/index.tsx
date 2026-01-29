@@ -65,7 +65,7 @@ export default component$(() => {
             </a>
           </div>
         ) : (
-          <div class="gap-6 grid md:grid-cols-2 lg:grid-cols-3">
+          <div class="gap-6 grid jobs-grid md:grid-cols-2 lg:grid-cols-3">
             {jobsState.favorites.map((job) => (
               <JobCard key={job.id} job={job} />
             ))}

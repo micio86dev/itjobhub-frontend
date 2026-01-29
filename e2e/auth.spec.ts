@@ -1,5 +1,8 @@
 import { test, expect } from '@playwright/test';
-import { SELECTORS, ensurePageReady, loginViaUI, verifyAuthState, checkForViteError } from './helpers';
+import { faker } from '@faker-js/faker';
+import { SELECTORS, ensurePageReady, loginViaUI, logoutViaUI, verifyAuthState, checkForViteError } from './helpers';
+
+const registerEmail = faker.internet.email();
 
 test.describe('Authentication', () => {
     test.describe('Registration', () => {
@@ -7,11 +10,9 @@ test.describe('Authentication', () => {
             await page.goto('/register');
             await ensurePageReady(page);
 
-            const email = `test-${Date.now()}@example.com`;
-
             await page.locator(SELECTORS.registerFirstNameInput).fill('Test');
             await page.locator(SELECTORS.registerLastNameInput).fill('User');
-            await page.locator(SELECTORS.registerEmailInput).fill(email);
+            await page.locator(SELECTORS.registerEmailInput).fill(registerEmail);
             await page.locator(SELECTORS.registerPasswordInput).fill('password123');
             await page.locator(SELECTORS.registerConfirmPasswordInput).fill('password123');
 
@@ -40,7 +41,7 @@ test.describe('Authentication', () => {
             // Use existing seeker email
             await page.locator(SELECTORS.registerFirstNameInput).fill('Duplicate');
             await page.locator(SELECTORS.registerLastNameInput).fill('User');
-            await page.locator(SELECTORS.registerEmailInput).fill('seeker@test.com');
+            await page.locator(SELECTORS.registerEmailInput).fill(registerEmail);
             await page.locator(SELECTORS.registerPasswordInput).fill('password123');
             await page.locator(SELECTORS.registerConfirmPasswordInput).fill('password123');
 
@@ -58,7 +59,7 @@ test.describe('Authentication', () => {
 
             await page.locator(SELECTORS.registerFirstNameInput).fill('Test');
             await page.locator(SELECTORS.registerLastNameInput).fill('User');
-            await page.locator(SELECTORS.registerEmailInput).fill(`test-${Date.now()}@example.com`);
+            await page.locator(SELECTORS.registerEmailInput).fill(registerEmail);
             await page.locator(SELECTORS.registerPasswordInput).fill('password123');
             await page.locator(SELECTORS.registerConfirmPasswordInput).fill('differentpassword');
 
@@ -87,7 +88,7 @@ test.describe('Authentication', () => {
             await page.goto('/login');
             await ensurePageReady(page);
 
-            await page.locator(SELECTORS.loginEmailInput).fill('seeker@test.com');
+            await page.locator(SELECTORS.loginEmailInput).fill(registerEmail);
             await page.locator(SELECTORS.loginPasswordInput).fill('password123');
 
             const responsePromise = page.waitForResponse(
@@ -113,7 +114,7 @@ test.describe('Authentication', () => {
             await page.goto('/login');
             await ensurePageReady(page);
 
-            await page.locator(SELECTORS.loginEmailInput).fill('wrong@test.com');
+            await page.locator(SELECTORS.loginEmailInput).fill(registerEmail);
             await page.locator(SELECTORS.loginPasswordInput).fill('wrongpassword');
 
             await page.locator(SELECTORS.loginSubmit).click();
@@ -136,7 +137,7 @@ test.describe('Authentication', () => {
             await expect(page).toHaveURL(/\/login/);
 
             // Login
-            await page.locator(SELECTORS.loginEmailInput).fill('seeker@test.com');
+            await page.locator(SELECTORS.loginEmailInput).fill(registerEmail);
             await page.locator(SELECTORS.loginPasswordInput).fill('password123');
             await page.locator(SELECTORS.loginSubmit).click();
 
@@ -147,7 +148,7 @@ test.describe('Authentication', () => {
 
     test('should allow user to logout', async ({ page }) => {
         // First login
-        await loginViaUI(page, 'seeker@test.com', 'password123');
+        await loginViaUI(page, registerEmail, 'password123');
 
         // Use the helper for logout
         await logoutViaUI(page);

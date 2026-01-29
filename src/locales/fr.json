@@ -138,7 +138,7 @@
   "job.apply_login_required": "pour postuler",
   "job.confirm_delete_title": "Confirmer la Suppression",
   "job.confirm_delete_msg": "Êtes-vous sûr de vouloir supprimer cette offre d'emploi ? Cette action ne peut pas être annulée.",
-  "job.delete": "Supprimer",
+  "job.delete": "Supprimer l'offre",
   "job.like": "J'aime",
   "job.dislike": "Je n'aime pas",
   "comments.just_now": "À l'instant",

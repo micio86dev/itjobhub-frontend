@@ -143,7 +143,7 @@
   "job.apply_login_required": "to apply",
   "job.confirm_delete_title": "Confirm Deletion",
   "job.confirm_delete_msg": "Are you sure you want to delete this job post? This action cannot be undone.",
-  "job.delete": "Delete",
+  "job.delete": "Delete job",
   "job.like": "Like",
   "job.dislike": "Dislike",
   "comments.just_now": "Just now",
