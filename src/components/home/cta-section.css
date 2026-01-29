@@ -35,15 +35,6 @@
   @apply flex justify-center space-x-4;
 }
 
-/* Match global .btn-primary */
-.btn-register {
-  @apply inline-flex items-center justify-center px-8 py-3 border border-transparent text-lg font-bold font-mono uppercase tracking-wide rounded-sm shadow-sm text-white dark:text-black bg-brand-neon focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-neon transition-all duration-200 hover:shadow-neon-strong transform hover:-translate-y-1;
-}
-
-.btn-register:hover {
-  background-color: var(--brand-neon-hover);
-}
-
 .btn-login {
   @apply inline-flex items-center justify-center bg-transparent border-2 border-brand-neon text-brand-neon px-8 py-3 rounded-sm font-bold font-mono uppercase tracking-wide hover:bg-brand-neon/10 transition-colors;
 }

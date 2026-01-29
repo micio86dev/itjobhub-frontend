@@ -240,63 +240,11 @@
 }
 
 :global(.jobs-grid) .reaction-buttons {
-  @apply justify-between w-full;
-}
-
-:global(.jobs-grid) .apply-btn {
-  @apply w-full;
+  @apply justify-between w-full m-auto;
 }
 
 :global(.dark) .footer-actions {
   @apply border-gray-800;
-}
-
-.reaction-buttons {
-  @apply flex items-center space-x-3;
-}
-
-.reaction-btn {
-  @apply flex items-center space-x-1.5 px-2 py-1 rounded-sm transition-all border border-transparent disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer text-xs font-mono;
-}
-
-.reaction-icon-svg {
-  @apply w-4 h-4 transition-transform duration-200;
-}
-
-.reaction-btn:hover .reaction-icon-svg {
-  @apply scale-110;
-}
-
-.reaction-btn-like-active {
-  @apply bg-brand-neon/10 text-brand-neon border-brand-neon/30;
-}
-
-:global(.dark) .reaction-btn-like-active {
-  @apply bg-brand-neon/20 border-brand-neon/50;
-}
-
-.reaction-btn-like-inactive {
-  @apply text-gray-500 hover:text-brand-neon hover:border-brand-neon/30;
-}
-
-:global(.dark) .reaction-btn-like-inactive {
-  @apply text-gray-400 hover:text-brand-neon hover:border-brand-neon/50;
-}
-
-.reaction-btn-dislike-active {
-  @apply bg-red-100 text-red-600 border-red-200;
-}
-
-:global(.dark) .reaction-btn-dislike-active {
-  @apply bg-red-900/20 text-red-400 border-red-800;
-}
-
-.reaction-btn-dislike-inactive {
-  @apply text-gray-500 hover:text-red-600 hover:border-red-200;
-}
-
-:global(.dark) .reaction-btn-dislike-inactive {
-  @apply text-gray-400 hover:text-red-400 hover:border-red-800;
 }
 
 .comments-btn {
@@ -325,24 +273,6 @@
 
 :global(.dark) .stats-container {
   @apply text-gray-400 border-gray-800;
-}
-
-.job-card :global(.apply-btn) {
-  @apply inline-flex items-center justify-center gap-2 px-6 py-2 
-         text-sm font-bold font-mono tracking-wide uppercase rounded-sm
-         text-white dark:text-black bg-brand-neon
-         focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-neon
-         shadow-none hover:shadow-neon-strong
-         transition-all duration-200
-         transform hover:-translate-y-0.5 active:translate-y-0;
-}
-
-.job-card :global(.apply-btn):hover {
-  background-color: var(--brand-neon-hover);
-}
-
-:global(.dark) .job-card :global(.apply-btn) {
-  @apply focus:ring-offset-gray-900;
 }
 
 :global(.dark) .job-card {

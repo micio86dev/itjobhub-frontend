@@ -49,7 +49,10 @@ export const HeroSection = component$<HeroSectionProps>(({ topSkills }) => {
                 class="search-input"
                 data-testid="search-query"
               />
-              <button type="submit" class="search-button">
+              <button
+                type="submit"
+                class="hidden sm:inline-flex btn-primary btn-lg"
+              >
                 {t("home.search_button")}
               </button>
             </div>

@@ -78,20 +78,6 @@
   @apply bg-brand-neon/20 border-brand-neon/50;
 }
 
-.applyButton {
-  @apply inline-flex items-center justify-center px-8 py-3 border border-transparent text-base font-bold font-mono uppercase tracking-wide rounded-sm shadow-sm text-white dark:text-black bg-brand-neon focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-neon transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed;
-}
-
-.applyButton:hover:not(:disabled) {
-  background-color: var(--brand-neon-hover);
-  @apply shadow-neon-strong;
-  transform: translateY(-2px);
-}
-
-.applyButton:active:not(:disabled) {
-  transform: translateY(0);
-}
-
 .favoriteIcon {
   @apply w-5 h-5 transition-transform duration-200;
 }

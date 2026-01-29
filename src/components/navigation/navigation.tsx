@@ -194,7 +194,7 @@ export const Navigation = component$(() => {
                   <Link href="/login" class="nav-link">
                     {t("nav.login")}
                   </Link>
-                  <Link href="/register" class="btn-register">
+                  <Link href="/register" class="rounded-sm btn-primary btn-sm">
                     {t("nav.register")}
                   </Link>
                 </>
@@ -290,7 +290,10 @@ export const Navigation = component$(() => {
                   <Link href="/login" class="mobile-nav-link">
                     {t("nav.login")}
                   </Link>
-                  <Link href="/register" class="mobile-btn-register">
+                  <Link
+                    href="/register"
+                    class="justify-center w-full btn-primary"
+                  >
                     {t("nav.register")}
                   </Link>
                 </div>

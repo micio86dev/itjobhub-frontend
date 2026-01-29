@@ -22,7 +22,7 @@ export const CTASection = component$<CTASectionProps>(({ isAuthenticated }) => {
         <p class="description">{t("home.cta_desc")}</p>
         {!isAuthenticated && (
           <div class="actions">
-            <a href="/register" class="btn-register">
+            <a href="/register" class="btn-primary btn-lg">
               {t("home.register_free")}
             </a>
             <a href="/login" class="btn-login">

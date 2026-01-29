@@ -54,20 +54,6 @@
   @apply flex-1 p-4 bg-transparent text-white placeholder-gray-500 rounded-md focus:outline-none font-mono text-lg;
 }
 
-.search-button {
-  @apply hidden sm:block bg-brand-neon text-white dark:text-black px-8 py-3 rounded-sm font-bold uppercase tracking-wide transition-all duration-200;
-}
-
-.search-button:hover {
-  background-color: var(--brand-neon-hover);
-  @apply shadow-neon-strong;
-  transform: translateY(-2px);
-}
-
-.search-button:active {
-  transform: translateY(0);
-}
-
 .popular-tags {
   @apply mt-6 text-sm text-gray-400 flex flex-wrap gap-2 items-center justify-center sm:justify-start font-mono;
 }

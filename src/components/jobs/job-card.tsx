@@ -7,6 +7,7 @@ import { useJobs, getCommentsFromState } from "~/contexts/jobs";
 import { LoginPrompt } from "./login-prompt";
 import { useAuth } from "~/contexts/auth";
 import { useTranslate, useI18n } from "~/contexts/i18n";
+import { ReactionButtons } from "~/components/ui/reaction-buttons";
 
 interface JobCardProps {
   job: JobListing;
@@ -333,66 +334,16 @@ export const JobCard = component$<JobCardProps>(
 
         {/* Actions */}
         <div class="footer-actions">
-          <div class="reaction-buttons">
-            {/* Like/Dislike buttons */}
-            <button
-              onClick$={handleLike}
-              disabled={!auth.isAuthenticated}
-              title={t("job.like")}
-              data-testid="like-button"
-              class={`reaction-btn ${
-                job.user_reaction === "LIKE"
-                  ? "reaction-btn-like-active"
-                  : "reaction-btn-like-inactive"
-              }`}
-            >
-              <svg
-                class="reaction-icon-svg"
-                fill={job.user_reaction === "LIKE" ? "currentColor" : "none"}
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M14 10h4.708C19.743 10 20.5 10.895 20.5 12c0 .403-.122.778-.331 1.091l-2.43 3.645C17.431 17.203 16.746 18 15.865 18H9v-8l1.32-3.958a2 2 0 011.897-1.368H13a2 2 0 012 2v3.326L14 10zM9 18H5a2 2 0 01-2-2v-4a2 2 0 012-2h4v8z"
-                />
-              </svg>
-              <span class="font-medium text-sm" data-testid="like-count">
-                {job.likes}
-              </span>
-            </button>
-
-            <button
-              onClick$={handleDislike}
-              disabled={!auth.isAuthenticated}
-              title={t("job.dislike")}
-              data-testid="dislike-button"
-              class={`reaction-btn ${
-                job.user_reaction === "DISLIKE"
-                  ? "reaction-btn-dislike-active"
-                  : "reaction-btn-dislike-inactive"
-              }`}
-            >
-              <svg
-                class="reaction-icon-svg"
-                fill={job.user_reaction === "DISLIKE" ? "currentColor" : "none"}
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M10 14H5.292C4.257 14 3.5 13.105 3.5 12c0-.403.122-.778.331-1.091l2.43-3.645C6.569 6.797 7.254 6 8.135 6H15v8l-1.32 3.958a2 2 0 01-1.897 1.368H11a2 2 0 01-2-2v-3.326L10 14zM15 6h4a2 2 0 012 2v4a2 2 0 01-2 2h-4V6z"
-                />
-              </svg>
-              <span class="font-medium text-sm" data-testid="dislike-count">
-                {job.dislikes}
-              </span>
-            </button>
-
+          <ReactionButtons
+            likes={job.likes}
+            dislikes={job.dislikes}
+            userReaction={job.user_reaction}
+            onLike$={handleLike}
+            onDislike$={handleDislike}
+            isAuthenticated={auth.isAuthenticated}
+            likeTitle={t("job.like")}
+            dislikeTitle={t("job.dislike")}
+          >
             {/* Comments button - Only show if toggle function is provided */}
             {onToggleComments$ && (
               <button
@@ -402,7 +353,7 @@ export const JobCard = component$<JobCardProps>(
                 }`}
               >
                 <svg
-                  class="reaction-icon-svg"
+                  class="w-4 h-4 reaction-icon-svg"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -463,14 +414,13 @@ export const JobCard = component$<JobCardProps>(
                 {job.clicks_count || 0}
               </span>
             </div>
+          </ReactionButtons>
 
-            {/* Apply tracking logic needs to happen on click too, usually on detail page but if we track here too... 
-              Actually user asked to track apply click. The Apply button is here. */}
-          </div>
-
-          {/* External link */}
           {/* Link to detail page */}
-          <Link href={`/jobs/detail/${job.id}`} class="apply-btn">
+          <Link
+            href={`/jobs/detail/${job.id}`}
+            class="justify-center btn-primary"
+          >
             <span>{t("job.apply")}</span>
             <svg class="ml-1 w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
               <path

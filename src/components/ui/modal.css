@@ -1,3 +1,4 @@
+/* ... existing styles ... */
 .modal-backdrop {
   @apply fixed inset-0 z-50 overflow-y-auto;
 }
@@ -91,12 +92,13 @@
 }
 
 .btn-primary {
-  @apply bg-brand-neon text-white dark:text-black font-bold font-mono uppercase tracking-wide focus:ring-brand-neon;
+  @apply text-white dark:text-black font-bold font-mono uppercase tracking-wide focus:ring-brand-neon;
+  background-color: rgb(var(--brand-neon-rgb));
 }
 
 .btn-primary:hover {
-  background-color: var(--brand-neon-hover);
-  @apply shadow-neon-strong;
+  background-color: rgb(var(--brand-neon-hover-rgb));
+  box-shadow: 0 0 20px rgb(var(--brand-neon-rgb) / 0.4);
 }
 
 .btn-loading {

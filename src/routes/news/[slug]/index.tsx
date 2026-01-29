@@ -21,6 +21,7 @@ import { ReactionButtons } from "~/components/ui/reaction-buttons";
 import { DetailStats } from "~/components/ui/detail-stats";
 // import { DeleteConfirmButton } from "~/components/ui/delete-confirm-button";
 import type { ApiNews } from "~/types/models";
+import { Modal } from "~/components/ui/modal";
 
 export const useNewsLoader = routeLoader$(async ({ params, cookie }) => {
   const slug = params.slug;
@@ -373,45 +374,21 @@ export default component$(() => {
                   </button>
 
                   {showDeleteModal.value && (
-                    <div
-                      class="z-50 fixed inset-0 flex justify-center items-center bg-black/50 backdrop-blur-sm p-4"
-                      data-testid="modal-root"
-                      role="dialog"
-                      aria-modal="true"
+                    <Modal
+                      title={t("news.confirm_delete_title")}
+                      isOpen={showDeleteModal.value}
+                      onClose$={$(() => (showDeleteModal.value = false))}
+                      onConfirm$={$(async () => {
+                        await handleDelete();
+                        showDeleteModal.value = false;
+                      })}
+                      isDestructive={true}
+                      isLoading={state.isDeleting}
+                      confirmText={t("news.delete_article")}
+                      cancelText={t("common.cancel")}
                     >
-                      <div class="bg-white dark:bg-slate-900 shadow-xl p-6 rounded-2xl w-full max-w-md transition-all transform">
-                        <h3 class="mb-2 font-bold text-gray-900 dark:text-white text-lg">
-                          {t("news.confirm_delete_title")}
-                        </h3>
-                        <p class="mb-6 text-gray-600 dark:text-gray-300">
-                          {t("news.confirm_delete_msg")}
-                        </p>
-
-                        <div class="flex justify-end gap-3">
-                          <button
-                            class="hover:bg-gray-100 dark:hover:bg-gray-800 px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 transition-colors"
-                            onClick$={$(() => (showDeleteModal.value = false))}
-                            data-testid="modal-cancel"
-                          >
-                            {t("common.cancel")}
-                          </button>
-                          <button
-                            class="flex items-center gap-2 bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg text-white transition-colors"
-                            onClick$={$(async () => {
-                              await handleDelete();
-                              showDeleteModal.value = false;
-                            })}
-                            data-testid="modal-confirm"
-                            disabled={state.isDeleting}
-                          >
-                            {state.isDeleting && (
-                              <div class="border-2 border-white/30 border-t-white rounded-full w-4 h-4 animate-spin"></div>
-                            )}
-                            {t("news.delete_article")}
-                          </button>
-                        </div>
-                      </div>
-                    </div>
+                      <p>{t("news.confirm_delete_msg")}</p>
+                    </Modal>
                   )}
                 </>
               )}

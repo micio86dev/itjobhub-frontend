@@ -215,7 +215,7 @@ export const BaseCommentsSection = component$<BaseCommentsSectionProps>(
                     <button
                       type="submit"
                       disabled={!state.commentText.trim() || state.isSubmitting}
-                      class="submit-btn"
+                      class="px-3 py-1.5 text-xs btn-primary"
                       data-testid="comment-submit"
                     >
                       {state.isSubmitting && (
@@ -297,7 +297,7 @@ export const BaseCommentsSection = component$<BaseCommentsSectionProps>(
                           </button>
                           <button
                             onClick$={saveEdit}
-                            class="save-btn"
+                            class="px-2 py-1 text-xs btn-primary"
                             disabled={
                               !state.editContent.trim() ||
                               state.isEditingSubmitting

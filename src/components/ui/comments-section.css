@@ -62,22 +62,6 @@
   @apply flex justify-end mt-2;
 }
 
-.submit-btn {
-  @apply inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-bold font-mono uppercase rounded text-white dark:text-black bg-brand-neon focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-neon disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200;
-}
-
-.submit-btn:hover:not(:disabled) {
-  background-color: var(--brand-neon-hover);
-}
-
-:global(.dark) .submit-btn {
-  @apply bg-brand-neon focus:ring-brand-neon;
-}
-
-:global(.dark) .submit-btn:hover:not(:disabled) {
-  background-color: var(--brand-neon-hover);
-}
-
 .loading-spinner {
   @apply animate-spin -ml-0.5 mr-1.5 h-3 w-3 text-white inline-block;
 }
@@ -192,22 +176,6 @@
 
 :global(.dark) .cancel-btn {
   @apply text-gray-400 hover:text-gray-200;
-}
-
-.save-btn {
-  @apply inline-flex items-center text-xs px-2 py-1 bg-brand-neon text-white dark:text-black font-bold uppercase rounded disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200;
-}
-
-.save-btn:hover:not(:disabled) {
-  background-color: var(--brand-neon-hover);
-}
-
-:global(.dark) .save-btn {
-  @apply bg-brand-neon;
-}
-
-:global(.dark) .save-btn:hover:not(:disabled) {
-  background-color: var(--brand-neon-hover);
 }
 
 .comment-content-container {

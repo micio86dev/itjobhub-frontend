@@ -1,21 +1,21 @@
 .reaction-buttons {
-  @apply flex items-center bg-transparent gap-1 mr-2;
+  @apply flex items-center space-x-3;
 }
 
 .reaction-btn {
-  @apply p-2 rounded-sm transition-all border border-transparent flex items-center gap-1.5 text-gray-500 dark:text-gray-400 font-mono disabled:opacity-50 disabled:cursor-not-allowed;
+  @apply flex items-center space-x-1.5 px-2 py-1 rounded-sm transition-all border border-transparent disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer text-xs font-mono;
 }
 
 .reaction-icon-svg {
-  @apply w-5 h-5 transition-transform duration-200;
+  @apply w-4 h-4 transition-transform duration-200;
+}
+
+.reaction-count {
+  @apply text-xs font-bold font-mono;
 }
 
 .reaction-btn:hover .reaction-icon-svg {
   @apply scale-110;
-}
-
-.reaction-count {
-  @apply text-sm font-bold;
 }
 
 .reaction-btn-like-active {
@@ -26,18 +26,26 @@
   @apply bg-brand-neon/20 border-brand-neon/50;
 }
 
-.reaction-btn-like-inactive:hover {
-  @apply text-brand-neon bg-brand-neon/10;
+.reaction-btn-like-inactive {
+  @apply text-gray-500 hover:text-brand-neon hover:border-brand-neon/30;
+}
+
+:global(.dark) .reaction-btn-like-inactive {
+  @apply text-gray-400 hover:text-brand-neon hover:border-brand-neon/50;
 }
 
 .reaction-btn-dislike-active {
-  @apply bg-red-500/10 text-red-500 border-red-500/30;
+  @apply bg-red-100 text-red-600 border-red-200;
 }
 
 :global(.dark) .reaction-btn-dislike-active {
-  @apply bg-red-500/20 border-red-500/50;
+  @apply bg-red-900/20 text-red-400 border-red-800;
 }
 
-.reaction-btn-dislike-inactive:hover {
-  @apply text-red-500 bg-red-500/10;
+.reaction-btn-dislike-inactive {
+  @apply text-gray-500 hover:text-red-600 hover:border-red-200;
+}
+
+:global(.dark) .reaction-btn-dislike-inactive {
+  @apply text-gray-400 hover:text-red-400 hover:border-red-800;
 }

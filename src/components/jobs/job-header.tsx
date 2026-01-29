@@ -127,7 +127,7 @@ export const JobHeader = component$<JobHeaderProps>((props) => {
             target="_blank"
             rel="noopener noreferrer"
             onClick$={props.onApplyClick$}
-            class="applyButton"
+            class="px-8 py-3 w-auto text-base btn-primary"
             data-testid="apply-button"
           >
             {t("job.apply")}

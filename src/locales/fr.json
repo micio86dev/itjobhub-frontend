@@ -125,6 +125,8 @@
   "job.apply": "Postuler",
   "job.add_favorite": "Ajouter aux favoris",
   "job.remove_favorite": "Retirer des favoris",
+  "job.views": "vues",
+  "job.applications": "candidatures",
   "job.details_title": "Détails de l'offre",
   "job.back_to_search": "Retour à la recherche",
   "job.description_title": "Description du poste",

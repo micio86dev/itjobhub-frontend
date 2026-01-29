@@ -3,6 +3,7 @@ import {
   useStylesScoped$,
   type PropFunction,
   $,
+  Slot,
 } from "@builder.io/qwik";
 import styles from "./reaction-buttons.css?inline";
 
@@ -15,13 +16,14 @@ interface ReactionButtonsProps {
   isAuthenticated: boolean;
   likeTitle?: string;
   dislikeTitle?: string;
+  class?: string;
 }
 
 export const ReactionButtons = component$<ReactionButtonsProps>((props) => {
   useStylesScoped$(styles);
 
   return (
-    <div class="reaction-buttons">
+    <div class={`reaction-buttons ${props.class || ""}`}>
       <button
         onClick$={$(async () => await props.onLike$())}
         disabled={!props.isAuthenticated}
@@ -79,6 +81,8 @@ export const ReactionButtons = component$<ReactionButtonsProps>((props) => {
           {props.dislikes}
         </span>
       </button>
+
+      <Slot />
     </div>
   );
 });

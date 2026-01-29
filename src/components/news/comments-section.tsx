@@ -146,8 +146,11 @@ export const NewsCommentsSection = component$<CommentsSectionProps>((props) => {
   const deleteComment = $(async (id: string) => {
     if (!auth.token) return;
 
-    // Optimistic
-    const oldComments = [...state.comments];
+    // Store state purely for revert, avoid spreading proxy directly if unsafe is suspected, though usually fine.
+    // Deep clone can be safer for revert if needed, but here structure is simple.
+    // Just map to pure objects to be safe.
+    const oldComments = state.comments.map((c) => ({ ...c }));
+
     state.comments = state.comments.filter((c) => c.id !== id);
 
     try {
@@ -160,7 +163,8 @@ export const NewsCommentsSection = component$<CommentsSectionProps>((props) => {
       );
       if (!res.ok) throw new Error("Failed");
     } catch (e) {
-      state.comments = oldComments; // Revert
+      // Reconstitute state if failed
+      state.comments = oldComments;
       console.error("Failed to delete comment", e);
       alert("Failed to delete comment");
     }

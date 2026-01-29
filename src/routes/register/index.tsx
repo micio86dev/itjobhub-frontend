@@ -215,7 +215,7 @@ export default component$(() => {
               type="submit"
               disabled={form.loading}
               data-testid="register-form-submit-btn"
-              class="submitButton"
+              class="py-3 w-full btn-primary"
             >
               {form.loading && form.provider === "email" && (
                 <Spinner size="sm" class="inline-block mr-2 -ml-1" />

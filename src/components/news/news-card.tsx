@@ -5,6 +5,7 @@ import type { ApiNews } from "~/types/models";
 import { useAuth } from "~/contexts/auth";
 import { useTranslate, useI18n } from "~/contexts/i18n";
 import { request } from "~/utils/api";
+import { ReactionButtons } from "~/components/ui/reaction-buttons";
 
 interface NewsCardProps {
   news: ApiNews;
@@ -171,63 +172,16 @@ export const NewsCard = component$<NewsCardProps>((props) => {
       <div class="summary">{displaySummary}</div>
 
       <div class="footer-actions">
-        <div class="reaction-buttons">
-          <button
-            onClick$={handleLike}
-            disabled={!auth.isAuthenticated}
-            data-testid="like-button"
-            class={`reaction-btn ${
-              news.user_reaction === "LIKE"
-                ? "reaction-btn-like-active"
-                : "reaction-btn-like-inactive"
-            }`}
-          >
-            <svg
-              class="reaction-icon-svg"
-              fill={news.user_reaction === "LIKE" ? "currentColor" : "none"}
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M14 10h4.708C19.743 10 20.5 10.895 20.5 12c0 .403-.122.778-.331 1.091l-2.43 3.645C17.431 17.203 16.746 18 15.865 18H9v-8l1.32-3.958a2 2 0 011.897-1.368H13a2 2 0 012 2v3.326L14 10zM9 18H5a2 2 0 01-2-2v-4a2 2 0 012-2h4v8z"
-              />
-            </svg>
-            <span class="font-medium text-sm" data-testid="like-count">
-              {news.likes}
-            </span>
-          </button>
-
-          <button
-            onClick$={handleDislike}
-            disabled={!auth.isAuthenticated}
-            data-testid="dislike-button"
-            class={`reaction-btn ${
-              news.user_reaction === "DISLIKE"
-                ? "reaction-btn-dislike-active"
-                : "reaction-btn-dislike-inactive"
-            }`}
-          >
-            <svg
-              class="reaction-icon-svg"
-              fill={news.user_reaction === "DISLIKE" ? "currentColor" : "none"}
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M10 14H5.292C4.257 14 3.5 13.105 3.5 12c0-.403.122-.778.331-1.091l2.43-3.645C6.569 6.797 7.254 6 8.135 6H15v8l-1.32 3.958a2 2 0 01-1.897 1.368H11a2 2 0 01-2-2v-3.326L10 14zM15 6h4a2 2 0 012 2v4a2 2 0 01-2 2h-4V6z"
-              />
-            </svg>
-            <span class="font-medium text-sm" data-testid="dislike-count">
-              {news.dislikes}
-            </span>
-          </button>
-
+        <ReactionButtons
+          likes={news.likes}
+          dislikes={news.dislikes}
+          userReaction={news.user_reaction}
+          onLike$={handleLike}
+          onDislike$={handleDislike}
+          isAuthenticated={auth.isAuthenticated}
+          likeTitle={t("news.like")}
+          dislikeTitle={t("news.dislike")}
+        >
           <div class="comments-wrapper">
             <svg
               class="reaction-icon-svg"
@@ -269,7 +223,7 @@ export const NewsCard = component$<NewsCardProps>((props) => {
               {news.views_count || 0}
             </span>
           </div>
-        </div>
+        </ReactionButtons>
 
         <a href={`/news/${news.slug}`} class="btn-secondary read-more-btn">
           {t("common.read_more")}
