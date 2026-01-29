@@ -7,6 +7,7 @@ import {
   Resource,
   $,
   useStylesScoped$,
+  useSignal,
 } from "@builder.io/qwik";
 
 import { useLocation, Link, useNavigate } from "@builder.io/qwik-city";
@@ -24,7 +25,6 @@ import { JobMapSection } from "~/components/jobs/job-map-section";
 import { JobDescription } from "~/components/jobs/job-description";
 import { JobSkillsList } from "~/components/jobs/job-skills-list";
 import { CompanyInfoBox } from "~/components/jobs/company-info-box";
-import { AdminDeleteButton } from "~/components/ui/admin-delete-button";
 import styles from "./index.css?inline";
 
 export default component$(() => {
@@ -41,6 +41,7 @@ export default component$(() => {
     matchScore: null as MatchScore | null,
     isDeleting: false,
   });
+  const showDeleteModal = useSignal(false);
 
   const jobResource = useResource$(async ({ track }) => {
     const id = track(() => loc.params.id);
@@ -293,13 +294,54 @@ export default component$(() => {
                 />
                 <div class="px-8 md:px-10 pb-8">
                   {auth.user?.role === "admin" && (
-                    <AdminDeleteButton
-                      onDelete$={handleDeleteJob}
-                      confirmTitle={t("job.confirm_delete_title")}
-                      confirmMessage={t("job.confirm_delete_msg")}
-                      buttonText={t("job.delete")}
-                      isDeleting={state.isDeleting}
-                    />
+                    <>
+                      <button
+                        onClick$={$(() => (showDeleteModal.value = true))}
+                        class="hover:bg-red-50 px-4 py-2 border border-red-200 rounded font-bold text-red-600"
+                      >
+                        {t("job.delete")}
+                      </button>
+
+                      {showDeleteModal.value && (
+                        <div
+                          class="z-50 fixed inset-0 flex justify-center items-center bg-black/50 p-4"
+                          role="dialog"
+                          aria-modal="true"
+                        >
+                          <div class="bg-white dark:bg-slate-900 shadow-xl p-6 rounded-lg w-full max-w-sm">
+                            <h3 class="mb-2 font-bold text-gray-900 dark:text-white text-lg">
+                              {t("job.confirm_delete_title")}
+                            </h3>
+                            <p class="mb-6 text-gray-600 dark:text-gray-300">
+                              {t("job.confirm_delete_msg")}
+                            </p>
+
+                            <div class="flex justify-end gap-3">
+                              <button
+                                class="bg-gray-200 hover:bg-gray-300 dark:bg-gray-800 dark:hover:bg-gray-700 px-4 py-2 rounded text-gray-800 dark:text-gray-200"
+                                onClick$={$(
+                                  () => (showDeleteModal.value = false),
+                                )}
+                              >
+                                {t("common.cancel")}
+                              </button>
+                              <button
+                                class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded text-white"
+                                onClick$={$(async () => {
+                                  await handleDeleteJob();
+                                  showDeleteModal.value = false;
+                                })}
+                                disabled={state.isDeleting}
+                              >
+                                {state.isDeleting
+                                  ? "Deleting..."
+                                  : t("job.delete")}
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </>
                   )}
                 </div>
               </div>

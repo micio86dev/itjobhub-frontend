@@ -23,7 +23,11 @@
 }
 
 .stat-value {
-  @apply text-4xl font-bold mb-2 font-mono text-brand-neon;
+  @apply text-4xl font-bold mb-2 font-mono text-green-800;
+}
+
+:global(.dark) .stat-value {
+  @apply text-brand-neon;
 }
 
 .stat-label {

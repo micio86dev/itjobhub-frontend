@@ -9,8 +9,8 @@ export const Logo = component$(() => {
         </span>
         <div class="absolute inset-0 bg-brand-neon/10 opacity-0 group-hover:opacity-100 rounded transition-opacity duration-300"></div>
       </div>
-      <span class="font-bold text-gray-900 dark:text-gray-100 group-hover:text-brand-neon text-xl tracking-tight transition-colors duration-300">
-        <span class="text-brand-neon">Dev</span>Boards.io
+      <span class="font-bold text-gray-900 dark:group-hover:text-brand-neon dark:text-gray-100 group-hover:text-green-700 text-xl tracking-tight transition-colors duration-300">
+        <span class="text-green-700 dark:text-brand-neon">Dev</span>Boards.io
       </span>
     </div>
   );

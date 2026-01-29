@@ -24,7 +24,7 @@ export const HeroSection = component$<HeroSectionProps>(({ topSkills }) => {
 
         {/* Search Box */}
         <div class="search-container">
-          <form action="/jobs" method="get" class="search-form group">
+          <form action="/jobs" method="get" class="group search-form">
             <div class="search-glow"></div>
             <div class="search-input-wrapper">
               <span class="search-icon-wrapper">
@@ -47,6 +47,7 @@ export const HeroSection = component$<HeroSectionProps>(({ topSkills }) => {
                 name="q"
                 placeholder={t("home.start_search")}
                 class="search-input"
+                data-testid="search-query"
               />
               <button type="submit" class="search-button">
                 {t("home.search_button")}

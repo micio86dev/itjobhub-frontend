@@ -7,11 +7,11 @@
 }
 
 .content {
-  @apply mx-auto px-4 text-center text-gray-600;
+  @apply mx-auto px-4 text-center text-gray-700;
 }
 
 :global(.dark) .content {
-  @apply text-gray-400;
+  @apply text-gray-300;
 }
 
 .copyright {

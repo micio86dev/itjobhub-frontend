@@ -145,28 +145,14 @@ test.describe('Authentication', () => {
         });
     });
 
-    test.describe('Logout', () => {
-        test('should allow user to logout', async ({ page }) => {
-            // First login
-            await loginViaUI(page, 'seeker@test.com', 'password123');
+    test('should allow user to logout', async ({ page }) => {
+        // First login
+        await loginViaUI(page, 'seeker@test.com', 'password123');
 
-            // Find and click logout
-            // Check for mobile menu visibility using the class we verified
-            const mobileMenuBtn = page.locator('.mobile-menu-btn');
+        // Use the helper for logout
+        await logoutViaUI(page);
 
-            if (await mobileMenuBtn.isVisible()) {
-                await mobileMenuBtn.click();
-                // Wait for menu animation
-                await page.waitForTimeout(500);
-                // Click mobile logout
-                await page.locator('.mobile-btn-logout').click();
-            } else {
-                // Desktop logout
-                await page.locator('.btn-logout').click();
-            }
-
-            await expect(page).toHaveURL(/\/(login)?$/);
-            await verifyAuthState(page, false);
-        });
+        await expect(page).toHaveURL(/\/(login)?$/);
+        await verifyAuthState(page, false);
     });
 });

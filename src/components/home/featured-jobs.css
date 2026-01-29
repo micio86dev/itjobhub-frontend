@@ -31,7 +31,11 @@
 }
 
 .view-all-link {
-  @apply hidden sm:flex items-center text-brand-neon font-bold font-mono uppercase tracking-wide transition-all hover:underline;
+  @apply hidden sm:flex items-center text-green-800 font-bold font-mono uppercase tracking-wide transition-all hover:underline;
+}
+
+:global(.dark) .view-all-link {
+  @apply text-brand-neon;
 }
 
 .link-icon {

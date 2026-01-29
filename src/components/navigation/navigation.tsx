@@ -184,7 +184,7 @@ export const Navigation = component$(() => {
                   <button
                     onClick$={handleLogout}
                     class="btn-logout"
-                    data-testid="logout-button"
+                    data-testid="logout-button-desktop"
                   >
                     {t("nav.logout")}
                   </button>
@@ -280,7 +280,7 @@ export const Navigation = component$(() => {
                   <button
                     onClick$={handleLogout}
                     class="mobile-btn-logout"
-                    data-testid="logout-button"
+                    data-testid="logout-button-mobile"
                   >
                     {t("nav.logout")}
                   </button>

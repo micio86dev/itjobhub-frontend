@@ -81,7 +81,7 @@ export default component$(() => {
           : "";
       const endpoint = `${import.meta.env.PUBLIC_API_URL}/news?page=${page}&limit=12${categoryParam}`;
 
-      const res = await request(endpoint);
+      const res = await request(endpoint, { cache: "no-store" });
       const data = await res.json();
 
       if (data.success) {

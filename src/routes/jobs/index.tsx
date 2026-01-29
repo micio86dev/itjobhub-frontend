@@ -392,7 +392,7 @@ export default component$(() => {
                 <p class="text-gray-700 dark:text-gray-300 text-sm">
                   <a
                     href="/register"
-                    class="font-bold text-brand-neon hover:underline"
+                    class="font-bold text-green-700 dark:text-brand-neon hover:underline"
                   >
                     {t("common.register")}
                   </a>{" "}
@@ -424,7 +424,7 @@ export default component$(() => {
                 <p class="text-gray-700 dark:text-gray-300 text-sm">
                   <a
                     href="/wizard"
-                    class="font-bold text-brand-neon hover:underline"
+                    class="font-bold text-green-700 dark:text-brand-neon hover:underline"
                   >
                     {t("profile.complete_profile")}
                   </a>{" "}
@@ -438,7 +438,7 @@ export default component$(() => {
 
       {/* Results count */}
       {state.totalJobsCount > 0 && (
-        <div class="mb-4 font-mono font-medium text-gray-600 dark:text-gray-400 text-sm">
+        <div class="mb-4 font-mono font-medium text-gray-800 dark:text-gray-300 text-sm">
           {state.hasNextPage
             ? t("jobs.showing_count").replace(
                 "{count}",
@@ -455,7 +455,7 @@ export default component$(() => {
       <div class="space-y-6">
         {state.displayedJobs.length === 0 && !state.isLoading ? (
           <div class="py-12 text-center">
-            <div class="mx-auto mb-4 w-16 h-16 text-gray-400 dark:text-gray-500">
+            <div class="mx-auto mb-4 w-16 h-16 text-gray-500 dark:text-gray-400">
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   stroke-linecap="round"
@@ -529,7 +529,7 @@ export default component$(() => {
           ref={infiniteScrollRef}
           class="flex justify-center items-center h-20"
         >
-          <div class="text-gray-400 dark:text-gray-500">
+          <div class="text-gray-600 dark:text-gray-500">
             <svg
               class="mx-auto mb-2 w-6 h-6"
               fill="none"

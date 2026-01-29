@@ -21,7 +21,8 @@ export const SELECTORS = {
   // Navigation
   loginLink: 'a[href="/login"]',
   registerLink: 'a[href="/register"]',
-  logoutButton: '[data-testid="logout-button"]',
+  logoutButton:
+    '[data-testid="logout-button"], [data-testid="logout-button-desktop"], [data-testid="logout-button-mobile"]',
   mobileMenuButton:
     '[data-testid="mobile-menu-button"], button[aria-label="Menu"]',
   profileLink: '[data-testid="profile-link"], a[href="/profile"]',
@@ -64,8 +65,12 @@ export const SELECTORS = {
  * Wait for page to be fully loaded and hydrated
  */
 export async function ensurePageReady(page: Page): Promise<void> {
+  // Wait for page to be stable, but don't hang forever
+  await Promise.race([
+    page.waitForLoadState("networkidle"),
+    page.waitForTimeout(5000),
+  ]).catch(() => {});
   await page.waitForLoadState("domcontentloaded");
-  await page.waitForLoadState("networkidle");
   await checkForViteError(page);
 }
 
@@ -114,16 +119,29 @@ export async function loginViaUI(
  * Logout through UI
  */
 export async function logoutViaUI(page: Page): Promise<void> {
-  // Try mobile menu first
-  const mobileMenu = page.locator(SELECTORS.mobileMenuButton);
-  if (await mobileMenu.isVisible({ timeout: 1000 }).catch(() => false)) {
-    await mobileMenu.click();
-    await page.waitForTimeout(500);
+  const isMobile = page.viewportSize()?.width
+    ? page.viewportSize()!.width < 1024
+    : false;
+
+  if (isMobile) {
+    const mobileMenu = page.locator('[data-testid="mobile-menu-button"]');
+    if (await mobileMenu.isVisible()) {
+      await mobileMenu.click();
+      await page.waitForTimeout(500);
+      await page.waitForTimeout(300);
+    }
+  } else {
+    const userMenu = page.locator('[data-testid="user-menu-button"]');
+    if (await userMenu.isVisible()) {
+      await userMenu.click();
+      await page.waitForTimeout(300);
+    }
   }
 
   const logoutBtn = page
     .locator(SELECTORS.logoutButton)
-    .locator("visible=true");
+    .filter({ visible: true })
+    .first();
   await logoutBtn.click();
 
   await expect(page).toHaveURL(/\/(login)?$/);

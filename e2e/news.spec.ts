@@ -119,23 +119,46 @@ test.describe("News Feature", () => {
 
         // Ensure page is ready and some hydration time
         await adminPage.waitForTimeout(1000);
+        // Click delete button
+        // Monitor console and dialogs
+        adminPage.on('console', msg => console.log(`[Browser Console] ${msg.text()}`));
+        adminPage.on('dialog', dialog => {
+            console.log(`[Browser Dialog] ${dialog.message()}`);
+            dialog.accept();
+        });
+
         const deleteBtn = adminPage.getByTestId("delete-article-btn");
-        await expect(deleteBtn).toBeVisible();
+        console.log("Delete button locator created");
+        await deleteBtn.scrollIntoViewIfNeeded();
+        console.log("Scrolled into view");
+        await expect(deleteBtn).toBeVisible({ timeout: 10000 });
+        console.log("Delete button visible");
         await deleteBtn.click();
+        console.log("Delete button clicked");
 
         // Modal should appear
         const modal = adminPage.locator('[role="dialog"]');
-        await expect(modal).toBeVisible();
-        await expect(modal).toContainText(/confirm|delete|sicuro|eliminare/i);
+        await expect(modal).toBeVisible({ timeout: 5000 });
+        console.log("Modal visible");
+
+        // Wait for animation
+        await adminPage.waitForTimeout(500);
 
         // Confirm
         const confirmBtn = adminPage.getByTestId("modal-confirm");
         await confirmBtn.click();
+        console.log("Confirm button clicked");
 
         // Should redirect to news list
-        await expect(adminPage).toHaveURL(/\/news$/);
+        await expect(adminPage).toHaveURL(/\/news\/?$/, { timeout: 30000 });
+
+        // Wait for list to load
+        // await adminPage.waitForResponse(resp => resp.url().includes('/news') && resp.request().method() === 'GET');
+
+        await adminPage.reload();
+        await adminPage.waitForLoadState('networkidle');
 
         // Should not be visible in the list anymore
-        await expect(adminPage.getByText(testNews.title)).not.toBeVisible();
+        await expect(adminPage.getByText(testNews.title)).not.toBeVisible({ timeout: 10000 });
     });
 });

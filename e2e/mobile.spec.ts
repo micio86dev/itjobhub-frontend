@@ -6,10 +6,11 @@ import { SELECTORS, ensurePageReady, loginViaUI, isMobileViewport } from './help
  * These tests specifically target mobile viewports and interactions
  */
 test.describe('Mobile Experience', () => {
-    // Only run on mobile projects
-    test.skip(({ browserName }, testInfo) => {
-        return !testInfo.project.name.toLowerCase().includes('mobile');
-    }, 'Only runs on mobile viewports');
+    test.beforeEach(async ({ }, testInfo) => {
+        if (!testInfo.project.name.toLowerCase().includes('mobile')) {
+            test.skip();
+        }
+    });
 
     test.describe('Navigation', () => {
         test('should show hamburger menu on mobile', async ({ page }) => {
@@ -119,7 +120,7 @@ test.describe('Mobile Experience', () => {
             await hamburgerMenu.click();
 
             // Should see logout button
-            const logoutBtn = page.locator(SELECTORS.logoutButton).first();
+            const logoutBtn = page.locator('[data-testid="logout-button-mobile"]').first();
             await expect(logoutBtn).toBeVisible({ timeout: 3000 });
         });
 
@@ -144,7 +145,7 @@ test.describe('Mobile Experience', () => {
             const hamburgerMenu = page.locator(SELECTORS.mobileMenuButton);
             await hamburgerMenu.click();
 
-            const logoutBtn = page.locator(SELECTORS.logoutButton).first();
+            const logoutBtn = page.locator('[data-testid="logout-button-mobile"]').first();
             if (await logoutBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
                 await logoutBtn.click();
                 await expect(page).toHaveURL(/\/(login)?$/);

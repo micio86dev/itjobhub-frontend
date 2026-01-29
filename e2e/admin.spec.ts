@@ -11,12 +11,9 @@ test.describe('Admin User', () => {
         test('should have admin auth state after login', async ({ page }) => {
             await verifyAuthState(page, true);
 
-            const authUser = await page.evaluate(() => {
-                const user = localStorage.getItem('auth_user');
-                return user ? JSON.parse(user) : null;
-            });
-
-            expect(authUser?.role).toBe('admin');
+            // Admin should see Dashboard link
+            const dashboardLink = page.locator('a[href="/admin/stats"]').first();
+            await expect(dashboardLink).toBeVisible();
         });
 
         test('should be able to access admin panel', async ({ page }) => {

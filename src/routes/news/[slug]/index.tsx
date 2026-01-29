@@ -1,4 +1,11 @@
-import { component$, useStore, useTask$, isBrowser, $ } from "@builder.io/qwik";
+import {
+  component$,
+  useStore,
+  useTask$,
+  isBrowser,
+  $,
+  useSignal,
+} from "@builder.io/qwik";
 import {
   Link,
   useNavigate,
@@ -12,7 +19,7 @@ import { useAuth } from "~/contexts/auth";
 import { NewsCommentsSection } from "~/components/news/comments-section";
 import { ReactionButtons } from "~/components/ui/reaction-buttons";
 import { DetailStats } from "~/components/ui/detail-stats";
-import { AdminDeleteButton } from "~/components/ui/admin-delete-button";
+// import { DeleteConfirmButton } from "~/components/ui/delete-confirm-button";
 import type { ApiNews } from "~/types/models";
 
 export const useNewsLoader = routeLoader$(async ({ params, cookie }) => {
@@ -56,6 +63,7 @@ export default component$(() => {
   const lang = i18n.currentLanguage;
   const newsSignal = useNewsLoader();
   const deleteFailedMsg = t("news.delete_failed");
+  const showDeleteModal = useSignal(false);
 
   const state = useStore({
     news: newsSignal.value.news,
@@ -170,6 +178,14 @@ export default component$(() => {
       if (res.ok) {
         await nav("/news");
       } else {
+        console.error("Delete news failed", res.status, res.statusText);
+        // Try to read body
+        try {
+          const body = await res.json();
+          console.error("Delete news error body", body);
+        } catch {
+          /* ignore */
+        }
         alert(deleteFailedMsg);
       }
     } catch (e) {
@@ -331,18 +347,74 @@ export default component$(() => {
           <div class="p-6 md:p-10">
             {/* Admin Actions */}
             <div class="flex justify-end mb-6">
-              <div class="px-8 pb-8">
-                {auth.user?.role === "admin" && (
-                  <AdminDeleteButton
-                    onDelete$={handleDelete}
-                    confirmTitle={t("news.confirm_delete_title")}
-                    confirmMessage={t("news.confirm_delete_msg")}
-                    buttonText={t("news.delete_article")}
-                    isDeleting={state.isDeleting}
-                    testId="delete-article-btn"
-                  />
-                )}
-              </div>
+              {auth.user?.role === "admin" && (
+                <>
+                  <button
+                    class="group flex items-center gap-2 bg-red-50 hover:bg-red-100 dark:bg-red-900/10 dark:hover:bg-red-900/20 px-4 py-2 border border-red-200 dark:border-red-900 rounded-lg text-red-600 dark:text-red-400 transition-colors"
+                    onClick$={$(() => (showDeleteModal.value = true))}
+                    data-testid="delete-article-btn"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path d="M3 6h18" />
+                      <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+                      <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+                    </svg>
+                    <span>{t("news.delete_article")}</span>
+                  </button>
+
+                  {showDeleteModal.value && (
+                    <div
+                      class="z-50 fixed inset-0 flex justify-center items-center bg-black/50 backdrop-blur-sm p-4"
+                      data-testid="modal-root"
+                      role="dialog"
+                      aria-modal="true"
+                    >
+                      <div class="bg-white dark:bg-slate-900 shadow-xl p-6 rounded-2xl w-full max-w-md transition-all transform">
+                        <h3 class="mb-2 font-bold text-gray-900 dark:text-white text-lg">
+                          {t("news.confirm_delete_title")}
+                        </h3>
+                        <p class="mb-6 text-gray-600 dark:text-gray-300">
+                          {t("news.confirm_delete_msg")}
+                        </p>
+
+                        <div class="flex justify-end gap-3">
+                          <button
+                            class="hover:bg-gray-100 dark:hover:bg-gray-800 px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 transition-colors"
+                            onClick$={$(() => (showDeleteModal.value = false))}
+                            data-testid="modal-cancel"
+                          >
+                            {t("common.cancel")}
+                          </button>
+                          <button
+                            class="flex items-center gap-2 bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg text-white transition-colors"
+                            onClick$={$(async () => {
+                              await handleDelete();
+                              showDeleteModal.value = false;
+                            })}
+                            data-testid="modal-confirm"
+                            disabled={state.isDeleting}
+                          >
+                            {state.isDeleting && (
+                              <div class="border-2 border-white/30 border-t-white rounded-full w-4 h-4 animate-spin"></div>
+                            )}
+                            {t("news.delete_article")}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
             </div>
 
             {displayContent && (

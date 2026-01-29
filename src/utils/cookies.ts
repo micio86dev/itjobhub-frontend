@@ -30,5 +30,27 @@ export const getCookie = (name: string) => {
 };
 
 export const deleteCookie = (name: string) => {
+  // Try deleting with direct path
   document.cookie = name + "=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;";
+
+  // Try deleting with current domain
+  if (typeof window !== "undefined") {
+    const domain = window.location.hostname;
+    document.cookie =
+      name +
+      "=; Path=/; Domain=" +
+      domain +
+      "; Expires=Thu, 01 Jan 1970 00:00:01 GMT;";
+
+    // Also try without subdomains if any
+    const parts = domain.split(".");
+    if (parts.length > 2) {
+      const rootDomain = parts.slice(-2).join(".");
+      document.cookie =
+        name +
+        "=; Path=/; Domain=" +
+        rootDomain +
+        "; Expires=Thu, 01 Jan 1970 00:00:01 GMT;";
+    }
+  }
 };
