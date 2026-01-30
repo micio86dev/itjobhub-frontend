@@ -35,11 +35,14 @@
 }
 
 .category-badge {
-  @apply inline-flex items-center px-2 py-0.5 rounded-sm text-[10px] font-bold font-mono bg-brand-neon/10 text-brand-neon border border-brand-neon/20 uppercase tracking-wider;
+  @apply inline-flex items-center px-2 py-0.5 rounded-sm text-[10px] font-bold font-mono uppercase tracking-wider;
+  background-color: var(--brand-neon);
+  color: white;
 }
 
 :global(.dark) .category-badge {
-  @apply bg-brand-neon/20 text-brand-neon border-brand-neon/30;
+  background-color: var(--brand-neon);
+  color: black;
 }
 
 .summary {

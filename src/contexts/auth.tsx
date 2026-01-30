@@ -343,6 +343,7 @@ export const AuthProvider = component$(
 
         if (typeof document !== "undefined") {
           deleteCookie("auth_token");
+          deleteCookie("refresh_token");
           nav("/login");
         }
 
