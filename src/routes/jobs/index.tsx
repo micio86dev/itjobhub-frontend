@@ -184,11 +184,26 @@ export default component$(() => {
       }
 
       if (state.showPersonalized && auth.user) {
+        // Valid employment types for filtering
+        const validEmploymentTypes = [
+          "full-time",
+          "part-time",
+          "contract",
+          "freelance",
+          "internship",
+          "hybrid",
+        ];
+        const userAvailability = auth.user.availability
+          ?.toLowerCase()
+          .replace("_", "-");
+
         filters = {
           ...filters,
           skills: auth.user.skills ? Array.from(auth.user.skills) : undefined,
-          seniority: auth.user.seniority,
-          availability: auth.user.availability,
+          seniority: auth.user.seniority?.toLowerCase(),
+          availability: validEmploymentTypes.includes(userAvailability || "")
+            ? userAvailability
+            : undefined,
           looseSeniority: true,
         };
       }
@@ -209,17 +224,29 @@ export default component$(() => {
     state.page = 1;
 
     if (state.showPersonalized && auth.user) {
-      // Build filters from user profile
+      // Valid employment types for filtering
+      const validEmploymentTypes = [
+        "full-time",
+        "part-time",
+        "contract",
+        "freelance",
+        "internship",
+        "hybrid",
+      ];
+      const userAvailability = auth.user.availability
+        ?.toLowerCase()
+        .replace("_", "-");
+
       const personalFilters: JobFilters = {
         skills: auth.user.skills ? Array.from(auth.user.skills) : undefined,
-        seniority: auth.user.seniority,
-        availability: auth.user.availability,
+        seniority: auth.user.seniority?.toLowerCase(),
+        availability: validEmploymentTypes.includes(userAvailability || "")
+          ? userAvailability
+          : undefined,
         languages: auth.user.languages
           ? Array.from(auth.user.languages)
           : undefined,
         looseSeniority: true,
-        // We might want to include location/remote preferences from profile too if available,
-        // but sticking to skills/seniority for "Feed" to match previous logic
       };
       state.searchFilters = personalFilters; // Keep track of current filters
       await jobsState.fetchJobsPage$(1, personalFilters, false);
