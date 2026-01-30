@@ -2,13 +2,12 @@ import { test, expect, TEST_USERS } from './fixtures';
 import { SELECTORS, ensurePageReady, loginViaUI, verifyAuthState } from './helpers';
 
 test.describe('Admin User', () => {
-    test.beforeEach(async ({ page }) => {
-        // Login as admin
-        await loginViaUI(page, TEST_USERS.admin.email, TEST_USERS.admin.password);
-    });
+    // Using adminPage fixture which handles authentication automatically
+    // No need for explicit login in beforeEach
 
     test.describe('Authentication & Access', () => {
-        test('should have admin auth state after login', async ({ page }) => {
+        test('should have admin auth state after login', async ({ adminPage: page }) => {
+            await page.goto('/');
             await verifyAuthState(page, true);
 
             // Admin should see Dashboard link
@@ -16,7 +15,7 @@ test.describe('Admin User', () => {
             await expect(dashboardLink).toBeVisible();
         });
 
-        test('should be able to access admin panel', async ({ page }) => {
+        test('should be able to access admin panel', async ({ adminPage: page }) => {
             await page.goto('/admin');
             await ensurePageReady(page);
 
@@ -26,14 +25,14 @@ test.describe('Admin User', () => {
     });
 
     test.describe('Job Management', () => {
-        test('should be able to view all jobs', async ({ page }) => {
+        test('should be able to view all jobs', async ({ adminPage: page }) => {
             await page.goto('/jobs');
             await ensurePageReady(page);
 
             await expect(page.locator(SELECTORS.jobCard).first()).toBeVisible();
         });
 
-        test('should see delete button on job detail page', async ({ page }) => {
+        test('should see delete button on job detail page', async ({ adminPage: page }) => {
             await page.goto('/jobs');
             await ensurePageReady(page);
 
@@ -49,7 +48,7 @@ test.describe('Admin User', () => {
             }
         });
 
-        test('should be able to delete a job with confirmation', async ({ page }) => {
+        test('should be able to delete a job with confirmation', async ({ adminPage: page }) => {
             await page.goto('/jobs');
             await ensurePageReady(page);
 
@@ -77,7 +76,7 @@ test.describe('Admin User', () => {
             }
         });
 
-        test('should be able to cancel job deletion', async ({ page }) => {
+        test('should be able to cancel job deletion', async ({ adminPage: page }) => {
             await page.goto('/jobs');
             await ensurePageReady(page);
 
@@ -109,7 +108,7 @@ test.describe('Admin User', () => {
     });
 
     test.describe('Admin Dashboard', () => {
-        test('should see admin statistics or dashboard elements', async ({ page }) => {
+        test('should see admin statistics or dashboard elements', async ({ adminPage: page }) => {
             await page.goto('/admin');
             await ensurePageReady(page);
 
@@ -124,7 +123,7 @@ test.describe('Admin User', () => {
             await expect(page.getByTestId('admin-stats-active-jobs')).toBeVisible();
         });
 
-        test('should access admin stats page if available', async ({ page }) => {
+        test('should access admin stats page if available', async ({ adminPage: page }) => {
             await page.goto('/admin/stats');
             await ensurePageReady(page);
 
@@ -139,7 +138,7 @@ test.describe('Admin User', () => {
     });
 
     test.describe('Comments Moderation', () => {
-        test('should be able to see delete button on any comment', async ({ page }) => {
+        test('should be able to see delete button on any comment', async ({ adminPage: page }) => {
             await page.goto('/jobs');
             await ensurePageReady(page);
 
@@ -164,7 +163,7 @@ test.describe('Admin User', () => {
     });
 
     test.describe('Navigation', () => {
-        test('should see admin-specific navigation elements', async ({ page }) => {
+        test('should see admin-specific navigation elements', async ({ adminPage: page }) => {
             await page.goto('/');
             await ensurePageReady(page);
 

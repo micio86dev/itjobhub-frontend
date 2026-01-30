@@ -1,0 +1,60 @@
+.loginContainer {
+  @apply min-h-screen flex items-center justify-center bg-brand-light-bg py-12 px-4 sm:px-6 lg:px-8;
+}
+
+:global(.dark) .loginContainer {
+  @apply bg-brand-dark-bg;
+}
+
+.loginCard {
+  @apply max-w-md w-full space-y-8 p-8 rounded-lg border border-gray-200 bg-brand-light-card shadow-lg transition-all duration-300;
+}
+
+:global(.dark) .loginCard {
+  @apply bg-brand-dark-card border-gray-800;
+}
+
+.title {
+  @apply mt-2 text-center text-3xl font-bold font-sans text-gray-900 tracking-tight;
+}
+
+:global(.dark) .title {
+  @apply text-white;
+}
+
+.subtitle {
+  @apply mt-2 text-center text-sm text-gray-600 font-sans;
+}
+
+:global(.dark) .subtitle {
+  @apply text-gray-400;
+}
+
+.link {
+  @apply font-semibold text-brand-neon hover:text-brand-neon/80 transition-colors;
+}
+
+.form {
+  @apply mt-8 space-y-6;
+}
+
+.inputGroup {
+  @apply rounded-md shadow-sm -space-y-px;
+}
+
+/* Single input styling */
+.inputSingle {
+  @apply block w-full px-4 py-3 border border-gray-300 rounded-sm bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-neon focus:border-brand-neon z-10 sm:text-sm transition-all duration-200;
+}
+
+:global(.dark) .inputSingle {
+  @apply bg-gray-900 text-white border-gray-600 placeholder-gray-500;
+}
+
+.errorMessage {
+  @apply text-red-500 text-sm text-center font-mono bg-red-50 dark:bg-red-900/20 p-2 rounded border border-red-200 dark:border-red-800;
+}
+
+.successMessage {
+  @apply text-green-500 text-sm text-center font-mono bg-green-50 dark:bg-green-900/20 p-2 rounded border border-green-200 dark:border-green-800;
+}

@@ -210,7 +210,7 @@ const processApiJob = (job: ApiJob): JobListing => {
 };
 
 export const JobsContext = createContextId<JobsState>("jobs-context");
-const API_URL = import.meta.env.PUBLIC_API_URL || "http://localhost:3001";
+const API_URL = import.meta.env.PUBLIC_API_URL || "http://127.0.0.1:3001";
 
 export const JobsProvider = component$(() => {
   const likeJobSignal = useSignal<LikeJobRequest | null>(null);

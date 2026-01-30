@@ -2,13 +2,11 @@ import { test, expect, TEST_USERS } from './fixtures';
 import { SELECTORS, ensurePageReady, loginViaUI, goToFirstJobDetail, getReactionCounts } from './helpers';
 
 test.describe('Registered User', () => {
-    test.beforeEach(async ({ page }) => {
-        // Login as seeker
-        await loginViaUI(page, TEST_USERS.user.email, TEST_USERS.user.password);
-    });
+    // Using userPage fixture for tests
+    // No need for explicit login in beforeEach
 
     test.describe('Profile', () => {
-        test('should be able to view their profile', async ({ page }) => {
+        test('should be able to view their profile', async ({ userPage: page }) => {
             await page.goto('/profile');
             await ensurePageReady(page);
 
@@ -23,7 +21,7 @@ test.describe('Registered User', () => {
             }
         });
 
-        test('should be able to update their profile', async ({ page }) => {
+        test('should be able to update their profile', async ({ userPage: page }) => {
             await page.goto('/profile');
             await ensurePageReady(page);
 
@@ -51,7 +49,7 @@ test.describe('Registered User', () => {
     });
 
     test.describe('Jobs', () => {
-        test('should be able to view job listings', async ({ page }) => {
+        test('should be able to view job listings', async ({ userPage: page }) => {
             await page.goto('/jobs');
             await ensurePageReady(page);
 
@@ -78,7 +76,7 @@ test.describe('Registered User', () => {
             }
         });
 
-        test('should be able to search and filter jobs', async ({ page }) => {
+        test('should be able to search and filter jobs', async ({ userPage: page }) => {
             await page.goto('/jobs');
             await ensurePageReady(page);
 
@@ -91,14 +89,14 @@ test.describe('Registered User', () => {
             await expect(page).toHaveURL(/\?|jobs/);
         });
 
-        test('should be able to view job details', async ({ page }) => {
+        test('should be able to view job details', async ({ userPage: page }) => {
             await goToFirstJobDetail(page);
             await expect(page.locator('h1').first()).toBeVisible();
         });
     });
 
     test.describe('Reactions (Like/Dislike)', () => {
-        test('should be able to like a job', async ({ page }) => {
+        test('should be able to like a job', async ({ userPage: page }) => {
             await goToFirstJobDetail(page);
 
             const likeBtn = page.locator(SELECTORS.likeButton);
@@ -118,7 +116,7 @@ test.describe('Registered User', () => {
             expect(newCounts.likes !== initialCounts.likes || true).toBeTruthy();
         });
 
-        test('should be able to toggle like off', async ({ page }) => {
+        test('should be able to toggle like off', async ({ userPage: page }) => {
             await goToFirstJobDetail(page);
 
             const likeBtn = page.locator(SELECTORS.likeButton);
@@ -137,7 +135,7 @@ test.describe('Registered User', () => {
             expect(finalCounts.likes).toBe(initialCounts.likes);
         });
 
-        test('should update counts when switching from like to dislike', async ({ page }) => {
+        test('should update counts when switching from like to dislike', async ({ userPage: page }) => {
             await goToFirstJobDetail(page);
 
             const likeBtn = page.locator(SELECTORS.likeButton);
@@ -162,7 +160,7 @@ test.describe('Registered User', () => {
     });
 
     test.describe('Favorites', () => {
-        test('should be able to access favorites page', async ({ page }) => {
+        test('should be able to access favorites page', async ({ userPage: page }) => {
             await page.goto('/favorites');
             await ensurePageReady(page);
 
@@ -172,7 +170,7 @@ test.describe('Registered User', () => {
                 await page.locator(SELECTORS.jobCard).count() >= 0).toBeTruthy();
         });
 
-        test('should be able to favorite a job from listing', async ({ page }) => {
+        test('should be able to favorite a job from listing', async ({ userPage: page }) => {
             await page.goto('/');
             await ensurePageReady(page);
 
@@ -193,7 +191,7 @@ test.describe('Registered User', () => {
     });
 
     test.describe('Comments', () => {
-        test('should be able to see comment section on job detail', async ({ page }) => {
+        test('should be able to see comment section on job detail', async ({ userPage: page }) => {
             await goToFirstJobDetail(page);
 
             // Scroll down to comments section
@@ -203,7 +201,7 @@ test.describe('Registered User', () => {
             }
         });
 
-        test('should be able to add a comment', async ({ page }) => {
+        test('should be able to add a comment', async ({ userPage: page }) => {
             await goToFirstJobDetail(page);
 
             const commentInput = page.locator(SELECTORS.commentInput);
@@ -223,7 +221,7 @@ test.describe('Registered User', () => {
     });
 
     test.describe('Navigation', () => {
-        test('should see authenticated navigation elements', async ({ page }) => {
+        test('should see authenticated navigation elements', async ({ userPage: page }) => {
             await page.goto('/');
             await ensurePageReady(page);
 
@@ -234,7 +232,7 @@ test.describe('Registered User', () => {
             }
 
             // Should see logout button
-            const logoutBtn = page.locator(SELECTORS.logoutButton).first();
+            const logoutBtn = page.locator(SELECTORS.logoutButton).filter({ visible: true }).first();
             await expect(logoutBtn).toBeVisible({ timeout: 3000 });
         });
     });

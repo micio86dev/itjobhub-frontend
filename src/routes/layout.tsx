@@ -18,7 +18,7 @@ export const useAuthLoader = routeLoader$(async ({ cookie }) => {
     try {
       // Determine API URL (handle both local and production if needed)
       // In Qwik loaders we use process.env for server-side env vars
-      const API_URL = process.env.PUBLIC_API_URL || "http://localhost:3001";
+      const API_URL = process.env.PUBLIC_API_URL || "http://127.0.0.1:3001";
 
       const response = await fetch(`${API_URL}/users/me`, {
         headers: {

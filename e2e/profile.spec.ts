@@ -32,11 +32,20 @@ test.describe('Profile Management', () => {
             await page.goto('/profile');
             await ensurePageReady(page);
 
-            // Should see name field with value
-            const nameInput = page.locator(SELECTORS.profileName);
-            if (await nameInput.isVisible({ timeout: 3000 }).catch(() => false)) {
-                const name = await nameInput.inputValue();
-                expect(name).toBeTruthy();
+            // Should see name fields with values
+            const firstNameInput = page.locator(SELECTORS.profileFirstName);
+            const lastNameInput = page.locator(SELECTORS.profileLastName);
+
+            if (await firstNameInput.isVisible({ timeout: 3000 }).catch(() => false)) {
+                await expect(firstNameInput).toBeVisible();
+                const firstName = await firstNameInput.inputValue();
+                expect(firstName).toBeTruthy();
+            }
+
+            if (await lastNameInput.isVisible({ timeout: 3000 }).catch(() => false)) {
+                await expect(lastNameInput).toBeVisible();
+                const lastName = await lastNameInput.inputValue();
+                expect(lastName).toBeTruthy(); // Last name might be empty for some users, but let's assume valid user
             }
         });
 
@@ -102,11 +111,11 @@ test.describe('Profile Management', () => {
             await page.goto('/profile');
             await ensurePageReady(page);
 
-            const nameInput = page.locator(SELECTORS.profileName);
+            const firstNameInput = page.locator(SELECTORS.profileFirstName);
 
-            if (await nameInput.isVisible({ timeout: 3000 }).catch(() => false)) {
-                await nameInput.clear();
-                await nameInput.fill(''); // Empty name
+            if (await firstNameInput.isVisible({ timeout: 3000 }).catch(() => false)) {
+                await firstNameInput.clear();
+                await firstNameInput.fill(''); // Empty first name
 
                 const saveBtn = page.locator(SELECTORS.profileSave);
                 if (await saveBtn.isVisible() && !await saveBtn.isDisabled()) {
@@ -114,7 +123,7 @@ test.describe('Profile Management', () => {
 
                     // Should show error or button should be disabled
                     const error = page.locator('text=/obbligatorio|required|errore/i');
-                    const hasError = await error.isVisible({ timeout: 2000 }).catch(() => false);
+                    await error.isVisible({ timeout: 2000 }).catch(() => false);
                     // Some forms just don't submit, which is also valid
                 }
             }

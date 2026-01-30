@@ -1,12 +1,16 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from './fixtures';
 import { faker } from '@faker-js/faker';
 import { SELECTORS, ensurePageReady, loginViaUI, logoutViaUI, verifyAuthState, checkForViteError } from './helpers';
-
-const registerEmail = faker.internet.email();
+import { TEST_USERS } from './fixtures';
 
 test.describe('Authentication', () => {
+    test.describe.configure({ mode: 'serial' });
+
     test.describe('Registration', () => {
+        let registerEmail: string;
+
         test('should allow a user to register with valid data', async ({ page }) => {
+            registerEmail = faker.internet.email();
             await page.goto('/register');
             await ensurePageReady(page);
 
@@ -88,8 +92,8 @@ test.describe('Authentication', () => {
             await page.goto('/login');
             await ensurePageReady(page);
 
-            await page.locator(SELECTORS.loginEmailInput).fill(registerEmail);
-            await page.locator(SELECTORS.loginPasswordInput).fill('password123');
+            await page.locator(SELECTORS.loginEmailInput).fill(TEST_USERS.user.email);
+            await page.locator(SELECTORS.loginPasswordInput).fill(TEST_USERS.user.password);
 
             const responsePromise = page.waitForResponse(
                 (response) =>
@@ -114,7 +118,7 @@ test.describe('Authentication', () => {
             await page.goto('/login');
             await ensurePageReady(page);
 
-            await page.locator(SELECTORS.loginEmailInput).fill(registerEmail);
+            await page.locator(SELECTORS.loginEmailInput).fill(TEST_USERS.user.email);
             await page.locator(SELECTORS.loginPasswordInput).fill('wrongpassword');
 
             await page.locator(SELECTORS.loginSubmit).click();
@@ -137,8 +141,8 @@ test.describe('Authentication', () => {
             await expect(page).toHaveURL(/\/login/);
 
             // Login
-            await page.locator(SELECTORS.loginEmailInput).fill(registerEmail);
-            await page.locator(SELECTORS.loginPasswordInput).fill('password123');
+            await page.locator(SELECTORS.loginEmailInput).fill(TEST_USERS.user.email);
+            await page.locator(SELECTORS.loginPasswordInput).fill(TEST_USERS.user.password);
             await page.locator(SELECTORS.loginSubmit).click();
 
             // Should redirect back to profile or home
@@ -148,7 +152,7 @@ test.describe('Authentication', () => {
 
     test('should allow user to logout', async ({ page }) => {
         // First login
-        await loginViaUI(page, registerEmail, 'password123');
+        await loginViaUI(page, TEST_USERS.user.email, TEST_USERS.user.password);
 
         // Use the helper for logout
         await logoutViaUI(page);

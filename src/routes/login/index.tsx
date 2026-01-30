@@ -111,7 +111,7 @@ export default component$(() => {
     form.loading = true;
     form.provider = provider;
     // Redirect to backend OAuth URL
-    const apiUrl = import.meta.env.PUBLIC_API_URL || "http://localhost:3001";
+    const apiUrl = import.meta.env.PUBLIC_API_URL || "http://127.0.0.1:3001";
     window.location.href = `${apiUrl}/auth/oauth/${provider}`;
   });
 
@@ -165,6 +165,17 @@ export default component$(() => {
                   (form.password = (e.target as HTMLInputElement).value)
                 }
               />
+            </div>
+          </div>
+
+          <div class="flex justify-end items-center">
+            <div class="text-sm">
+              <a
+                href="/forgot-password"
+                class="font-medium text-brand-neon hover:text-brand-neon/80"
+              >
+                {t("auth.forgot_password")}
+              </a>
             </div>
           </div>
 

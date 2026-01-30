@@ -15,7 +15,7 @@ interface Job {
  * Includes multi-language hreflang tags for SEO
  */
 export const onGet: RequestHandler = async ({ send, env }) => {
-  const API_URL = env.get("PUBLIC_API_URL") || "http://localhost:3001";
+  const API_URL = env.get("PUBLIC_API_URL") || "http://127.0.0.1:3001";
 
   // Fetch all active jobs from API
   let jobs: Job[] = [];

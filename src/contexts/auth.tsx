@@ -67,8 +67,8 @@ export interface SocialLoginRequest {
 }
 
 export interface PersonalInfoUpdate {
-  name: string;
-  email: string;
+  firstName: string;
+  lastName: string;
   phone: string;
   location: string;
   birthDate: string;
@@ -119,7 +119,7 @@ export interface BackendUser {
 
 export const AuthContext = createContextId<AuthState>("auth-context");
 
-const API_URL = import.meta.env.PUBLIC_API_URL || "http://localhost:3001";
+const API_URL = import.meta.env.PUBLIC_API_URL || "http://127.0.0.1:3001";
 
 export const AuthProvider = component$(
   (props: { initialUser?: User | null; initialToken?: string | null }) => {
@@ -413,7 +413,10 @@ export const AuthProvider = component$(
       try {
         // Optimistic update
         const prevUser = { ...authState.user };
-        authState.user.name = personalInfo.name;
+        authState.user.firstName = personalInfo.firstName;
+        authState.user.lastName = personalInfo.lastName;
+        authState.user.name =
+          `${personalInfo.firstName} ${personalInfo.lastName}`.trim();
         authState.user.phone = personalInfo.phone;
         authState.user.location = personalInfo.location;
         authState.user.birthDate = personalInfo.birthDate;
@@ -428,7 +431,8 @@ export const AuthProvider = component$(
           credentials: "include",
           body: JSON.stringify({
             bio: personalInfo.bio,
-            name: personalInfo.name,
+            firstName: personalInfo.firstName,
+            lastName: personalInfo.lastName,
             phone: personalInfo.phone,
             birthDate: personalInfo.birthDate,
             location: personalInfo.location,

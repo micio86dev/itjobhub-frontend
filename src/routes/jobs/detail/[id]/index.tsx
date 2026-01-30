@@ -35,7 +35,7 @@ export default component$(() => {
   const auth = useAuth();
   const t = useTranslate();
   const nav = useNavigate();
-  const API_URL = import.meta.env.PUBLIC_API_URL || "http://localhost:3001";
+  const API_URL = import.meta.env.PUBLIC_API_URL || "http://127.0.0.1:3001";
 
   const state = useStore({
     job: null as JobListing | null,

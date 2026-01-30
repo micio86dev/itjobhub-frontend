@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   component$,
   useTask$,
@@ -9,6 +10,7 @@ import {
   useOn,
   isBrowser,
 } from "@builder.io/qwik";
+import type { MarkerClusterer } from "@googlemaps/markerclusterer";
 import logger from "../../../utils/logger";
 
 interface JobLocation {
@@ -29,35 +31,31 @@ interface Props {
 
 export const JobMap = component$((props: Props) => {
   const mapContainerRef = useSignal<HTMLDivElement>();
-  const map = useSignal<NoSerialize<GoogleMap> | null>(null);
-  const markers = useSignal<NoSerialize<GoogleMarker>[]>([]);
+  const map = useSignal<NoSerialize<any> | null>(null);
+  const clusterer = useSignal<NoSerialize<MarkerClusterer> | null>(null);
 
-  const updateMarkers = $(() => {
+  const updateMarkers = $(async () => {
     if (!map.value) return;
 
-    // Clear existing markers
-    markers.value.forEach((m) => m?.setMap(null));
-    const newMarkers: GoogleMarker[] = [];
+    // Dynamically import MarkerClusterer to avoid SSR issues
+    const { MarkerClusterer } = await import("@googlemaps/markerclusterer");
+
+    if (clusterer.value) {
+      clusterer.value.clearMarkers();
+    }
+
+    const newMarkers: any[] = [];
 
     props.jobs.forEach((job) => {
-      // IT Style Marker (Terminal/Code cursor style)
-      const markerIcon = {
-        path: "M4 17l6-6-6-6M12 19h8", // Terminal command prompt-like path
-        strokeColor: "#00FF41", // Matrix Green / Brand Neon
-        strokeWeight: 3,
-        scale: 1.5,
-        anchor: new window.google.maps.Point(10, 10),
-      };
-
+      // Standard Google Maps Marker (Default Red Pin)
       const marker = new window.google.maps.Marker({
-        map: map.value as GoogleMap,
         position: { lat: job.lat, lng: job.lng },
         title: job.title,
-        icon: markerIcon,
-        animation: window.google.maps.Animation.DROP,
+        // No custom icon -> restores standard pin
+        // No animation -> standard behavior
       });
 
-      // Placeholder/Logo logic - Styled for Dark Mode/IT Theme
+      // ... logo and content logic stays the same ...
       const logoHtml = job.companyLogo
         ? `<img src="${job.companyLogo}" alt="${job.companyName}" style="width: 48px; height: 48px; border-radius: 4px; object-fit: contain; background: #111827; border: 1px solid #374151;">`
         : `<div style="width: 48px; height: 48px; border-radius: 4px; background: #000000; color: #00FF41; display: flex; align-items: center; justify-content: center; font-weight: bold; font-family: monospace; border: 1px solid #00FF41; box-shadow: 0 0 5px rgb(var(--brand-neon-rgb) / 0.3); font-size: 20px;">${job.companyName.charAt(0).toUpperCase()}</div>`;
@@ -103,6 +101,7 @@ export const JobMap = component$((props: Props) => {
                         align-items: center;
                         gap: 4px;
                         transition: all 0.2s;
+                        text-shadow: none;
                     "
                     onmouseover="this.style.textShadow='0 0 8px rgb(var(--brand-neon-rgb) / 0.5)'"
                     onmouseout="this.style.textShadow='none'"
@@ -113,29 +112,33 @@ export const JobMap = component$((props: Props) => {
         </div>
       `;
 
-      const infoWindow = new window.google.maps.InfoWindow({
+      const infoWindow = new (window.google.maps.InfoWindow as any)({
         content: contentString,
       });
 
       marker.addListener("click", () => {
-        // Close other open infoWindows if needed, but for now just open
         infoWindow.open({
           anchor: marker,
-          map: map.value as GoogleMap,
+          map: map.value as google.maps.Map,
         });
         if (props.onMarkerClick$) {
           props.onMarkerClick$(job.id);
         }
       });
 
-      // Style the InfoWindow background (requires some DOM manipulation or CSS override globally) for global dark mode map style
-      // Note: Google Maps InfoWindow styling is notoriously hard without custom overlays.
-      // We will rely on the inner content div for styling.
-
       newMarkers.push(marker);
     });
 
-    markers.value = newMarkers.map((m) => noSerialize(m));
+    if (!clusterer.value) {
+      clusterer.value = noSerialize(
+        new MarkerClusterer({
+          map: map.value as google.maps.Map,
+          markers: newMarkers,
+        }),
+      );
+    } else {
+      clusterer.value.addMarkers(newMarkers);
+    }
   });
 
   const initMap = $(() => {
@@ -143,104 +146,107 @@ export const JobMap = component$((props: Props) => {
 
     if (!map.value) {
       const italyCenter = { lat: 41.8719, lng: 12.5674 };
-      const newMap = new window.google.maps.Map(mapContainerRef.value, {
-        center: italyCenter,
-        zoom: 5,
-        styles: [
-          {
-            elementType: "geometry",
-            stylers: [{ color: "#242f3e" }],
-          },
-          {
-            elementType: "labels.text.stroke",
-            stylers: [{ color: "#242f3e" }],
-          },
-          {
-            elementType: "labels.text.fill",
-            stylers: [{ color: "#746855" }],
-          },
-          {
-            featureType: "administrative.locality",
-            elementType: "labels.text.fill",
-            stylers: [{ color: "#d59563" }],
-          },
-          {
-            featureType: "poi",
-            elementType: "labels.text.fill",
-            stylers: [{ color: "#d59563" }],
-          },
-          {
-            featureType: "poi",
-            elementType: "labels",
-            stylers: [{ visibility: "off" }],
-          },
-          {
-            featureType: "poi.park",
-            elementType: "geometry",
-            stylers: [{ color: "#263c3f" }],
-          },
-          {
-            featureType: "poi.park",
-            elementType: "labels.text.fill",
-            stylers: [{ color: "#6b9a76" }],
-          },
-          {
-            featureType: "road",
-            elementType: "geometry",
-            stylers: [{ color: "#38414e" }],
-          },
-          {
-            featureType: "road",
-            elementType: "geometry.stroke",
-            stylers: [{ color: "#212a37" }],
-          },
-          {
-            featureType: "road",
-            elementType: "labels.text.fill",
-            stylers: [{ color: "#9ca5b3" }],
-          },
-          {
-            featureType: "road.highway",
-            elementType: "geometry",
-            stylers: [{ color: "#746855" }],
-          },
-          {
-            featureType: "road.highway",
-            elementType: "geometry.stroke",
-            stylers: [{ color: "#1f2835" }],
-          },
-          {
-            featureType: "road.highway",
-            elementType: "labels.text.fill",
-            stylers: [{ color: "#f3d19c" }],
-          },
-          {
-            featureType: "transit",
-            elementType: "geometry",
-            stylers: [{ color: "#2f3948" }],
-          },
-          {
-            featureType: "transit.station",
-            elementType: "labels.text.fill",
-            stylers: [{ color: "#d59563" }],
-          },
-          {
-            featureType: "water",
-            elementType: "geometry",
-            stylers: [{ color: "#17263c" }],
-          },
-          {
-            featureType: "water",
-            elementType: "labels.text.fill",
-            stylers: [{ color: "#515c6d" }],
-          },
-          {
-            featureType: "water",
-            elementType: "labels.text.stroke",
-            stylers: [{ color: "#17263c" }],
-          },
-        ],
-      });
+      const newMap = new (window.google.maps.Map as any)(
+        mapContainerRef.value,
+        {
+          center: italyCenter,
+          zoom: 5,
+          styles: [
+            {
+              elementType: "geometry",
+              stylers: [{ color: "#242f3e" }],
+            },
+            {
+              elementType: "labels.text.stroke",
+              stylers: [{ color: "#242f3e" }],
+            },
+            {
+              elementType: "labels.text.fill",
+              stylers: [{ color: "#746855" }],
+            },
+            {
+              featureType: "administrative.locality",
+              elementType: "labels.text.fill",
+              stylers: [{ color: "#d59563" }],
+            },
+            {
+              featureType: "poi",
+              elementType: "labels.text.fill",
+              stylers: [{ color: "#d59563" }],
+            },
+            {
+              featureType: "poi",
+              elementType: "labels",
+              stylers: [{ visibility: "off" }],
+            },
+            {
+              featureType: "poi.park",
+              elementType: "geometry",
+              stylers: [{ color: "#263c3f" }],
+            },
+            {
+              featureType: "poi.park",
+              elementType: "labels.text.fill",
+              stylers: [{ color: "#6b9a76" }],
+            },
+            {
+              featureType: "road",
+              elementType: "geometry",
+              stylers: [{ color: "#38414e" }],
+            },
+            {
+              featureType: "road",
+              elementType: "geometry.stroke",
+              stylers: [{ color: "#212a37" }],
+            },
+            {
+              featureType: "road",
+              elementType: "labels.text.fill",
+              stylers: [{ color: "#9ca5b3" }],
+            },
+            {
+              featureType: "road.highway",
+              elementType: "geometry",
+              stylers: [{ color: "#746855" }],
+            },
+            {
+              featureType: "road.highway",
+              elementType: "geometry.stroke",
+              stylers: [{ color: "#1f2835" }],
+            },
+            {
+              featureType: "road.highway",
+              elementType: "labels.text.fill",
+              stylers: [{ color: "#f3d19c" }],
+            },
+            {
+              featureType: "transit",
+              elementType: "geometry",
+              stylers: [{ color: "#2f3948" }],
+            },
+            {
+              featureType: "transit.station",
+              elementType: "labels.text.fill",
+              stylers: [{ color: "#d59563" }],
+            },
+            {
+              featureType: "water",
+              elementType: "geometry",
+              stylers: [{ color: "#17263c" }],
+            },
+            {
+              featureType: "water",
+              elementType: "labels.text.fill",
+              stylers: [{ color: "#515c6d" }],
+            },
+            {
+              featureType: "water",
+              elementType: "labels.text.stroke",
+              stylers: [{ color: "#17263c" }],
+            },
+          ],
+        },
+      );
       map.value = noSerialize(newMap);
     }
 

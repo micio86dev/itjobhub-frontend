@@ -45,7 +45,7 @@ test.describe("News Feature", () => {
             await page.context().addCookies([{
                 name: "preferred-language",
                 value: "en",
-                domain: "localhost",
+                domain: "127.0.0.1",
                 path: "/"
             }]);
         }

@@ -7,7 +7,7 @@ import {
 } from "@playwright/test";
 
 // API base URL for direct API calls
-export const API_BASE = "http://localhost:3001";
+export const API_BASE = "http://127.0.0.1:3001";
 
 // Test users credentials
 export const TEST_USERS = {
@@ -67,7 +67,7 @@ export async function loginViaAPI(
     {
       name: "auth_token",
       value: token,
-      domain: "localhost",
+      domain: "127.0.0.1",
       path: "/",
     },
   ]);
@@ -172,7 +172,7 @@ export async function createTestNews(
     category: string;
     is_published: boolean;
   }>,
-): Promise<{ id: string; slug: string }> {
+): Promise<{ id: string; slug: string; title: string }> {
   const timestamp = Date.now();
   const defaultNews = {
     title: `E2E Test News ${timestamp}`,
@@ -248,9 +248,27 @@ type TestFixtures = {
   userPage: Page;
   authenticatedAsAdmin: { token: string; user: unknown };
   authenticatedAsUser: { token: string; user: unknown };
+  page: Page;
 };
 
 export const test = base.extend<TestFixtures>({
+  // Override page to block external resources globally
+  page: async ({ page }, use) => {
+    await page.route("**/*", (route) => {
+      const url = route.request().url();
+      if (
+        url.includes("media.licdn.com") ||
+        url.includes("google-analytics") ||
+        url.includes("googletagmanager") ||
+        url.includes("maps.googleapis.com")
+      ) {
+        return route.fulfill({ status: 204, body: "" });
+      }
+      return route.continue();
+    });
+    await use(page);
+  },
+
   // Admin authenticated context
   adminContext: async ({ browser }, use) => {
     const context = await browser.newContext();
@@ -266,6 +284,19 @@ export const test = base.extend<TestFixtures>({
   // Admin authenticated page
   adminPage: async ({ adminContext }, use) => {
     const page = await adminContext.newPage();
+    // Block external resources to improve speed and stability
+    await page.route("**/*", (route) => {
+      const url = route.request().url();
+      if (
+        url.includes("media.licdn.com") ||
+        url.includes("google-analytics") ||
+        url.includes("googletagmanager") ||
+        url.includes("maps.googleapis.com")
+      ) {
+        return route.fulfill({ status: 204, body: "" });
+      }
+      return route.continue();
+    });
     await use(page);
     await page.close();
   },
@@ -281,6 +312,19 @@ export const test = base.extend<TestFixtures>({
   // User authenticated page
   userPage: async ({ userContext }, use) => {
     const page = await userContext.newPage();
+    // Block external resources to improve speed and stability
+    await page.route("**/*", (route) => {
+      const url = route.request().url();
+      if (
+        url.includes("media.licdn.com") ||
+        url.includes("google-analytics") ||
+        url.includes("googletagmanager") ||
+        url.includes("maps.googleapis.com")
+      ) {
+        return route.fulfill({ status: 204, body: "" });
+      }
+      return route.continue();
+    });
     await use(page);
     await page.close();
   },

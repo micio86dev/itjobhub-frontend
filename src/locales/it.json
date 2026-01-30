@@ -346,5 +346,14 @@
   "news.confirm_delete_msg": "Sei sicuro di voler eliminare questo articolo? Questa azione non può essere annullata.",
   "meta.news_title": "Notizie Tech - IT Job Hub",
   "meta.news_description": "Le ultime notizie per sviluppatori, ingegneri software e professionisti tech.",
-  "a11y.menu_collapsed": "Menu compresso"
+  "a11y.menu_collapsed": "Menu compresso",
+  "auth.forgot_password": "Password dimenticata?",
+  "auth.reset_password": "Reimposta Password",
+  "auth.send_reset_link": "Invia link di reset",
+  "auth.new_password": "Nuova Password",
+  "auth.reset_success": "Password reimpostata con successo!",
+  "auth.reset_link_sent": "Link di reset inviato!",
+  "auth.back_to_login": "Torna al Login",
+  "auth.enter_email_reset": "Inserisci la tua email per ricevere un link di reset",
+  "auth.enter_new_password": "Scegli una nuova password per il tuo account"
 }

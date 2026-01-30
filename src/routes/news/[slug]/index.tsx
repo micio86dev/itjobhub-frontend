@@ -1,11 +1,4 @@
-import {
-  component$,
-  useStore,
-  useTask$,
-  isBrowser,
-  $,
-  useSignal,
-} from "@builder.io/qwik";
+import { component$, useStore, useTask$, $, useSignal } from "@builder.io/qwik";
 import {
   Link,
   useNavigate,
@@ -18,7 +11,7 @@ import { useTranslate, useI18n } from "~/contexts/i18n";
 import { useAuth } from "~/contexts/auth";
 import { NewsCommentsSection } from "~/components/news/comments-section";
 import { ReactionButtons } from "~/components/ui/reaction-buttons";
-import { DetailStats } from "~/components/ui/detail-stats";
+
 // import { DeleteConfirmButton } from "~/components/ui/delete-confirm-button";
 import type { ApiNews } from "~/types/models";
 import { Modal } from "~/components/ui/modal";
@@ -27,7 +20,7 @@ export const useNewsLoader = routeLoader$(async ({ params, cookie }) => {
   const slug = params.slug;
   const token = cookie.get("auth_token")?.value;
   const lang = cookie.get("preferred-language")?.value || "it";
-  const API_URL = process.env.PUBLIC_API_URL || "http://localhost:3001";
+  const API_URL = process.env.PUBLIC_API_URL || "http://127.0.0.1:3001";
 
   if (!slug) return { news: null, lang };
 
@@ -194,18 +187,6 @@ export default component$(() => {
       alert(deleteFailedMsg);
     } finally {
       state.isDeleting = false;
-    }
-  });
-
-  // Track View
-  useTask$(({ track }) => {
-    const newsId = track(() => state.news?.id);
-    if (newsId && isBrowser) {
-      request(`${import.meta.env.PUBLIC_API_URL}/news/${newsId}/track`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type: "VIEW" }),
-      }).catch(console.error);
     }
   });
 
@@ -414,12 +395,6 @@ export default component$(() => {
                 isAuthenticated={auth.isAuthenticated}
                 likeTitle={t("news.like")}
                 dislikeTitle={t("news.dislike")}
-              />
-              <DetailStats
-                viewsCount={news.views_count}
-                clicksCount={news.clicks_count}
-                viewsLabel={t("news.views")}
-                clicksLabel={t("news.clicks")}
               />
             </div>
 

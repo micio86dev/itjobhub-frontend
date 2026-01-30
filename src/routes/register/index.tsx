@@ -97,7 +97,7 @@ export default component$(() => {
     form.loading = true;
     form.provider = provider;
     // Redirect to backend OAuth URL
-    const apiUrl = import.meta.env.PUBLIC_API_URL || "http://localhost:3001";
+    const apiUrl = import.meta.env.PUBLIC_API_URL || "http://127.0.0.1:3001";
     window.location.href = `${apiUrl}/auth/oauth/${provider}`;
   });
 

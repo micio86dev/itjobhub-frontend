@@ -29,6 +29,36 @@ The IT Job Hub frontend is a high-performance web application designed for devel
 
 ## Recent Changes
 
+### 2026-01-30: .btn-primary Text Color and UI Consolidation
+
+- **Updated .btn-primary Text Color**: Standardized `.btn-primary` and `.btn-success` text color to be **black in dark mode** and **white in light mode** for optimal contrast with the neon green brand color.
+- **Consolidated CSS Architecture**:
+  - Removed duplicate `.btn-primary` and `.btn-secondary` definitions from `profile-wizard.css` and `modal.css`.
+  - Enforced a single source of truth in `global.css` for primary button styling, following the **hybrid CSS approach** (Tailwind utilities + plain CSS for state-dependent colors).
+- **Fixed Build & Type Errors**:
+  - Resolved `no-explicit-any` linting errors in `forgot-password` and `reset-password` routes by properly typing error handling.
+  - Unblocked build by resolving `google.maps` namespace conflicts in `job-map.tsx`.
+- **Verified Stability**: Confirmed `lint` passes and buttons correctly toggle text colors based on theme.
+
+### 2026-01-30: Build Restoration and Google Maps Type Safety
+
+- **Fixed Critical Build Error**: Resolved a syntax error in `src/routes/news/[slug]/index.tsx` caused by a duplicate `useTask$` import that prevented the application from starting/building.
+- **Enhanced Google Maps Type Safety**:
+  - Migrated `JobMap` component to use official `@types/google.maps` instead of legacy custom global interfaces.
+  - Resolved conflicts by deleting `src/types/google.d.ts` and updating `tsconfig.json` to include `google.maps` in compiler types.
+  - Fixed linting errors (`no-explicit-any`) and improved code readability in admin map charts.
+- **Improved Build Pipeline**: Verified 100% green status for `lint` and `build.types` commands.
+
+### 2026-01-30: News Card Interaction Fix and Job Card Icon Restoration
+
+- **Restored Job Card Comments Icon**: Fixed a regression where the comments icon (SVG) in `.comments-btn` was invisible by explicitly adding `w-4 h-4` dimensions.
+- **Unified Reaction Buttons**: Refactored `NewsCard` to use the shared `ReactionButtons` component, ensuring consistent styling and behavior with `JobCard`.
+- **Enhanced CSS Architecture for Cards**:
+  - Centered reaction buttons in `jobs-grid` layout using `@apply justify-between w-full m-auto`.
+  - Removed duplicate CSS rules in `job-card.css`.
+- **Optimized E2E Tests**: Updated `auth.spec.ts` to use `@faker-js/faker` for generating unique test emails, improving test reliability.
+- **Improved Translations**: Updated deletion confirmation text in all locales for better clarity ("Delete job" vs "Delete").
+
 ### 2026-01-29: CSS Architecture Stabilization and Comments System Fixes
 
 - **Resolved Critical CSS Compilation Errors**:

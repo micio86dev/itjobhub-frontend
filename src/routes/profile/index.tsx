@@ -30,7 +30,8 @@ export const useProfileProtection = routeLoader$(
 );
 
 interface EditFormData {
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
   phone: string;
   location: string;
@@ -56,7 +57,8 @@ export default component$(() => {
     isSavingPersonal: false,
     message: { type: "success" as "success" | "error", text: "" },
     formData: {
-      name: auth.user?.name || "",
+      firstName: auth.user?.firstName || "",
+      lastName: auth.user?.lastName || "",
       email: auth.user?.email || "",
       phone: auth.user?.phone || "",
       location: auth.user?.location || "",
@@ -88,7 +90,8 @@ export default component$(() => {
     const currentUser = track(() => auth.user);
     if (currentUser) {
       state.formData = {
-        name: currentUser.name || "",
+        firstName: currentUser.firstName || "",
+        lastName: currentUser.lastName || "",
         email: currentUser.email || "",
         phone: currentUser.phone || "",
         location: currentUser.location || "",
@@ -178,7 +181,8 @@ export default component$(() => {
     state.editingSection = "";
     // Reset form data
     state.formData = {
-      name: auth.user?.name || "",
+      firstName: auth.user?.firstName || "",
+      lastName: auth.user?.lastName || "",
       email: auth.user?.email || "",
       phone: auth.user?.phone || "",
       location: auth.user?.location || "",
@@ -451,13 +455,30 @@ export default component$(() => {
                     <div class="gap-4 grid grid-cols-1 md:grid-cols-2">
                       <div>
                         <label class="block mb-1 font-medium text-gray-700 dark:text-gray-300 text-sm">
-                          {t("profile.name_label")}
+                          {t("auth.first_name")}
                         </label>
                         <input
                           type="text"
-                          value={state.formData.name}
+                          value={state.formData.firstName}
+                          data-testid="profile-firstname"
                           onInput$={(e) =>
-                            (state.formData.name = (
+                            (state.formData.firstName = (
+                              e.target as HTMLInputElement
+                            ).value)
+                          }
+                          class="input"
+                        />
+                      </div>
+                      <div>
+                        <label class="block mb-1 font-medium text-gray-700 dark:text-gray-300 text-sm">
+                          {t("auth.last_name")}
+                        </label>
+                        <input
+                          type="text"
+                          value={state.formData.lastName}
+                          data-testid="profile-lastname"
+                          onInput$={(e) =>
+                            (state.formData.lastName = (
                               e.target as HTMLInputElement
                             ).value)
                           }

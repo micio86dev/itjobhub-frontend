@@ -1,4 +1,4 @@
-import { Page, expect } from "@playwright/test";
+import { Page, expect, Response } from "@playwright/test";
 
 /**
  * Selectors for common UI elements using data-testid pattern
@@ -40,7 +40,8 @@ export const SELECTORS = {
   applyButton: '[data-testid="apply-button"]',
 
   // Profile
-  profileName: '[data-testid="profile-name"]',
+  profileFirstName: '[data-testid="profile-firstname"]',
+  profileLastName: '[data-testid="profile-lastname"]',
   profileBio: '[data-testid="profile-bio"]',
   profileSave: '[data-testid="profile-save"]',
 
@@ -95,10 +96,39 @@ export async function loginViaUI(
   email: string,
   password: string,
 ): Promise<void> {
+  // Check if we are already logged in as this user
+  const currentCookies = await page.context().cookies();
+  const hasToken = currentCookies.some((c) => c.name === "auth_token");
+
   await page.goto("/login");
   await ensurePageReady(page);
 
-  await page.locator(SELECTORS.loginEmailInput).fill(email);
+  // If we were redirected away from login, we might already be authenticated
+  if (!page.url().includes("/login") && hasToken) {
+    console.log("Already logged in, skipping UI login");
+    return;
+  }
+
+  // Ensure we are on login page
+  if (!page.url().includes("/login")) {
+    await page.goto("/login");
+    await ensurePageReady(page);
+  }
+
+  const emailInput = page.locator(SELECTORS.loginEmailInput);
+  if (!(await emailInput.isVisible({ timeout: 5000 }).catch(() => false))) {
+    // If still not there, maybe we are logged in but cookie check failed?
+    const logoutBtn = page
+      .locator(SELECTORS.logoutButton)
+      .filter({ visible: true })
+      .first();
+    if (await logoutBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
+      console.log("Logout button visible, already logged in. Skipping login.");
+      return;
+    }
+  }
+
+  await emailInput.fill(email);
   await page.locator(SELECTORS.loginPasswordInput).fill(password);
 
   const responsePromise = page.waitForResponse(
@@ -120,31 +150,55 @@ export async function loginViaUI(
  */
 export async function logoutViaUI(page: Page): Promise<void> {
   const isMobile = page.viewportSize()?.width
-    ? page.viewportSize()!.width < 1024
+    ? page.viewportSize()!.width < 768
     : false;
 
   if (isMobile) {
     const mobileMenu = page.locator('[data-testid="mobile-menu-button"]');
+    // If we can't see the menu button, maybe we are already in the menu?
+    // Or maybe we are on a larger screen? But isMobile check should handle that.
     if (await mobileMenu.isVisible()) {
-      await mobileMenu.click();
-      await page.waitForTimeout(500);
-      await page.waitForTimeout(300);
+      const isMenuOpen = await page
+        .locator(".mobile-menu")
+        .isVisible()
+        .catch(() => false);
+      if (!isMenuOpen) {
+        await mobileMenu.click();
+        await page.waitForTimeout(1000); // Increased wait for animation
+      }
     }
   } else {
-    const userMenu = page.locator('[data-testid="user-menu-button"]');
-    if (await userMenu.isVisible()) {
-      await userMenu.click();
-      await page.waitForTimeout(300);
-    }
+    // Desktop: Logout button is directly visible in the header
+    // No user menu to open
   }
 
   const logoutBtn = page
     .locator(SELECTORS.logoutButton)
     .filter({ visible: true })
     .first();
-  await logoutBtn.click();
+  await expect(logoutBtn).toBeVisible({ timeout: 5000 });
+  await logoutBtn.click({ force: true });
 
-  await expect(page).toHaveURL(/\/(login)?$/);
+  // Wait for navigation and cookie deletion with retries
+  let authToken;
+  const maxRetries = 10;
+  for (let i = 0; i < maxRetries; i++) {
+    const cookies = await page.context().cookies();
+    authToken = cookies.find((c) => c.name === "auth_token");
+    if (!authToken) break;
+    await page.waitForTimeout(500);
+  }
+
+  if (authToken) {
+    const allCookies = await page.context().cookies();
+    console.log(
+      "Cookies found after failed logout:",
+      allCookies.map((c) => c.name),
+    );
+  }
+  expect(authToken).toBeUndefined();
+
+  await expect(page).toHaveURL(/(\/login|\/$)/);
 }
 
 /**
@@ -220,20 +274,73 @@ export async function verifyAuthState(
   page: Page,
   shouldBeLoggedIn: boolean,
 ): Promise<void> {
-  // Check for auth_token cookie
-  const cookies = await page.context().cookies();
-  const authToken = cookies.find((c) => c.name === "auth_token");
+  // Check for auth_token cookie with retries if we expect it to be there
+  let authToken;
+  const maxRetries = 10;
+  for (let i = 0; i < maxRetries; i++) {
+    const cookies = await page.context().cookies();
+    authToken = cookies.find((c) => c.name === "auth_token");
+    if (shouldBeLoggedIn && authToken) break;
+    if (!shouldBeLoggedIn && !authToken) break;
+    await page.waitForTimeout(500);
+  }
 
   if (shouldBeLoggedIn) {
+    if (!authToken) {
+      // Log available cookies for debugging
+      const allCookies = await page.context().cookies();
+      console.log(
+        "Cookies found during failed login check:",
+        allCookies.map((c) => c.name),
+      );
+    }
     expect(authToken).toBeDefined();
+
+    // Handle Mobile Menu visibility for logout button
+    if (isMobileViewport(page)) {
+      const mobileMenu = page.locator(SELECTORS.mobileMenuButton);
+      const isMenuOpen = await page
+        .locator(".mobile-menu")
+        .isVisible()
+        .catch(() => false);
+
+      if ((await mobileMenu.isVisible()) && !isMenuOpen) {
+        await mobileMenu.click();
+        await page.waitForTimeout(300);
+      }
+    }
+
     // Also check UI - Logout button should be visible
-    const logoutBtn = page.locator(SELECTORS.logoutButton).first();
+    // Filter by visibility to ensure we don't pick the hidden desktop button on mobile
+    const logoutBtn = page
+      .locator(SELECTORS.logoutButton)
+      .filter({ visible: true })
+      .first();
     // We allow a small timeout because hydration might take a moment
     await expect(logoutBtn).toBeVisible({ timeout: 5000 });
   } else {
     expect(authToken).toBeUndefined();
+
+    // Handle Mobile Menu for login link
+    if (isMobileViewport(page)) {
+      const mobileMenu = page.locator(SELECTORS.mobileMenuButton);
+      const isMenuOpen = await page
+        .locator(".mobile-menu")
+        .isVisible()
+        .catch(() => false);
+
+      if ((await mobileMenu.isVisible()) && !isMenuOpen) {
+        await mobileMenu.click();
+        await page.waitForTimeout(300);
+      }
+    }
+
     // Check UI - Login link should be visible
-    const loginLink = page.locator(SELECTORS.loginLink).first();
+    // Filter by visibility for mobile
+    const loginLink = page
+      .locator(SELECTORS.loginLink)
+      .filter({ visible: true })
+      .first();
     await expect(loginLink).toBeVisible({ timeout: 5000 });
   }
 }
@@ -242,11 +349,20 @@ export async function verifyAuthState(
  * Click first job card and go to detail page
  */
 export async function goToFirstJobDetail(page: Page): Promise<void> {
-  // Use homepage which loads faster than /jobs
-  await page.goto("/");
+  // Use /jobs to ensure we find a job card
+  console.log("Navigating to /jobs...");
+  await page.goto("/jobs");
   await ensurePageReady(page);
 
   const jobCardLink = page.locator(SELECTORS.jobCardLink).first();
+  const count = await jobCardLink.count();
+  console.log(`Job cards found: ${count}`);
+
+  if (count === 0) {
+    const content = await page.content();
+    console.log("Page content snippet:", content.substring(0, 1000));
+  }
+
   await expect(jobCardLink).toBeVisible({ timeout: 15000 });
   await jobCardLink.click();
 

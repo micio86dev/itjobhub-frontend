@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 test.describe('Internationalization (i18n)', () => {
     test('should persist language selection in cookies after page refresh', async ({ page, context }) => {
         // 1. Navigate to the homepage
-        await page.goto('http://localhost:5173');
+        await page.goto('/');
         await page.waitForLoadState('networkidle');
 
         // 2. Open the language dropdown
