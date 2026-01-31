@@ -1,0 +1,104 @@
+.callback-container {
+  @apply min-h-screen flex items-center justify-center p-4;
+  background-color: #f0f2f5;
+  background-image: linear-gradient(135deg, #f0f2f5 0%, #e2e8f0 100%);
+}
+
+:global(.dark) .callback-container {
+  background-color: #0d1117;
+  /* Subtle neon glow at the center */
+  background-image: radial-gradient(
+    circle at center,
+    rgba(var(--brand-neon-rgb), 0.08) 0%,
+    #0d1117 100%
+  );
+}
+
+.callback-card {
+  @apply max-w-md w-full p-8 text-center rounded-lg shadow-xl transition-all duration-300;
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+}
+
+:global(.dark) .callback-card {
+  background-color: #161b22;
+  border-color: #1f2937;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4);
+}
+
+.spinner {
+  @apply w-12 h-12 rounded-full mx-auto mb-6;
+  border: 4px solid rgba(var(--brand-neon-rgb), 0.1);
+  border-top-color: var(--brand-neon);
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.title {
+  @apply text-2xl font-bold mb-2 font-sans tracking-tight;
+  color: #111827;
+}
+
+:global(.dark) .title {
+  @apply text-white;
+}
+
+.subtitle {
+  @apply text-base text-gray-500 font-sans;
+}
+
+:global(.dark) .subtitle {
+  @apply text-gray-400;
+}
+
+.error-container {
+  @apply mt-6 p-4 rounded-md border text-left;
+  background-color: #fef2f2;
+  border-color: #fee2e2;
+}
+
+:global(.dark) .error-container {
+  background-color: rgba(127, 29, 29, 0.1);
+  border-color: rgba(127, 29, 29, 0.2);
+}
+
+.error-text {
+  @apply text-sm font-mono;
+  color: #dc2626;
+}
+
+:global(.dark) .error-text {
+  color: #f87171;
+}
+
+.retry-link {
+  @apply inline-block mt-6 font-bold font-mono text-xs uppercase tracking-widest transition-all;
+  color: var(--brand-neon);
+}
+
+.retry-link:hover {
+  @apply opacity-80 underline underline-offset-4;
+}
+
+.success-icon {
+  @apply w-16 h-16 mx-auto mb-4;
+  color: var(--brand-neon);
+  filter: drop-shadow(0 0 10px rgba(var(--brand-neon-rgb), 0.3));
+}
+
+.error-icon {
+  @apply w-16 h-16 mx-auto mb-4;
+  color: #dc2626;
+}
+
+:global(.dark) .error-icon {
+  color: #f87171;
+}

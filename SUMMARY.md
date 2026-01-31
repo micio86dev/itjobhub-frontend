@@ -29,7 +29,16 @@ The DevBoards.io frontend is a high-performance web application designed for dev
 
 ## Recent Changes
 
-### 2026-01-30: .btn-primary Text Color and UI Consolidation
+### 2026-01-31: Social Login Callback Page Redesign
+
+- **Redesigned Callback Page**: Replaced the hardcoded indigo/purple gradient with a brand-consistent theme-aware design.
+- **Improved UI/UX**:
+  - **Light Mode**: Subtle geometric gradient using brand light background colors.
+  - **Dark Mode**: Premium radial gradient featuring a subtle `brand-neon` glow over `brand-dark-bg`.
+  - **Card Styling**: Standardized the callback card to match site-wide card aesthetics (border, shadow, background).
+  - **Success/Error States**: Enhanced icon colors and animations; standardized success green (`brand-neon`) and error red colors across themes.
+- **Refactored CSS Architecture**: Extracted styles into a dedicated `index.css` file for the callback route, using semantic classes and the refined hybrid CSS approach.
+- **Verified Stability**: Confirmed passing status for `social-auth.spec.ts` E2E tests.
 
 - **Updated .btn-primary Text Color**: Standardized `.btn-primary` and `.btn-success` text color to be **black in dark mode** and **white in light mode** for optimal contrast with the neon green brand color.
 - **Consolidated CSS Architecture**:

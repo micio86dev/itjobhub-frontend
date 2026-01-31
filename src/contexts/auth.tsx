@@ -386,7 +386,6 @@ export const AuthProvider = component$(
             authState.user.languages = backendProfile.languages;
             authState.user.skills = backendProfile.skills;
             authState.user.seniority = backendProfile.seniority;
-            authState.user.seniority = backendProfile.seniority;
             authState.user.availability = backendProfile.availability;
             authState.user.workModes = backendProfile.workModes;
             authState.user.profileCompleted = true;

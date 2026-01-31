@@ -19,86 +19,7 @@ interface CallbackState {
   success: boolean;
 }
 
-const styles = `
-.callback-container {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 1rem;
-}
-
-.callback-card {
-  background: white;
-  border-radius: 1rem;
-  padding: 2rem;
-  max-width: 400px;
-  width: 100%;
-  text-align: center;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-}
-
-.spinner {
-  width: 48px;
-  height: 48px;
-  border: 4px solid #e5e7eb;
-  border-top-color: #667eea;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin: 0 auto 1.5rem;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-.title {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #1f2937;
-  margin-bottom: 0.5rem;
-}
-
-.subtitle {
-  color: #6b7280;
-  font-size: 0.875rem;
-}
-
-.error-container {
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  border-radius: 0.5rem;
-  padding: 1rem;
-  margin-top: 1rem;
-}
-
-.error-text {
-  color: #dc2626;
-  font-size: 0.875rem;
-}
-
-.retry-link {
-  display: inline-block;
-  margin-top: 1rem;
-  color: #667eea;
-  font-weight: 500;
-  text-decoration: none;
-}
-
-.retry-link:hover {
-  text-decoration: underline;
-}
-
-.success-icon {
-  width: 48px;
-  height: 48px;
-  margin: 0 auto 1rem;
-  color: #10b981;
-}
-`;
+import styles from "./index.css?inline";
 
 const API_URL = import.meta.env.PUBLIC_API_URL || "http://127.0.0.1:3001";
 
@@ -252,8 +173,7 @@ export default component$(() => {
         {state.error && (
           <>
             <svg
-              class="success-icon"
-              style="color: #dc2626"
+              class="error-icon"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"

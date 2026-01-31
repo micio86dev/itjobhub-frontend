@@ -25,7 +25,6 @@ export default component$(() => {
 
   const handleWizardComplete = $((data: WizardData) => {
     auth.updateProfileSignal.value = data;
-    nav("/");
   });
 
   const handleCancel = $(() => {
