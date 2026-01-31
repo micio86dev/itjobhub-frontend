@@ -12,7 +12,6 @@ interface JobSearchFilters {
   remote: string;
   dateRange: string;
   salaryMin: string;
-  salaryMax: string;
 }
 
 interface JobSearchProps {
@@ -25,7 +24,6 @@ interface JobSearchProps {
   initialRemote?: string;
   initialDateRange?: string;
   initialSalaryMin?: string;
-  initialSalaryMax?: string;
   userHasLanguages?: boolean;
 }
 
@@ -40,7 +38,6 @@ export const JobSearch = component$<JobSearchProps>(
     initialRemote,
     initialDateRange,
     initialSalaryMin,
-    initialSalaryMax,
     // userHasLanguages is currently unused but kept in props for future use
   }) => {
     const t = useTranslate();
@@ -53,7 +50,6 @@ export const JobSearch = component$<JobSearchProps>(
       remote: initialRemote || "",
       dateRange: initialDateRange || "",
       salaryMin: initialSalaryMin || "",
-      salaryMax: initialSalaryMax || "",
     });
 
     const handleSearch = $(() => {
@@ -69,7 +65,6 @@ export const JobSearch = component$<JobSearchProps>(
       state.remote = "";
       state.dateRange = "";
       state.salaryMin = "";
-      state.salaryMax = "";
       onSearch$(state);
     });
 
@@ -80,8 +75,7 @@ export const JobSearch = component$<JobSearchProps>(
       state.location ||
       state.remote ||
       state.dateRange ||
-      state.salaryMin ||
-      state.salaryMax;
+      state.salaryMin;
 
     return (
       <div class="bg-brand-light-card dark:bg-brand-dark-card shadow-none mb-6 p-4 sm:p-6 border border-gray-200 dark:border-gray-800 rounded-sm">
@@ -258,36 +252,39 @@ export const JobSearch = component$<JobSearchProps>(
             </select>
           </div>
 
-          {/* Salary Range */}
+          {/* Minimum RAL Slider */}
           <div>
             <label class="block mb-2 font-medium text-gray-700 dark:text-gray-300 text-sm">
               {t("jobs.salary_label")}
+              {state.salaryMin && (
+                <span class="ml-2 font-mono text-brand-neon">
+                  €{Number(state.salaryMin).toLocaleString("it-IT")}+
+                </span>
+              )}
             </label>
-            <div class="flex gap-2">
+            <div class="relative">
               <input
-                type="number"
-                value={state.salaryMin}
-                onInput$={(e) =>
-                  (state.salaryMin = (e.target as HTMLInputElement).value)
-                }
-                placeholder={t("jobs.salary_min_placeholder")}
+                type="range"
+                min="0"
+                max="100000"
+                step="5000"
+                value={state.salaryMin || "0"}
+                onInput$={(e) => {
+                  const val = (e.target as HTMLInputElement).value;
+                  state.salaryMin = val === "0" ? "" : val;
+                }}
                 data-testid="search-salary-min"
-                class="w-1/2 input"
-                min="0"
-                step="1000"
+                class="bg-gray-200 dark:bg-gray-700 rounded-lg w-full h-2 accent-brand-neon appearance-none cursor-pointer"
+                aria-label={t("jobs.salary_label")}
               />
-              <input
-                type="number"
-                value={state.salaryMax}
-                onInput$={(e) =>
-                  (state.salaryMax = (e.target as HTMLInputElement).value)
-                }
-                placeholder={t("jobs.salary_max_placeholder")}
-                data-testid="search-salary-max"
-                class="w-1/2 input"
-                min="0"
-                step="1000"
-              />
+              <div class="flex justify-between mt-1 font-mono text-gray-500 dark:text-gray-400 text-xs">
+                <span>{t("jobs.salary_any")}</span>
+                <span>20k</span>
+                <span>40k</span>
+                <span>60k</span>
+                <span>80k</span>
+                <span>100k+</span>
+              </div>
             </div>
           </div>
 
@@ -393,13 +390,9 @@ export const JobSearch = component$<JobSearchProps>(
                 </span>
               )}
 
-              {(state.salaryMin || state.salaryMax) && (
+              {state.salaryMin && (
                 <span class="inline-flex items-center bg-brand-neon/10 px-2.5 py-0.5 border border-brand-neon/20 rounded-full font-mono font-bold text-brand-neon text-xs">
-                  {state.salaryMin && state.salaryMax
-                    ? `€${state.salaryMin} - €${state.salaryMax}`
-                    : state.salaryMin
-                      ? `€${state.salaryMin}+`
-                      : `${t("jobs.salary_max_placeholder")} €${state.salaryMax}`}
+                  €{Number(state.salaryMin).toLocaleString("it-IT")}+
                 </span>
               )}
             </div>
