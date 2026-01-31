@@ -79,19 +79,19 @@
 }
 
 .match-good {
-  @apply bg-green-50 text-green-800 border-green-100;
+  @apply bg-green-600 text-white border border-green-700;
 }
 
 :global(.dark) .match-good {
-  @apply bg-brand-neon/20 text-brand-neon border-brand-neon/40;
+  @apply bg-green-600 text-white border-green-700;
 }
 
 .match-fair {
-  @apply bg-gray-100 text-gray-700 border border-gray-200;
+  @apply bg-orange-600 text-white border border-orange-700;
 }
 
 :global(.dark) .match-fair {
-  @apply bg-gray-800 text-gray-300 border-gray-700;
+  @apply bg-orange-600 text-white border-orange-700;
 }
 
 .match-low {
