@@ -1,4 +1,4 @@
-# ITJobHub - Robots.txt
+# DevBoards.io - Robots.txt
 # https://itjobhub.com
 
 User-agent: *

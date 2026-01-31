@@ -250,11 +250,11 @@ export default component$(() => {
 });
 
 export const head: DocumentHead = {
-  title: "Sign Up - ITJobHub",
+  title: "Sign Up - DevBoards.io",
   meta: [
     {
       name: "description",
-      content: "Create your ITJobHub account",
+      content: "Create your DevBoards.io account",
     },
   ],
 };

@@ -153,7 +153,7 @@ export default component$(() => {
 });
 
 export const head: DocumentHead = {
-  title: "Reset Password - ITJobHub",
+  title: "Reset Password - DevBoards.io",
   meta: [
     {
       name: "description",

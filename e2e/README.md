@@ -1,6 +1,6 @@
 # E2E Testing Guide
 
-This directory contains Playwright end-to-end tests for ITJobHub.
+This directory contains Playwright end-to-end tests for DevBoards.io.
 
 ## Prerequisites
 

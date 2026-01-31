@@ -418,7 +418,7 @@ export const head: DocumentHead = ({ resolveValue }) => {
 
   if (!news) {
     return {
-      title: "News Not Found - IT Job Hub",
+      title: "News Not Found - DevBoards.io",
     };
   }
 
@@ -437,7 +437,7 @@ export const head: DocumentHead = ({ resolveValue }) => {
   }
 
   return {
-    title: `${title} - IT Job Hub`,
+    title: `${title} - DevBoards.io`,
     meta: [
       {
         name: "description",

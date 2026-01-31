@@ -13,7 +13,11 @@ interface OrganizationSchemaProps {
  * Organization JSON-LD schema for the homepage
  */
 export const OrganizationSchema = component$<OrganizationSchemaProps>(
-  ({ name = "ITJobHub", url = SITE_URL, logo = `${SITE_URL}/favicon.svg` }) => {
+  ({
+    name = "DevBoards.io",
+    url = SITE_URL,
+    logo = `${SITE_URL}/favicon.svg`,
+  }) => {
     const schema = {
       "@context": "https://schema.org",
       "@type": "Organization",
@@ -43,7 +47,7 @@ interface WebSiteSchemaProps {
  */
 export const WebSiteSchema = component$<WebSiteSchemaProps>(
   ({
-    name = "ITJobHub",
+    name = "DevBoards.io",
     url = SITE_URL,
     searchUrl = `${SITE_URL}/jobs?q={search_term_string}`,
   }) => {

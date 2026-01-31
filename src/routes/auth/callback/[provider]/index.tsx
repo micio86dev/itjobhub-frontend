@@ -275,7 +275,7 @@ export default component$(() => {
 });
 
 export const head: DocumentHead = {
-  title: "OAuth Callback - ITJobHub",
+  title: "OAuth Callback - DevBoards.io",
   meta: [
     {
       name: "description",

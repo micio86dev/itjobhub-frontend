@@ -79,7 +79,7 @@ export default component$(() => {
 export const head: DocumentHead = () => {
   const t = (key: string) => translate(key, "it");
   return {
-    title: t("nav.favorites") + " - IT Job Hub",
+    title: t("nav.favorites") + " - DevBoards.io",
     meta: [
       {
         name: "description",

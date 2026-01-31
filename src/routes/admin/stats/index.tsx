@@ -660,7 +660,7 @@ export default component$(() => {
 });
 
 export const head: DocumentHead = {
-  title: "Admin Dashboard - IT Job Hub",
+  title: "Admin Dashboard - DevBoards.io",
   meta: [
     {
       name: "description",

@@ -35,7 +35,7 @@ export const useHeadMeta = routeLoader$(({ cookie }) => {
   const lang = savedLang in translations ? savedLang : "it";
   const t = translations[lang];
   return {
-    title: t["meta.index_title"] || "ITJobHub - Find your ideal IT job",
+    title: t["meta.index_title"] || "DevBoards.io - Find your ideal IT job",
     description:
       t["meta.index_description"] ||
       "The platform to find your dream job in the IT world.",

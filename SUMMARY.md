@@ -1,6 +1,6 @@
-# Frontend - IT Job Hub
+# Frontend - DevBoards.io
 
-The IT Job Hub frontend is a high-performance web application designed for developer productivity and user responsiveness.
+The DevBoards.io frontend is a high-performance web application designed for developer productivity and user responsiveness.
 
 ## Architecture
 

@@ -120,7 +120,7 @@ export default component$(() => {
 });
 
 export const head: DocumentHead = {
-  title: "Forgot Password - ITJobHub",
+  title: "Forgot Password - DevBoards.io",
   meta: [
     {
       name: "description",

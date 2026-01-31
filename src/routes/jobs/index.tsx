@@ -29,7 +29,7 @@ export const useHeadMeta = routeLoader$(({ cookie }) => {
   const lang = savedLang in translations ? savedLang : "it";
   const t = translations[lang];
   return {
-    title: t["meta.jobs_title"] || "Annunci di Lavoro - ITJobHub",
+    title: t["meta.jobs_title"] || "Annunci di Lavoro - DevBoards.io",
     description:
       t["meta.jobs_description"] ||
       "Scopri le migliori opportunità di lavoro nel settore IT.",

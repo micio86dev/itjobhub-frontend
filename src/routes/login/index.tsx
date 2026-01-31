@@ -33,9 +33,9 @@ export const useHeadMeta = routeLoader$(({ cookie }) => {
   const lang = savedLang in translations ? savedLang : "it";
   const t = translations[lang];
   return {
-    title: t["meta.login_title"] || "Login - ITJobHub",
+    title: t["meta.login_title"] || "Login - DevBoards.io",
     description:
-      t["meta.login_description"] || "Sign in to your ITJobHub account",
+      t["meta.login_description"] || "Sign in to your DevBoards.io account",
   };
 });
 

@@ -33,7 +33,7 @@ export const useHeadMeta = routeLoader$(({ cookie }) => {
   const lang = savedLang in translations ? savedLang : "it";
   const t = translations[lang];
   return {
-    title: t["meta.news_title"] || "Tech News - IT Job Hub",
+    title: t["meta.news_title"] || "Tech News - DevBoards.io",
     description:
       t["meta.news_description"] ||
       "Latest news for developers, software engineers, and tech professionals.",
