@@ -3,7 +3,7 @@
 }
 
 :global(.dark) .value-props-section {
-  @apply bg-brand-dark-bg border-gray-800;
+  @apply bg-gray-900 border-gray-800;
   h2 {
     @apply text-white;
   }

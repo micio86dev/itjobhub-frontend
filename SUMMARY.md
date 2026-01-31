@@ -29,6 +29,12 @@ The DevBoards.io frontend is a high-performance web application designed for dev
 
 ## Recent Changes
 
+### 2026-01-31: Job Posting Date Translation Fix
+
+- **Missing Translation Restoration**: Added the missing `job.posted` translation key across all supported locales (IT, EN, FR, ES, DE).
+- **Accessibility Enhancement**: Restored effective screen-reader labeling for job posting dates in `JobCard`, ensuring WCAG compliance for chronological information.
+- **Verification**: Confirmed accessibility compliance and unit test stability.
+
 ### 2026-01-31: Social Login Callback Page Redesign & News Filters Branding
 
 - **News Filter Tags Styling Update**:

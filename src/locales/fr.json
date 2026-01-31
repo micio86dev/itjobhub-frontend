@@ -122,6 +122,7 @@
   "job.yesterday": "Hier",
   "job.days_ago": "Il y a {days} jours",
   "job.location_not_specified": "Lieu non spécifié",
+  "job.posted": "Date de publication",
   "job.apply": "Postuler",
   "job.add_favorite": "Ajouter aux favoris",
   "job.remove_favorite": "Retirer des favoris",

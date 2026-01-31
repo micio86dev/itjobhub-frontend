@@ -3,7 +3,7 @@
 }
 
 :global(.dark) .featured-jobs {
-  @apply bg-gray-900;
+  @apply bg-brand-dark-bg;
 }
 
 .container {
