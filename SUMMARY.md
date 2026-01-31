@@ -29,8 +29,14 @@ The DevBoards.io frontend is a high-performance web application designed for dev
 
 ## Recent Changes
 
-### 2026-01-31: Social Login Callback Page Redesign
+### 2026-01-31: Social Login Callback Page Redesign & News Filters Branding
 
+- **News Filter Tags Styling Update**:
+  - Changed active filter tags on the news page to use the brand primary color (`brand-neon`) instead of blue.
+  - Implemented the brand-neon color with a hybrid CSS approach (CSS variables for background-color) to ensure theme compatibility and reliability.
+  - Updated text color to white (light mode) and black (dark mode) for optimal contrast on the neon background.
+  - Added a subtle neon-colored shadow to active filter buttons.
+- **Header Icon Optimization**: Updated the news page header icon container and text to use brand-neon colors for a more cohesive brand identity.
 - **Redesigned Callback Page**: Replaced the hardcoded indigo/purple gradient with a brand-consistent theme-aware design.
 - **Improved UI/UX**:
   - **Light Mode**: Subtle geometric gradient using brand light background colors.
