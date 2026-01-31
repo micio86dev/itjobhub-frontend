@@ -11,6 +11,8 @@ interface JobSearchFilters {
   location_geo?: { lat: number; lng: number };
   remote: string;
   dateRange: string;
+  salaryMin: string;
+  salaryMax: string;
 }
 
 interface JobSearchProps {
@@ -22,6 +24,8 @@ interface JobSearchProps {
   initialAvailability?: string;
   initialRemote?: string;
   initialDateRange?: string;
+  initialSalaryMin?: string;
+  initialSalaryMax?: string;
   userHasLanguages?: boolean;
 }
 
@@ -35,6 +39,8 @@ export const JobSearch = component$<JobSearchProps>(
     initialAvailability,
     initialRemote,
     initialDateRange,
+    initialSalaryMin,
+    initialSalaryMax,
     // userHasLanguages is currently unused but kept in props for future use
   }) => {
     const t = useTranslate();
@@ -46,6 +52,8 @@ export const JobSearch = component$<JobSearchProps>(
       location_geo: initialGeo,
       remote: initialRemote || "",
       dateRange: initialDateRange || "",
+      salaryMin: initialSalaryMin || "",
+      salaryMax: initialSalaryMax || "",
     });
 
     const handleSearch = $(() => {
@@ -60,6 +68,8 @@ export const JobSearch = component$<JobSearchProps>(
       state.location_geo = undefined;
       state.remote = "";
       state.dateRange = "";
+      state.salaryMin = "";
+      state.salaryMax = "";
       onSearch$(state);
     });
 
@@ -69,7 +79,9 @@ export const JobSearch = component$<JobSearchProps>(
       state.availability ||
       state.location ||
       state.remote ||
-      state.dateRange;
+      state.dateRange ||
+      state.salaryMin ||
+      state.salaryMax;
 
     return (
       <div class="bg-brand-light-card dark:bg-brand-dark-card shadow-none mb-6 p-4 sm:p-6 border border-gray-200 dark:border-gray-800 rounded-sm">
@@ -246,6 +258,39 @@ export const JobSearch = component$<JobSearchProps>(
             </select>
           </div>
 
+          {/* Salary Range */}
+          <div>
+            <label class="block mb-2 font-medium text-gray-700 dark:text-gray-300 text-sm">
+              {t("jobs.salary_label")}
+            </label>
+            <div class="flex gap-2">
+              <input
+                type="number"
+                value={state.salaryMin}
+                onInput$={(e) =>
+                  (state.salaryMin = (e.target as HTMLInputElement).value)
+                }
+                placeholder={t("jobs.salary_min_placeholder")}
+                data-testid="search-salary-min"
+                class="w-1/2 input"
+                min="0"
+                step="1000"
+              />
+              <input
+                type="number"
+                value={state.salaryMax}
+                onInput$={(e) =>
+                  (state.salaryMax = (e.target as HTMLInputElement).value)
+                }
+                placeholder={t("jobs.salary_max_placeholder")}
+                data-testid="search-salary-max"
+                class="w-1/2 input"
+                min="0"
+                step="1000"
+              />
+            </div>
+          </div>
+
           {/* Actions */}
           <div class="flex items-end gap-2">
             <button
@@ -345,6 +390,16 @@ export const JobSearch = component$<JobSearchProps>(
                         : state.dateRange === "3months"
                           ? t("jobs.3months")
                           : state.dateRange}
+                </span>
+              )}
+
+              {(state.salaryMin || state.salaryMax) && (
+                <span class="inline-flex items-center bg-brand-neon/10 px-2.5 py-0.5 border border-brand-neon/20 rounded-full font-mono font-bold text-brand-neon text-xs">
+                  {state.salaryMin && state.salaryMax
+                    ? `€${state.salaryMin} - €${state.salaryMax}`
+                    : state.salaryMin
+                      ? `€${state.salaryMin}+`
+                      : `${t("jobs.salary_max_placeholder")} €${state.salaryMax}`}
                 </span>
               )}
             </div>
