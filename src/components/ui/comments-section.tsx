@@ -2,6 +2,7 @@ import {
   component$,
   $,
   useStore,
+  useSignal,
   type PropFunction,
   useStylesScoped$,
 } from "@builder.io/qwik";
@@ -35,16 +36,15 @@ interface BaseCommentsSectionProps {
 }
 
 export const BaseCommentsSection = component$<BaseCommentsSectionProps>(
-  (props) => {
-    const {
-      comments,
-      title,
-      isExpandedDefault = true,
-      onAddComment$,
-      onEditComment$,
-      onDeleteComment$,
-      onClose$,
-    } = props;
+  ({
+    comments,
+    title,
+    isExpandedDefault = true,
+    onAddComment$,
+    onEditComment$,
+    onDeleteComment$,
+    onClose$,
+  }) => {
     useStylesScoped$(styles);
     const auth = useAuth();
     const t = useTranslate();
@@ -53,27 +53,28 @@ export const BaseCommentsSection = component$<BaseCommentsSectionProps>(
     const state = useStore({
       commentText: "",
       isSubmitting: false,
-      editingId: null as string | null,
       editContent: "",
-      showDeleteModal: false,
       commentToDelete: null as string | null,
       isEditingSubmitting: false,
       isExpanded: isExpandedDefault,
     });
+
+    const editingId = useSignal<string | null>(null);
+    const showDeleteModal = useSignal(false);
 
     const anonymousUser = t("comments.anonymous_user");
 
     // --- FUNZIONI ASINCRONE (QRL) ---
     // Queste rimangono QRL perché sono asincrone e complesse
     const saveEdit = $(async () => {
-      if (!state.editingId || !state.editContent.trim()) return;
+      if (!editingId.value || !state.editContent.trim()) return;
 
       state.isEditingSubmitting = true;
       try {
         if (onEditComment$) {
-          await onEditComment$(state.editingId, state.editContent.trim());
+          await onEditComment$(editingId.value, state.editContent.trim());
         }
-        state.editingId = null;
+        editingId.value = null;
         state.editContent = "";
       } finally {
         state.isEditingSubmitting = false;
@@ -83,13 +84,13 @@ export const BaseCommentsSection = component$<BaseCommentsSectionProps>(
     const confirmDelete = $(async () => {
       if (state.commentToDelete && onDeleteComment$) {
         await onDeleteComment$(state.commentToDelete);
-        state.showDeleteModal = false;
+        showDeleteModal.value = false;
         state.commentToDelete = null;
       }
     });
 
     const cancelDelete = $(() => {
-      state.showDeleteModal = false;
+      showDeleteModal.value = false;
       state.commentToDelete = null;
     });
 
@@ -285,7 +286,7 @@ export const BaseCommentsSection = component$<BaseCommentsSectionProps>(
                   </div>
 
                   <div class="comment-body">
-                    {state.editingId === comment.id ? (
+                    {editingId.value === comment.id ? (
                       <div class="edit-container">
                         <textarea
                           value={state.editContent}
@@ -299,10 +300,10 @@ export const BaseCommentsSection = component$<BaseCommentsSectionProps>(
                         />
                         <div class="edit-actions">
                           <button
-                            onClick$={() => {
-                              state.editingId = null;
+                            onClick$={$(() => {
+                              editingId.value = null;
                               state.editContent = "";
-                            }}
+                            })}
                             class="cancel-btn"
                           >
                             {t("common.cancel")}
@@ -339,7 +340,7 @@ export const BaseCommentsSection = component$<BaseCommentsSectionProps>(
                                 {auth.user?.id === comment.userId && (
                                   <button
                                     onClick$={$(() => {
-                                      state.editingId = comment.id;
+                                      editingId.value = comment.id;
                                       state.editContent = comment.text;
                                     })}
                                     class="action-btn-edit"
@@ -363,7 +364,7 @@ export const BaseCommentsSection = component$<BaseCommentsSectionProps>(
                                 <button
                                   onClick$={$(() => {
                                     state.commentToDelete = comment.id;
-                                    state.showDeleteModal = true;
+                                    showDeleteModal.value = true;
                                   })}
                                   class="action-btn-delete"
                                   data-testid="comment-delete"
@@ -398,7 +399,7 @@ export const BaseCommentsSection = component$<BaseCommentsSectionProps>(
 
         <Modal
           title={t("job.confirm_delete_title")}
-          isOpen={state.showDeleteModal}
+          isOpen={showDeleteModal.value}
           onClose$={cancelDelete}
           onConfirm$={confirmDelete}
           isDestructive={true}
