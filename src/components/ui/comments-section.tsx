@@ -36,7 +36,15 @@ interface BaseCommentsSectionProps {
 
 export const BaseCommentsSection = component$<BaseCommentsSectionProps>(
   (props) => {
-    const { comments, title, isExpandedDefault = true } = props;
+    const {
+      comments,
+      title,
+      isExpandedDefault = true,
+      onAddComment$,
+      onEditComment$,
+      onDeleteComment$,
+      onClose$,
+    } = props;
     useStylesScoped$(styles);
     const auth = useAuth();
     const t = useTranslate();
@@ -62,7 +70,9 @@ export const BaseCommentsSection = component$<BaseCommentsSectionProps>(
 
       state.isEditingSubmitting = true;
       try {
-        await props.onEditComment$(state.editingId, state.editContent.trim());
+        if (onEditComment$) {
+          await onEditComment$(state.editingId, state.editContent.trim());
+        }
         state.editingId = null;
         state.editContent = "";
       } finally {
@@ -71,8 +81,8 @@ export const BaseCommentsSection = component$<BaseCommentsSectionProps>(
     });
 
     const confirmDelete = $(async () => {
-      if (state.commentToDelete) {
-        await props.onDeleteComment$(state.commentToDelete);
+      if (state.commentToDelete && onDeleteComment$) {
+        await onDeleteComment$(state.commentToDelete);
         state.showDeleteModal = false;
         state.commentToDelete = null;
       }
@@ -89,10 +99,12 @@ export const BaseCommentsSection = component$<BaseCommentsSectionProps>(
 
       state.isSubmitting = true;
       try {
-        await props.onAddComment$(state.commentText.trim());
+        if (onAddComment$) {
+          await onAddComment$(state.commentText.trim());
+        }
         state.commentText = "";
-        if (props.onClose$) {
-          await props.onClose$();
+        if (onClose$) {
+          await onClose$();
         }
       } catch (err) {
         logger.error({ error: err }, "Failed to submit comment");
