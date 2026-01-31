@@ -71,6 +71,14 @@ ${generateHreflangTags("/register")}
     <priority>0.6</priority>
   </url>
   
+  <!-- Privacy Policy page -->
+  <url>
+    <loc>${SITE_URL}/privacy-policy</loc>
+${generateHreflangTags("/privacy-policy")}
+    <changefreq>monthly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  
   <!-- Dynamic job pages -->
 ${jobs
   .map(
