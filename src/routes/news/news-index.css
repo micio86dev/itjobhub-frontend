@@ -20,7 +20,7 @@
   box-shadow: 0 4px 12px rgb(var(--brand-neon-rgb) / 0.2);
 }
 
-:global(.dark) .category-btn-active {
+.dark .category-btn-active {
   color: black;
 }
 
