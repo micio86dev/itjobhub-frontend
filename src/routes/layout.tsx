@@ -8,7 +8,7 @@ import { Navigation } from "~/components/navigation/navigation";
 import { Footer } from "~/components/footer/footer";
 import logger from "~/utils/logger";
 
-export const useAuthLoader = routeLoader$(async ({ cookie }) => {
+export const useAuthLoader = routeLoader$(async ({ cookie, url, redirect }) => {
   const token = cookie.get("auth_token")?.value;
   const lang = cookie.get("preferred-language")?.value as SupportedLanguage;
 
@@ -64,6 +64,18 @@ export const useAuthLoader = routeLoader$(async ({ cookie }) => {
       }
     } catch (e) {
       logger.error({ e }, "[SSR] Failed to fetch user data");
+    }
+  }
+
+  // Enforce profile completion
+  if (user && !user.profileCompleted) {
+    const path = url.pathname;
+    const allowedPaths = ["/wizard", "/auth", "/privacy-policy"];
+
+    const isAllowed = allowedPaths.some((p) => path.startsWith(p));
+
+    if (!isAllowed) {
+      throw redirect(302, "/wizard");
     }
   }
 
