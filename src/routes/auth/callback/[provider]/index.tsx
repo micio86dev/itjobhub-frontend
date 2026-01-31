@@ -1,8 +1,9 @@
 import {
   component$,
-  useTask$,
+  useVisibleTask$,
   useStore,
   useStylesScoped$,
+  useSignal,
 } from "@builder.io/qwik";
 import { useLocation, useNavigate } from "@builder.io/qwik-city";
 import type { DocumentHead } from "@builder.io/qwik-city";
@@ -107,6 +108,7 @@ export default component$(() => {
   const nav = useNavigate();
   const auth = useAuth();
   const t = useTranslate();
+  const processedRef = useSignal(false);
 
   const state = useStore<CallbackState>({
     loading: true,
@@ -115,8 +117,13 @@ export default component$(() => {
   });
 
   // Process OAuth callback
-  useTask$(async ({ track }) => {
+  // eslint-disable-next-line qwik/no-use-visible-task
+  useVisibleTask$(async ({ track }) => {
     track(() => location.url.href);
+
+    // Prevent double execution
+    if (processedRef.value) return;
+    processedRef.value = true;
 
     const provider = location.params.provider;
     const code = location.url.searchParams.get("code");
@@ -187,9 +194,7 @@ export default component$(() => {
         auth.isAuthenticated = true;
 
         // Store token in cookie
-        if (typeof document !== "undefined") {
-          setCookie("auth_token", token);
-        }
+        setCookie("auth_token", token);
 
         state.loading = false;
         state.success = true;
