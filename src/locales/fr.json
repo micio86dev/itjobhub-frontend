@@ -343,5 +343,17 @@
   "news.no_news_desc": "Revenez plus tard pour les mises à jour.",
   "news.failed_add_comment": "Échec de l'ajout du commentaire",
   "news.failed_edit_comment": "Échec de la modification du commentaire",
-  "news.failed_delete_comment": "Échec de la suppression du commentaire"
+  "news.failed_delete_comment": "Échec de la suppression du commentaire",
+  "auth.forgot_password": "Mot de passe oublié ?",
+  "auth.reset_password": "Réinitialiser le mot de passe",
+  "auth.send_reset_link": "Envoyer le lien de réinitialisation",
+  "auth.new_password": "Nouveau mot de passe",
+  "auth.reset_success": "Mot de passe réinitialisé avec succès !",
+  "auth.reset_link_sent": "Lien de réinitialisation envoyé !",
+  "auth.back_to_login": "Retour à la connexion",
+  "auth.enter_email_reset": "Entrez votre email pour recevoir un lien de réinitialisation",
+  "auth.enter_new_password": "Choisissez un nouveau mot de passe pour votre compte",
+  "auth.reset_link_sent_desc": "Si un compte existe avec cet email, un lien de réinitialisation du mot de passe a été envoyé. Veuillez vérifier votre boîte de réception et vos spams.",
+  "meta.forgot_password_title": "Mot de passe oublié - DevBoards.io",
+  "meta.forgot_password_desc": "Réinitialisez votre mot de passe"
 }

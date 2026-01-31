@@ -5,13 +5,39 @@ import {
   useTask$,
   useStylesScoped$,
 } from "@builder.io/qwik";
-import { useNavigate } from "@builder.io/qwik-city";
+import { useNavigate, routeLoader$ } from "@builder.io/qwik-city";
 import type { DocumentHead } from "@builder.io/qwik-city";
 import { useAuth } from "~/contexts/auth";
-import { useTranslate, translate, useI18n } from "~/contexts/i18n";
+import {
+  useTranslate,
+  translate,
+  useI18n,
+  type SupportedLanguage,
+} from "~/contexts/i18n";
 import { SocialLoginButtons } from "~/components/ui/social-login-buttons";
 import { Spinner } from "~/components/ui/spinner";
 import styles from "./index.css?inline";
+
+// Import translations for server-side DocumentHead
+import it from "~/locales/it.json";
+import en from "~/locales/en.json";
+import es from "~/locales/es.json";
+import de from "~/locales/de.json";
+import fr from "~/locales/fr.json";
+
+const translations = { it, en, es, de, fr };
+
+export const useHeadMeta = routeLoader$(({ cookie }) => {
+  const savedLang =
+    (cookie.get("preferred-language")?.value as SupportedLanguage) || "it";
+  const lang = savedLang in translations ? savedLang : "it";
+  const t = translations[lang];
+  return {
+    title: t["meta.register_title"] || "Sign Up - DevBoards.io",
+    description:
+      t["meta.register_description"] || "Create your DevBoards.io account",
+  };
+});
 
 interface RegisterForm {
   firstName: string;
@@ -249,12 +275,15 @@ export default component$(() => {
   );
 });
 
-export const head: DocumentHead = {
-  title: "Sign Up - DevBoards.io",
-  meta: [
-    {
-      name: "description",
-      content: "Create your DevBoards.io account",
-    },
-  ],
+export const head: DocumentHead = ({ resolveValue }) => {
+  const meta = resolveValue(useHeadMeta);
+  return {
+    title: meta.title,
+    meta: [
+      {
+        name: "description",
+        content: meta.description,
+      },
+    ],
+  };
 };

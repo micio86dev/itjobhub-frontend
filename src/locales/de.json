@@ -338,5 +338,17 @@
   "news.no_news_desc": "Schauen Sie später wieder vorbei.",
   "news.failed_add_comment": "Kommentar konnte nicht hinzugefügt werden",
   "news.failed_edit_comment": "Kommentar konnte nicht bearbeitet werden",
-  "news.failed_delete_comment": "Kommentar konnte nicht gelöscht werden"
+  "news.failed_delete_comment": "Kommentar konnte nicht gelöscht werden",
+  "auth.forgot_password": "Passwort vergessen?",
+  "auth.reset_password": "Passwort zurücksetzen",
+  "auth.send_reset_link": "Reset-Link senden",
+  "auth.new_password": "Neues Passwort",
+  "auth.reset_success": "Passwort erfolgreich zurückgesetzt!",
+  "auth.reset_link_sent": "Reset-Link gesendet!",
+  "auth.back_to_login": "Zurück zur Anmeldung",
+  "auth.enter_email_reset": "Geben Sie Ihre E-Mail ein, um einen Reset-Link zu erhalten",
+  "auth.enter_new_password": "Wählen Sie ein neues Passwort für Ihr Konto",
+  "auth.reset_link_sent_desc": "Wenn ein Konto mit dieser E-Mail existiert, wurde ein Link zum Zurücksetzen des Passworts gesendet. Bitte überprüfen Sie Ihren Posteingang und Spam-Ordner.",
+  "meta.forgot_password_title": "Passwort Vergessen - DevBoards.io",
+  "meta.forgot_password_desc": "Setzen Sie Ihr Passwort zurück"
 }

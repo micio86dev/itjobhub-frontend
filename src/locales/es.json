@@ -343,5 +343,17 @@
   "news.no_news_desc": "Vuelve más tarde para ver las actualizaciones.",
   "news.failed_add_comment": "Error al añadir el comentario",
   "news.failed_edit_comment": "Error al editar el comentario",
-  "news.failed_delete_comment": "Error al eliminar el comentario"
+  "news.failed_delete_comment": "Error al eliminar el comentario",
+  "auth.forgot_password": "¿Olvidaste tu contraseña?",
+  "auth.reset_password": "Restablecer contraseña",
+  "auth.send_reset_link": "Enviar enlace de recuperación",
+  "auth.new_password": "Nueva contraseña",
+  "auth.reset_success": "¡Contraseña restablecida con éxito!",
+  "auth.reset_link_sent": "¡Enlace de recuperación enviado!",
+  "auth.back_to_login": "Volver al inicio de sesión",
+  "auth.enter_email_reset": "Introduce tu email para recibir un enlace de recuperación",
+  "auth.enter_new_password": "Elige una nueva contraseña para tu cuenta",
+  "auth.reset_link_sent_desc": "Si existe una cuenta con este correo electrónico, se ha enviado un enlace para restablecer la contraseña. Por favor, revisa tu bandeja de entrada y la carpeta de spam.",
+  "meta.forgot_password_title": "Contraseña Olvidada - DevBoards.io",
+  "meta.forgot_password_desc": "Restablece tu contraseña"
 }

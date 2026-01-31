@@ -1,9 +1,29 @@
 import { component$, useStore, $, useStylesScoped$ } from "@builder.io/qwik";
-import { Link } from "@builder.io/qwik-city";
-import type { DocumentHead } from "@builder.io/qwik-city";
-import { useTranslate } from "~/contexts/i18n";
+import { Link, routeLoader$, type DocumentHead } from "@builder.io/qwik-city";
+import { type SupportedLanguage, useTranslate } from "~/contexts/i18n";
 import { Spinner } from "~/components/ui/spinner";
 import styles from "./index.css?inline";
+
+// Import translations for server-side DocumentHead
+import it from "~/locales/it.json";
+import en from "~/locales/en.json";
+import es from "~/locales/es.json";
+import de from "~/locales/de.json";
+import fr from "~/locales/fr.json";
+
+const translations = { it, en, es, de, fr };
+
+// Route loader to get translated meta for DocumentHead
+export const useHeadMeta = routeLoader$(({ cookie }) => {
+  const savedLang =
+    (cookie.get("preferred-language")?.value as SupportedLanguage) || "it";
+  const lang = savedLang in translations ? savedLang : "it";
+  const t = translations[lang];
+  return {
+    title: t["meta.forgot_password_title"] || "Forgot Password - DevBoards.io",
+    description: t["meta.forgot_password_desc"] || "Reset your password",
+  };
+});
 
 export default component$(() => {
   useStylesScoped$(styles);
@@ -61,8 +81,7 @@ export default component$(() => {
           <div class="space-y-6">
             <div class="successMessage">{t("auth.reset_link_sent")}</div>
             <p class="text-gray-600 dark:text-gray-400 text-sm text-center">
-              If an account exists with this email, a password reset link has
-              been sent. Please check your email inbox and spam folder.
+              {t("auth.reset_link_sent_desc")}
             </p>
             <div class="text-center">
               <Link href="/login" class="link">
@@ -119,12 +138,15 @@ export default component$(() => {
   );
 });
 
-export const head: DocumentHead = {
-  title: "Forgot Password - DevBoards.io",
-  meta: [
-    {
-      name: "description",
-      content: "Reset your password",
-    },
-  ],
+export const head: DocumentHead = ({ resolveValue }) => {
+  const meta = resolveValue(useHeadMeta);
+  return {
+    title: meta.title,
+    meta: [
+      {
+        name: "description",
+        content: meta.description,
+      },
+    ],
+  };
 };

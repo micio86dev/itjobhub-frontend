@@ -360,5 +360,8 @@
   "news.no_news_desc": "Torna più tardi per nuovi aggiornamenti.",
   "news.failed_add_comment": "Impossibile aggiungere il commento",
   "news.failed_edit_comment": "Impossibile modificare il commento",
-  "news.failed_delete_comment": "Impossibile eliminare il commento"
+  "news.failed_delete_comment": "Impossibile eliminare il commento",
+  "auth.reset_link_sent_desc": "Se esiste un account con questa email, è stato inviato un link per reimpostare la password. Controlla la tua casella di posta e la cartella spam.",
+  "meta.forgot_password_title": "Password Dimenticata - DevBoards.io",
+  "meta.forgot_password_desc": "Reimposta la tua password"
 }

@@ -361,5 +361,8 @@
   "news.no_news_desc": "Check back later for updates.",
   "news.failed_add_comment": "Failed to add comment",
   "news.failed_edit_comment": "Failed to edit comment",
-  "news.failed_delete_comment": "Failed to delete comment"
+  "news.failed_delete_comment": "Failed to delete comment",
+  "auth.reset_link_sent_desc": "If an account exists with this email, a password reset link has been sent. Please check your email inbox and spam folder.",
+  "meta.forgot_password_title": "Forgot Password - DevBoards.io",
+  "meta.forgot_password_desc": "Reset your password"
 }
