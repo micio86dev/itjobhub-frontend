@@ -130,7 +130,7 @@ export default component$(() => {
       {/* Header Banner */}
       <div class="relative bg-white dark:bg-slate-900 shadow-sm pt-16 pb-12">
         <div class="mx-auto px-4 text-center container">
-          <div class="flex justify-center items-center bg-blue-100 dark:bg-blue-900/30 mx-auto mb-6 rounded-2xl w-16 h-16 text-blue-600 dark:text-blue-400">
+          <div class="flex justify-center items-center bg-brand-neon/10 dark:bg-brand-neon/20 mx-auto mb-6 rounded-2xl w-16 h-16 text-brand-neon">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="32"
