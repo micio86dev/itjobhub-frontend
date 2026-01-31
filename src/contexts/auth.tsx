@@ -107,6 +107,7 @@ export interface BackendUser {
   location?: string;
   birthDate?: string;
   avatar?: string;
+  profileCompleted?: boolean;
   profile?: {
     languages?: string[];
     skills?: string[];
@@ -205,7 +206,10 @@ export const AuthProvider = component$(
         availability: bu.profile?.availability,
         workModes: bu.profile?.workModes || [],
         bio: bu.profile?.bio,
-        profileCompleted: !!bu.profile,
+        profileCompleted:
+          bu.profileCompleted !== undefined
+            ? bu.profileCompleted
+            : !!bu.profile,
         phone: bu.phone,
         location: bu.location,
         birthDate: bu.birthDate,

@@ -48,8 +48,8 @@ export const useAuthLoader = routeLoader$(async ({ cookie, url, redirect }) => {
             seniority: bu.profile?.seniority,
             availability: bu.profile?.availability,
             workModes: bu.profile?.workModes || [],
-            // A profile is completed if it exists
-            profileCompleted: !!bu.profile,
+            // Profile completion is now calculated by backend
+            profileCompleted: bu.profileCompleted,
           };
         }
       } else if (response.status === 401) {
