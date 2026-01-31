@@ -34,7 +34,11 @@ export const Modal = component$<ModalProps>((props) => {
         <div
           class="overlay"
           aria-hidden="true"
-          onClick$={$(() => props.onClose$?.())}
+          onClick$={$(() => {
+            if (props.onClose$) {
+              props.onClose$();
+            }
+          })}
         ></div>
         <span class="modal-spacer" aria-hidden="true">
           &#8203;
@@ -54,7 +58,11 @@ export const Modal = component$<ModalProps>((props) => {
               class={`btn-confirm ${props.isDestructive ? "btn-destructive" : "btn-primary"} ${props.isLoading ? "btn-loading" : ""}`}
               disabled={props.isLoading}
               data-testid="modal-confirm"
-              onClick$={$(() => props.onConfirm$?.())}
+              onClick$={$(() => {
+                if (props.onConfirm$) {
+                  props.onConfirm$();
+                }
+              })}
             >
               {props.isLoading ? (
                 <>
@@ -88,7 +96,11 @@ export const Modal = component$<ModalProps>((props) => {
               type="button"
               class="btn-cancel"
               data-testid="modal-cancel"
-              onClick$={$(() => props.onClose$?.())}
+              onClick$={$(() => {
+                if (props.onClose$) {
+                  props.onClose$();
+                }
+              })}
             >
               {props.cancelText || "Cancel"}
             </button>
