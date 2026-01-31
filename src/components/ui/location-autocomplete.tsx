@@ -1,9 +1,8 @@
 import {
   component$,
   useSignal,
-  useTask$,
+  useVisibleTask$,
   PropFunction,
-  isBrowser,
 } from "@builder.io/qwik";
 import logger from "../../utils/logger";
 
@@ -19,66 +18,71 @@ interface Props {
 export const LocationAutocomplete = component$((props: Props) => {
   const inputRef = useSignal<HTMLInputElement>();
 
-  useTask$(({ track }) => {
-    track(() => inputRef.value);
+  // eslint-disable-next-line qwik/no-use-visible-task
+  useVisibleTask$(({ track, cleanup }) => {
+    const input = track(() => inputRef.value);
 
-    if (isBrowser) {
-      const loadGoogleMaps = () => {
-        if (typeof window === "undefined") return;
+    if (!input) return;
 
-        if (window.google?.maps?.places) {
-          initAutocomplete();
+    let intervalId: NodeJS.Timeout;
+
+    const initAutocomplete = () => {
+      if (!input || !window.google?.maps?.places) return;
+
+      const autocomplete = new window.google.maps.places.Autocomplete(input, {
+        types: ["(cities)"],
+      });
+
+      autocomplete.addListener("place_changed", () => {
+        const place = autocomplete.getPlace();
+        if (place.geometry && place.geometry.location) {
+          const lat = place.geometry.location.lat();
+          const lng = place.geometry.location.lng();
+          const formattedAddress = place.formatted_address || "";
+          props.onLocationSelect$(formattedAddress, { lat, lng });
+        }
+      });
+    };
+
+    const loadGoogleMaps = () => {
+      // Direct check
+      if (window.google?.maps?.places) {
+        initAutocomplete();
+        return;
+      }
+
+      const scriptId = "google-maps-script";
+      if (!document.getElementById(scriptId)) {
+        const script = document.createElement("script");
+        script.id = scriptId;
+        const apiKey = import.meta.env.PUBLIC_GOOGLE_MAPS_KEY;
+        if (!apiKey) {
+          logger.error("Google Maps API key is missing");
           return;
         }
-
-        if (!document.getElementById("google-maps-script")) {
-          const script = document.createElement("script");
-          script.id = "google-maps-script";
-          const apiKey = import.meta.env.PUBLIC_GOOGLE_MAPS_KEY;
-          if (!apiKey) {
-            logger.error(
-              "Google Maps API key is missing. set PUBLIC_GOOGLE_MAPS_KEY in .env",
-            );
-            return;
+        script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
+        script.async = true;
+        script.onload = () => initAutocomplete();
+        document.head.appendChild(script);
+      } else {
+        // Polling if script exists but not loaded
+        intervalId = setInterval(() => {
+          if (window.google?.maps?.places) {
+            clearInterval(intervalId);
+            initAutocomplete();
           }
-          script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
-          script.async = true;
-          script.onload = () => initAutocomplete();
-          document.head.appendChild(script);
-        } else {
-          // Script already exists but maybe not loaded yet, or multiple calls
-          const checkGoogle = setInterval(() => {
-            if (window.google?.maps?.places) {
-              clearInterval(checkGoogle);
-              initAutocomplete();
-            }
-          }, 100);
-        }
-      };
+        }, 100);
+      }
+    };
 
-      const initAutocomplete = () => {
-        if (!inputRef.value) return;
+    loadGoogleMaps();
 
-        const autocomplete = new window.google.maps.places.Autocomplete(
-          inputRef.value,
-          {
-            types: ["(cities)"],
-          },
-        );
-
-        autocomplete.addListener("place_changed", () => {
-          const place = autocomplete.getPlace();
-          if (place.geometry && place.geometry.location) {
-            const lat = place.geometry.location.lat();
-            const lng = place.geometry.location.lng();
-            const formattedAddress = place.formatted_address || "";
-            props.onLocationSelect$(formattedAddress, { lat, lng });
-          }
-        });
-      };
-
-      loadGoogleMaps();
-    }
+    cleanup(() => {
+      if (intervalId) clearInterval(intervalId);
+      // We could also remove listeners if we kept a ref to autocomplete instance,
+      // but Google Maps instances attached to DOM elements usually get cleaned up
+      // when the DOM element is removed.
+    });
   });
 
   return (
