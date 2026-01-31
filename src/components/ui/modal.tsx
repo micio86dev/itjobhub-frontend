@@ -2,7 +2,6 @@ import {
   component$,
   Slot,
   type PropFunction,
-  $,
   useStylesScoped$,
 } from "@builder.io/qwik";
 import styles from "./modal.css?inline";
@@ -31,15 +30,7 @@ export const Modal = component$<ModalProps>((props) => {
       data-testid="modal-root"
     >
       <div class="modal-content-wrapper">
-        <div
-          class="overlay"
-          aria-hidden="true"
-          onClick$={$(() => {
-            if (props.onClose$) {
-              props.onClose$();
-            }
-          })}
-        ></div>
+        <div class="overlay" aria-hidden="true" onClick$={props.onClose$}></div>
         <span class="modal-spacer" aria-hidden="true">
           &#8203;
         </span>
@@ -58,11 +49,7 @@ export const Modal = component$<ModalProps>((props) => {
               class={`btn-confirm ${props.isDestructive ? "btn-destructive" : "btn-primary"} ${props.isLoading ? "btn-loading" : ""}`}
               disabled={props.isLoading}
               data-testid="modal-confirm"
-              onClick$={$(() => {
-                if (props.onConfirm$) {
-                  props.onConfirm$();
-                }
-              })}
+              onClick$={props.onConfirm$}
             >
               {props.isLoading ? (
                 <>
@@ -96,11 +83,7 @@ export const Modal = component$<ModalProps>((props) => {
               type="button"
               class="btn-cancel"
               data-testid="modal-cancel"
-              onClick$={$(() => {
-                if (props.onClose$) {
-                  props.onClose$();
-                }
-              })}
+              onClick$={props.onClose$}
             >
               {props.cancelText || "Cancel"}
             </button>
