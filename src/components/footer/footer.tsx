@@ -12,10 +12,7 @@ export const Footer = component$(() => {
         <p class={styles.copyright}>
           &copy; {year} DevBoards.io. {t("footer.all_rights_reserved")}
           <span class="mx-2">•</span>
-          <a
-            href="/privacy-policy"
-            class="hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
-          >
+          <a href="/privacy-policy" class={styles.legalLink}>
             {t("footer.privacy_policy")}
           </a>
         </p>
