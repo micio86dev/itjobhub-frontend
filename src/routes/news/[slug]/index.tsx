@@ -234,6 +234,13 @@ export default component$(() => {
     displayContent = translation.content || displayContent;
   }
 
+  // Category translation
+  const categoryKey = `news.category.${news.category?.toLowerCase().replace(/\s+/g, "")}`;
+  const displayCategory =
+    news.category && t(categoryKey) !== categoryKey
+      ? t(categoryKey)
+      : news.category;
+
   return (
     <div class="bg-slate-50 dark:bg-slate-950 pt-24 pb-20 min-h-screen">
       <div class="mx-auto px-4 max-w-4xl container">
@@ -272,9 +279,9 @@ export default component$(() => {
               />
               <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
               <div class="bottom-0 left-0 absolute p-6 md:p-8 text-white">
-                {news.category && (
+                {displayCategory && (
                   <span class="inline-block bg-brand-neon mb-3 px-3 py-1 rounded-full font-bold text-white dark:text-black text-xs uppercase tracking-wide">
-                    {news.category}
+                    {displayCategory}
                   </span>
                 )}
                 <h1 class="mb-2 font-bold text-3xl md:text-5xl leading-tight">
@@ -301,9 +308,9 @@ export default component$(() => {
 
           {!news.image_url && (
             <div class="p-8 border-gray-100 dark:border-gray-800 border-b">
-              {news.category && (
+              {displayCategory && (
                 <span class="inline-block bg-brand-neon mb-3 px-3 py-1 rounded-full font-bold text-white dark:text-black text-xs uppercase tracking-wide">
-                  {news.category}
+                  {displayCategory}
                 </span>
               )}
               <h1 class="mb-4 font-bold text-gray-900 dark:text-white text-3xl md:text-4xl">

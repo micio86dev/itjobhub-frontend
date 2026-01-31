@@ -41,6 +41,7 @@ const translations = {
   de,
   fr,
 };
+// Force HMR update to pick up new translation keys
 
 interface I18nProviderProps {
   initialLanguage?: SupportedLanguage;

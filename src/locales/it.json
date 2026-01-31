@@ -355,5 +355,10 @@
   "auth.reset_link_sent": "Link di reset inviato!",
   "auth.back_to_login": "Torna al Login",
   "auth.enter_email_reset": "Inserisci la tua email per ricevere un link di reset",
-  "auth.enter_new_password": "Scegli una nuova password per il tuo account"
+  "auth.enter_new_password": "Scegli una nuova password per il tuo account",
+  "news.no_news": "Nessuna notizia trovata",
+  "news.no_news_desc": "Torna più tardi per nuovi aggiornamenti.",
+  "news.failed_add_comment": "Impossibile aggiungere il commento",
+  "news.failed_edit_comment": "Impossibile modificare il commento",
+  "news.failed_delete_comment": "Impossibile eliminare il commento"
 }

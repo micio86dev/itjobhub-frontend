@@ -356,5 +356,10 @@
   "auth.reset_link_sent": "Reset link sent!",
   "auth.back_to_login": "Back to Login",
   "auth.enter_email_reset": "Enter your email to receive a reset link",
-  "auth.enter_new_password": "Choose a new password for your account"
+  "auth.enter_new_password": "Choose a new password for your account",
+  "news.no_news": "No news found",
+  "news.no_news_desc": "Check back later for updates.",
+  "news.failed_add_comment": "Failed to add comment",
+  "news.failed_edit_comment": "Failed to edit comment",
+  "news.failed_delete_comment": "Failed to delete comment"
 }

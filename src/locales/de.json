@@ -248,6 +248,7 @@
   "common.cancel": "Abbrechen",
   "common.edit": "Bearbeiten",
   "common.delete": "Löschen",
+  "common.read_more": "Mehr lesen",
   "meta.index_title": "DevBoards.io - Finden Sie Ihren idealen IT-Job",
   "meta.index_description": "Die Plattform, um Ihren Traumjob in der IT-Welt zu finden. Exklusive Möglichkeiten, berufliches Wachstum und Remote-Jobs.",
   "meta.login_title": "Anmelden - DevBoards.io",
@@ -332,5 +333,10 @@
   "news.dislike": "Gefällt mir nicht",
   "meta.news_title": "Tech Nachrichten - IT Job Hub",
   "meta.news_description": "Neueste Nachrichten für Entwickler, Softwareingenieure und Tech-Profis.",
-  "a11y.menu_collapsed": "Menü eingeklappt"
+  "a11y.menu_collapsed": "Menü eingeklappt",
+  "news.no_news": "Keine Nachrichten gefunden",
+  "news.no_news_desc": "Schauen Sie später wieder vorbei.",
+  "news.failed_add_comment": "Kommentar konnte nicht hinzugefügt werden",
+  "news.failed_edit_comment": "Kommentar konnte nicht bearbeitet werden",
+  "news.failed_delete_comment": "Kommentar konnte nicht gelöscht werden"
 }

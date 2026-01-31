@@ -253,6 +253,7 @@
   "common.cancel": "Cancelar",
   "common.edit": "Editar",
   "common.delete": "Eliminar",
+  "common.read_more": "Leer más",
   "meta.login_title": "Iniciar Sesión - DevBoards.io",
   "meta.login_description": "Inicia sesión en tu cuenta de DevBoards.io",
   "meta.register_title": "Registrarse - DevBoards.io",
@@ -337,5 +338,10 @@
   "news.dislike": "No me gusta",
   "meta.news_title": "Noticias Tech - IT Job Hub",
   "meta.news_description": "Últimas noticias para desarrolladores, ingenieros de software y profesionales de tecnología.",
-  "a11y.menu_collapsed": "Menú contraído"
+  "a11y.menu_collapsed": "Menú contraído",
+  "news.no_news": "No se encontraron noticias",
+  "news.no_news_desc": "Vuelve más tarde para ver las actualizaciones.",
+  "news.failed_add_comment": "Error al añadir el comentario",
+  "news.failed_edit_comment": "Error al editar el comentario",
+  "news.failed_delete_comment": "Error al eliminar el comentario"
 }

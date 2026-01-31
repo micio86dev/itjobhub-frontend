@@ -1,6 +1,7 @@
 import { component$ } from "@builder.io/qwik";
 import { NewsCard } from "./news-card";
 import type { ApiNews } from "~/types/models";
+import { useTranslate } from "~/contexts/i18n";
 
 interface NewsListProps {
   news: ApiNews[];
@@ -8,11 +9,13 @@ interface NewsListProps {
 }
 
 export const NewsList = component$<NewsListProps>(({ news, isLoading }) => {
+  const t = useTranslate();
+
   if (isLoading) {
     return (
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div class="gap-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
         {[...Array(6)].map((_, i) => (
-          <div key={i} class="h-96 bg-gray-100 rounded-lg animate-pulse"></div>
+          <div key={i} class="bg-gray-100 rounded-lg h-96 animate-pulse"></div>
         ))}
       </div>
     );
@@ -20,8 +23,8 @@ export const NewsList = component$<NewsListProps>(({ news, isLoading }) => {
 
   if (!news || news.length === 0) {
     return (
-      <div class="text-center py-16">
-        <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
+      <div class="py-16 text-center">
+        <div class="inline-flex justify-center items-center bg-gray-100 mb-4 rounded-full w-16 h-16">
           <svg
             class="w-8 h-8 text-gray-400"
             fill="none"
@@ -36,14 +39,14 @@ export const NewsList = component$<NewsListProps>(({ news, isLoading }) => {
             ></path>
           </svg>
         </div>
-        <h3 class="text-lg font-medium text-gray-900">No news found</h3>
-        <p class="mt-1 text-gray-500">Check back later for updates.</p>
+        <h3 class="font-medium text-gray-900 text-lg">{t("news.no_news")}</h3>
+        <p class="mt-1 text-gray-500">{t("news.no_news_desc")}</p>
       </div>
     );
   }
 
   return (
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div class="gap-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
       {news.map((item) => (
         <NewsCard key={item.id} news={item} />
       ))}

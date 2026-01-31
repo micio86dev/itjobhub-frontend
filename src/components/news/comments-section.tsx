@@ -74,6 +74,10 @@ export const NewsCommentsSection = component$<CommentsSectionProps>((props) => {
     }
   });
 
+  const addCommentErrorMsg = t("news.failed_add_comment");
+  const editCommentErrorMsg = t("news.failed_edit_comment");
+  const deleteCommentErrorMsg = t("news.failed_delete_comment");
+
   const addComment = $(async (text: string) => {
     if (!auth.token) return;
     try {
@@ -109,8 +113,7 @@ export const NewsCommentsSection = component$<CommentsSectionProps>((props) => {
       }
     } catch (e) {
       console.error("Failed to add comment", e);
-      // t() is not serializable inside $, use alert directly or handle UI error state
-      alert("Failed to add comment");
+      alert(addCommentErrorMsg);
     }
   });
 
@@ -139,7 +142,7 @@ export const NewsCommentsSection = component$<CommentsSectionProps>((props) => {
     } catch (e) {
       state.comments[index].text = oldText; // Revert
       console.error("Failed to edit comment", e);
-      alert("Failed to edit comment");
+      alert(editCommentErrorMsg);
     }
   });
 
@@ -166,7 +169,7 @@ export const NewsCommentsSection = component$<CommentsSectionProps>((props) => {
       // Reconstitute state if failed
       state.comments = oldComments;
       console.error("Failed to delete comment", e);
-      alert("Failed to delete comment");
+      alert(deleteCommentErrorMsg);
     }
   });
 

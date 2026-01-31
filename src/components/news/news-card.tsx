@@ -134,13 +134,20 @@ export const NewsCard = component$<NewsCardProps>((props) => {
     displaySummary = translation.summary || displaySummary;
   }
 
+  // Category translation
+  const categoryKey = `news.category.${news.category?.toLowerCase().replace(/\s+/g, "")}`;
+  const displayCategory =
+    news.category && t(categoryKey) !== categoryKey
+      ? t(categoryKey)
+      : news.category;
+
   return (
     <div class="news-card" data-testid="news-card">
       <div class="header">
         <div class="header-content">
           <div class="title-container">
-            {news.category && (
-              <span class="mb-2 category-badge">{news.category}</span>
+            {displayCategory && (
+              <span class="mb-2 category-badge">{displayCategory}</span>
             )}
             <h3 class="news-title">
               <Link href={`/news/${news.slug}`}>{displayTitle}</Link>
