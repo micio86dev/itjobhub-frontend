@@ -8,6 +8,10 @@
   @apply relative bg-brand-dark-bg text-white py-24 sm:py-32 overflow-hidden border-b border-gray-800;
 }
 
+.hero-section .btn-primary {
+  color: black;
+}
+
 .bg-overlay {
   @apply absolute inset-0 overflow-hidden pointer-events-none;
 }
