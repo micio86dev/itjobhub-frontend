@@ -8,6 +8,7 @@ import { LoginPrompt } from "./login-prompt";
 import { useAuth } from "~/contexts/auth";
 import { useTranslate, useI18n } from "~/contexts/i18n";
 import { ReactionButtons } from "~/components/ui/reaction-buttons";
+import { UnifiedCommentsSection } from "~/components/ui/comments-section";
 
 interface JobCardProps {
   job: JobListing;
@@ -25,85 +26,7 @@ export const JobCard = component$<JobCardProps>(
     const i18n = useI18n();
     const lang = i18n.currentLanguage;
 
-    // Extract signals to avoid serialization issues
-    const likeJobSignal = jobsContext.likeJobSignal;
-    const dislikeJobSignal = jobsContext.dislikeJobSignal;
-
     // Use job.user_reaction directly from props/context for reactive state
-
-    const handleLike = $(() => {
-      if (!auth.isAuthenticated) return;
-
-      const currentlyLiked = job.user_reaction === "LIKE";
-      const currentlyDisliked = job.user_reaction === "DISLIKE";
-
-      // Optimistic local update
-      if (currentlyLiked) {
-        job.likes = Math.max(0, job.likes - 1);
-        job.user_reaction = null;
-        if (job.companyLikes !== undefined)
-          job.companyLikes = Math.max(0, job.companyLikes - 1);
-        likeJobSignal.value = { jobId: job.id, remove: true };
-      } else {
-        job.likes++;
-        job.user_reaction = "LIKE";
-        if (job.companyLikes !== undefined) job.companyLikes++;
-        if (currentlyDisliked) {
-          job.dislikes = Math.max(0, job.dislikes - 1);
-          if (job.companyDislikes !== undefined)
-            job.companyDislikes = Math.max(0, job.companyDislikes - 1);
-        }
-        likeJobSignal.value = {
-          jobId: job.id,
-          wasDisliked: currentlyDisliked,
-        };
-      }
-
-      // Update company trust score
-      if (job.companyLikes !== undefined && job.companyDislikes !== undefined) {
-        job.companyScore =
-          ((job.companyLikes + 8) /
-            (job.companyLikes + job.companyDislikes + 10)) *
-          100;
-      }
-    });
-
-    const handleDislike = $(() => {
-      if (!auth.isAuthenticated) return;
-
-      const currentlyLiked = job.user_reaction === "LIKE";
-      const currentlyDisliked = job.user_reaction === "DISLIKE";
-
-      // Optimistic local update
-      if (currentlyDisliked) {
-        job.dislikes = Math.max(0, job.dislikes - 1);
-        job.user_reaction = null;
-        if (job.companyDislikes !== undefined)
-          job.companyDislikes = Math.max(0, job.companyDislikes - 1);
-        dislikeJobSignal.value = { jobId: job.id, remove: true };
-      } else {
-        job.dislikes++;
-        job.user_reaction = "DISLIKE";
-        if (job.companyDislikes !== undefined) job.companyDislikes++;
-        if (currentlyLiked) {
-          job.likes = Math.max(0, job.likes - 1);
-          if (job.companyLikes !== undefined)
-            job.companyLikes = Math.max(0, job.companyLikes - 1);
-        }
-        dislikeJobSignal.value = {
-          jobId: job.id,
-          wasLiked: currentlyLiked,
-        };
-      }
-
-      // Update company trust score
-      if (job.companyLikes !== undefined && job.companyDislikes !== undefined) {
-        job.companyScore =
-          ((job.companyLikes + 8) /
-            (job.companyLikes + job.companyDislikes + 10)) *
-          100;
-      }
-    });
 
     const handleToggleFavorite = $(async () => {
       if (!auth.isAuthenticated) return;
@@ -338,11 +261,9 @@ export const JobCard = component$<JobCardProps>(
             likes={job.likes}
             dislikes={job.dislikes}
             userReaction={job.user_reaction}
-            onLike$={handleLike}
-            onDislike$={handleDislike}
+            entityId={job.id}
+            entityType="job"
             isAuthenticated={auth.isAuthenticated}
-            likeTitle={t("job.like")}
-            dislikeTitle={t("job.dislike")}
           >
             {/* Comments button - Only show if toggle function is provided */}
             {onToggleComments$ && (
@@ -434,6 +355,13 @@ export const JobCard = component$<JobCardProps>(
 
         {/* Login prompt for non-authenticated users */}
         {!auth.isAuthenticated && <LoginPrompt />}
+
+        {/* Unified Comments Section */}
+        {showComments && (
+          <div class="mt-6 pt-6 border-gray-100 dark:border-gray-800 border-t">
+            <UnifiedCommentsSection ownerId={job.id} type="job" />
+          </div>
+        )}
       </div>
     );
   },

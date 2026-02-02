@@ -14,8 +14,6 @@ interface JobHeaderProps {
   job: JobListing;
   isAuthenticated: boolean;
   isAdmin: boolean;
-  onLike$: PropFunction<() => void>;
-  onDislike$: PropFunction<() => void>;
   onToggleFavorite$: PropFunction<() => void>;
   onApplyClick$: PropFunction<() => void>;
 }
@@ -90,11 +88,9 @@ export const JobHeader = component$<JobHeaderProps>((props) => {
             likes={job.likes || 0}
             dislikes={job.dislikes || 0}
             userReaction={job.user_reaction}
-            onLike$={props.onLike$}
-            onDislike$={props.onDislike$}
+            entityId={job.id}
+            entityType="job"
             isAuthenticated={isAuthenticated}
-            likeTitle={t("job.like")}
-            dislikeTitle={t("job.dislike")}
           />
 
           <button

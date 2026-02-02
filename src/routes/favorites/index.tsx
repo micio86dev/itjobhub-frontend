@@ -50,7 +50,7 @@ export default component$(() => {
           </div>
         ) : state.isLoading ? (
           <div class="flex justify-center items-center py-12">
-            <div class="border-brand-neon border-b-2 rounded-full w-12 h-12 animate-spin"></div>
+            <div class="border-brand-neon border-b rounded-full w-12 h-12 animate-spin"></div>
           </div>
         ) : jobsState.favorites.length === 0 ? (
           <div class="py-12 text-center">

@@ -1,86 +1,85 @@
 import {
   component$,
   useStylesScoped$,
-  type PropFunction,
-  $,
   Slot,
+  useSignal,
+  $,
+  type PropFunction,
 } from "@builder.io/qwik";
 import styles from "./reaction-buttons.css?inline";
+import { LikeButton } from "./like-button";
+import { DislikeButton } from "./dislike-button";
 
 interface ReactionButtonsProps {
   likes: number;
   dislikes: number;
   userReaction?: "LIKE" | "DISLIKE" | null;
-  onLike$: PropFunction<() => void>;
-  onDislike$: PropFunction<() => void>;
+  entityId: string;
+  entityType: "job" | "news" | "comment";
   isAuthenticated: boolean;
-  likeTitle?: string;
-  dislikeTitle?: string;
   class?: string;
+  onReactionChange$?: PropFunction<
+    (type: "LIKE" | "DISLIKE", count: number) => void
+  >;
 }
 
 export const ReactionButtons = component$<ReactionButtonsProps>((props) => {
   useStylesScoped$(styles);
 
+  // Sync state between buttons
+  const localLikes = useSignal(props.likes);
+  const localDislikes = useSignal(props.dislikes);
+  const localReaction = useSignal(props.userReaction);
+
+  const { onReactionChange$ } = props;
+
+  const handleLikeChange$ = $((newActive: boolean) => {
+    const previousReaction = localReaction.value;
+    localReaction.value = newActive ? "LIKE" : null;
+    localLikes.value += newActive ? 1 : -1;
+
+    if (newActive && previousReaction === "DISLIKE") {
+      localDislikes.value = Math.max(0, localDislikes.value - 1);
+    }
+
+    if (onReactionChange$) {
+      onReactionChange$("LIKE", localLikes.value);
+    }
+  });
+
+  const handleDislikeChange$ = $((newActive: boolean) => {
+    const previousReaction = localReaction.value;
+    localReaction.value = newActive ? "DISLIKE" : null;
+    localDislikes.value += newActive ? 1 : -1;
+
+    if (newActive && previousReaction === "LIKE") {
+      localLikes.value = Math.max(0, localLikes.value - 1);
+    }
+
+    if (onReactionChange$) {
+      onReactionChange$("DISLIKE", localDislikes.value);
+    }
+  });
+
   return (
     <div class={`reaction-buttons ${props.class || ""}`}>
-      <button
-        onClick$={$(async () => await props.onLike$())}
-        disabled={!props.isAuthenticated}
-        title={props.likeTitle}
-        data-testid="like-button"
-        class={`reaction-btn ${
-          props.userReaction === "LIKE"
-            ? "reaction-btn-like-active"
-            : "reaction-btn-like-inactive"
-        }`}
-      >
-        <svg
-          class="reaction-icon-svg"
-          fill={props.userReaction === "LIKE" ? "currentColor" : "none"}
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M14 10h4.708C19.743 10 20.5 10.895 20.5 12c0 .403-.122.778-.331 1.091l-2.43 3.645C17.431 17.203 16.746 18 15.865 18H9v-8l1.32-3.958a2 2 0 011.897-1.368H13a2 2 0 012 2v3.326L14 10zM9 18H5a2 2 0 01-2-2v-4a2 2 0 012-2h4v8z"
-          />
-        </svg>
-        <span class="reaction-count" data-testid="like-count">
-          {props.likes}
-        </span>
-      </button>
+      <LikeButton
+        entityId={props.entityId}
+        entityType={props.entityType}
+        count={localLikes.value}
+        active={localReaction.value === "LIKE"}
+        onReactionChange$={handleLikeChange$}
+        isAuthenticated={props.isAuthenticated}
+      />
 
-      <button
-        onClick$={$(async () => await props.onDislike$())}
-        disabled={!props.isAuthenticated}
-        title={props.dislikeTitle}
-        data-testid="dislike-button"
-        class={`reaction-btn ${
-          props.userReaction === "DISLIKE"
-            ? "reaction-btn-dislike-active"
-            : "reaction-btn-dislike-inactive"
-        }`}
-      >
-        <svg
-          class="reaction-icon-svg"
-          fill={props.userReaction === "DISLIKE" ? "currentColor" : "none"}
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M10 14H5.292C4.257 14 3.5 13.105 3.5 12c0-.403.122-.778.331-1.091l2.43-3.645C6.569 6.797 7.254 6 8.135 6H15v8l-1.32 3.958a2 2 0 01-1.897 1.368H11a2 2 0 01-2-2v-3.326L10 14zM15 6h4a2 2 0 012 2v4a2 2 0 01-2 2h-4V6z"
-          />
-        </svg>
-        <span class="reaction-count" data-testid="dislike-count">
-          {props.dislikes}
-        </span>
-      </button>
+      <DislikeButton
+        entityId={props.entityId}
+        entityType={props.entityType}
+        count={localDislikes.value}
+        active={localReaction.value === "DISLIKE"}
+        onReactionChange$={handleDislikeChange$}
+        isAuthenticated={props.isAuthenticated}
+      />
 
       <Slot />
     </div>

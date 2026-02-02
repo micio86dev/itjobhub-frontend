@@ -22,7 +22,7 @@
 }
 
 .spinner {
-  @apply animate-spin rounded-full h-12 w-12 border-b-2 border-brand-neon;
+  @apply animate-spin rounded-full h-12 w-12 border-b border-brand-neon;
 }
 
 .notFoundCard {
@@ -81,10 +81,10 @@
   @apply bg-gray-800 border-gray-700;
 }
 
-.jobCard {
-  @apply card;
+.commentsSection {
+  @apply bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100 p-8;
 }
 
-.commentsSection {
-  @apply card p-8;
+:global(.dark) .commentsSection {
+  @apply bg-gray-800 border-gray-700;
 }

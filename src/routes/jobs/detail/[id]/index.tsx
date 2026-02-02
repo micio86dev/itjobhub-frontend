@@ -17,7 +17,7 @@ import { useJobs, type JobListing } from "~/contexts/jobs";
 import type { MatchScore } from "~/types/models";
 import { useTranslate } from "~/contexts/i18n";
 import { useAuth } from "~/contexts/auth";
-import { CommentsSection } from "~/components/jobs/comments-section";
+import { UnifiedCommentsSection } from "~/components/ui/comments-section";
 import { MatchBreakdown } from "~/components/jobs/match-breakdown";
 import { JobPostingSchema } from "~/components/seo/json-ld";
 import { JobHeader } from "~/components/jobs/job-header";
@@ -58,85 +58,6 @@ export default component$(() => {
     }
 
     return job;
-  });
-
-  // Handle Local Actions
-  const handleLike = $(() => {
-    if (!auth.isAuthenticated || !state.job) return;
-    const job = state.job;
-    const currentReaction = job.user_reaction;
-
-    if (currentReaction === "LIKE") {
-      job.likes = Math.max(0, (job.likes || 0) - 1);
-      job.user_reaction = null;
-      if (job.companyLikes !== undefined)
-        job.companyLikes = Math.max(0, job.companyLikes - 1);
-      jobsContext.likeJobSignal.value = { jobId: job.id, remove: true };
-    } else {
-      job.likes = (job.likes || 0) + 1;
-      job.user_reaction = "LIKE";
-      if (job.companyLikes !== undefined)
-        job.companyLikes = (job.companyLikes || 0) + 1;
-
-      if (currentReaction === "DISLIKE") {
-        job.dislikes = Math.max(0, (job.dislikes || 0) - 1);
-        if (job.companyDislikes !== undefined)
-          job.companyDislikes = Math.max(0, job.companyDislikes - 1);
-      }
-
-      jobsContext.likeJobSignal.value = {
-        jobId: job.id,
-        wasDisliked: currentReaction === "DISLIKE",
-      };
-    }
-
-    if (job.companyLikes !== undefined && job.companyDislikes !== undefined) {
-      job.companyScore =
-        ((job.companyLikes + 8) /
-          (job.companyLikes + job.companyDislikes + 10)) *
-        100;
-    }
-
-    state.job = { ...job };
-  });
-
-  const handleDislike = $(() => {
-    if (!auth.isAuthenticated || !state.job) return;
-    const job = state.job;
-    const currentReaction = job.user_reaction;
-
-    if (currentReaction === "DISLIKE") {
-      job.dislikes = Math.max(0, (job.dislikes || 0) - 1);
-      job.user_reaction = null;
-      if (job.companyDislikes !== undefined)
-        job.companyDislikes = Math.max(0, job.companyDislikes - 1);
-      jobsContext.dislikeJobSignal.value = { jobId: job.id, remove: true };
-    } else {
-      job.dislikes = (job.dislikes || 0) + 1;
-      job.user_reaction = "DISLIKE";
-      if (job.companyDislikes !== undefined)
-        job.companyDislikes = (job.companyDislikes || 0) + 1;
-
-      if (currentReaction === "LIKE") {
-        job.likes = Math.max(0, (job.likes || 0) - 1);
-        if (job.companyLikes !== undefined)
-          job.companyLikes = Math.max(0, job.companyLikes - 1);
-      }
-
-      jobsContext.dislikeJobSignal.value = {
-        jobId: job.id,
-        wasLiked: currentReaction === "LIKE",
-      };
-    }
-
-    if (job.companyLikes !== undefined && job.companyDislikes !== undefined) {
-      job.companyScore =
-        ((job.companyLikes + 8) /
-          (job.companyLikes + job.companyDislikes + 10)) *
-        100;
-    }
-
-    state.job = { ...job };
   });
 
   const handleToggleFavorite = $(async () => {
@@ -288,8 +209,6 @@ export default component$(() => {
                   job={job}
                   isAuthenticated={auth.isAuthenticated}
                   isAdmin={auth.user?.role === "admin"}
-                  onLike$={handleLike}
-                  onDislike$={handleDislike}
                   onToggleFavorite$={handleToggleFavorite}
                   onApplyClick$={handleApplyClick}
                 />
@@ -371,7 +290,7 @@ export default component$(() => {
 
               {/* Comments Card */}
               <div class="commentsSection">
-                <CommentsSection jobId={job.id} />
+                <UnifiedCommentsSection ownerId={job.id} type="job" />
               </div>
             </div>
           );

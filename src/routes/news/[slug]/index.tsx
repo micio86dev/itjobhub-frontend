@@ -9,7 +9,7 @@ import { marked } from "marked";
 import { request } from "~/utils/api";
 import { useTranslate, useI18n } from "~/contexts/i18n";
 import { useAuth } from "~/contexts/auth";
-import { NewsCommentsSection } from "~/components/news/comments-section";
+import { UnifiedCommentsSection } from "~/components/ui/comments-section";
 import { ReactionButtons } from "~/components/ui/reaction-buttons";
 
 // import { DeleteConfirmButton } from "~/components/ui/delete-confirm-button";
@@ -68,90 +68,6 @@ export default component$(() => {
   useTask$(({ track }) => {
     const loadedData = track(() => newsSignal.value);
     state.news = loadedData.news;
-  });
-
-  const handleLike = $(async () => {
-    if (!auth.isAuthenticated || !state.news) return;
-    const news = state.news;
-    const currentReaction = news.user_reaction;
-    const token = auth.token;
-
-    // Optimistic Update
-    if (currentReaction === "LIKE") {
-      news.likes = Math.max(0, news.likes - 1);
-      news.user_reaction = null;
-      try {
-        await request(
-          `${import.meta.env.PUBLIC_API_URL}/likes?newsId=${news.id}&type=LIKE`,
-          {
-            method: "DELETE",
-            headers: { Authorization: `Bearer ${token}` },
-          },
-        );
-      } catch (e) {
-        console.error(e);
-      }
-    } else {
-      news.likes++;
-      news.user_reaction = "LIKE";
-      if (currentReaction === "DISLIKE") {
-        news.dislikes = Math.max(0, news.dislikes - 1);
-      }
-      try {
-        await request(`${import.meta.env.PUBLIC_API_URL}/likes`, {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ newsId: news.id, type: "LIKE" }),
-        });
-      } catch (e) {
-        console.error(e);
-      }
-    }
-  });
-
-  const handleDislike = $(async () => {
-    if (!auth.isAuthenticated || !state.news) return;
-    const news = state.news;
-    const currentReaction = news.user_reaction;
-    const token = auth.token;
-
-    // Optimistic Update
-    if (currentReaction === "DISLIKE") {
-      news.dislikes = Math.max(0, news.dislikes - 1);
-      news.user_reaction = null;
-      try {
-        await request(
-          `${import.meta.env.PUBLIC_API_URL}/likes?newsId=${news.id}&type=DISLIKE`,
-          {
-            method: "DELETE",
-            headers: { Authorization: `Bearer ${token}` },
-          },
-        );
-      } catch (e) {
-        console.error(e);
-      }
-    } else {
-      news.dislikes++;
-      news.user_reaction = "DISLIKE";
-      if (currentReaction === "LIKE") {
-        news.likes = Math.max(0, news.likes - 1);
-      }
-      try {
-        await request(`${import.meta.env.PUBLIC_API_URL}/likes`, {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ newsId: news.id, type: "DISLIKE" }),
-        });
-      } catch (e) {
-        console.error(e);
-      }
-    }
   });
 
   const handleDelete = $(async () => {
@@ -397,15 +313,13 @@ export default component$(() => {
                 likes={news.likes}
                 dislikes={news.dislikes}
                 userReaction={news.user_reaction}
-                onLike$={handleLike}
-                onDislike$={handleDislike}
+                entityId={news.id}
+                entityType="news"
                 isAuthenticated={auth.isAuthenticated}
-                likeTitle={t("news.like")}
-                dislikeTitle={t("news.dislike")}
               />
             </div>
 
-            <NewsCommentsSection newsId={news.id} />
+            <UnifiedCommentsSection ownerId={news.id} type="news" />
           </div>
         </article>
       </div>

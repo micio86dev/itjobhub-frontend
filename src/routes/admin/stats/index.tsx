@@ -122,7 +122,7 @@ export default component$(() => {
   if (state.isLoading) {
     return (
       <div class="flex justify-center items-center min-h-[60vh]">
-        <div class="border-brand-neon border-b-2 rounded-full w-12 h-12 animate-spin"></div>
+        <div class="border-brand-neon border-b rounded-full w-12 h-12 animate-spin"></div>
       </div>
     );
   }

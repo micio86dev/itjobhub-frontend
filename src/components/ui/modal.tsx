@@ -1,16 +1,11 @@
-import {
-  component$,
-  Slot,
-  type PropFunction,
-  useStylesScoped$,
-} from "@builder.io/qwik";
+import { component$, Slot, type QRL, useStylesScoped$ } from "@builder.io/qwik";
 import styles from "./modal.css?inline";
 
 interface ModalProps {
   title: string;
   isOpen: boolean;
-  onClose$?: PropFunction<() => void>;
-  onConfirm$?: PropFunction<() => void>;
+  onClose$?: QRL<() => void>;
+  onConfirm$?: QRL<() => void>;
   confirmText?: string;
   cancelText?: string;
   isDestructive?: boolean;

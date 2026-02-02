@@ -16,13 +16,11 @@ interface NewsHeaderProps {
   };
   isAuthenticated: boolean;
   isAdmin: boolean;
-  onLike$: QRL<() => void>;
-  onDislike$: QRL<() => void>;
   onDelete$: QRL<() => void>;
 }
 
 export const NewsHeader = component$<NewsHeaderProps>(
-  ({ news, isAuthenticated, isAdmin, onLike$, onDislike$, onDelete$ }) => {
+  ({ news, isAuthenticated, isAdmin, onDelete$ }) => {
     useStylesScoped$(styles);
     const t = useTranslate();
     const i18n = useI18n();
@@ -112,11 +110,9 @@ export const NewsHeader = component$<NewsHeaderProps>(
               likes={news.likes}
               dislikes={news.dislikes}
               userReaction={news.user_reaction}
-              onLike$={onLike$}
-              onDislike$={onDislike$}
+              entityId={news.id}
+              entityType="news"
               isAuthenticated={isAuthenticated}
-              likeTitle={t("job.like")}
-              dislikeTitle={t("job.dislike")}
             />
 
             {isAdmin && (

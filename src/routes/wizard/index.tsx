@@ -34,7 +34,7 @@ export default component$(() => {
   if (!auth.isAuthenticated || auth.user?.profileCompleted) {
     return (
       <div class="flex justify-center items-center bg-gray-50 min-h-screen">
-        <div class="border-brand-neon border-b-2 rounded-full w-12 h-12 animate-spin"></div>
+        <div class="border-brand-neon border-b rounded-full w-12 h-12 animate-spin"></div>
       </div>
     );
   }

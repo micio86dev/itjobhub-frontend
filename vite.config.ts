@@ -6,14 +6,17 @@ import { defineConfig, type UserConfig } from "vite";
 import { qwikVite } from "@builder.io/qwik/optimizer";
 import { qwikCity } from "@builder.io/qwik-city/vite";
 import tsconfigPaths from "vite-tsconfig-paths";
-import pkg from "./package.json";
+import { readFileSync } from "fs";
+import { join } from "path";
+
+// Optimized package.json loading for modern Node.js compatibility
+const pkg = JSON.parse(
+  readFileSync(join(process.cwd(), "package.json"), "utf8")
+);
 
 type PkgDep = Record<string, string>;
-if (!pkg) {
-  throw new Error("Failed to load package.json in vite.config.ts");
-}
 
-const { dependencies = {}, devDependencies = {} } = (pkg as any).default || pkg;
+const { dependencies = {}, devDependencies = {} } = pkg;
 // errorOnDuplicatesPkgDeps(devDependencies, dependencies);
 
 /**
@@ -22,6 +25,7 @@ const { dependencies = {}, devDependencies = {} } = (pkg as any).default || pkg;
 export default defineConfig(({ command, mode }): UserConfig => {
   return {
     plugins: [qwikCity(), qwikVite(), tsconfigPaths()],
+
     // This tells Vite which dependencies to pre-build in dev mode.
     optimizeDeps: {
       // Put problematic deps that break bundling here, mostly those with binaries.

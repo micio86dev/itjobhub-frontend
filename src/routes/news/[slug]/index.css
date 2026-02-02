@@ -14,7 +14,7 @@
 }
 
 .spinner {
-  @apply animate-spin rounded-full h-12 w-12 border-b-2 border-brand-neon;
+  @apply animate-spin rounded-full h-12 w-12 border-b border-brand-neon;
 }
 
 .notFoundCard {

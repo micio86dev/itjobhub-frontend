@@ -8,7 +8,6 @@ import { useJobs } from "~/contexts/jobs";
 import { useAuth } from "~/contexts/auth";
 import { useTranslate, type SupportedLanguage } from "~/contexts/i18n";
 import { JobCard } from "~/components/jobs/job-card";
-import { CommentsSection } from "~/components/jobs/comments-section";
 import { JobSearch } from "~/components/jobs/job-search";
 import { useInfiniteScroll } from "~/hooks/use-infinite-scroll";
 import { ScrollButtons } from "~/components/ui/scroll-buttons";
@@ -522,12 +521,6 @@ export default component$(() => {
                 onToggleComments$={toggleComments}
                 showComments={!!state.openComments[job.id]}
               />
-
-              {state.openComments[job.id] && (
-                <div class="mr-4 sm:mr-6 ml-4 sm:ml-6">
-                  <CommentsSection jobId={job.id} />
-                </div>
-              )}
             </div>
           ))
         )}

@@ -1,10 +1,9 @@
-import { component$, $, useStylesScoped$, useSignal } from "@builder.io/qwik";
+import { component$, useStylesScoped$, useSignal } from "@builder.io/qwik";
 import styles from "./news-card.css?inline";
 import { Link } from "@builder.io/qwik-city";
 import type { ApiNews } from "~/types/models";
 import { useAuth } from "~/contexts/auth";
 import { useTranslate, useI18n } from "~/contexts/i18n";
-import { request } from "~/utils/api";
 import { ReactionButtons } from "~/components/ui/reaction-buttons";
 
 interface NewsCardProps {
@@ -22,98 +21,6 @@ export const NewsCard = component$<NewsCardProps>((props) => {
   // Local state for interactions to ensure reactivity without full context for now
   const newsSignal = useSignal({ ...initialNews });
   const news = newsSignal.value;
-
-  const handleLike = $(async () => {
-    if (!auth.isAuthenticated) return;
-    const token = auth.token;
-    const currentNews = newsSignal.value;
-
-    const currentlyLiked = currentNews.user_reaction === "LIKE";
-    const currentlyDisliked = currentNews.user_reaction === "DISLIKE";
-
-    // Optimistic Update
-    if (currentlyLiked) {
-      currentNews.likes = Math.max(0, currentNews.likes - 1);
-      currentNews.user_reaction = null;
-    } else {
-      currentNews.likes++;
-      currentNews.user_reaction = "LIKE";
-      if (currentlyDisliked) {
-        currentNews.dislikes = Math.max(0, currentNews.dislikes - 1);
-      }
-    }
-    // Force update
-    newsSignal.value = { ...currentNews };
-
-    try {
-      const method = currentlyLiked ? "DELETE" : "POST";
-      const url =
-        method === "DELETE"
-          ? `/likes?newsId=${currentNews.id}&type=LIKE`
-          : `/likes`;
-      const body =
-        method === "POST"
-          ? JSON.stringify({ newsId: currentNews.id, type: "LIKE" })
-          : undefined;
-
-      await request(import.meta.env.PUBLIC_API_URL + url, {
-        method,
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body,
-      });
-    } catch (e) {
-      // Revert on error (omitted for brevity, can implement if needed)
-      console.error("Like failed", e);
-    }
-  });
-
-  const handleDislike = $(async () => {
-    if (!auth.isAuthenticated) return;
-    const token = auth.token;
-    const currentNews = newsSignal.value;
-
-    const currentlyLiked = currentNews.user_reaction === "LIKE";
-    const currentlyDisliked = currentNews.user_reaction === "DISLIKE";
-
-    // Optimistic Update
-    if (currentlyDisliked) {
-      currentNews.dislikes = Math.max(0, currentNews.dislikes - 1);
-      currentNews.user_reaction = null;
-    } else {
-      currentNews.dislikes++;
-      currentNews.user_reaction = "DISLIKE";
-      if (currentlyLiked) {
-        currentNews.likes = Math.max(0, currentNews.likes - 1);
-      }
-    }
-    newsSignal.value = { ...currentNews };
-
-    try {
-      const method = currentlyDisliked ? "DELETE" : "POST";
-      const url =
-        method === "DELETE"
-          ? `/likes?newsId=${currentNews.id}&type=DISLIKE`
-          : `/likes`;
-      const body =
-        method === "POST"
-          ? JSON.stringify({ newsId: currentNews.id, type: "DISLIKE" })
-          : undefined;
-
-      await request(import.meta.env.PUBLIC_API_URL + url, {
-        method,
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body,
-      });
-    } catch (e) {
-      console.error("Dislike failed", e);
-    }
-  });
 
   // Date formatting
   const dateObj = new Date(news.published_at || news.created_at || Date.now());
@@ -183,11 +90,9 @@ export const NewsCard = component$<NewsCardProps>((props) => {
           likes={news.likes}
           dislikes={news.dislikes}
           userReaction={news.user_reaction}
-          onLike$={handleLike}
-          onDislike$={handleDislike}
+          entityId={news.id}
+          entityType="news"
           isAuthenticated={auth.isAuthenticated}
-          likeTitle={t("news.like")}
-          dislikeTitle={t("news.dislike")}
         >
           <div class="comments-wrapper">
             <svg
