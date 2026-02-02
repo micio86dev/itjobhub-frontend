@@ -44,6 +44,7 @@ interface JobSearchFilters {
   location_geo?: { lat: number; lng: number };
   remote: string;
   dateRange: string;
+  salaryMin: string;
 }
 
 export default component$(() => {
@@ -55,9 +56,14 @@ export default component$(() => {
   const urlParams = location.url.searchParams;
   const initialQuery = urlParams.get("q") || "";
   const initialRemote = urlParams.get("remote") || "";
+  const initialSalaryMin = urlParams.get("salary_min") || "";
   // We could add others here if needed
 
-  const hasInitialSearch = !!(initialQuery || initialRemote);
+  const hasInitialSearch = !!(
+    initialQuery ||
+    initialRemote ||
+    initialSalaryMin
+  );
 
   const state = useStore({
     displayedJobs: [] as JobListing[],
@@ -77,6 +83,7 @@ export default component$(() => {
               : initialRemote === "false"
                 ? false
                 : undefined,
+          salaryMin: initialSalaryMin ? Number(initialSalaryMin) : undefined,
         } as JobFilters)
       : null,
     hasSearched: hasInitialSearch,
@@ -132,6 +139,7 @@ export default component$(() => {
       const filters: JobFilters = {
         query: initialQuery,
         remote: remoteVal,
+        salaryMin: initialSalaryMin ? Number(initialSalaryMin) : undefined,
         languages: userLanguages,
       };
       await jobsState.fetchJobsPage$(1, filters, false);
@@ -276,7 +284,8 @@ export default component$(() => {
       filters.availability ||
       filters.location ||
       filters.remote ||
-      filters.dateRange
+      filters.dateRange ||
+      filters.salaryMin
     );
 
     // Forces language filtering if user has spoken languages
@@ -312,6 +321,9 @@ export default component$(() => {
             radius_km: 50, // Default 50km radius
             remote: apiRemote,
             dateRange: filters.dateRange,
+            salaryMin: filters.salaryMin
+              ? Number(filters.salaryMin)
+              : undefined,
             // Always apply strict language filtering if user has languages
             languages: userLanguages,
           }
@@ -369,6 +381,7 @@ export default component$(() => {
                 ? "office"
                 : ""
           }
+          initialSalaryMin={initialSalaryMin}
           userHasLanguages={userHasLanguages}
         />
 
