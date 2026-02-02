@@ -2,6 +2,7 @@ import {
   component$,
   $,
   useSignal,
+  useTask$,
   useStylesScoped$,
   type PropFunction,
 } from "@builder.io/qwik";
@@ -80,11 +81,18 @@ export const DislikeButton = component$<DislikeButtonProps>((props) => {
     }
   });
 
-  // Sync with props if not in middle of optimistic update
-  if (!isOptimistic.value) {
-    localActive.value = props.active;
-    localCount.value = props.count;
-  }
+  // ✅ FIX: Sync with props using useTask$ instead of in render
+  useTask$(({ track }) => {
+    track(() => props.active);
+    track(() => props.count);
+    track(() => isOptimistic.value);
+
+    // Only sync when not in optimistic state
+    if (!isOptimistic.value) {
+      localActive.value = props.active;
+      localCount.value = props.count;
+    }
+  });
 
   return (
     <button

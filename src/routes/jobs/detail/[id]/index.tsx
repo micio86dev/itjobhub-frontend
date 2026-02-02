@@ -226,12 +226,8 @@ export default component$(() => {
                       {showDeleteModal.value && (
                         <Modal
                           title={t("job.confirm_delete_title")}
-                          isOpen={showDeleteModal.value}
-                          onClose$={$(() => (showDeleteModal.value = false))}
-                          onConfirm$={$(async () => {
-                            await handleDeleteJob();
-                            showDeleteModal.value = false;
-                          })}
+                          isOpen={showDeleteModal}
+                          onConfirm$={handleDeleteJob}
                           isDestructive={true}
                           isLoading={state.isDeleting}
                           confirmText={t("job.delete")}

@@ -62,6 +62,7 @@ export default component$(() => {
   const state = useStore({
     news: newsSignal.value.news,
     isDeleting: false,
+    newsToDelete: null as string | null,
   });
 
   // Sync state with loader data (in case of navigation)
@@ -149,6 +150,11 @@ export default component$(() => {
     displayTitle = translation.title;
     displayContent = translation.content || displayContent;
   }
+
+  const closeDeleteModal = $(() => {
+    showDeleteModal.value = false;
+    state.newsToDelete = null;
+  });
 
   // Category translation
   const categoryKey = `news.category.${news.category?.toLowerCase().replace(/\s+/g, "")}`;
@@ -280,12 +286,9 @@ export default component$(() => {
                   {showDeleteModal.value && (
                     <Modal
                       title={t("news.confirm_delete_title")}
-                      isOpen={showDeleteModal.value}
-                      onClose$={$(() => (showDeleteModal.value = false))}
-                      onConfirm$={$(async () => {
-                        await handleDelete();
-                        showDeleteModal.value = false;
-                      })}
+                      isOpen={showDeleteModal}
+                      onCancel$={closeDeleteModal}
+                      onConfirm$={handleDelete}
                       isDestructive={true}
                       isLoading={state.isDeleting}
                       confirmText={t("news.delete_article")}

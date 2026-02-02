@@ -54,6 +54,8 @@ export const UnifiedCommentsSection = component$<CommentsSectionProps>(
       isDeleting: false,
       replyingTo: null as string | null,
       replyText: "",
+      editingCommentId: null as string | null,
+      editText: "",
     });
 
     const showDeleteModal = useSignal(false);
@@ -65,15 +67,11 @@ export const UnifiedCommentsSection = component$<CommentsSectionProps>(
 
       try {
         const headers: Record<string, string> = {};
-        if (auth.token) {
-          headers.Authorization = `Bearer ${auth.token}`;
-        }
+        if (auth.token) headers.Authorization = `Bearer ${auth.token}`;
 
         const res = await request(
           `${import.meta.env.PUBLIC_API_URL}/comments/${type}/${ownerId}?limit=50`,
-          {
-            headers,
-          },
+          { headers },
         );
         const data = await res.json();
         if (data.success) state.comments = data.data.comments;
@@ -106,7 +104,6 @@ export const UnifiedCommentsSection = component$<CommentsSectionProps>(
           },
         );
         if (res.ok) {
-          // Refresh to get full populated data
           const headers: Record<string, string> = {};
           if (auth.token) headers.Authorization = `Bearer ${auth.token}`;
 
@@ -129,37 +126,78 @@ export const UnifiedCommentsSection = component$<CommentsSectionProps>(
       }
     });
 
-    const confirmDelete = $(async () => {
-      if (!state.commentToDelete || !auth.token) return;
+    const handleEdit = $(async (commentId: string) => {
+      if (!auth.token || !state.editText.trim()) return;
+      state.isSubmitting = true;
+      try {
+        const res = await request(
+          `${import.meta.env.PUBLIC_API_URL}/comments/${commentId}`,
+          {
+            method: "PUT",
+            headers: {
+              Authorization: `Bearer ${auth.token}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ content: state.editText }),
+          },
+        );
+        if (res.ok) {
+          const updateRecursive = (list: UIComment[]): UIComment[] => {
+            return list.map((c) => {
+              if (c.id === commentId) return { ...c, content: state.editText };
+              return { ...c, replies: updateRecursive(c.replies || []) };
+            });
+          };
+          state.comments = updateRecursive(state.comments);
+          state.editingCommentId = null;
+          state.editText = "";
+        }
+      } finally {
+        state.isSubmitting = false;
+      }
+    });
+
+    const handleDelete = $(async () => {
+      const commentId = state.commentToDelete;
+      if (!commentId || !auth.token) return;
+
       state.isDeleting = true;
       try {
         const res = await request(
-          `${import.meta.env.PUBLIC_API_URL}/comments/${state.commentToDelete}`,
+          `${import.meta.env.PUBLIC_API_URL}/comments/${commentId}`,
           {
             method: "DELETE",
             headers: { Authorization: `Bearer ${auth.token}` },
           },
         );
         if (res.ok) {
-          // Recursive filter
           const deleteRecursive = (list: UIComment[]): UIComment[] => {
             return list
-              .filter((c) => c.id !== state.commentToDelete)
+              .filter((c) => c.id !== commentId)
               .map((c) => ({
                 ...c,
                 replies: deleteRecursive(c.replies || []),
               }));
           };
           state.comments = deleteRecursive(state.comments);
-          showDeleteModal.value = false;
           state.commentToDelete = null;
+        } else {
+          console.error("Failed to delete comment");
         }
       } finally {
         state.isDeleting = false;
       }
     });
 
-    // handleLike removed as it is now handled by ReactionButtons
+    const openDeleteModal = $((id: string) => {
+      state.commentToDelete = id;
+      showDeleteModal.value = true;
+    });
+
+    const closeDeleteModal = $(() => {
+      showDeleteModal.value = false;
+      state.commentToDelete = null;
+    });
 
     return (
       <div class="comments-wrapper">
@@ -167,7 +205,6 @@ export const UnifiedCommentsSection = component$<CommentsSectionProps>(
           {t("comments.title")} ({state.comments.length})
         </h4>
 
-        {/* Main Input */}
         {auth.isAuthenticated ? (
           <div class="comment-input-group">
             <div class="input-avatar">
@@ -212,11 +249,9 @@ export const UnifiedCommentsSection = component$<CommentsSectionProps>(
           </div>
         )}
 
-        {/* Comments List */}
         <div class="comments-list">
           {state.comments.map((comment) => (
             <div key={comment.id} class="comment-thread">
-              {/* Root Comment Item */}
               <div class="comment-item">
                 <div class="comment-avatar">
                   {comment.user.avatar ? (
@@ -245,7 +280,43 @@ export const UnifiedCommentsSection = component$<CommentsSectionProps>(
                       })}
                     </span>
                   </div>
-                  <p class="comment-text">{comment.content}</p>
+
+                  {state.editingCommentId === comment.id ? (
+                    <div class="edit-comment-container">
+                      <textarea
+                        class="input-textarea"
+                        value={state.editText}
+                        onInput$={(e) =>
+                          (state.editText = (
+                            e.target as HTMLTextAreaElement
+                          ).value)
+                        }
+                        rows={3}
+                      />
+                      <div class="edit-actions">
+                        <button
+                          onClick$={() => handleEdit(comment.id)}
+                          class="btn-primary btn-sm"
+                        >
+                          {state.isSubmitting ? (
+                            <Spinner />
+                          ) : (
+                            t("comments.save_edit")
+                          )}
+                        </button>
+                        <button
+                          onClick$={() => {
+                            state.editingCommentId = null;
+                          }}
+                          class="btn-secondary btn-sm"
+                        >
+                          {t("comments.cancel_edit")}
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <p class="comment-text">{comment.content}</p>
+                  )}
 
                   <div class="comment-actions">
                     <ReactionButtons
@@ -272,36 +343,29 @@ export const UnifiedCommentsSection = component$<CommentsSectionProps>(
 
                     {(auth.user?.id === comment.user_id ||
                       auth.user?.role === "admin") && (
-                      <button
-                        onClick$={() => {
-                          state.commentToDelete = comment.id;
-                          showDeleteModal.value = true;
-                        }}
-                        class="btn-action btn-delete"
-                      >
-                        {t("common.delete")}
-                      </button>
+                      <>
+                        <button
+                          class="btn-action btn-reply"
+                          onClick$={() => {
+                            state.editingCommentId = comment.id;
+                            state.editText = comment.content;
+                          }}
+                        >
+                          {t("comments.edit")}
+                        </button>
+                        <button
+                          onClick$={() => openDeleteModal(comment.id)}
+                          class="btn-delete-comment"
+                        >
+                          {t("common.delete")}
+                        </button>
+                      </>
                     )}
                   </div>
 
                   {/* Reply Input */}
                   {state.replyingTo === comment.id && (
                     <div class="reply-input-container">
-                      <div class="input-avatar small">
-                        {auth.user?.avatar ? (
-                          <img
-                            src={auth.user.avatar}
-                            class="avatar-image"
-                            alt="Me"
-                            width="30"
-                            height="30"
-                          />
-                        ) : (
-                          <div class="avatar-placeholder">
-                            {auth.user?.firstName?.charAt(0)}
-                          </div>
-                        )}
-                      </div>
                       <div class="input-body">
                         <textarea
                           value={state.replyText}
@@ -311,18 +375,19 @@ export const UnifiedCommentsSection = component$<CommentsSectionProps>(
                             ).value)
                           }
                           class="comment-textarea reply-textarea"
-                          placeholder={t("comments.placeholder_reply")}
                           rows={1}
                         />
                         <div class="input-actions">
                           <button
                             class="btn-cancel"
-                            onClick$={() => (state.replyingTo = null)}
+                            onClick$={() => {
+                              state.replyingTo = null;
+                            }}
                           >
                             {t("common.cancel")}
                           </button>
                           <button
-                            class="btn-primary btn-sm btn-submit-reply"
+                            class="btn-primary btn-sm"
                             onClick$={() => handleAdd(comment.id)}
                             disabled={
                               !state.replyText.trim() || state.isSubmitting
@@ -360,36 +425,13 @@ export const UnifiedCommentsSection = component$<CommentsSectionProps>(
                             )}
                           </div>
                           <div class="comment-content">
-                            <div class="comment-header">
-                              <span class="author-name">
-                                {reply.user.first_name} {reply.user.last_name}
-                              </span>
-                              <span class="comment-date">
-                                {formatDistanceToNow(
-                                  new Date(reply.created_at),
-                                  { addSuffix: true, locale: it },
-                                )}
-                              </span>
-                            </div>
                             <p class="comment-text">{reply.content}</p>
                             <div class="comment-actions">
-                              <ReactionButtons
-                                likes={reply.likesCount}
-                                dislikes={reply.dislikesCount}
-                                userReaction={reply.userReaction}
-                                entityId={reply.id}
-                                entityType="comment"
-                                isAuthenticated={auth.isAuthenticated}
-                              />
-
                               {(auth.user?.id === reply.user_id ||
                                 auth.user?.role === "admin") && (
                                 <button
-                                  onClick$={() => {
-                                    state.commentToDelete = reply.id;
-                                    showDeleteModal.value = true;
-                                  }}
-                                  class="btn-action btn-delete"
+                                  onClick$={() => openDeleteModal(reply.id)}
+                                  class="btn-delete-comment"
                                 >
                                   {t("common.delete")}
                                 </button>
@@ -408,9 +450,9 @@ export const UnifiedCommentsSection = component$<CommentsSectionProps>(
 
         <Modal
           title={t("common.confirm")}
-          isOpen={showDeleteModal.value}
-          onClose$={$(() => (showDeleteModal.value = false))}
-          onConfirm$={confirmDelete}
+          isOpen={showDeleteModal}
+          onConfirm$={handleDelete}
+          onCancel$={closeDeleteModal}
           isDestructive={true}
           isLoading={state.isDeleting}
         >

@@ -1,3 +1,4 @@
+/* Main Container */
 .comments-wrapper {
   @apply max-w-4xl mx-auto py-6;
 }
@@ -7,9 +8,25 @@
   color: var(--foreground);
 }
 
-/* INPUT SECTION */
+/* ========================================
+   INPUT SECTION - Modern & Minimal Design
+   ======================================== */
+
 .comment-input-group {
-  @apply flex gap-4 mb-8;
+  @apply flex gap-4 mb-8 p-4 rounded-xl;
+  background: rgba(0, 0, 0, 0.02);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+}
+
+.dark .comment-input-group {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.comment-input-group:focus-within {
+  border-color: var(--brand-neon);
+  box-shadow: 0 0 0 3px rgba(var(--brand-neon-rgb), 0.1);
 }
 
 .input-avatar {
@@ -26,31 +43,66 @@
 }
 
 .input-body {
-  @apply flex-1 flex flex-col gap-2;
+  @apply flex-1 flex flex-col gap-3;
 }
 
+/* Modern Textarea with rounded borders */
 .comment-textarea {
-  @apply w-full p-2 bg-transparent border-b outline-none transition-all resize-none;
-  border-color: var(--border);
+  @apply w-full px-4 py-3 rounded-lg outline-none transition-all resize-none;
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(0, 0, 0, 0.1);
   color: var(--foreground);
-  min-height: 2.5rem;
+  min-height: 3.5rem;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.dark .comment-textarea {
+  background: rgba(0, 0, 0, 0.2);
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
 .comment-textarea:focus {
   border-color: var(--brand-neon);
+  box-shadow: 0 0 0 2px rgba(var(--brand-neon-rgb), 0.15);
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.dark .comment-textarea:focus {
+  background: rgba(0, 0, 0, 0.4);
+}
+
+.comment-textarea::placeholder {
+  color: rgba(107, 114, 128, 0.6);
+  font-style: italic;
 }
 
 .input-actions {
-  @apply flex justify-end gap-2 mt-1;
+  @apply flex justify-end gap-2;
 }
 
+/* Modern Cancel Button */
 .btn-cancel {
-  @apply px-4 py-2 rounded-full text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors;
+  @apply px-5 py-2 rounded-lg text-sm font-medium transition-all duration-200;
+  background: transparent;
+  color: rgb(107, 114, 128);
+  border: 1px solid rgba(107, 114, 128, 0.3);
+}
+
+.btn-cancel:hover {
+  background: rgba(107, 114, 128, 0.1);
+  border-color: rgb(107, 114, 128);
+  transform: translateY(-1px);
+}
+
+.dark .btn-cancel {
+  color: rgb(156, 163, 175);
 }
 
 .login-prompt {
-  @apply p-4 rounded-lg text-center mb-8 border border-dashed;
-  border-color: var(--border);
+  @apply p-6 rounded-xl text-center mb-8;
+  background: rgba(var(--brand-neon-rgb), 0.05);
+  border: 2px dashed rgba(var(--brand-neon-rgb), 0.3);
 }
 
 /* LIST SECTION */
@@ -143,15 +195,104 @@
   background-color: var(--brand-neon);
 }
 
-/* REPLIES */
+/* REPLIES SECTION */
 .replies-list {
-  @apply mt-2 space-y-3 pl-4 border-l-2 border-slate-100 dark:border-slate-800 ml-2;
+  @apply mt-2 space-y-3 pl-4 ml-2;
+  border-left: 2px solid rgba(var(--brand-neon-rgb), 0.2);
 }
 
 .reply-item {
   @apply mt-3;
 }
 
+/* Reply Input Container - Modern Design */
 .reply-input-container {
-  @apply flex gap-3 mt-3 mb-3 pl-4 border-l-2 border-transparent ml-2;
+  @apply flex gap-3 mt-4 mb-3 p-3 rounded-lg;
+  background: rgba(var(--brand-neon-rgb), 0.03);
+  border: 1px solid rgba(var(--brand-neon-rgb), 0.15);
+  transition: all 0.3s ease;
+}
+
+.reply-input-container:focus-within {
+  border-color: var(--brand-neon);
+  box-shadow: 0 0 0 2px rgba(var(--brand-neon-rgb), 0.1);
+}
+
+/* Edit Comment Container */
+.edit-comment-container {
+  @apply mt-3 p-4 rounded-lg;
+  background: rgba(255, 165, 0, 0.04);
+  border: 1px solid rgba(255, 165, 0, 0.2);
+}
+
+.dark .edit-comment-container {
+  background: rgba(255, 165, 0, 0.06);
+  border-color: rgba(255, 165, 0, 0.25);
+}
+
+/* Input Textarea (for editing) */
+.input-textarea {
+  @apply w-full px-4 py-3 rounded-lg outline-none transition-all resize-none;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  color: var(--foreground);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.dark .input-textarea {
+  background: rgba(0, 0, 0, 0.3);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.input-textarea:focus {
+  border-color: var(--brand-neon);
+  box-shadow: 0 0 0 2px rgba(var(--brand-neon-rgb), 0.15);
+}
+
+.edit-actions {
+  @apply flex gap-2 mt-3;
+}
+
+.edit-actions .btn-sm {
+  @apply px-4 py-2 text-sm rounded-lg;
+}
+
+/* Reply Textarea - Compact variant */
+.reply-textarea {
+  min-height: 2.5rem !important;
+}
+
+/* Submit Buttons - Enhanced styling */
+.btn-submit-comment,
+.btn-submit-reply {
+  @apply shadow-sm;
+}
+
+.btn-submit-comment:hover:not(:disabled),
+.btn-submit-reply:hover:not(:disabled) {
+  box-shadow: 0 0 16px rgba(var(--brand-neon-rgb), 0.4);
+}
+
+/* DELETE COMMENT BUTTON - Semantic Class (Spec: comment-delete.spec.md) */
+.btn-delete-comment {
+  /* Standard utilities via @apply */
+  @apply flex items-center gap-1.5 text-xs font-medium px-2 py-1 rounded-full transition-all duration-200;
+
+  /* Custom variables via Plain CSS (Hybrid Rule) */
+  color: rgb(107, 114, 128); /* gray-500 */
+}
+
+.btn-delete-comment:hover {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: rgb(220, 38, 38); /* red-600 */
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.2);
+}
+
+/* Dark mode variant */
+@media (prefers-color-scheme: dark) {
+  .btn-delete-comment:hover {
+    background-color: rgba(239, 68, 68, 0.15);
+    color: rgb(248, 113, 113); /* red-400 */
+  }
 }

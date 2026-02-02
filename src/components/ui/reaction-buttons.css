@@ -29,15 +29,19 @@
 
 /* Like Button Styles */
 .reaction-btn-like-active {
-  background-color: var(--brand-neon-hover, rgba(57, 255, 20, 0.1));
-  @apply text-brand-neon border-brand-neon/30;
-  box-shadow: 0 0 15px rgba(57, 255, 20, 0.1);
+  /* Light mode: dark green text on light green bg for WCAG AA contrast */
+  @apply border-brand-neon/30;
+  background-color: rgba(21, 128, 61, 0.15); /* green-700 with low opacity */
+  color: #15803d; /* green-700 for high contrast */
+  box-shadow: 0 0 15px rgba(21, 128, 61, 0.2);
 }
 
 :global(.dark) .reaction-btn-like-active {
-  background-color: rgba(57, 255, 20, 0.2);
+  /* Dark mode: bright neon on dark bg for WCAG AA contrast */
   @apply border-brand-neon/50;
-  box-shadow: 0 0 20px rgba(57, 255, 20, 0.15);
+  background-color: rgba(0, 255, 65, 0.15); /* neon green with low opacity */
+  color: #00ff41; /* bright neon for high contrast on dark */
+  box-shadow: 0 0 20px rgba(0, 255, 65, 0.2);
 }
 
 .reaction-btn-like-inactive {

@@ -10,6 +10,7 @@
     --brand-neon-hover-rgb: 22 163 74; /* green-600 */
     --brand-neon: rgb(var(--brand-neon-rgb));
     --brand-neon-hover: rgb(var(--brand-neon-hover-rgb));
+    --foreground: #000000;
   }
 
   .dark {
@@ -17,6 +18,7 @@
     --brand-neon-hover-rgb: 51 255 102;
     --brand-neon: rgb(var(--brand-neon-rgb));
     --brand-neon-hover: rgb(var(--brand-neon-hover-rgb));
+    --foreground: #ffffff;
   }
 
   body {
