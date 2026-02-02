@@ -101,7 +101,8 @@
 }
 
 .comment-text {
-  @apply text-sm text-gray-800 dark:text-gray-200 mb-2 whitespace-pre-wrap leading-relaxed;
+  @apply text-sm mb-2 whitespace-pre-wrap leading-relaxed;
+  color: var(--foreground);
 }
 
 .comment-actions {
@@ -114,6 +115,17 @@
 
 .btn-action:hover {
   color: var(--foreground);
+}
+
+.btn-reply:hover {
+  background-color: rgba(var(--brand-neon-rgb), 0.1);
+  color: var(--brand-neon);
+  box-shadow: 0 0 10px rgba(var(--brand-neon-rgb), 0.2);
+}
+
+.btn-delete:hover {
+  @apply bg-red-100/50 dark:bg-red-900/20 text-red-600 dark:text-red-400;
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.2);
 }
 
 .avatar-img {
@@ -142,8 +154,4 @@
 
 .reply-input-container {
   @apply flex gap-3 mt-3 mb-3 pl-4 border-l-2 border-transparent ml-2;
-}
-
-:global(.dark) .comment-textarea {
-  color: white;
 }
