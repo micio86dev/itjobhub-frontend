@@ -5,11 +5,9 @@ import {
   useContext,
   useStore,
   $,
-  useTask$,
+  useVisibleTask$,
   Slot,
-  useSignal,
   isBrowser,
-  type Signal,
 } from "@builder.io/qwik";
 
 export type Theme = "light" | "dark";
@@ -22,27 +20,32 @@ interface ThemeState {
 // Context interface
 interface ThemeContextValue {
   themeState: ThemeState;
-  toggleSignal: Signal<boolean>;
-  setThemeSignal: Signal<Theme | null>;
 }
 
 export const ThemeContext = createContextId<ThemeContextValue>("theme-context");
 
+// Define QRLs outside to ensure stability
+const toggleThemeQrl = $((context: ThemeContextValue) => {
+  context.themeState.theme =
+    context.themeState.theme === "light" ? "dark" : "light";
+});
+
+const setThemeQrl = $((context: ThemeContextValue, theme: Theme) => {
+  context.themeState.theme = theme;
+});
+
 export const useTheme = () => {
   const context = useContext(ThemeContext);
 
-  // Return theme functions that set signals
+  // Return theme functions that set signals directly
+  // We wrap them to provide a cleaner API
   return {
     // Access property via getter to track changes
     get theme() {
       return context.themeState.theme;
     },
-    toggleTheme: $(() => {
-      context.toggleSignal.value = true;
-    }),
-    setTheme: $((theme: Theme) => {
-      context.setThemeSignal.value = theme;
-    }),
+    toggleTheme: $(() => toggleThemeQrl(context)),
+    setTheme: $((theme: Theme) => setThemeQrl(context, theme)),
   };
 };
 
@@ -52,58 +55,54 @@ export const ThemeProvider = component$(() => {
     theme: "dark",
   });
 
-  // Create signals for theme operations
-  const toggleSignal = useSignal<boolean>(false);
-  const setThemeSignal = useSignal<Theme | null>(null);
-
-  // Provide the state container, not the primitive values
+  // Provide the state container
+  // We create the context value object once with stable QRLs (conceptually)
+  // although strict ref equality isn't guaranteed for the functions wrapper, passing the QRLs directly is safer.
+  // Actually, we need to pass the state and strictly typed QRLs isn't required by Context itself, but helpful.
   useContextProvider(ThemeContext, {
     themeState,
-    toggleSignal,
-    setThemeSignal,
   });
 
-  // Handle toggle theme requests
-  useTask$(({ track }) => {
-    const shouldToggle = track(() => toggleSignal.value);
-    if (shouldToggle && typeof window !== "undefined") {
-      const newTheme = themeState.theme === "light" ? "dark" : "light";
-      themeState.theme = newTheme;
+  // Handle Syncing Store -> Client DOM
+  // This ensures that whenever themeState.theme changes, the DOM updates.
+  // We use useVisibleTask$ because this is a side effect on the DOM.
+  // eslint-disable-next-line qwik/no-use-visible-task
+  useVisibleTask$(({ track }) => {
+    const theme = track(() => themeState.theme);
 
-      localStorage.setItem("theme", newTheme);
-      document.documentElement.classList.toggle("dark", newTheme === "dark");
-
-      toggleSignal.value = false;
-    }
-  });
-
-  // Handle set theme requests
-  useTask$(({ track }) => {
-    const newTheme = track(() => setThemeSignal.value);
-    if (newTheme && typeof window !== "undefined") {
-      themeState.theme = newTheme;
-
-      localStorage.setItem("theme", newTheme);
-      document.documentElement.classList.toggle("dark", newTheme === "dark");
-
-      setThemeSignal.value = null;
-    }
-  });
-
-  // Initialize theme from localStorage on client side
-  useTask$(() => {
     if (isBrowser) {
-      if (
-        localStorage.getItem("theme") === "dark" ||
-        (!localStorage.getItem("theme") &&
-          window.matchMedia("(prefers-color-scheme: dark)").matches)
-      ) {
-        document.documentElement.classList.add("dark");
-        themeState.theme = "dark";
+      localStorage.setItem("theme", theme);
+      document.documentElement.classList.toggle("dark", theme === "dark");
+    }
+  });
+
+  // Initialize theme from localStorage on client side (Hydration fix)
+  // eslint-disable-next-line qwik/no-use-visible-task
+  useVisibleTask$(() => {
+    if (isBrowser) {
+      const storedTheme = localStorage.getItem("theme");
+      const systemDark = window.matchMedia(
+        "(prefers-color-scheme: dark)",
+      ).matches;
+
+      let initialTheme: Theme = "dark"; // Default
+
+      if (storedTheme === "dark" || storedTheme === "light") {
+        initialTheme = storedTheme;
+      } else if (systemDark) {
+        initialTheme = "dark";
       } else {
-        document.documentElement.classList.remove("dark");
-        themeState.theme = "light";
+        initialTheme = "light";
       }
+
+      // Sync state to reality
+      themeState.theme = initialTheme;
+
+      // Ensure DOM matches (in case inline script missed something or mismatch)
+      document.documentElement.classList.toggle(
+        "dark",
+        initialTheme === "dark",
+      );
 
       // Listen for system theme changes
       const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
@@ -111,19 +110,11 @@ export const ThemeProvider = component$(() => {
         if (!localStorage.getItem("theme")) {
           const newTheme = e.matches ? "dark" : "light";
           themeState.theme = newTheme;
-          document.documentElement.classList.toggle(
-            "dark",
-            newTheme === "dark",
-          );
         }
       };
 
       mediaQuery.addEventListener("change", handleChange);
-
-      // Cleanup in case this runs multiple times
-      return () => {
-        mediaQuery.removeEventListener("change", handleChange);
-      };
+      return () => mediaQuery.removeEventListener("change", handleChange);
     }
   });
 

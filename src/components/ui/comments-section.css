@@ -49,27 +49,34 @@
 /* Modern Textarea with rounded borders */
 .comment-textarea {
   @apply w-full px-4 py-3 rounded-lg outline-none transition-all resize-none;
-  background: rgba(255, 255, 255, 0.5);
-  border: 1px solid rgba(0, 0, 0, 0.1);
+
+  /* Use CSS Variables for theming (Hybrid Rule) */
+  background: var(--textarea-bg);
+  border: 1px solid var(--textarea-border);
   color: var(--foreground);
+
   min-height: 3.5rem;
   font-size: 0.95rem;
   line-height: 1.5;
 }
 
-.dark .comment-textarea {
-  background: rgba(0, 0, 0, 0.2);
-  border-color: rgba(255, 255, 255, 0.1);
+/* Define variables within the scope */
+.comments-wrapper {
+  --textarea-bg: rgba(255, 255, 255, 0.5);
+  --textarea-bg-focus: rgba(255, 255, 255, 0.9);
+  --textarea-border: rgba(0, 0, 0, 0.1);
+}
+
+.dark .comments-wrapper {
+  --textarea-bg: #1f2937; /* gray-800 */
+  --textarea-bg-focus: #374151; /* gray-700 */
+  --textarea-border: rgba(255, 255, 255, 0.1);
 }
 
 .comment-textarea:focus {
   border-color: var(--brand-neon);
   box-shadow: 0 0 0 2px rgba(var(--brand-neon-rgb), 0.15);
-  background: rgba(255, 255, 255, 0.9);
-}
-
-.dark .comment-textarea:focus {
-  background: rgba(0, 0, 0, 0.4);
+  background: var(--textarea-bg-focus);
 }
 
 .comment-textarea::placeholder {

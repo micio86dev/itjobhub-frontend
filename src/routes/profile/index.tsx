@@ -17,6 +17,7 @@ import { useTranslate, translate, useI18n } from "~/contexts/i18n";
 import { ProfileWizard } from "~/components/wizard/profile-wizard";
 import { LocationAutocomplete } from "~/components/ui/location-autocomplete";
 import { Spinner } from "~/components/ui/spinner";
+import { AvatarCropper } from "~/components/ui/avatar-cropper";
 import type { WizardData } from "~/contexts/auth";
 import logger from "~/utils/logger";
 
@@ -65,6 +66,8 @@ export default component$(() => {
       birthDate: auth.user?.birthDate || "",
       bio: auth.user?.bio || "",
     } as EditFormData,
+    showCropper: false,
+    cropperImage: "",
   });
 
   const loc = useLocation();
@@ -222,8 +225,9 @@ export default component$(() => {
       reader.onload = (e) => {
         const result = e.target?.result as string;
         if (result) {
-          // Trigger avatar update through signal
-          auth.updateAvatarSignal.value = { avatar: result };
+          // Open cropper instead of direct update
+          state.cropperImage = result;
+          state.showCropper = true;
         }
       };
       reader.onerror = (e) => {
@@ -238,6 +242,18 @@ export default component$(() => {
 
     // Reset input value to allow selecting the same file again
     if (fileInputRef.value) fileInputRef.value.value = "";
+  });
+
+  const handleCropperConfirm = $((croppedImage: string) => {
+    // Trigger avatar update through signal with cropped image
+    auth.updateAvatarSignal.value = { avatar: croppedImage };
+    state.showCropper = false;
+    state.cropperImage = "";
+  });
+
+  const handleCropperCancel = $(() => {
+    state.showCropper = false;
+    state.cropperImage = "";
   });
 
   // Show wizard if editing profile data
@@ -745,6 +761,13 @@ export default component$(() => {
           )}
         </div>
       </div>
+      {state.showCropper && (
+        <AvatarCropper
+          imageSrc={state.cropperImage}
+          onConfirm$={handleCropperConfirm}
+          onCancel$={handleCropperCancel}
+        />
+      )}
     </div>
   );
 });

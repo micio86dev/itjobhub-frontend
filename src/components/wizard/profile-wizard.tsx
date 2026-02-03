@@ -162,7 +162,7 @@ export const ProfileWizard = component$<ProfileWizardProps>(
                 <TagInput
                   value={state.data.languages}
                   onChange$={(languages) => (state.data.languages = languages)}
-                  placeholder="Aggiungi una lingua..."
+                  placeholder={t("wizard.languages_placeholder")}
                   suggestions={LANGUAGE_SUGGESTION_KEYS.map((key) => t(key))}
                 />
               </div>
@@ -177,7 +177,7 @@ export const ProfileWizard = component$<ProfileWizardProps>(
                 <TagInput
                   value={state.data.skills}
                   onChange$={(skills) => (state.data.skills = skills)}
-                  placeholder="Aggiungi una skill..."
+                  placeholder={t("wizard.skills_placeholder")}
                   suggestions={SKILL_SUGGESTIONS}
                 />
               </div>

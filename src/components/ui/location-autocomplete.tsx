@@ -5,6 +5,7 @@ import {
   PropFunction,
 } from "@builder.io/qwik";
 import logger from "../../utils/logger";
+import { useTranslate } from "~/contexts/i18n";
 
 interface Props {
   value: string;
@@ -17,6 +18,7 @@ interface Props {
 
 export const LocationAutocomplete = component$((props: Props) => {
   const inputRef = useSignal<HTMLInputElement>();
+  const t = useTranslate();
 
   // eslint-disable-next-line qwik/no-use-visible-task
   useVisibleTask$(({ track, cleanup }) => {
@@ -92,7 +94,7 @@ export const LocationAutocomplete = component$((props: Props) => {
       value={props.value}
       onInput$={(e) => props.onInput$((e.target as HTMLInputElement).value)}
       class={props.class}
-      placeholder="City, Country"
+      placeholder={t("common.city_country_placeholder")}
     />
   );
 });

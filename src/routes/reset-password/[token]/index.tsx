@@ -58,7 +58,7 @@ export default component$(() => {
       if (err instanceof Error) {
         state.error = err.message;
       } else {
-        state.error = "An unknown error occurred";
+        state.error = translate("common.unknown_error", i18n.currentLanguage);
       }
     } finally {
       state.loading = false;
@@ -71,7 +71,7 @@ export default component$(() => {
         <div class="loginCard">
           <div class="space-y-4 text-center">
             <h2 class="title">{t("auth.reset_success")}</h2>
-            <p class="subtitle">Your password has been successfully reset.</p>
+            <p class="subtitle">{t("auth.reset_success_desc")}</p>
             <div class="pt-4">
               <Link
                 href="/login"

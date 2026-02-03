@@ -19,6 +19,18 @@ type PkgDep = Record<string, string>;
 const { dependencies = {}, devDependencies = {} } = pkg;
 // errorOnDuplicatesPkgDeps(devDependencies, dependencies);
 
+// Temporary workaround for Qwik 1.19.0 internal warning
+const originalWarn = console.warn;
+console.warn = (...args) => {
+  if (
+    typeof args[0] === "string" &&
+    args[0].includes("using deprecated parameters for the initialization function")
+  ) {
+    return;
+  }
+  originalWarn(...args);
+};
+
 /**
  * Note that Vite normally starts from `index.html` but the qwikCity plugin makes start at `src/entry.ssr.tsx` instead.
  */
@@ -31,6 +43,7 @@ export default defineConfig(({ command, mode }): UserConfig => {
       // Put problematic deps that break bundling here, mostly those with binaries.
       // For example ['better-sqlite3'] if you use that in server functions.
       exclude: [],
+      include: ["@builder.io/qwik", "@builder.io/qwik-city"],
     },
 
     /**

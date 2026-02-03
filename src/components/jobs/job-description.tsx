@@ -1,4 +1,5 @@
 import { component$, useStylesScoped$ } from "@builder.io/qwik";
+import { isBrowser } from "@builder.io/qwik/build";
 import styles from "./job-description.css?inline";
 import { useTranslate } from "~/contexts/i18n";
 import { marked } from "marked";
@@ -15,7 +16,7 @@ export const JobDescription = component$<JobDescriptionProps>(
 
     const htmlContent = (() => {
       const raw = marked.parse(description, { async: false }) as string;
-      if (typeof window === "undefined") return raw;
+      if (!isBrowser) return raw;
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let sanitizer: any = DOMPurify;
@@ -23,7 +24,7 @@ export const JobDescription = component$<JobDescriptionProps>(
         typeof sanitizer.sanitize !== "function" &&
         typeof sanitizer === "function"
       ) {
-        sanitizer = sanitizer(window);
+        sanitizer = sanitizer();
       }
 
       return sanitizer.sanitize ? sanitizer.sanitize(raw) : raw;

@@ -425,18 +425,68 @@ export const UnifiedCommentsSection = component$<CommentsSectionProps>(
                             )}
                           </div>
                           <div class="comment-content">
-                            <p class="comment-text">{reply.content}</p>
-                            <div class="comment-actions">
-                              {(auth.user?.id === reply.user_id ||
-                                auth.user?.role === "admin") && (
-                                <button
-                                  onClick$={() => openDeleteModal(reply.id)}
-                                  class="btn-delete-comment"
-                                >
-                                  {t("common.delete")}
-                                </button>
-                              )}
-                            </div>
+                            {state.editingCommentId === reply.id ? (
+                              <div class="edit-comment-container">
+                                <textarea
+                                  class="input-textarea"
+                                  value={state.editText}
+                                  onInput$={(e) =>
+                                    (state.editText = (
+                                      e.target as HTMLTextAreaElement
+                                    ).value)
+                                  }
+                                  rows={2}
+                                />
+                                <div class="edit-actions">
+                                  <button
+                                    onClick$={() => handleEdit(reply.id)}
+                                    class="btn-primary btn-sm"
+                                  >
+                                    {state.isSubmitting ? (
+                                      <Spinner />
+                                    ) : (
+                                      t("comments.save_edit")
+                                    )}
+                                  </button>
+                                  <button
+                                    onClick$={() => {
+                                      state.editingCommentId = null;
+                                    }}
+                                    class="btn-secondary btn-sm"
+                                  >
+                                    {t("comments.cancel_edit")}
+                                  </button>
+                                </div>
+                              </div>
+                            ) : (
+                              <>
+                                <p class="comment-text">{reply.content}</p>
+                                <div class="comment-actions">
+                                  {(auth.user?.id === reply.user_id ||
+                                    auth.user?.role === "admin") && (
+                                    <>
+                                      <button
+                                        class="btn-action btn-reply"
+                                        onClick$={() => {
+                                          state.editingCommentId = reply.id;
+                                          state.editText = reply.content;
+                                        }}
+                                      >
+                                        {t("comments.edit")}
+                                      </button>
+                                      <button
+                                        onClick$={() =>
+                                          openDeleteModal(reply.id)
+                                        }
+                                        class="btn-delete-comment"
+                                      >
+                                        {t("common.delete")}
+                                      </button>
+                                    </>
+                                  )}
+                                </div>
+                              </>
+                            )}
                           </div>
                         </div>
                       ))}
