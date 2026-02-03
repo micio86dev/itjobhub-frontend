@@ -5,6 +5,7 @@ import type { ApiNews } from "~/types/models";
 import { useAuth } from "~/contexts/auth";
 import { useTranslate, useI18n } from "~/contexts/i18n";
 import { ReactionButtons } from "~/components/ui/reaction-buttons";
+import { CommentsButton } from "~/components/ui/comments-button";
 
 interface NewsCardProps {
   news: ApiNews;
@@ -95,25 +96,10 @@ export const NewsCard = component$<NewsCardProps>((props) => {
           isAuthenticated={auth.isAuthenticated}
         >
           {/* Comments button - Links to detail page with comments section */}
-          <Link
+          <CommentsButton
             href={`/news/${news.slug}#comments`}
-            class="comments-btn comments-btn-inactive"
-          >
-            <svg
-              class="w-4 h-4 reaction-icon-svg"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"
-              />
-            </svg>
-            <span class="font-medium text-sm">{news.comments_count || 0}</span>
-          </Link>
+            count={news.comments_count || 0}
+          />
         </ReactionButtons>
 
         <a href={`/news/${news.slug}`} class="btn-secondary read-more-btn">

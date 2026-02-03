@@ -70,3 +70,20 @@
 :global(.dark) .reaction-btn-dislike-inactive {
   @apply text-gray-400 hover:text-red-400 hover:border-red-800;
 }
+
+/* Comment Button Styles */
+.reaction-btn-comment-active {
+  @apply bg-brand-neon/10 text-brand-neon border-brand-neon/30;
+}
+
+:global(.dark) .reaction-btn-comment-active {
+  @apply bg-brand-neon/20 text-brand-neon border-brand-neon/50;
+}
+
+.reaction-btn-comment-inactive {
+  @apply text-gray-500 hover:text-brand-neon hover:border-brand-neon/30;
+}
+
+:global(.dark) .reaction-btn-comment-inactive {
+  @apply text-gray-500 hover:text-brand-neon hover:border-brand-neon/50;
+}

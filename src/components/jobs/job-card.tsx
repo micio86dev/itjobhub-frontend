@@ -8,6 +8,7 @@ import { LoginPrompt } from "./login-prompt";
 import { useAuth } from "~/contexts/auth";
 import { useTranslate, useI18n } from "~/contexts/i18n";
 import { ReactionButtons } from "~/components/ui/reaction-buttons";
+import { CommentsButton } from "~/components/ui/comments-button";
 import { UnifiedCommentsSection } from "~/components/ui/comments-section";
 
 interface JobCardProps {
@@ -267,31 +268,15 @@ export const JobCard = component$<JobCardProps>(
           >
             {/* Comments button - Only show if toggle function is provided */}
             {onToggleComments$ && (
-              <button
+              <CommentsButton
                 onClick$={$(() => onToggleComments$(job.id))}
-                class={`comments-btn ${
-                  showComments ? "comments-btn-active" : "comments-btn-inactive"
-                }`}
-              >
-                <svg
-                  class="w-4 h-4 reaction-icon-svg"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"
-                  />
-                </svg>
-                <span class="font-medium text-sm">
-                  {job.comments_count !== undefined
+                count={
+                  job.comments_count !== undefined
                     ? job.comments_count
-                    : getCommentsFromState(jobsContext.comments, job.id).length}
-                </span>
-              </button>
+                    : getCommentsFromState(jobsContext.comments, job.id).length
+                }
+                active={showComments}
+              />
             )}
 
             {/* Views and Clicks Counters */}
