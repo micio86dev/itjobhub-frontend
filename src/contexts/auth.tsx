@@ -84,6 +84,7 @@ export interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
   token: string | null;
+  unauthorizedPathname: string | null;
   loginSignal: Signal<LoginRequest | null>;
   registerSignal: Signal<RegisterRequest | null>;
   socialLoginSignal: Signal<SocialLoginRequest | null>;
@@ -156,6 +157,7 @@ export const AuthProvider = component$(
       user: props.initialUser || null,
       isAuthenticated: !!props.initialToken,
       token: props.initialToken || null,
+      unauthorizedPathname: null,
       loginSignal,
       registerSignal,
       socialLoginSignal,
@@ -184,11 +186,14 @@ export const AuthProvider = component$(
     });
 
     // Handle unauthorized event
-    const handleUnauthorized = $(() => {
-      if (authState.isAuthenticated) {
-        authState.logoutSignal.value = true;
-      }
-    });
+    const handleUnauthorized = $(
+      (event: CustomEvent<{ pathname?: string }>) => {
+        if (authState.isAuthenticated) {
+          authState.unauthorizedPathname = event.detail?.pathname || null;
+          authState.logoutSignal.value = true;
+        }
+      },
+    );
     useOnWindow("unauthorized", handleUnauthorized);
 
     // Helper to map backend user to frontend User
@@ -348,10 +353,19 @@ export const AuthProvider = component$(
         if (typeof document !== "undefined") {
           deleteCookie("auth_token");
           deleteCookie("refresh_token");
-          nav("/login");
+
+          // Smart redirect: protected routes go to home, others to login
+          const protectedRoutes = ["/profile", "/wizard"];
+          const wasOnProtectedRoute = protectedRoutes.some((route) =>
+            authState.unauthorizedPathname?.startsWith(route),
+          );
+
+          const redirectTo = wasOnProtectedRoute ? "/" : "/login";
+          nav(redirectTo);
         }
 
         logoutSignal.value = false;
+        authState.unauthorizedPathname = null;
       }
     });
 

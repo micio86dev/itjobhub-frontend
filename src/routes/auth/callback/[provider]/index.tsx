@@ -1,10 +1,9 @@
 import {
   component$,
-  useTask$,
+  useVisibleTask$,
   useStore,
   useStylesScoped$,
   useSignal,
-  isBrowser,
 } from "@builder.io/qwik";
 import { useLocation, useNavigate } from "@builder.io/qwik-city";
 import type { DocumentHead } from "@builder.io/qwik-city";
@@ -32,25 +31,40 @@ export default component$(() => {
   const t = useTranslate();
   const processedRef = useSignal(false);
 
+  console.log("[OAUTH CALLBACK] Component rendered", {
+    url: location.url.href,
+    params: location.params,
+    processed: processedRef.value,
+  });
+
   const state = useStore<CallbackState>({
     loading: true,
     error: "",
     success: false,
   });
 
-  // Process OAuth callback
-  useTask$(async ({ track }) => {
+  // Process OAuth callback - runs only in browser when component is visible
+  useVisibleTask$(async ({ track }) => {
+    console.log("[OAUTH CALLBACK] useVisibleTask$ started");
     track(() => location.url.href);
 
-    if (!isBrowser) return;
-
     // Prevent double execution
-    if (processedRef.value) return;
+    if (processedRef.value) {
+      console.log("[OAUTH CALLBACK] Already processed, skipping");
+      return;
+    }
     processedRef.value = true;
+    console.log("[OAUTH CALLBACK] Processing callback...");
 
     const provider = location.params.provider;
     const code = location.url.searchParams.get("code");
     const error = location.url.searchParams.get("error");
+
+    console.log("[OAUTH CALLBACK] Params:", {
+      provider,
+      hasCode: !!code,
+      error,
+    });
 
     if (error) {
       state.loading = false;
@@ -77,12 +91,16 @@ export default component$(() => {
       if (state.loading) {
         logger.error({ provider }, "OAuth callback timeout");
         state.loading = false;
-        state.error = "Authentication timeout. The server took too long to respond. Please try again.";
+        state.error =
+          "Authentication timeout. The server took too long to respond. Please try again.";
       }
     }, 30000); // 30 seconds
 
     try {
-      logger.info({ provider, code: code.substring(0, 10) + "..." }, "Processing OAuth callback");
+      logger.info(
+        { provider, code: code.substring(0, 10) + "..." },
+        "Processing OAuth callback",
+      );
 
       // Exchange code for tokens with backend
       const response = await request(
@@ -101,7 +119,10 @@ export default component$(() => {
       );
 
       const data = await response.json();
-      logger.info({ provider, success: data.success, status: response.status }, "OAuth callback response received");
+      logger.info(
+        { provider, success: data.success, status: response.status },
+        "OAuth callback response received",
+      );
 
       if (response.ok && data.success) {
         const { user, token } = data.data;
@@ -134,7 +155,14 @@ export default component$(() => {
         state.loading = false;
         state.success = true;
 
-        logger.info({ provider, userId: user.id, redirectTo: user.profileCompleted ? "/" : "/wizard" }, "OAuth login successful");
+        logger.info(
+          {
+            provider,
+            userId: user.id,
+            redirectTo: user.profileCompleted ? "/" : "/wizard",
+          },
+          "OAuth login successful",
+        );
 
         // Redirect after short delay
         setTimeout(() => {
@@ -147,7 +175,10 @@ export default component$(() => {
       } else {
         state.loading = false;
         state.error = data.message || "OAuth authentication failed";
-        logger.error({ provider, status: response.status, message: data.message }, "OAuth authentication failed");
+        logger.error(
+          { provider, status: response.status, message: data.message },
+          "OAuth authentication failed",
+        );
       }
     } catch (err) {
       logger.error({ err, provider }, "OAuth callback error");
@@ -155,10 +186,17 @@ export default component$(() => {
 
       // More specific error message
       if (err instanceof Error) {
-        if (err.message.includes("timeout") || err.message.includes("aborted")) {
+        if (
+          err.message.includes("timeout") ||
+          err.message.includes("aborted")
+        ) {
           state.error = "Authentication timeout. Please try again.";
-        } else if (err.message.includes("network") || err.message.includes("fetch")) {
-          state.error = "Network error. Please check your connection and try again.";
+        } else if (
+          err.message.includes("network") ||
+          err.message.includes("fetch")
+        ) {
+          state.error =
+            "Network error. Please check your connection and try again.";
         } else {
           state.error = "Failed to complete authentication. Please try again.";
         }

@@ -14,7 +14,11 @@ export const request = async (url: string | URL, options: RequestInit = {}) => {
           { url: url.toString() },
           "Unauthorized request detected (401), triggering global logout",
         );
-        window.dispatchEvent(new CustomEvent("unauthorized"));
+        window.dispatchEvent(
+          new CustomEvent("unauthorized", {
+            detail: { pathname: window.location.pathname },
+          }),
+        );
       }
     }
 
