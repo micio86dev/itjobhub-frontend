@@ -25,7 +25,6 @@ export const LocationAutocomplete = component$((props: Props) => {
     if (!inputRef.value || !window.google?.maps?.places) return;
     if (inputRef.value.dataset.gmapsInit === "true") return;
 
-    console.log("LocationAutocomplete: Initializing");
     const autocomplete = new window.google.maps.places.Autocomplete(
       inputRef.value,
       {
@@ -70,13 +69,11 @@ export const LocationAutocomplete = component$((props: Props) => {
       return;
     }
 
-    console.log("LocationAutocomplete: Script loading started");
     const script = document.createElement("script");
     script.id = scriptId;
     script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
     script.async = true;
     script.onload = () => {
-      console.log("LocationAutocomplete: Script onload hit");
       initAutocomplete();
     };
     document.head.appendChild(script);
@@ -86,7 +83,6 @@ export const LocationAutocomplete = component$((props: Props) => {
   useTask$(({ track }) => {
     const input = track(() => inputRef.value);
     if (isBrowser && input) {
-      console.log("LocationAutocomplete: Client-side task active");
       loadScript();
     }
   });
