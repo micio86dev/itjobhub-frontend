@@ -26,20 +26,9 @@
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4);
 }
 
-.spinner {
-  @apply w-12 h-12 rounded-full mx-auto mb-6;
-  border: 4px solid rgba(var(--brand-neon-rgb), 0.1);
-  border-top-color: var(--brand-neon);
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.spinner-wrapper {
+  @apply flex justify-center mb-6;
+  color: var(--brand-neon);
 }
 
 .title {

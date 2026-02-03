@@ -69,9 +69,20 @@ export default tseslint.config(
     },
   },
   {
+    linterOptions: {
+      noInlineConfig: true,
+      reportUnusedDisableDirectives: "error",
+    },
     rules: {
       "@typescript-eslint/no-explicit-any": "error",
-      "qwik/no-use-visible-task": "warn",
+      "qwik/no-use-visible-task": "error",
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector: "TSTypeAnnotation[typeAnnotation.type='TSUnknownKeyword']",
+          message: "The 'unknown' type is forbidden.",
+        },
+      ],
     },
   },
 );

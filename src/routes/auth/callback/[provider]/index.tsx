@@ -1,279 +1,154 @@
-import {
-  component$,
-  useVisibleTask$,
-  useStore,
-  useStylesScoped$,
-  useSignal,
-} from "@builder.io/qwik";
-import { useLocation, useNavigate } from "@builder.io/qwik-city";
-import type { DocumentHead } from "@builder.io/qwik-city";
-import { useAuth } from "~/contexts/auth";
-import { useTranslate } from "~/contexts/i18n";
-import { request } from "~/utils/api";
-import { setCookie } from "~/utils/cookies";
+import { component$ } from "@builder.io/qwik";
+import { routeLoader$ } from "@builder.io/qwik-city";
 import logger from "~/utils/logger";
 
-interface CallbackState {
-  loading: boolean;
-  error: string;
-  success: boolean;
-}
+export const useOAuthCallback = routeLoader$(
+  async ({ params, url, cookie, redirect, env }) => {
+    const provider = params.provider;
+    const code = url.searchParams.get("code");
+    const state = url.searchParams.get("state");
+    const error = url.searchParams.get("error");
+    const errorDescription = url.searchParams.get("error_description");
 
-import styles from "./index.css?inline";
-
-const API_URL = import.meta.env.PUBLIC_API_URL || "http://127.0.0.1:3001";
-
-export default component$(() => {
-  useStylesScoped$(styles);
-  const location = useLocation();
-  const nav = useNavigate();
-  const auth = useAuth();
-  const t = useTranslate();
-  const processedRef = useSignal(false);
-
-  console.log("[OAUTH CALLBACK] Component rendered", {
-    url: location.url.href,
-    params: location.params,
-    processed: processedRef.value,
-  });
-
-  const state = useStore<CallbackState>({
-    loading: true,
-    error: "",
-    success: false,
-  });
-
-  // Process OAuth callback - runs only in browser when component is visible
-  useVisibleTask$(async ({ track }) => {
-    console.log("[OAUTH CALLBACK] useVisibleTask$ started");
-    track(() => location.url.href);
-
-    // Prevent double execution
-    if (processedRef.value) {
-      console.log("[OAUTH CALLBACK] Already processed, skipping");
-      return;
-    }
-    processedRef.value = true;
-    console.log("[OAUTH CALLBACK] Processing callback...");
-
-    const provider = location.params.provider;
-    const code = location.url.searchParams.get("code");
-    const error = location.url.searchParams.get("error");
-
-    console.log("[OAUTH CALLBACK] Params:", {
-      provider,
-      hasCode: !!code,
-      error,
-    });
-
+    // Handle Provider Errors
     if (error) {
-      state.loading = false;
-      state.error =
-        location.url.searchParams.get("error_description") ||
-        "OAuth authorization was denied";
-      return;
+      logger.error(
+        { error, errorDescription, provider },
+        "OAuth Provider Error",
+      );
+      throw redirect(
+        302,
+        `/login?error=${encodeURIComponent(errorDescription || error)}`,
+      );
     }
 
+    // Handle Missing Code
     if (!code) {
-      state.loading = false;
-      state.error = "No authorization code received";
-      return;
+      logger.warn({ provider }, "OAuth Missing Code");
+      throw redirect(302, "/login?error=no_code");
     }
 
-    if (!["github", "linkedin", "google"].includes(provider)) {
-      state.loading = false;
-      state.error = `Invalid provider: ${provider}`;
-      return;
-    }
-
-    // Add timeout to prevent infinite loading
-    const timeoutId = setTimeout(() => {
-      if (state.loading) {
-        logger.error({ provider }, "OAuth callback timeout");
-        state.loading = false;
-        state.error =
-          "Authentication timeout. The server took too long to respond. Please try again.";
-      }
-    }, 30000); // 30 seconds
+    const API_URL = env.get("PUBLIC_API_URL") || "http://127.0.0.1:3001";
 
     try {
       logger.info(
-        { provider, code: code.substring(0, 10) + "..." },
-        "Processing OAuth callback",
+        {
+          provider,
+          code: code ? "PRESENT" : "MISSING",
+          state,
+          API_URL,
+        },
+        "Starting OAuth Exchange",
       );
 
-      // Exchange code for tokens with backend
-      const response = await request(
+      logger.info(
+        { url: `${API_URL}/auth/oauth/${provider}/callback` },
+        "Fetching OAuth Callback",
+      );
+
+      // Exchange Code for Token
+      const response = await fetch(
         `${API_URL}/auth/oauth/${provider}/callback`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          credentials: "include",
-          body: JSON.stringify({
-            code,
-            state: location.url.searchParams.get("state"),
-          }),
+          // We don't use the 'request' utility here to keep it simple and explicit for server-side
+          body: JSON.stringify({ code, state }),
         },
       );
 
-      const data = await response.json();
+      const text = await response.text();
       logger.info(
-        { provider, success: data.success, status: response.status },
-        "OAuth callback response received",
+        { status: response.status, statusText: response.statusText },
+        "OAuth Upstream Response Received",
       );
 
-      if (response.ok && data.success) {
-        const { user, token } = data.data;
-
-        // Update auth state
-        auth.user = {
-          id: user.id,
-          email: user.email,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          name: `${user.firstName || ""} ${user.lastName || ""}`.trim(),
-          role: user.role,
-          phone: user.phone,
-          location: user.location,
-          bio: user.bio,
-          birthDate: user.birthDate,
-          avatar: user.avatar,
-          languages: user.languages || [],
-          skills: user.skills || [],
-          seniority: user.seniority,
-          availability: user.availability,
-          profileCompleted: user.profileCompleted,
-        };
-        auth.token = token;
-        auth.isAuthenticated = true;
-
-        // Store token in cookie
-        setCookie("auth_token", token);
-
-        state.loading = false;
-        state.success = true;
-
-        logger.info(
-          {
-            provider,
-            userId: user.id,
-            redirectTo: user.profileCompleted ? "/" : "/wizard",
-          },
-          "OAuth login successful",
-        );
-
-        // Redirect after short delay
-        setTimeout(() => {
-          if (!user.profileCompleted) {
-            nav("/wizard");
-          } else {
-            nav("/");
-          }
-        }, 1500);
-      } else {
-        state.loading = false;
-        state.error = data.message || "OAuth authentication failed";
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch (e) {
         logger.error(
-          { provider, status: response.status, message: data.message },
-          "OAuth authentication failed",
+          { error: e, textPreview: text.substring(0, 100) },
+          "Failed to parse JSON response",
         );
+        throw new Error(`Invalid JSON response: ${text.substring(0, 100)}`);
       }
-    } catch (err) {
-      logger.error({ err, provider }, "OAuth callback error");
-      state.loading = false;
 
-      // More specific error message
-      if (err instanceof Error) {
-        if (
-          err.message.includes("timeout") ||
-          err.message.includes("aborted")
-        ) {
-          state.error = "Authentication timeout. Please try again.";
-        } else if (
-          err.message.includes("network") ||
-          err.message.includes("fetch")
-        ) {
-          state.error =
-            "Network error. Please check your connection and try again.";
+      if (response.ok && data.success && data.data?.token) {
+        const { token, user } = data.data;
+
+        // Set Auth Cookie
+        // Matching client-side 'setCookie' behavior: path=/, SameSite=Lax
+        cookie.set("auth_token", token, {
+          path: "/",
+          httpOnly: false,
+          maxAge: 60 * 60 * 24 * 7, // 7 days
+          sameSite: "lax",
+        });
+
+        logger.info({ userId: user.id }, "OAuth Login Successful");
+
+        // Redirect based on profile completion
+        if (user.profileCompleted) {
+          throw redirect(302, "/");
         } else {
-          state.error = "Failed to complete authentication. Please try again.";
+          throw redirect(302, "/wizard");
         }
       } else {
-        state.error = "Failed to complete authentication. Please try again.";
+        // Extract specific error message from backend
+        const failureReason =
+          data.message || `Authentication failed (Status: ${response.status})`;
+        logger.error(
+          { failureReason, backendData: data },
+          "OAuth Exchange validation failed",
+        );
+        throw new Error(failureReason);
       }
-    } finally {
-      clearTimeout(timeoutId);
+    } catch (err) {
+      logger.error({ err }, "OAuth Exchange Failed");
+
+      let errorMsg = "Authentication failed";
+
+      // Handle redirects (re-throw them)
+      if (
+        err &&
+        (err instanceof Response ||
+          (typeof err === "object" && "status" in err && err.status === 302))
+      ) {
+        throw err;
+      }
+
+      if (err instanceof Error) {
+        errorMsg = err.message;
+      } else if (typeof err === "string") {
+        errorMsg = err;
+      } else if (typeof err === "object") {
+        try {
+          errorMsg = JSON.stringify(err);
+        } catch {
+          errorMsg = "Unknown error object";
+        }
+      }
+
+      throw redirect(302, `/login?error=${encodeURIComponent(errorMsg)}`);
     }
-  });
+  },
+);
+
+export default component$(() => {
+  // Trigger loader
+  useOAuthCallback();
 
   return (
-    <div class="callback-container">
-      <div class="callback-card">
-        {state.loading && (
-          <>
-            <div class="spinner" />
-            <h2 class="title">{t("auth.oauth_processing")}</h2>
-            <p class="subtitle">{t("auth.oauth_please_wait")}</p>
-          </>
-        )}
-
-        {state.success && (
-          <>
-            <svg
-              class="success-icon"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M5 13l4 4L19 7"
-              />
-            </svg>
-            <h2 class="title">{t("auth.oauth_success")}</h2>
-            <p class="subtitle">{t("auth.oauth_redirecting")}</p>
-          </>
-        )}
-
-        {state.error && (
-          <>
-            <svg
-              class="error-icon"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-            <h2 class="title">{t("auth.oauth_error")}</h2>
-            <div class="error-container">
-              <p class="error-text">{state.error}</p>
-            </div>
-            <a href="/login" class="retry-link">
-              {t("auth.oauth_try_again")}
-            </a>
-          </>
-        )}
+    <div class="flex justify-center items-center bg-gray-50 dark:bg-gray-950 min-h-screen">
+      <div class="flex flex-col items-center bg-white dark:bg-gray-800 shadow-lg p-8 rounded-lg">
+        <div class="mb-4 border-4 border-brand-neon border-t-transparent rounded-full w-12 h-12 animate-spin" />
+        <h2 class="font-semibold text-gray-700 dark:text-gray-200 text-xl">
+          Processing authentication...
+        </h2>
       </div>
     </div>
   );
 });
-
-export const head: DocumentHead = {
-  title: "OAuth Callback - DevBoards.io",
-  meta: [
-    {
-      name: "description",
-      content: "Processing OAuth authentication",
-    },
-  ],
-};

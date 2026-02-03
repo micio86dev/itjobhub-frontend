@@ -27,6 +27,7 @@ import { JobSkillsList } from "~/components/jobs/job-skills-list";
 import { CompanyInfoBox } from "~/components/jobs/company-info-box";
 import styles from "./index.css?inline";
 import { Modal } from "~/components/ui/modal";
+import { ScrollButtons } from "~/components/ui/scroll-buttons";
 
 export default component$(() => {
   useStylesScoped$(styles);
@@ -292,6 +293,7 @@ export default component$(() => {
           );
         }}
       />
+      <ScrollButtons />
     </div>
   );
 });

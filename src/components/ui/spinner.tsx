@@ -6,7 +6,7 @@ import { component$ } from "@builder.io/qwik";
  */
 interface SpinnerProps {
   /** Size of the spinner. Default: "md" */
-  size?: "sm" | "md" | "lg";
+  size?: "sm" | "md" | "lg" | "xl";
   /** Custom CSS class */
   class?: string;
 }
@@ -17,6 +17,7 @@ export const Spinner = component$<SpinnerProps>(
       sm: "w-4 h-4",
       md: "w-5 h-5",
       lg: "w-6 h-6",
+      xl: "w-12 h-12",
     };
 
     return (

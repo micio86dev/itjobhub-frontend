@@ -3,7 +3,6 @@ import {
   useStore,
   useTask$,
   $,
-  isBrowser,
   useStyles$,
 } from "@builder.io/qwik";
 import styles from "./news-index.css?inline";
@@ -11,6 +10,7 @@ import {
   type DocumentHead,
   useLocation,
   routeLoader$,
+  useNavigate,
 } from "@builder.io/qwik-city";
 import { useTranslate, type SupportedLanguage } from "../../contexts/i18n";
 import { NewsList } from "../../components/news/news-list";
@@ -51,31 +51,73 @@ const CATEGORIES = [
   { key: "Data Science", i18nKey: "news.category.datascience" },
 ];
 
+export const useNewsListLoader = routeLoader$(async ({ url, env }) => {
+  const category = url.searchParams.get("category") || "All";
+  const page = 1;
+  const limit = 12;
+  const API_URL = env.get("PUBLIC_API_URL") || "http://127.0.0.1:3001";
+
+  const categoryParam = category !== "All" ? `&category=${category}` : "";
+  const endpoint = `${API_URL}/news?page=${page}&limit=${limit}${categoryParam}`;
+
+  try {
+    const res = await fetch(endpoint, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    const data = await res.json();
+    return {
+      success: true,
+      news: data.success ? (data.data.news as ApiNews[]) : [],
+      pagination: data.success ? data.data.pagination : { page: 1, pages: 1 },
+      category,
+    };
+  } catch (err) {
+    console.error("Failed to fetch news", err);
+    return {
+      success: false,
+      news: [],
+      pagination: { page: 1, pages: 1 },
+      category,
+    };
+  }
+});
+
 export default component$(() => {
   useStyles$(styles);
   const t = useTranslate();
   const loc = useLocation();
+  const nav = useNavigate();
+  const newsLoader = useNewsListLoader();
 
   const state = useStore({
     news: [] as ApiNews[],
     page: 1,
-    isLoading: true,
+    isLoading: false,
     hasMore: true,
-    selectedCategory: loc.url.searchParams.get("category") || "All",
-    initialLoadDone: false,
+    // Initialize category from loader to ensure consistency
+    selectedCategory: newsLoader.value.category,
   });
 
-  const fetchNews = $(async (page: number, reset: boolean = false) => {
-    try {
-      if (reset) {
-        state.isLoading = true;
-        state.news = [];
-      } else {
-        // Infinite scroll loading state can be handled by the hook usually,
-        // but here we track if we are fetching to prevent double fetches
-        state.isLoading = true;
-      }
+  // Sync state with loader data (SSR + Client Navigation)
+  useTask$(({ track }) => {
+    const data = track(() => newsLoader.value);
 
+    // Always reset news when loader data changes (initial load or category change)
+    state.news = data.news;
+    state.page = data.pagination.page;
+    state.hasMore = data.pagination.page < data.pagination.pages;
+    state.selectedCategory = data.category;
+    state.isLoading = false;
+  });
+
+  // Client-side fetch only for Load More
+  const fetchMoreNews = $(async (page: number) => {
+    state.isLoading = true;
+    try {
       const categoryParam =
         state.selectedCategory !== "All"
           ? `&category=${state.selectedCategory}`
@@ -86,39 +128,37 @@ export default component$(() => {
       const data = await res.json();
 
       if (data.success) {
-        if (reset) {
-          state.news = data.data.news;
-        } else {
-          // Deduplicate based on ID just in case
-          const existingIds = new Set(state.news.map((n) => n.id));
-          const newItems = (data.data.news as ApiNews[]).filter(
-            (n) => !existingIds.has(n.id),
-          );
-          state.news = [...state.news, ...newItems];
-        }
+        // Deduplicate based on ID
+        const existingIds = new Set(state.news.map((n) => n.id));
+        const newItems = (data.data.news as ApiNews[]).filter(
+          (n) => !existingIds.has(n.id),
+        );
+        state.news = [...state.news, ...newItems];
 
         state.hasMore = data.data.pagination.page < data.data.pagination.pages;
         state.page = page;
       }
     } catch (err) {
-      console.error("Failed to fetch news", err);
+      console.error("Failed to fetch more news", err);
     } finally {
       state.isLoading = false;
-      state.initialLoadDone = true;
     }
   });
 
-  // Initial load
-  useTask$(({ track }) => {
-    track(() => state.selectedCategory);
-    if (isBrowser) {
-      fetchNews(1, true);
+  const handleCategoryChange = $((key: string) => {
+    // Navigate to update URL and trigger loader
+    const url = new URL(loc.url);
+    if (key === "All") {
+      url.searchParams.delete("category");
+    } else {
+      url.searchParams.set("category", key);
     }
+    nav(url.pathname + url.search);
   });
 
   const loadMore = $(async () => {
     if (!state.isLoading && state.hasMore) {
-      await fetchNews(state.page + 1, false);
+      await fetchMoreNews(state.page + 1);
     }
   });
 
@@ -181,7 +221,7 @@ export default component$(() => {
             {CATEGORIES.map((cat) => (
               <button
                 key={cat.key}
-                onClick$={() => (state.selectedCategory = cat.key)}
+                onClick$={() => handleCategoryChange(cat.key)}
                 class={`category-btn ${
                   state.selectedCategory === cat.key
                     ? "category-btn-active"
@@ -198,13 +238,13 @@ export default component$(() => {
       <div class="mx-auto px-4 py-8 container">
         <NewsList
           news={state.news}
-          isLoading={state.isLoading && state.page === 1}
+          isLoading={false} // Loading handled by SSR or infinite scroll spinner
         />
 
         {/* Infinite Scroll Trigger */}
         {state.hasMore && (
           <div ref={infiniteScrollRef} class="flex justify-center py-12">
-            {state.isLoading && state.page > 1 && <Spinner size="lg" />}
+            {state.isLoading && <Spinner size="lg" />}
           </div>
         )}
 

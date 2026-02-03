@@ -76,7 +76,7 @@ export default component$(() => {
       } else {
         state.error = data.message;
       }
-    } catch (err: unknown) {
+    } catch (err) {
       if (err instanceof Error) {
         state.error = err.message;
       } else {

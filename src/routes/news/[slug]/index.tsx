@@ -4,6 +4,7 @@ import {
   useNavigate,
   type DocumentHead,
   routeLoader$,
+  useLocation,
 } from "@builder.io/qwik-city";
 import { marked } from "marked";
 import { request } from "~/utils/api";
@@ -54,6 +55,7 @@ export default component$(() => {
   const t = useTranslate();
   const i18n = useI18n();
   const nav = useNavigate();
+  const loc = useLocation();
   const lang = i18n.currentLanguage;
   const newsSignal = useNewsLoader();
   const deleteFailedMsg = t("news.delete_failed");
@@ -69,6 +71,20 @@ export default component$(() => {
   useTask$(({ track }) => {
     const loadedData = track(() => newsSignal.value);
     state.news = loadedData.news;
+  });
+
+  // Scroll to comments if hash is present
+  useTask$(({ track }) => {
+    const hash = track(() => loc.url.hash);
+    if (typeof window !== "undefined" && hash === "#comments") {
+      // Delay to ensure elements are mounted/rendered
+      setTimeout(() => {
+        const el = document.getElementById("comments");
+        if (el) {
+          el.scrollIntoView({ behavior: "smooth" });
+        }
+      }, 300);
+    }
   });
 
   const handleDelete = $(async () => {
@@ -322,7 +338,9 @@ export default component$(() => {
               />
             </div>
 
-            <UnifiedCommentsSection ownerId={news.id} type="news" />
+            <div id="comments" class="scroll-mt-24">
+              <UnifiedCommentsSection ownerId={news.id} type="news" />
+            </div>
           </div>
         </article>
       </div>
