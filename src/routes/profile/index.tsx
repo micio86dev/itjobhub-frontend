@@ -772,14 +772,22 @@ export default component$(() => {
   );
 });
 
-export const head: DocumentHead = () => {
+export const useProfileHeadLoader = routeLoader$(() => {
   const t = (key: string) => translate(key, "it");
   return {
     title: t("meta.profile_title"),
+    description: t("meta.profile_description"),
+  };
+});
+
+export const head: DocumentHead = ({ resolveValue }) => {
+  const meta = resolveValue(useProfileHeadLoader);
+  return {
+    title: meta.title,
     meta: [
       {
         name: "description",
-        content: t("meta.profile_description"),
+        content: meta.description,
       },
     ],
   };

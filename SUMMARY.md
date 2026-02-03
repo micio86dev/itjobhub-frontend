@@ -29,6 +29,19 @@ The DevBoards.io frontend is a high-performance web application designed for dev
 
 ## Recent Changes
 
+### 2026-02-03: Route Loader Refactoring and Build Optimization
+
+- **Route Loader Naming Standardization**:
+  - Renamed generic `useHeadMeta` to route-specific loaders (e.g., `useJobsHeadLoader`, `useNewsListHeadLoader`, `useProfileHeadLoader`) across all major routes.
+  - This prevents potential naming collisions and improves code readability by explicitly indicating the loader's purpose within its context.
+- **Build Performance Optimization**:
+  - Refactored `vite.config.ts` to improve dependency handling during development and bundling.
+  - Optimized `optimizeDeps.include` by removing redundant Qwik core packages, allowing Vite and Qwik's plugin to handle them more efficiently.
+- **Code Consistency & Cleanup**:
+  - Applied consistent indentation and formatting across all route files (`index.tsx`).
+  - Improved JSX structure for better legibility and maintainability.
+- **Verification**: Confirmed all linters and type checks pass across the entire workspace.
+
 ### 2026-01-31: Job Posting Date Translation Fix
 
 - **Missing Translation Restoration**: Added the missing `job.posted` translation key across all supported locales (IT, EN, FR, ES, DE).

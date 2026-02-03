@@ -14,7 +14,7 @@ import fr from "~/locales/fr.json";
 const translations = { it, en, es, de, fr };
 
 // Route loader to get translated meta for DocumentHead
-export const useHeadMeta = routeLoader$(({ cookie }) => {
+export const useForgotPassHeadLoader = routeLoader$(({ cookie }) => {
   const savedLang =
     (cookie.get("preferred-language")?.value as SupportedLanguage) || "it";
   const lang = savedLang in translations ? savedLang : "it";
@@ -139,7 +139,7 @@ export default component$(() => {
 });
 
 export const head: DocumentHead = ({ resolveValue }) => {
-  const meta = resolveValue(useHeadMeta);
+  const meta = resolveValue(useForgotPassHeadLoader);
   return {
     title: meta.title,
     meta: [

@@ -27,7 +27,7 @@ import fr from "~/locales/fr.json";
 
 const translations = { it, en, es, de, fr };
 
-export const useHeadMeta = routeLoader$(({ cookie }) => {
+export const useRegisterHeadLoader = routeLoader$(({ cookie }) => {
   const savedLang =
     (cookie.get("preferred-language")?.value as SupportedLanguage) || "it";
   const lang = savedLang in translations ? savedLang : "it";
@@ -276,7 +276,7 @@ export default component$(() => {
 });
 
 export const head: DocumentHead = ({ resolveValue }) => {
-  const meta = resolveValue(useHeadMeta);
+  const meta = resolveValue(useRegisterHeadLoader);
   return {
     title: meta.title,
     meta: [
