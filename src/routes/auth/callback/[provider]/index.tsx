@@ -72,7 +72,18 @@ export default component$(() => {
       return;
     }
 
+    // Add timeout to prevent infinite loading
+    const timeoutId = setTimeout(() => {
+      if (state.loading) {
+        logger.error({ provider }, "OAuth callback timeout");
+        state.loading = false;
+        state.error = "Authentication timeout. The server took too long to respond. Please try again.";
+      }
+    }, 30000); // 30 seconds
+
     try {
+      logger.info({ provider, code: code.substring(0, 10) + "..." }, "Processing OAuth callback");
+
       // Exchange code for tokens with backend
       const response = await request(
         `${API_URL}/auth/oauth/${provider}/callback`,
@@ -90,6 +101,7 @@ export default component$(() => {
       );
 
       const data = await response.json();
+      logger.info({ provider, success: data.success, status: response.status }, "OAuth callback response received");
 
       if (response.ok && data.success) {
         const { user, token } = data.data;
@@ -122,6 +134,8 @@ export default component$(() => {
         state.loading = false;
         state.success = true;
 
+        logger.info({ provider, userId: user.id, redirectTo: user.profileCompleted ? "/" : "/wizard" }, "OAuth login successful");
+
         // Redirect after short delay
         setTimeout(() => {
           if (!user.profileCompleted) {
@@ -133,11 +147,26 @@ export default component$(() => {
       } else {
         state.loading = false;
         state.error = data.message || "OAuth authentication failed";
+        logger.error({ provider, status: response.status, message: data.message }, "OAuth authentication failed");
       }
     } catch (err) {
       logger.error({ err, provider }, "OAuth callback error");
       state.loading = false;
-      state.error = "Failed to complete authentication. Please try again.";
+
+      // More specific error message
+      if (err instanceof Error) {
+        if (err.message.includes("timeout") || err.message.includes("aborted")) {
+          state.error = "Authentication timeout. Please try again.";
+        } else if (err.message.includes("network") || err.message.includes("fetch")) {
+          state.error = "Network error. Please check your connection and try again.";
+        } else {
+          state.error = "Failed to complete authentication. Please try again.";
+        }
+      } else {
+        state.error = "Failed to complete authentication. Please try again.";
+      }
+    } finally {
+      clearTimeout(timeoutId);
     }
   });
 

@@ -89,6 +89,22 @@
   @apply w-full h-full object-cover;
 }
 
-.comments-wrapper {
-  @apply flex items-center space-x-1 text-gray-500 text-sm;
+.comments-btn {
+  @apply flex items-center space-x-1.5 px-2 py-1 rounded-sm transition-all border border-transparent cursor-pointer text-xs font-mono;
+}
+
+.comments-btn-active {
+  @apply bg-brand-neon/10 text-brand-neon border-brand-neon/30;
+}
+
+:global(.dark) .comments-btn-active {
+  @apply bg-brand-neon/20 text-brand-neon border-brand-neon/50;
+}
+
+.comments-btn-inactive {
+  @apply text-gray-500 hover:text-brand-neon hover:border-brand-neon/30;
+}
+
+:global(.dark) .comments-btn-inactive {
+  @apply text-gray-500 hover:text-brand-neon hover:border-brand-neon/50;
 }
