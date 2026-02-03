@@ -5,7 +5,7 @@ import {
   useContext,
   useStore,
   $,
-  useVisibleTask$,
+  useTask$,
   Slot,
   isBrowser,
 } from "@builder.io/qwik";
@@ -66,8 +66,7 @@ export const ThemeProvider = component$(() => {
   // Handle Syncing Store -> Client DOM
   // This ensures that whenever themeState.theme changes, the DOM updates.
   // We use useVisibleTask$ because this is a side effect on the DOM.
-  // eslint-disable-next-line qwik/no-use-visible-task
-  useVisibleTask$(({ track }) => {
+  useTask$(({ track }) => {
     const theme = track(() => themeState.theme);
 
     if (isBrowser) {
@@ -77,8 +76,7 @@ export const ThemeProvider = component$(() => {
   });
 
   // Initialize theme from localStorage on client side (Hydration fix)
-  // eslint-disable-next-line qwik/no-use-visible-task
-  useVisibleTask$(() => {
+  useTask$(() => {
     if (isBrowser) {
       const storedTheme = localStorage.getItem("theme");
       const systemDark = window.matchMedia(

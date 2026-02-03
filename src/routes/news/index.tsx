@@ -1,8 +1,9 @@
 import {
   component$,
   useStore,
-  useVisibleTask$,
+  useTask$,
   $,
+  isBrowser,
   useStyles$,
 } from "@builder.io/qwik";
 import styles from "./news-index.css?inline";
@@ -108,10 +109,11 @@ export default component$(() => {
   });
 
   // Initial load
-  // eslint-disable-next-line qwik/no-use-visible-task
-  useVisibleTask$(({ track }) => {
+  useTask$(({ track }) => {
     track(() => state.selectedCategory);
-    fetchNews(1, true);
+    if (isBrowser) {
+      fetchNews(1, true);
+    }
   });
 
   const loadMore = $(async () => {

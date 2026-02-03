@@ -1,7 +1,8 @@
 import {
   component$,
   useSignal,
-  useVisibleTask$,
+  useTask$,
+  isBrowser,
   PropFunction,
 } from "@builder.io/qwik";
 import logger from "../../utils/logger";
@@ -20,11 +21,10 @@ export const LocationAutocomplete = component$((props: Props) => {
   const inputRef = useSignal<HTMLInputElement>();
   const t = useTranslate();
 
-  // eslint-disable-next-line qwik/no-use-visible-task
-  useVisibleTask$(({ track, cleanup }) => {
+  useTask$(({ track, cleanup }) => {
     const input = track(() => inputRef.value);
 
-    if (!input) return;
+    if (!isBrowser || !input) return;
 
     let intervalId: NodeJS.Timeout;
 

@@ -1,6 +1,7 @@
 import {
   useSignal,
-  useVisibleTask$,
+  useTask$,
+  isBrowser,
   type QRL,
   type Signal,
 } from "@builder.io/qwik";
@@ -23,12 +24,10 @@ export const useInfiniteScroll = (
 
   // IntersectionObserver is not serializable and only used in visible task
 
-  // eslint-disable-next-line qwik/no-use-visible-task
-  useVisibleTask$(({ track, cleanup }) => {
+  useTask$(({ track, cleanup }) => {
     const element = track(() => ref.value);
 
-    // No need for isBrowser check inside useVisibleTask as it only runs in browser
-    if (element) {
+    if (isBrowser && element) {
       const observer = new IntersectionObserver(
         (entries) => {
           const [entry] = entries;

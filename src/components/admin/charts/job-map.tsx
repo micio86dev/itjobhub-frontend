@@ -2,12 +2,11 @@ import {
   component$,
   useTask$,
   useSignal,
-  PropFunction,
+  type PropFunction,
   noSerialize,
-  NoSerialize,
+  type NoSerialize,
   $,
   isBrowser,
-  useVisibleTask$,
   useContext,
 } from "@builder.io/qwik";
 import type { MarkerClusterer } from "@googlemaps/markerclusterer";
@@ -143,11 +142,10 @@ export const JobMap = component$((props: Props) => {
     updateMarkers();
   });
 
-  // eslint-disable-next-line qwik/no-use-visible-task
-  useVisibleTask$(({ track, cleanup }) => {
+  useTask$(({ track, cleanup }) => {
     const container = track(() => mapContainerRef.value);
 
-    if (!container || typeof window === "undefined") return;
+    if (!isBrowser || !container) return;
 
     let intervalId: ReturnType<typeof setInterval> | undefined;
 

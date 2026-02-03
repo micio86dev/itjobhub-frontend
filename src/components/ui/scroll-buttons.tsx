@@ -4,7 +4,8 @@ import {
   useStylesScoped$,
   useSignal,
   useOnWindow,
-  useVisibleTask$,
+  useTask$,
+  isBrowser,
 } from "@builder.io/qwik";
 import styles from "./scroll-buttons.css?inline";
 
@@ -30,13 +31,14 @@ export const ScrollButtons = component$(() => {
 
   useOnWindow("resize", checkScroll);
 
-  // eslint-disable-next-line qwik/no-use-visible-task
-  useVisibleTask$(() => {
-    checkScroll();
+  useTask$(() => {
+    if (isBrowser) {
+      checkScroll();
 
-    // Check periodically for dynamic content changes
-    const interval = setInterval(checkScroll, 1000);
-    return () => clearInterval(interval);
+      // Check periodically for dynamic content changes
+      const interval = setInterval(checkScroll, 1000);
+      return () => clearInterval(interval);
+    }
   });
 
   const scrollToTop = $(() => {

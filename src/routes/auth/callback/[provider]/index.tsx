@@ -1,9 +1,10 @@
 import {
   component$,
-  useVisibleTask$,
+  useTask$,
   useStore,
   useStylesScoped$,
   useSignal,
+  isBrowser,
 } from "@builder.io/qwik";
 import { useLocation, useNavigate } from "@builder.io/qwik-city";
 import type { DocumentHead } from "@builder.io/qwik-city";
@@ -38,9 +39,10 @@ export default component$(() => {
   });
 
   // Process OAuth callback
-  // eslint-disable-next-line qwik/no-use-visible-task
-  useVisibleTask$(async ({ track }) => {
+  useTask$(async ({ track }) => {
     track(() => location.url.href);
+
+    if (!isBrowser) return;
 
     // Prevent double execution
     if (processedRef.value) return;
