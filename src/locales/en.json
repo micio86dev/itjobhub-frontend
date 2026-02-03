@@ -229,6 +229,8 @@
   "wizard.hybrid_desc": "Mix of office and remote",
   "wizard.onsite_label": "On-site",
   "wizard.onsite_desc": "Office-based work",
+  "wizard.office_label": "Office",
+  "wizard.office_desc": "Office-based work",
   "wizard.seniority_step": "Seniority level",
   "wizard.seniority_desc": "Select your experience level",
   "wizard.junior_label": "Junior",

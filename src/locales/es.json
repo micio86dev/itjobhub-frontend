@@ -224,6 +224,8 @@
   "wizard.hybrid_desc": "Mezcla de oficina y remoto",
   "wizard.onsite_label": "Presencial",
   "wizard.onsite_desc": "Trabajo en la oficina",
+  "wizard.office_label": "Oficina",
+  "wizard.office_desc": "Trabajo en oficina",
   "wizard.seniority_step": "Nivel de experiencia",
   "wizard.seniority_desc": "Selecciona tu nivel de experiencia",
   "wizard.junior_label": "Junior",

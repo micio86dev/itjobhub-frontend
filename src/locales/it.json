@@ -229,6 +229,8 @@
   "wizard.hybrid_desc": "Mix tra ufficio e remoto",
   "wizard.onsite_label": "In sede",
   "wizard.onsite_desc": "Lavoro in ufficio",
+  "wizard.office_label": "Ufficio",
+  "wizard.office_desc": "Lavoro in ufficio",
   "wizard.seniority_step": "Livello di seniority",
   "wizard.seniority_desc": "Seleziona il tuo livello di esperienza",
   "wizard.junior_label": "Junior",

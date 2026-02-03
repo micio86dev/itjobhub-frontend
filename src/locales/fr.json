@@ -224,6 +224,8 @@
   "wizard.hybrid_desc": "Mélange de bureau et distance",
   "wizard.onsite_label": "Sur site",
   "wizard.onsite_desc": "Travail au bureau",
+  "wizard.office_label": "Bureau",
+  "wizard.office_desc": "Travail au bureau",
   "wizard.seniority_step": "Niveau d'expérience",
   "wizard.seniority_desc": "Sélectionnez votre niveau d'expérience",
   "wizard.junior_label": "Junior",

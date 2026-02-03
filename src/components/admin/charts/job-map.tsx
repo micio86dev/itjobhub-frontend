@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   component$,
   useTask$,
@@ -34,7 +33,7 @@ interface Props {
 export const JobMap = component$((props: Props) => {
   const themeContext = useContext(ThemeContext);
   const mapContainerRef = useSignal<HTMLDivElement>();
-  const map = useSignal<NoSerialize<any> | null>(null);
+  const map = useSignal<NoSerialize<google.maps.Map> | null>(null);
   const clusterer = useSignal<NoSerialize<MarkerClusterer> | null>(null);
 
   const updateMarkers = $(async () => {
@@ -47,7 +46,7 @@ export const JobMap = component$((props: Props) => {
       clusterer.value.clearMarkers();
     }
 
-    const newMarkers: any[] = [];
+    const newMarkers: google.maps.Marker[] = [];
 
     props.jobs.forEach((job) => {
       // Standard Google Maps Marker (Default Red Pin)
@@ -97,7 +96,7 @@ export const JobMap = component$((props: Props) => {
         </div>
       `;
 
-      const infoWindow = new (window.google.maps.InfoWindow as any)({
+      const infoWindow = new window.google.maps.InfoWindow({
         content: contentString,
       });
 
@@ -131,15 +130,13 @@ export const JobMap = component$((props: Props) => {
 
     if (!map.value) {
       const italyCenter = { lat: 41.8719, lng: 12.5674 };
-      const newMap = new (window.google.maps.Map as any)(
-        mapContainerRef.value,
-        {
-          center: italyCenter,
-          zoom: 5,
-          styles:
-            themeContext.themeState.theme === "dark" ? DARK_MAP_STYLES : [],
-        },
-      );
+      const newMap = new window.google.maps.Map(mapContainerRef.value, {
+        center: italyCenter,
+        zoom: 5,
+        styles: (themeContext.themeState.theme === "dark"
+          ? DARK_MAP_STYLES
+          : []) as google.maps.MapTypeStyle[],
+      });
       map.value = noSerialize(newMap);
     }
 
@@ -152,7 +149,7 @@ export const JobMap = component$((props: Props) => {
 
     if (!container || typeof window === "undefined") return;
 
-    let intervalId: any;
+    let intervalId: ReturnType<typeof setInterval> | undefined;
 
     const loadMap = () => {
       // If Google Maps is ready, initialize
