@@ -4,19 +4,15 @@
 }
 
 .modal-content-wrapper {
-  @apply flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block w-full sm:p-0;
+  @apply flex items-center justify-center min-h-screen p-4 text-center w-full;
 }
 
 .overlay {
   @apply fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity;
 }
 
-.modal-spacer {
-  @apply hidden sm:inline-block sm:align-middle sm:h-screen;
-}
-
 .modal-panel {
-  @apply inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full;
+  @apply inline-block bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all w-full sm:max-w-lg;
 }
 
 :global(.dark) .modal-panel {

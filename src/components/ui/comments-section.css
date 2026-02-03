@@ -19,7 +19,7 @@
   transition: all 0.3s ease;
 }
 
-.dark .comment-input-group {
+:global(.dark) .comment-input-group {
   background: rgba(255, 255, 255, 0.03);
   border-color: rgba(255, 255, 255, 0.08);
 }
@@ -67,7 +67,7 @@
   --textarea-border: rgba(0, 0, 0, 0.1);
 }
 
-.dark .comments-wrapper {
+:global(.dark) .comments-wrapper {
   --textarea-bg: #1f2937; /* gray-800 */
   --textarea-bg-focus: #374151; /* gray-700 */
   --textarea-border: rgba(255, 255, 255, 0.1);
@@ -102,7 +102,7 @@
   transform: translateY(-1px);
 }
 
-.dark .btn-cancel {
+:global(.dark) .btn-cancel {
   color: rgb(156, 163, 175);
 }
 
@@ -232,7 +232,7 @@
   border: 1px solid rgba(255, 165, 0, 0.2);
 }
 
-.dark .edit-comment-container {
+:global(.dark) .edit-comment-container {
   background: rgba(255, 165, 0, 0.06);
   border-color: rgba(255, 165, 0, 0.25);
 }
@@ -247,7 +247,7 @@
   line-height: 1.5;
 }
 
-.dark .input-textarea {
+:global(.dark) .input-textarea {
   background: rgba(0, 0, 0, 0.3);
   border-color: rgba(255, 255, 255, 0.15);
 }
