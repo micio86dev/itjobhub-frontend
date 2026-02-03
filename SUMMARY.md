@@ -29,6 +29,13 @@ The DevBoards.io frontend is a high-performance web application designed for dev
 
 ## Recent Changes
 
+### 2026-02-03: Google Maps Location Autocomplete Fix
+
+- **Restored Autocomplete Functionality**: Fixed a long-standing issue where the Google Maps Places Autocomplete was non-functional in both the Job Search filter and User Profile.
+- **Robust Initialization Strategy**: Implemented a specialized `useVisibleTask$` pattern (with appropriate lint overrides) to ensure reliable script loading and deferred initialization only on the client side, overcoming hydration-related execution issues with standard `useTask$`.
+- **Cross-Component Consistency**: Ensured that the fix applied consistently across all location input fields in the platform.
+- **Verification**: Confirmed with live browser testing that suggestions appear correctly and integrate with the existing search and profile state.
+
 ### 2026-02-03: Route Loader Refactoring and Build Optimization
 
 - **Route Loader Naming Standardization**:
