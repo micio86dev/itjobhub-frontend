@@ -91,11 +91,50 @@ export const useOAuthCallback = routeLoader$(
         logger.info({ userId: user.id }, "OAuth Login Successful");
 
         // Redirect based on profile completion
-        if (user.profileCompleted) {
-          throw redirect(302, "/");
-        } else {
+        // Redirect based on profile completion
+        if (!user.profileCompleted) {
           throw redirect(302, "/wizard");
         }
+
+        // Parse returnTo from state
+        let returnTo = "/";
+        try {
+          if (state) {
+            const decodedState = atob(state);
+            const stateObj = JSON.parse(decodedState);
+            if (stateObj.returnTo && stateObj.returnTo.startsWith("/")) {
+              returnTo = stateObj.returnTo;
+            }
+          }
+        } catch (e) {
+          logger.warn(
+            { state, err: e },
+            "Failed to parse state for returnTo, defaulting to /",
+          );
+        }
+
+        // Check if returnTo is a protected route
+        // User rule: "must not be a page visible only by logged users"
+        const protectedPrefixes = [
+          "/admin",
+          "/wizard",
+          "/profile",
+          "/settings",
+          "/dashboard",
+        ];
+        const isProtected = protectedPrefixes.some((prefix) =>
+          returnTo.startsWith(prefix),
+        );
+
+        if (isProtected) {
+          logger.info(
+            { returnTo },
+            "Redirect target is protected, falling back to home",
+          );
+          throw redirect(302, "/");
+        }
+
+        throw redirect(302, returnTo);
       } else {
         // Extract specific error message from backend
         const failureReason =

@@ -11,6 +11,7 @@ import { useTranslate } from "~/contexts/i18n";
 import { Modal } from "~/components/ui/modal";
 import { Spinner } from "~/components/ui/spinner";
 import { ReactionButtons } from "~/components/ui/reaction-buttons";
+import { AuthActionPrompt } from "~/components/common/auth-action-prompt";
 import { request } from "~/utils/api";
 import { formatDistanceToNow } from "date-fns";
 import { it } from "date-fns/locale";
@@ -244,9 +245,7 @@ export const UnifiedCommentsSection = component$<CommentsSectionProps>(
             </div>
           </div>
         ) : (
-          <div class="login-prompt">
-            <p>{t("comments.login_prompt")}</p>
-          </div>
+          <AuthActionPrompt actionText={t("comments.login_to_comment")} />
         )}
 
         <div class="comments-list">

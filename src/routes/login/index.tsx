@@ -112,7 +112,13 @@ export default component$(() => {
     form.provider = provider;
     // Redirect to backend OAuth URL
     const apiUrl = import.meta.env.PUBLIC_API_URL || "http://127.0.0.1:3001";
-    window.location.href = `${apiUrl}/auth/oauth/${provider}`;
+
+    const returnUrl = loc.url.searchParams.get("returnUrl");
+    const redirectQuery = returnUrl
+      ? `?return_to=${encodeURIComponent(returnUrl)}`
+      : "";
+
+    window.location.href = `${apiUrl}/auth/oauth/${provider}${redirectQuery}`;
   });
 
   return (

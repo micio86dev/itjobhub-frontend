@@ -4,7 +4,7 @@ import { marked } from "marked";
 import { Link } from "@builder.io/qwik-city";
 import type { JobListing } from "~/contexts/jobs";
 import { useJobs, getCommentsFromState } from "~/contexts/jobs";
-import { LoginPrompt } from "./login-prompt";
+import { AuthActionPrompt } from "~/components/common/auth-action-prompt";
 import { useAuth } from "~/contexts/auth";
 import { useTranslate, useI18n } from "~/contexts/i18n";
 import { ReactionButtons } from "~/components/ui/reaction-buttons";
@@ -129,6 +129,9 @@ export const JobCard = component$<JobCardProps>(
                       ⚡ {matchScore.score}% {t(`match.${matchScore.label}`)}
                     </span>
                   )}
+                </div>
+                <div class="mt-4">
+                  <AuthActionPrompt actionText={t("auth.login_to_interact")} />
                 </div>
               </div>
             </div>
@@ -339,7 +342,9 @@ export const JobCard = component$<JobCardProps>(
         </div>
 
         {/* Login prompt for non-authenticated users */}
-        {!auth.isAuthenticated && <LoginPrompt />}
+        {!auth.isAuthenticated && (
+          <AuthActionPrompt actionText={t("auth.login_to_interact")} />
+        )}
 
         {/* Unified Comments Section */}
         {showComments && (

@@ -4,11 +4,11 @@ import {
   type PropFunction,
 } from "@builder.io/qwik";
 import styles from "./job-header.css?inline";
-import { Link } from "@builder.io/qwik-city";
 import { useTranslate } from "~/contexts/i18n";
 import type { JobListing } from "~/contexts/jobs";
 import { ReactionButtons } from "~/components/ui/reaction-buttons";
 import { DetailStats } from "~/components/ui/detail-stats";
+import { AuthActionPrompt } from "~/components/common/auth-action-prompt";
 
 interface JobHeaderProps {
   job: JobListing;
@@ -130,16 +130,10 @@ export const JobHeader = component$<JobHeaderProps>((props) => {
           </a>
 
           {!isAuthenticated && (
-            <span class="loginHint">
-              <Link href="/login" class="link">
-                {t("common.login")}
-              </Link>{" "}
-              {t("common.or").toLowerCase()}{" "}
-              <Link href="/register" class="link">
-                {t("common.register").toLowerCase()}
-              </Link>{" "}
-              {t("job.apply_login_required")}
-            </span>
+            <AuthActionPrompt
+              actionText={t("job.apply_login_required")}
+              containerClass="loginHint !mt-0 !bg-transparent !border-0 !p-0"
+            />
           )}
         </div>
       </div>
