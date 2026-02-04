@@ -372,7 +372,9 @@ export const JobSearch = component$<JobSearchProps>(
                 <span class="inline-flex items-center bg-brand-neon/10 px-2.5 py-0.5 border border-brand-neon/20 rounded-full font-mono font-bold text-brand-neon text-xs">
                   {state.remote === "remote"
                     ? t("jobs.remote")
-                    : t("jobs.office")}
+                    : state.remote === "hybrid"
+                      ? t("jobs.hybrid")
+                      : t("jobs.office")}
                 </span>
               )}
 
