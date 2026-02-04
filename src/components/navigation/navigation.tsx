@@ -78,6 +78,9 @@ export const Navigation = component$(() => {
               <Link href="/news" class="nav-link">
                 {t("nav.news")}
               </Link>
+              <Link href="/contact" class="nav-link">
+                {t("nav.contact")}
+              </Link>
               {auth.user?.role === "admin" && (
                 <Link href="/admin/stats" class="nav-link">
                   {t("nav.dashboard")}
@@ -259,6 +262,9 @@ export const Navigation = component$(() => {
             </Link>
             <Link href="/news" class="mobile-nav-link">
               {t("nav.news")}
+            </Link>
+            <Link href="/contact" class="mobile-nav-link">
+              {t("nav.contact")}
             </Link>
             {auth.user?.role === "admin" && (
               <Link href="/admin/stats" class="mobile-nav-link">

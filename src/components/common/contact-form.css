@@ -1,0 +1,207 @@
+/* Contact Form - Futuristic Design System */
+
+.contact-card {
+  --card-padding: 3rem;
+  --input-bg: rgba(255, 255, 255, 0.05);
+  --input-border: rgba(255, 255, 255, 0.1);
+  --input-focus: var(--brand-neon);
+
+  @apply w-full max-w-2xl mx-auto rounded-2xl border transition-all duration-500 overflow-hidden relative;
+  padding: var(--card-padding);
+  background: var(--card-bg, #ffffff);
+  border-color: var(--card-border, #e5e7eb);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+}
+
+:global(.dark) .contact-card {
+  --card-bg: rgba(17, 24, 39, 0.7);
+  --card-border: rgba(255, 255, 255, 0.1);
+  --input-bg: rgba(0, 0, 0, 0.2);
+  --input-border: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.contact-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--brand-neon),
+    transparent
+  );
+  opacity: 0.5;
+}
+
+.contact-header {
+  @apply mb-10 text-center;
+}
+
+.contact-title {
+  @apply text-4xl font-black mb-3 tracking-tighter uppercase;
+  font-family: var(--font-mono, "JetBrains Mono", monospace);
+  background: linear-gradient(135deg, var(--foreground), var(--brand-neon));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.contact-subtitle {
+  @apply text-gray-500 dark:text-gray-400 text-sm max-w-sm mx-auto leading-relaxed;
+}
+
+/* Form Groups & Layout */
+.form-grid {
+  @apply grid grid-cols-1 md:grid-cols-2 gap-6 mb-6;
+}
+
+.form-group {
+  @apply space-y-2 mb-6;
+}
+
+.form-label {
+  @apply block text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400 ml-1;
+  font-family: var(--font-mono, "JetBrains Mono", monospace);
+}
+
+/* Inputs & Selects */
+.form-input,
+.form-select,
+.form-textarea {
+  @apply w-full px-5 py-3 rounded-xl border transition-all duration-300 outline-none sm:text-sm;
+  background-color: var(--input-bg);
+  border-color: var(--input-border);
+  color: var(--foreground);
+}
+
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+  @apply border-transparent;
+  box-shadow:
+    0 0 0 2px var(--brand-neon),
+    0 0 15px rgb(var(--brand-neon-rgb) / 0.3);
+  transform: translateY(-1px);
+}
+
+.form-textarea {
+  @apply resize-none;
+}
+
+.form-select {
+  @apply appearance-none cursor-pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='currentColor'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1.25rem center;
+  background-size: 1.25rem;
+}
+
+/* Feedback Styles */
+.feedback-container {
+  @apply flex flex-col items-center justify-center p-12 text-center min-h-[400px];
+}
+
+.feedback-icon-wrapper {
+  @apply mb-8 p-6 rounded-2xl relative overflow-hidden;
+  background: var(--icon-bg-solid, rgba(var(--brand-neon-rgb), 0.1));
+}
+
+.feedback-icon-wrapper::after {
+  content: "";
+  @apply absolute inset-0 animate-pulse-slow;
+  background: radial-gradient(circle, var(--brand-neon) 0%, transparent 70%);
+  opacity: 0.2;
+}
+
+.success-icon-wrapper {
+  color: var(--brand-neon);
+  box-shadow: 0 0 30px rgb(var(--brand-neon-rgb) / 0.2);
+}
+
+.error-container {
+  @apply flex items-center gap-4 p-4 rounded-xl mb-8 border animate-shake;
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+}
+
+.feedback-title {
+  @apply text-3xl font-black mb-4 uppercase tracking-tighter;
+  font-family: var(--font-mono, "JetBrains Mono", monospace);
+}
+
+.feedback-description {
+  @apply text-gray-500 dark:text-gray-400 mb-10 max-w-sm mx-auto leading-relaxed;
+}
+
+/* Submit Button Customization */
+.submit-button {
+  @apply w-full py-4 text-sm font-black uppercase tracking-widest rounded-xl transition-all duration-300 relative overflow-hidden;
+  font-family: var(--font-mono, "JetBrains Mono", monospace);
+}
+
+.submit-button::before {
+  content: "";
+  @apply absolute inset-0 opacity-0 transition-opacity duration-300;
+  background: linear-gradient(
+    45deg,
+    transparent,
+    rgba(255, 255, 255, 0.1),
+    transparent
+  );
+}
+
+.submit-button:hover::before {
+  @apply opacity-100;
+}
+
+.submit-button:disabled {
+  @apply opacity-50 cursor-not-allowed grayscale;
+}
+
+/* Neon Animations */
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-5px);
+  }
+  75% {
+    transform: translateX(5px);
+  }
+}
+
+.animate-shake {
+  animation: shake 0.4s ease-in-out;
+}
+
+@keyframes pulse-slow {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.2;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.4;
+  }
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 3s infinite ease-in-out;
+}
+
+/* Responsiveness */
+@media (max-width: 640px) {
+  .contact-card {
+    --card-padding: 1.5rem;
+    @apply rounded-none border-x-0;
+  }
+}

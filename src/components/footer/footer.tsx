@@ -15,6 +15,10 @@ export const Footer = component$(() => {
           <a href="/privacy-policy" class={styles.legalLink}>
             {t("footer.privacy_policy")}
           </a>
+          <span class="mx-2">•</span>
+          <a href="/contact" class={styles.legalLink}>
+            {t("contact.title")}
+          </a>
         </p>
         <p class={styles.credits}>
           {t("footer.developed_by")}
