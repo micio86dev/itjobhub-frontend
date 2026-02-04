@@ -29,6 +29,13 @@ The DevBoards.io frontend is a high-performance web application designed for dev
 
 ## Recent Changes
 
+### 2026-02-04: Contact Form Submission Fix
+
+- **Fixed "Cancelled" Requests**: Resolved an issue where contact form submissions were being cancelled by the browser due to an asynchronous `onSubmit$` trigger without explicit form prevention.
+- **Implemented `preventdefault:submit`**: Added the Qwik-native `preventdefault:submit` attribute to the contact form, ensuring the browser doesn't attempt a native POST submission while the asynchronous handler is processing.
+- **Improved UX Stability**: Confirmed that the form now successfully sends messages to the backend and displays the success feedback state without page reloads.
+- **Verification**: Validated with browser automation that submissions are successful and console errors like `TypeError: Failed to fetch` are resolved.
+
 ### 2026-02-03: Google Maps Location Autocomplete Fix
 
 - **Restored Autocomplete Functionality**: Fixed a long-standing issue where the Google Maps Places Autocomplete was non-functional in both the Job Search filter and User Profile.

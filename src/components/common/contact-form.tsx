@@ -97,7 +97,12 @@ export const ContactForm = component$(() => {
   }
 
   return (
-    <form onSubmit$={handleSubmit$} method="post" class="contact-card">
+    <form
+      preventdefault:submit
+      onSubmit$={handleSubmit$}
+      method="post"
+      class="contact-card"
+    >
       <div class="contact-header">
         <h1 class="contact-title">{t("contact.title")}</h1>
         <p class="contact-subtitle">{t("contact.subtitle")}</p>
