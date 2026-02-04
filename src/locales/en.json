@@ -412,7 +412,7 @@
   "contact.email": "Email",
   "contact.email_placeholder": "your@email.com",
   "contact.type": "Message Subject",
-  "contact.type.general": "General Contact / Other",
+  "contact.type.general": "General Contact",
   "contact.type.error": "Report a bug on the site",
   "contact.type.participation": "Development participation request",
   "contact.type.other": "Other",

@@ -122,9 +122,9 @@ test.describe('Comments System', () => {
                     await deleteBtn.click();
 
                     // Modal should appear
-                    const modal = page.locator(SELECTORS.modal);
+                    const modal = page.locator(SELECTORS.modal).first();
                     if (await modal.isVisible({ timeout: 2000 }).catch(() => false)) {
-                        await page.locator(SELECTORS.modalConfirm).click();
+                        await page.locator(SELECTORS.modalConfirm).first().click();
                     }
 
                     // Comment should disappear
@@ -153,9 +153,9 @@ test.describe('Comments System', () => {
                     const commentText = await firstComment.textContent();
                     await deleteBtn.click();
 
-                    const modal = page.locator(SELECTORS.modal);
+                    const modal = page.locator(SELECTORS.modal).first();
                     if (await modal.isVisible({ timeout: 2000 }).catch(() => false)) {
-                        await page.locator(SELECTORS.modalConfirm).click();
+                        await page.locator(SELECTORS.modalConfirm).first().click();
 
                         // Comment should be removed
                         await page.waitForTimeout(500);

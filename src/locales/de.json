@@ -398,7 +398,7 @@
   "contact.email": "E-Mail",
   "contact.email_placeholder": "ihre@email.com",
   "contact.type": "Betreff der Nachricht",
-  "contact.type.general": "Allgemeiner Kontakt / Sonstiges",
+  "contact.type.general": "Allgemeiner Kontakt",
   "contact.type.error": "Einen Fehler auf der Website melden",
   "contact.type.participation": "Anfrage zur Entwicklungsbeteiligung",
   "contact.type.other": "Andere",

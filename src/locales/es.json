@@ -403,7 +403,7 @@
   "contact.email": "Correo electrónico",
   "contact.email_placeholder": "tu@email.com",
   "contact.type": "Asunto del mensaje",
-  "contact.type.general": "Contacto general / Otro",
+  "contact.type.general": "Contacto general",
   "contact.type.error": "Informar de un error en el sitio",
   "contact.type.participation": "Solicitud de participación en el desarrollo",
   "contact.type.other": "Otro",

@@ -56,6 +56,7 @@ export const Modal = component$<ModalProps>(
             <div class="footer">
               <button
                 type="button"
+                data-testid="modal-confirm"
                 class={`btn-confirm ${
                   isDestructive ? "btn-destructive" : "btn-primary"
                 }`}
@@ -70,6 +71,7 @@ export const Modal = component$<ModalProps>(
 
               <button
                 type="button"
+                data-testid="modal-cancel"
                 class="btn-cancel"
                 onClick$={() => {
                   isOpen.value = false;

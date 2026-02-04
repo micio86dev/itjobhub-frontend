@@ -411,7 +411,7 @@
   "contact.email": "Email",
   "contact.email_placeholder": "la-tua@email.com",
   "contact.type": "Oggetto del messaggio",
-  "contact.type.general": "Contatto Generale / Altro",
+  "contact.type.general": "Contatto Generale",
   "contact.type.error": "Segnala un errore sul sito",
   "contact.type.participation": "Richiesta di partecipazione sviluppo",
   "contact.type.other": "Altro",

@@ -91,7 +91,7 @@ test.describe('Company User / Admin Job Posting', () => {
             await ensurePageReady(page);
 
             // Should either see stats or be on admin page
-            expect(page.url()).toMatch(/\/admin/);
+            expect(page.url()).toMatch(/\/admin\/stats/);
         });
     });
 });

@@ -245,7 +245,9 @@ export const UnifiedCommentsSection = component$<CommentsSectionProps>(
             </div>
           </div>
         ) : (
-          <AuthActionPrompt actionText={t(`comments.login_to_comment_${type}`)} />
+          <AuthActionPrompt
+            actionText={t(`comments.login_to_comment_${type}`)}
+          />
         )}
 
         <div class="comments-list">
@@ -286,9 +288,9 @@ export const UnifiedCommentsSection = component$<CommentsSectionProps>(
                         class="input-textarea"
                         value={state.editText}
                         onInput$={(e) =>
-                        (state.editText = (
-                          e.target as HTMLTextAreaElement
-                        ).value)
+                          (state.editText = (
+                            e.target as HTMLTextAreaElement
+                          ).value)
                         }
                         rows={3}
                       />
@@ -342,24 +344,24 @@ export const UnifiedCommentsSection = component$<CommentsSectionProps>(
 
                     {(auth.user?.id === comment.user_id ||
                       auth.user?.role === "admin") && (
-                        <>
-                          <button
-                            class="btn-action btn-reply"
-                            onClick$={() => {
-                              state.editingCommentId = comment.id;
-                              state.editText = comment.content;
-                            }}
-                          >
-                            {t("comments.edit")}
-                          </button>
-                          <button
-                            onClick$={() => openDeleteModal(comment.id)}
-                            class="btn-delete-comment"
-                          >
-                            {t("common.delete")}
-                          </button>
-                        </>
-                      )}
+                      <>
+                        <button
+                          class="btn-action btn-reply"
+                          onClick$={() => {
+                            state.editingCommentId = comment.id;
+                            state.editText = comment.content;
+                          }}
+                        >
+                          {t("comments.edit")}
+                        </button>
+                        <button
+                          onClick$={() => openDeleteModal(comment.id)}
+                          class="btn-delete-comment"
+                        >
+                          {t("common.delete")}
+                        </button>
+                      </>
+                    )}
                   </div>
 
                   {/* Reply Input */}
@@ -369,9 +371,9 @@ export const UnifiedCommentsSection = component$<CommentsSectionProps>(
                         <textarea
                           value={state.replyText}
                           onInput$={(e) =>
-                          (state.replyText = (
-                            e.target as HTMLTextAreaElement
-                          ).value)
+                            (state.replyText = (
+                              e.target as HTMLTextAreaElement
+                            ).value)
                           }
                           class="comment-textarea reply-textarea"
                           rows={1}
@@ -430,9 +432,9 @@ export const UnifiedCommentsSection = component$<CommentsSectionProps>(
                                   class="input-textarea"
                                   value={state.editText}
                                   onInput$={(e) =>
-                                  (state.editText = (
-                                    e.target as HTMLTextAreaElement
-                                  ).value)
+                                    (state.editText = (
+                                      e.target as HTMLTextAreaElement
+                                    ).value)
                                   }
                                   rows={2}
                                 />
@@ -463,26 +465,26 @@ export const UnifiedCommentsSection = component$<CommentsSectionProps>(
                                 <div class="comment-actions">
                                   {(auth.user?.id === reply.user_id ||
                                     auth.user?.role === "admin") && (
-                                      <>
-                                        <button
-                                          class="btn-action btn-reply"
-                                          onClick$={() => {
-                                            state.editingCommentId = reply.id;
-                                            state.editText = reply.content;
-                                          }}
-                                        >
-                                          {t("comments.edit")}
-                                        </button>
-                                        <button
-                                          onClick$={() =>
-                                            openDeleteModal(reply.id)
-                                          }
-                                          class="btn-delete-comment"
-                                        >
-                                          {t("common.delete")}
-                                        </button>
-                                      </>
-                                    )}
+                                    <>
+                                      <button
+                                        class="btn-action btn-reply"
+                                        onClick$={() => {
+                                          state.editingCommentId = reply.id;
+                                          state.editText = reply.content;
+                                        }}
+                                      >
+                                        {t("comments.edit")}
+                                      </button>
+                                      <button
+                                        onClick$={() =>
+                                          openDeleteModal(reply.id)
+                                        }
+                                        class="btn-delete-comment"
+                                      >
+                                        {t("common.delete")}
+                                      </button>
+                                    </>
+                                  )}
                                 </div>
                               </>
                             )}

@@ -130,10 +130,7 @@ export const JobHeader = component$<JobHeaderProps>((props) => {
           </a>
 
           {!isAuthenticated && (
-            <AuthActionPrompt
-              actionText={t("job.apply_login_required")}
-              containerClass="loginHint !mt-0 !bg-transparent !border-0 !p-0"
-            />
+            <AuthActionPrompt actionText={t("job.apply_login_required")} />
           )}
         </div>
       </div>

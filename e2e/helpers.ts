@@ -346,6 +346,25 @@ export async function verifyAuthState(
 }
 
 /**
+ * Ensure we are viewing "All Jobs" not "Personalized Feed"
+ */
+export async function ensureAllJobsView(page: Page): Promise<void> {
+  const personalizedBtn = page
+    .locator("button")
+    .filter({ hasText: /feed personalizzato|personalized/i })
+    .first();
+  if (await personalizedBtn.isVisible().catch(() => false)) {
+    await personalizedBtn.click();
+    await expect(
+      page
+        .locator("button")
+        .filter({ hasText: /tutti|all jobs/i })
+        .first(),
+    ).toBeVisible({ timeout: 5000 });
+  }
+}
+
+/**
  * Click first job card and go to detail page
  */
 export async function goToFirstJobDetail(page: Page): Promise<void> {
@@ -353,16 +372,9 @@ export async function goToFirstJobDetail(page: Page): Promise<void> {
   console.log("Navigating to /jobs...");
   await page.goto("/jobs");
   await ensurePageReady(page);
+  await ensureAllJobsView(page);
 
   const jobCardLink = page.locator(SELECTORS.jobCardLink).first();
-  const count = await jobCardLink.count();
-  console.log(`Job cards found: ${count}`);
-
-  if (count === 0) {
-    const content = await page.content();
-    console.log("Page content snippet:", content.substring(0, 1000));
-  }
-
   await expect(jobCardLink).toBeVisible({ timeout: 15000 });
   await jobCardLink.click();
 

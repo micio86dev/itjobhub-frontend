@@ -9,7 +9,7 @@ import { Footer } from "~/components/footer/footer";
 import logger from "~/utils/logger";
 
 export const useAuthLoader = routeLoader$(async ({ cookie, url, redirect }) => {
-  const token = cookie.get("auth_token")?.value;
+  let token = cookie.get("auth_token")?.value;
   const lang = cookie.get("preferred-language")?.value as SupportedLanguage;
 
   let user: User | null = null;
@@ -55,23 +55,41 @@ export const useAuthLoader = routeLoader$(async ({ cookie, url, redirect }) => {
       } else if (response.status === 401) {
         // Token is invalid or expired
         cookie.delete("auth_token", { path: "/" });
-        // Return null token to ensure proper logout state
-        return {
-          token: null,
-          user: null,
-          lang: lang || "it",
-        };
+        token = undefined; // Mark as invalid for subsequent checks
       }
     } catch (e) {
       logger.error({ e }, "[SSR] Failed to fetch user data");
     }
   }
 
-  // Enforce profile completion
-  if (user && !user.profileCompleted) {
-    const path = url.pathname;
-    const allowedPaths = ["/wizard", "/auth", "/privacy-policy"];
+  const path = url.pathname;
 
+  // --- Authentication Guards ---
+
+  // Helper to match route prefixes safely (e.g. /login matches /login and /login/ but not /login-foo)
+  const isMatch = (routes: string[]) =>
+    routes.some((r) => path === r || path.startsWith(r + "/"));
+
+  // 1. Guest-Only Routes (Redirect to / if logged in)
+  const guestRoutes = [
+    "/login",
+    "/register",
+    "/forgot-password",
+    "/reset-password",
+  ];
+  if (token && isMatch(guestRoutes)) {
+    throw redirect(302, "/");
+  }
+
+  // 2. Protected Routes (Redirect to /login if NOT logged in)
+  const protectedRoutes = ["/profile", "/favorites", "/wizard", "/admin"];
+  if (!token && isMatch(protectedRoutes)) {
+    throw redirect(302, `/login/?returnUrl=${encodeURIComponent(path)}`);
+  }
+
+  // 3. Profile Completion Guard (Redirect to /wizard if incomplete) - Exempt admins
+  if (user && user.role !== "admin" && !user.profileCompleted) {
+    const allowedPaths = ["/wizard", "/auth", "/privacy-policy"];
     const isAllowed = allowedPaths.some((p) => path.startsWith(p));
 
     if (!isAllowed) {

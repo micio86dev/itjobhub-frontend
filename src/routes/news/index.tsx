@@ -12,6 +12,7 @@ import {
   routeLoader$,
   useNavigate,
 } from "@builder.io/qwik-city";
+import { useAuth } from "~/contexts/auth";
 import { useTranslate, type SupportedLanguage } from "../../contexts/i18n";
 import { NewsList } from "../../components/news/news-list";
 import type { ApiNews } from "~/types/models";
@@ -51,11 +52,12 @@ const CATEGORIES = [
   { key: "Data Science", i18nKey: "news.category.datascience" },
 ];
 
-export const useNewsListLoader = routeLoader$(async ({ url, env }) => {
+export const useNewsListLoader = routeLoader$(async ({ url, env, cookie }) => {
   const category = url.searchParams.get("category") || "All";
   const page = 1;
   const limit = 12;
   const API_URL = env.get("PUBLIC_API_URL") || "http://127.0.0.1:3001";
+  const token = cookie.get("auth_token")?.value;
 
   const categoryParam = category !== "All" ? `&category=${category}` : "";
   const endpoint = `${API_URL}/news?page=${page}&limit=${limit}${categoryParam}`;
@@ -65,6 +67,7 @@ export const useNewsListLoader = routeLoader$(async ({ url, env }) => {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
     });
 
@@ -92,6 +95,7 @@ export default component$(() => {
   const loc = useLocation();
   const nav = useNavigate();
   const newsLoader = useNewsListLoader();
+  const auth = useAuth();
 
   const state = useStore({
     news: [] as ApiNews[],
@@ -124,7 +128,12 @@ export default component$(() => {
           : "";
       const endpoint = `${import.meta.env.PUBLIC_API_URL}/news?page=${page}&limit=12${categoryParam}`;
 
-      const res = await request(endpoint, { cache: "no-store" });
+      const res = await request(endpoint, {
+        cache: "no-store",
+        headers: {
+          ...(auth.token ? { Authorization: `Bearer ${auth.token}` } : {}),
+        },
+      });
       const data = await res.json();
 
       if (data.success) {

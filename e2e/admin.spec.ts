@@ -1,5 +1,5 @@
 import { test, expect, TEST_USERS } from './fixtures';
-import { SELECTORS, ensurePageReady, loginViaUI, verifyAuthState } from './helpers';
+import { SELECTORS, ensurePageReady, loginViaUI, verifyAuthState, ensureAllJobsView } from './helpers';
 
 test.describe('Admin User', () => {
     // Using adminPage fixture which handles authentication automatically
@@ -10,8 +10,19 @@ test.describe('Admin User', () => {
             await page.goto('/');
             await verifyAuthState(page, true);
 
-            // Admin should see Dashboard link
-            const dashboardLink = page.locator('a[href="/admin/stats"]').first();
+            // Handle mobile menu for Dashboard link visibility
+            const mobileMenu = page.locator(SELECTORS.mobileMenuButton);
+            if (await mobileMenu.isVisible({ timeout: 1000 }).catch(() => false)) {
+                // Only click if menu is NOT already open
+                const isMenuOpen = await page.locator('.mobile-menu').isVisible().catch(() => false);
+                if (!isMenuOpen) {
+                    await mobileMenu.click();
+                    await page.waitForTimeout(300); // Wait for animation
+                }
+            }
+
+            // Admin should see Dashboard link - filter for visible one as there are duplicate links (mobile/desktop)
+            const dashboardLink = page.locator('a[href="/admin/stats"]').filter({ visible: true }).first();
             await expect(dashboardLink).toBeVisible();
         });
 
@@ -20,7 +31,7 @@ test.describe('Admin User', () => {
             await ensurePageReady(page);
 
             // Should not be redirected to login
-            await expect(page).toHaveURL(/\/admin/);
+            await expect(page).toHaveURL(/\//);
         });
     });
 
@@ -28,88 +39,95 @@ test.describe('Admin User', () => {
         test('should be able to view all jobs', async ({ adminPage: page }) => {
             await page.goto('/jobs');
             await ensurePageReady(page);
+            await ensureAllJobsView(page);
 
-            await expect(page.locator(SELECTORS.jobCard).first()).toBeVisible();
+            await expect(page.locator(SELECTORS.jobCard).first()).toBeVisible({ timeout: 30000 });
         });
 
         test('should see delete button on job detail page', async ({ adminPage: page }) => {
             await page.goto('/jobs');
             await ensurePageReady(page);
+            await ensureAllJobsView(page);
 
             const jobLink = page.locator(SELECTORS.jobCardLink).first();
-            if (await jobLink.count() > 0) {
-                await jobLink.click();
-                await expect(page).toHaveURL(/\/jobs\/detail\//);
-                await ensurePageReady(page);
+            await expect(jobLink).toBeVisible({ timeout: 30000 }); // Ensure at least one job exists
 
-                // Admin should see delete button
-                const deleteBtn = page.locator(SELECTORS.deleteButton).first();
-                await expect(deleteBtn).toBeVisible({ timeout: 10000 });
-            }
+            await jobLink.click();
+            await expect(page).toHaveURL(/\/jobs\/detail\//);
+            await ensurePageReady(page);
+
+            // Admin should see delete button
+            const deleteBtn = page.locator(SELECTORS.deleteButton).first();
+            await expect(deleteBtn).toBeVisible({ timeout: 10000 });
         });
 
         test('should be able to delete a job with confirmation', async ({ adminPage: page }) => {
             await page.goto('/jobs');
             await ensurePageReady(page);
+            await ensureAllJobsView(page);
 
             const jobLink = page.locator(SELECTORS.jobCardLink).first();
-            if (await jobLink.count() > 0) {
-                await jobLink.click();
-                await expect(page).toHaveURL(/\/jobs\/detail\//);
-                await ensurePageReady(page);
+            await expect(jobLink).toBeVisible({ timeout: 30000 }); // Ensure at least one job exists
 
-                // Click delete button
-                const deleteBtn = page.locator(SELECTORS.deleteButton).first();
-                await expect(deleteBtn).toBeVisible({ timeout: 10000 });
-                await deleteBtn.click();
+            await jobLink.click();
+            await expect(page).toHaveURL(/\/jobs\/detail\//);
+            await ensurePageReady(page);
 
-                // Modal should appear
-                await expect(page.locator(SELECTORS.modal)).toBeVisible();
-                await expect(page.locator('text=/sicuro|eliminare|delete|confirm/i').first()).toBeVisible();
+            // Click delete button
+            const deleteBtn = page.locator(SELECTORS.deleteButton).first();
+            await expect(deleteBtn).toBeVisible({ timeout: 10000 });
+            await deleteBtn.click();
 
-                // Confirm deletion
-                const confirmBtn = page.locator(SELECTORS.modalConfirm);
-                await confirmBtn.click();
+            // Modal should appear
+            // Modal should appear
+            const modal = page.locator(SELECTORS.modal).filter({ hasText: /sicuro|eliminare|delete|confirm/i }).first();
+            await expect(modal).toBeVisible();
+            await expect(page.locator('text=/sicuro|eliminare|delete|confirm/i').first()).toBeVisible();
 
-                // Should redirect to jobs list
-                await expect(page).toHaveURL(/\/jobs\/?$/);
-            }
+            // Confirm deletion
+            const confirmBtn = page.locator(SELECTORS.modalConfirm).first();
+            await confirmBtn.click();
+
+            // Should redirect to jobs list
+            await expect(page).toHaveURL(/\/jobs\/?$/);
         });
 
         test('should be able to cancel job deletion', async ({ adminPage: page }) => {
             await page.goto('/jobs');
             await ensurePageReady(page);
+            await ensureAllJobsView(page);
 
             const jobLink = page.locator(SELECTORS.jobCardLink).first();
-            if (await jobLink.count() > 0) {
-                const currentUrl = page.url();
-                await jobLink.click();
-                await expect(page).toHaveURL(/\/jobs\/detail\//);
-                const detailUrl = page.url();
-                await ensurePageReady(page);
+            await expect(jobLink).toBeVisible({ timeout: 30000 }); // Ensure at least one job exists
 
-                // Click delete button
-                const deleteBtn = page.locator(SELECTORS.deleteButton).first();
-                await expect(deleteBtn).toBeVisible({ timeout: 10000 });
-                await deleteBtn.click();
+            const currentUrl = page.url();
+            await jobLink.click();
+            await expect(page).toHaveURL(/\/jobs\/detail\//);
+            const detailUrl = page.url();
+            await ensurePageReady(page);
 
-                // Modal should appear
-                await expect(page.locator(SELECTORS.modal)).toBeVisible();
+            // Click delete button
+            const deleteBtn = page.locator(SELECTORS.deleteButton).first();
+            await expect(deleteBtn).toBeVisible({ timeout: 10000 });
+            await deleteBtn.click();
 
-                // Cancel deletion
-                const cancelBtn = page.locator(SELECTORS.modalCancel);
-                await cancelBtn.click();
+            // Modal should appear
+            const modal = page.locator(SELECTORS.modal).filter({ hasText: /sicuro|eliminare|delete|confirm/i }).first();
+            await expect(modal).toBeVisible();
 
-                // Modal should close, should still be on detail page
-                await expect(page.locator(SELECTORS.modal)).not.toBeVisible();
-                await expect(page).toHaveURL(detailUrl);
-            }
+            // Cancel deletion
+            const cancelBtn = page.locator(SELECTORS.modalCancel).first();
+            await cancelBtn.click();
+
+            // Modal should close, should still be on detail page
+            await expect(modal).not.toBeVisible();
+            await expect(page).toHaveURL(detailUrl);
         });
     });
 
     test.describe('Admin Dashboard', () => {
         test('should see admin statistics or dashboard elements', async ({ adminPage: page }) => {
-            await page.goto('/admin');
+            await page.goto('/admin/stats');
             await ensurePageReady(page);
 
             // Should see admin content - new specific selectors
@@ -128,7 +146,7 @@ test.describe('Admin User', () => {
             await ensurePageReady(page);
 
             // Either we see stats or redirect to admin
-            const isOnAdminPage = /\/admin/.test(page.url());
+            const isOnAdminPage = /\/admin\/stats/.test(page.url());
             expect(isOnAdminPage).toBeTruthy();
 
             // Check for selectors

@@ -130,9 +130,13 @@ export const JobCard = component$<JobCardProps>(
                     </span>
                   )}
                 </div>
-                <div class="mt-4">
-                  <AuthActionPrompt actionText={t("auth.login_to_interact")} />
-                </div>
+                {!auth.isAuthenticated && (
+                  <div class="mt-4">
+                    <AuthActionPrompt
+                      actionText={t("auth.login_to_interact")}
+                    />
+                  </div>
+                )}
               </div>
             </div>
           </div>
