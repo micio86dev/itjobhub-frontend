@@ -228,12 +228,12 @@ export async function resetUserReactions(
   jobId: string,
 ): Promise<void> {
   // Remove like
-  await context.request.delete(`${API_BASE}/likes?job_id=${jobId}&type=like`, {
+  await context.request.delete(`${API_BASE}/likes?jobId=${jobId}&type=LIKE`, {
     headers: { Authorization: `Bearer ${token}` },
   });
   // Remove dislike
   await context.request.delete(
-    `${API_BASE}/likes?job_id=${jobId}&type=dislike`,
+    `${API_BASE}/likes?jobId=${jobId}&type=DISLIKE`,
     {
       headers: { Authorization: `Bearer ${token}` },
     },

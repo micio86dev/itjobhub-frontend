@@ -45,11 +45,9 @@ test.describe('Social Attribution & Authentication', () => {
         await page.route('**/auth/oauth/**', async (route) => {
             console.log(`[E2E] Intercepted OAuth request, fulfilling with redirect to ${origin}/login?error=OAuth-Failed-Test-Nuclear`);
             await route.fulfill({
-                status: 302,
-                headers: {
-                    'location': `${origin}/login?error=OAuth-Failed-Test-Nuclear`,
-                    'access-control-allow-origin': '*'
-                }
+                status: 200,
+                contentType: 'text/html',
+                body: `<html><body><script>window.location.href = "${origin}/login?error=OAuth-Failed-Test-Nuclear";</script></body></html>`
             });
         });
 

@@ -230,6 +230,7 @@ export const UnifiedCommentsSection = component$<CommentsSectionProps>(
                   (state.commentText = (e.target as HTMLTextAreaElement).value)
                 }
                 class="comment-textarea"
+                data-testid="comment-input"
                 placeholder={t("comments.placeholder_add")}
                 rows={2}
               />
@@ -237,6 +238,7 @@ export const UnifiedCommentsSection = component$<CommentsSectionProps>(
                 <button
                   onClick$={() => handleAdd(null)}
                   class="btn-primary btn-sm btn-submit-comment"
+                  data-testid="comment-submit"
                   disabled={!state.commentText.trim() || state.isSubmitting}
                 >
                   {state.isSubmitting ? <Spinner /> : t("comments.submit")}
@@ -250,7 +252,11 @@ export const UnifiedCommentsSection = component$<CommentsSectionProps>(
 
         <div class="comments-list">
           {state.comments.map((comment) => (
-            <div key={comment.id} class="comment-thread">
+            <div
+              key={comment.id}
+              class="comment-thread"
+              data-testid="comment-item"
+            >
               <div class="comment-item">
                 <div class="comment-avatar">
                   {comment.user.avatar ? (
@@ -284,6 +290,7 @@ export const UnifiedCommentsSection = component$<CommentsSectionProps>(
                     <div class="edit-comment-container">
                       <textarea
                         class="input-textarea"
+                        data-testid="comment-edit-input"
                         value={state.editText}
                         onInput$={(e) =>
                           (state.editText = (
@@ -349,12 +356,14 @@ export const UnifiedCommentsSection = component$<CommentsSectionProps>(
                             state.editingCommentId = comment.id;
                             state.editText = comment.content;
                           }}
+                          data-testid="comment-edit"
                         >
                           {t("comments.edit")}
                         </button>
                         <button
                           onClick$={() => openDeleteModal(comment.id)}
                           class="btn-delete-comment"
+                          data-testid="comment-delete"
                         >
                           {t("common.delete")}
                         </button>

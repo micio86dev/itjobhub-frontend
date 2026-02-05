@@ -1,5 +1,5 @@
-import { test, expect, TEST_USERS } from './fixtures';
-import { SELECTORS, ensurePageReady, loginViaUI, goToFirstJobDetail } from './helpers';
+import { test, expect } from './fixtures';
+import { SELECTORS, ensurePageReady, goToFirstJobDetail } from './helpers';
 
 test.describe('Comments System', () => {
     test.describe('As Guest', () => {
@@ -8,7 +8,7 @@ test.describe('Comments System', () => {
 
             // Should see comments section header
             const commentsSection = page.locator('text=/commenti|comments/i').first();
-            if (await commentsSection.isVisible({ timeout: 3000 }).catch(() => false)) {
+            if (await commentsSection.isVisible({ timeout: 5000 }).catch(() => false)) {
                 await expect(commentsSection).toBeVisible();
 
                 // Comment input should not be visible for guests
@@ -17,9 +17,8 @@ test.describe('Comments System', () => {
 
                 // Either input is hidden or there's a login prompt
                 if (isInputVisible) {
-                    // Some UIs show disabled input with login prompt
                     const loginPrompt = page.locator('text=/accedi|login.*commentare/i');
-                    await expect(loginPrompt).toBeVisible({ timeout: 2000 }).catch(() => { });
+                    await expect(loginPrompt).toBeVisible({ timeout: 3000 }).catch(() => { });
                 }
             }
         });
@@ -29,139 +28,132 @@ test.describe('Comments System', () => {
 
             const comments = page.locator(SELECTORS.commentItem);
             const count = await comments.count();
-
-            // Should be able to view comments (might be 0)
             expect(count).toBeGreaterThanOrEqual(0);
         });
     });
 
     test.describe('As Logged In User', () => {
-        test.beforeEach(async ({ page }) => {
-            page.on('console', msg => {
-                if (msg.type() === 'error') console.log(`[Browser Error] ${msg.text()}`);
-            });
-            page.on('pageerror', err => {
-                console.log(`[Page Error] ${err.message}`);
-            });
-            await loginViaUI(page, TEST_USERS.user.email, TEST_USERS.user.password);
-        });
-
-        test('should see comment input field', async ({ page }) => {
+        test('should see comment input field', async ({ userPage: page }) => {
             await goToFirstJobDetail(page);
 
             const commentInput = page.locator(SELECTORS.commentInput);
-            if (await commentInput.isVisible({ timeout: 5000 }).catch(() => false)) {
-                await expect(commentInput).toBeVisible();
-                await expect(commentInput).toBeEnabled();
-            }
+            await expect(commentInput).toBeVisible({ timeout: 10000 });
+            await expect(commentInput).toBeEnabled();
         });
 
-        test('should be able to add a comment', async ({ page }) => {
+        test('should be able to add a comment', async ({ userPage: page }) => {
             await goToFirstJobDetail(page);
 
             const commentInput = page.locator(SELECTORS.commentInput);
+            await expect(commentInput).toBeVisible({ timeout: 10000 });
+
             const submitBtn = page.locator(SELECTORS.commentSubmit);
 
-            if (await commentInput.isVisible({ timeout: 3000 }).catch(() => false)) {
-                const testComment = `E2E Test Comment ${Date.now()}`;
-                await commentInput.fill(testComment);
-                await submitBtn.click();
+            const testComment = `E2E Test Comment ${Date.now()}`;
+            await commentInput.fill(testComment);
 
-                // Wait for API response
-                await page.waitForResponse(
-                    (response) => response.url().includes('/comments') && response.request().method() === 'POST',
-                    { timeout: 5000 }
-                ).catch(() => null);
+            await submitBtn.scrollIntoViewIfNeeded();
+            await submitBtn.click({ force: true });
 
-                // New comment should appear
-                await expect(page.locator(`text="${testComment}"`).first()).toBeVisible({
-                    timeout: 5000,
-                });
-            }
+            // Wait for API response
+            await page.waitForResponse(
+                (response) => response.url().includes('/comments') && response.request().method() === 'POST',
+                { timeout: 7000 }
+            ).catch(() => null);
+
+            // New comment should appear
+            await expect(page.locator(`text="${testComment}"`).first()).toBeVisible({
+                timeout: 7000,
+            });
         });
 
-        test('should not allow empty comment submission', async ({ page }) => {
+        test('should not allow empty comment submission', async ({ userPage: page }) => {
             await goToFirstJobDetail(page);
 
             const commentInput = page.locator(SELECTORS.commentInput);
+            await expect(commentInput).toBeVisible({ timeout: 10000 });
+
             const submitBtn = page.locator(SELECTORS.commentSubmit);
 
-            if (await commentInput.isVisible({ timeout: 3000 }).catch(() => false)) {
-                await commentInput.fill('');
+            await commentInput.fill('');
 
-                // Button should be disabled or clicking should show error
-                const isDisabled = await submitBtn.isDisabled();
-                if (!isDisabled) {
-                    await submitBtn.click();
-                    // Should show error or not submit
-                }
+            const isDisabled = await submitBtn.getAttribute('disabled') !== null;
+            if (!isDisabled) {
+                await submitBtn.click({ force: true });
             }
         });
 
-        test('should be able to delete own comment', async ({ page }) => {
+        test('should be able to delete own comment', async ({ userPage: page }) => {
             await goToFirstJobDetail(page);
 
             const commentInput = page.locator(SELECTORS.commentInput);
+            await expect(commentInput).toBeVisible({ timeout: 10000 });
 
-            if (await commentInput.isVisible({ timeout: 3000 }).catch(() => false)) {
-                // First add a comment
-                const testComment = `Delete Test ${Date.now()}`;
-                await commentInput.fill(testComment);
-                await page.locator(SELECTORS.commentSubmit).click();
+            // First add a comment
+            const testComment = `Delete Test ${Date.now()}`;
+            await commentInput.fill(testComment);
+            await page.locator(SELECTORS.commentSubmit).click({ force: true });
 
-                // Wait for it to appear
-                await expect(page.locator(`text="${testComment}"`).first()).toBeVisible({
-                    timeout: 5000,
-                });
+            await expect(page.locator(`text="${testComment}"`).first()).toBeVisible({
+                timeout: 7000,
+            });
 
-                // Find and click delete button
-                const commentItem = page.locator(SELECTORS.commentItem).filter({ hasText: testComment });
-                const deleteBtn = commentItem.locator(SELECTORS.commentDelete);
+            // Find and click delete button
+            const commentItem = page.locator(SELECTORS.commentItem).filter({ hasText: testComment });
+            const deleteBtn = commentItem.locator(SELECTORS.commentDelete);
 
-                if (await deleteBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
-                    await deleteBtn.click();
+            await deleteBtn.scrollIntoViewIfNeeded();
+            await deleteBtn.click({ force: true });
 
-                    // Modal should appear
-                    const modal = page.locator(SELECTORS.modal).first();
-                    if (await modal.isVisible({ timeout: 2000 }).catch(() => false)) {
-                        await page.locator(SELECTORS.modalConfirm).first().click();
-                    }
+            // Modal should appear
+            const modal = page.locator(SELECTORS.modal).first();
+            await expect(modal).toBeVisible({ timeout: 5000 });
 
-                    // Comment should disappear
-                    await expect(page.locator(`text="${testComment}"`).first()).not.toBeVisible({
-                        timeout: 5000,
-                    });
-                }
-            }
+            await page.locator(SELECTORS.modalConfirm).first().click({ force: true });
+
+            // Comment should disappear
+            await expect(page.locator(`text="${testComment}"`).first()).not.toBeVisible({
+                timeout: 7000,
+            });
         });
     });
 
     test.describe('As Admin', () => {
-        test.beforeEach(async ({ page }) => {
-            await loginViaUI(page, TEST_USERS.admin.email, TEST_USERS.admin.password);
-        });
-
-        test('should be able to delete any comment', async ({ page }) => {
+        test('should be able to delete any comment', async ({ adminPage: page }) => {
             await goToFirstJobDetail(page);
 
             const comments = page.locator(SELECTORS.commentItem);
+
+            // If no comments, add one first to be sure
+            if (await comments.count() === 0) {
+                const commentInput = page.locator(SELECTORS.commentInput);
+                if (await commentInput.isVisible({ timeout: 5000 }).catch(() => false)) {
+                    await commentInput.fill('Admin cleanup test');
+                    await page.locator(SELECTORS.commentSubmit).click({ force: true });
+                    await page.waitForTimeout(1000);
+                }
+            }
+
             if (await comments.count() > 0) {
                 const firstComment = comments.first();
                 const deleteBtn = firstComment.locator(SELECTORS.commentDelete);
 
-                if (await deleteBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
-                    const commentText = await firstComment.textContent();
-                    await deleteBtn.click();
+                // Get some text to verify deletion
+                const commentText = (await firstComment.textContent())?.substring(0, 20);
 
-                    const modal = page.locator(SELECTORS.modal).first();
-                    if (await modal.isVisible({ timeout: 2000 }).catch(() => false)) {
-                        await page.locator(SELECTORS.modalConfirm).first().click();
+                await deleteBtn.scrollIntoViewIfNeeded();
+                await deleteBtn.click({ force: true });
 
-                        // Comment should be removed
-                        await page.waitForTimeout(500);
-                        const stillExists = await page.locator(`text="${commentText}"`).isVisible({ timeout: 1000 }).catch(() => false);
-                        expect(stillExists).toBeFalsy();
-                    }
+                const modal = page.locator(SELECTORS.modal).first();
+                await expect(modal).toBeVisible({ timeout: 5000 });
+
+                await page.locator(SELECTORS.modalConfirm).first().click({ force: true });
+
+                // Comment should be removed
+                await page.waitForTimeout(1000);
+                if (commentText) {
+                    const stillExists = await page.locator(`text="${commentText}"`).isVisible({ timeout: 2000 }).catch(() => false);
+                    expect(stillExists).toBeFalsy();
                 }
             }
         });
