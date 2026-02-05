@@ -63,6 +63,9 @@ export default component$(() => {
     provider: "",
   });
 
+  const urlError = loc.url.searchParams.get("error") || "";
+  const displayError = form.error || urlError;
+
   // Watch for login results
   useTask$(({ track }) => {
     const result = track(() => auth.loginResult.value);
@@ -185,7 +188,11 @@ export default component$(() => {
             </div>
           </div>
 
-          {form.error && <div class="errorMessage">{form.error}</div>}
+          {displayError && (
+            <div class="errorMessage" data-testid="login-error-message">
+              {displayError}
+            </div>
+          )}
 
           <div>
             <button

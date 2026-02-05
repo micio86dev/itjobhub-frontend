@@ -1,5 +1,6 @@
 import {
   component$,
+  useTask$,
   useStylesScoped$,
   Slot,
   useSignal,
@@ -30,6 +31,14 @@ export const ReactionButtons = component$<ReactionButtonsProps>((props) => {
   const localLikes = useSignal(props.likes);
   const localDislikes = useSignal(props.dislikes);
   const localReaction = useSignal(props.userReaction);
+
+  // Sync with props when entityId changes
+  useTask$(({ track }) => {
+    track(() => props.entityId);
+    localLikes.value = props.likes;
+    localDislikes.value = props.dislikes;
+    localReaction.value = props.userReaction;
+  });
 
   const { onReactionChange$ } = props;
 

@@ -26,12 +26,29 @@ export const ThemeContext = createContextId<ThemeContextValue>("theme-context");
 
 // Define QRLs outside to ensure stability
 const toggleThemeQrl = $((context: ThemeContextValue) => {
-  context.themeState.theme =
-    context.themeState.theme === "light" ? "dark" : "light";
+  let currentTheme = context.themeState.theme;
+
+  // Nuclear resilience: use DOM as source of truth if in browser to handle hydration sync issues
+  if (isBrowser) {
+    const isDarkDom = document.documentElement.classList.contains("dark");
+    currentTheme = isDarkDom ? "dark" : "light";
+  }
+
+  const newTheme = currentTheme === "light" ? "dark" : "light";
+  context.themeState.theme = newTheme;
+
+  if (isBrowser) {
+    localStorage.setItem("theme", newTheme);
+    document.documentElement.classList.toggle("dark", newTheme === "dark");
+  }
 });
 
 const setThemeQrl = $((context: ThemeContextValue, theme: Theme) => {
   context.themeState.theme = theme;
+  if (isBrowser) {
+    localStorage.setItem("theme", theme);
+    document.documentElement.classList.toggle("dark", theme === "dark");
+  }
 });
 
 export const useTheme = () => {
@@ -65,7 +82,6 @@ export const ThemeProvider = component$(() => {
 
   // Handle Syncing Store -> Client DOM
   // This ensures that whenever themeState.theme changes, the DOM updates.
-  // We use useVisibleTask$ because this is a side effect on the DOM.
   useTask$(({ track }) => {
     const theme = track(() => themeState.theme);
 

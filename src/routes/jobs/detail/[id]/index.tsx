@@ -15,7 +15,7 @@ import { request } from "~/utils/api";
 import logger from "~/utils/logger";
 import { useJobs, type JobListing } from "~/contexts/jobs";
 import type { MatchScore } from "~/types/models";
-import { useTranslate } from "~/contexts/i18n";
+import { useI18n, translate } from "~/contexts/i18n";
 import { useAuth } from "~/contexts/auth";
 import { UnifiedCommentsSection } from "~/components/ui/comments-section";
 import { MatchBreakdown } from "~/components/jobs/match-breakdown";
@@ -34,7 +34,7 @@ export default component$(() => {
   const loc = useLocation();
   const jobsContext = useJobs();
   const auth = useAuth();
-  const t = useTranslate();
+  const i18n = useI18n();
   const nav = useNavigate();
   const API_URL = import.meta.env.PUBLIC_API_URL || "http://127.0.0.1:3001";
 
@@ -96,6 +96,7 @@ export default component$(() => {
       jobsContext.trackJobInteraction$(state.job.id, "APPLY");
       // Optimistic local update
       state.job.clicks_count = (state.job.clicks_count || 0) + 1;
+      alert(translate("jobs.apply_success", i18n.currentLanguage));
     }
   });
 
@@ -149,7 +150,7 @@ export default component$(() => {
         >
           <path d="m15 18-6-6 6-6" />
         </svg>
-        <span>{t("job.back_to_search")}</span>
+        <span>{translate("job.back_to_search", i18n.currentLanguage)}</span>
       </Link>
 
       <Resource
@@ -165,10 +166,14 @@ export default component$(() => {
             return (
               <div class="notFoundCard">
                 <div class="notFoundIcon">🔍</div>
-                <h2 class="notFoundTitle">{t("job.not_found")}</h2>
-                <p class="notFoundDesc">{t("job.not_found_description")}</p>
+                <h2 class="notFoundTitle">
+                  {translate("job.not_found", i18n.currentLanguage)}
+                </h2>
+                <p class="notFoundDesc">
+                  {translate("job.not_found_description", i18n.currentLanguage)}
+                </p>
                 <Link href="/jobs" class="notFoundButton">
-                  {t("job.back_to_search")}
+                  {translate("job.back_to_search", i18n.currentLanguage)}
                 </Link>
               </div>
             );
@@ -221,20 +226,34 @@ export default component$(() => {
                         onClick$={$(() => (showDeleteModal.value = true))}
                         class="hover:bg-red-50 px-4 py-2 border border-red-200 rounded font-bold text-red-600"
                       >
-                        {t("job.delete")}
+                        {translate("job.delete", i18n.currentLanguage)}
                       </button>
 
                       {showDeleteModal.value && (
                         <Modal
-                          title={t("job.confirm_delete_title")}
+                          title={translate(
+                            "job.confirm_delete_title",
+                            i18n.currentLanguage,
+                          )}
                           isOpen={showDeleteModal}
                           onConfirm$={handleDeleteJob}
                           isDestructive={true}
                           isLoading={state.isDeleting}
-                          confirmText={t("job.delete")}
-                          cancelText={t("common.cancel")}
+                          confirmText={translate(
+                            "job.delete",
+                            i18n.currentLanguage,
+                          )}
+                          cancelText={translate(
+                            "common.cancel",
+                            i18n.currentLanguage,
+                          )}
                         >
-                          <p>{t("job.confirm_delete_msg")}</p>
+                          <p>
+                            {translate(
+                              "job.confirm_delete_msg",
+                              i18n.currentLanguage,
+                            )}
+                          </p>
                         </Modal>
                       )}
                     </>

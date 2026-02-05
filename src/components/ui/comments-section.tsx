@@ -245,9 +245,7 @@ export const UnifiedCommentsSection = component$<CommentsSectionProps>(
             </div>
           </div>
         ) : (
-          <AuthActionPrompt
-            actionText={t(`comments.login_to_comment_${type}`)}
-          />
+          <AuthActionPrompt />
         )}
 
         <div class="comments-list">

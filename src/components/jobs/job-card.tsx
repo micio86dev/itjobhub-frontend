@@ -132,9 +132,7 @@ export const JobCard = component$<JobCardProps>(
                 </div>
                 {!auth.isAuthenticated && (
                   <div class="mt-4">
-                    <AuthActionPrompt
-                      actionText={t("auth.login_to_interact")}
-                    />
+                    <AuthActionPrompt />
                   </div>
                 )}
               </div>
@@ -346,9 +344,7 @@ export const JobCard = component$<JobCardProps>(
         </div>
 
         {/* Login prompt for non-authenticated users */}
-        {!auth.isAuthenticated && (
-          <AuthActionPrompt actionText={t("auth.login_to_interact")} />
-        )}
+        {!auth.isAuthenticated && <AuthActionPrompt />}
 
         {/* Unified Comments Section */}
         {showComments && (

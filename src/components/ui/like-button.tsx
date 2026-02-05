@@ -82,15 +82,17 @@ export const LikeButton = component$<LikeButtonProps>((props) => {
   });
 
   // ✅ FIX: Sync with props using useTask$ instead of in render
+  // Resets when entity changes or when props change and NOT in optimistic state
   useTask$(({ track }) => {
-    track(() => props.active);
-    track(() => props.count);
-    track(() => isOptimistic.value);
+    track(() => props.entityId);
 
-    // Only sync when not in optimistic state
+    // Also track props to pick up changes from parent (e.g. initial load or refetch)
+    const pActive = track(() => props.active);
+    const pCount = track(() => props.count);
+
     if (!isOptimistic.value) {
-      localActive.value = props.active;
-      localCount.value = props.count;
+      localActive.value = pActive;
+      localCount.value = pCount;
     }
   });
 

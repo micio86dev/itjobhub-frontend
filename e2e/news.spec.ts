@@ -137,7 +137,7 @@ test.describe("News Feature", () => {
         console.log("Delete button clicked");
 
         // Modal should appear
-        const modal = adminPage.locator('[role="dialog"]');
+        const modal = adminPage.locator('[role="dialog"]').filter({ hasText: /conferma|confirm/i }).first();
         await expect(modal).toBeVisible({ timeout: 5000 });
         console.log("Modal visible");
 
@@ -145,7 +145,7 @@ test.describe("News Feature", () => {
         await adminPage.waitForTimeout(500);
 
         // Confirm
-        const confirmBtn = adminPage.getByTestId("modal-confirm");
+        const confirmBtn = modal.getByTestId("modal-confirm");
         await confirmBtn.click();
         console.log("Confirm button clicked");
 

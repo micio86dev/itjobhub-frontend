@@ -1,5 +1,4 @@
 import { component$, $, useStore, useStyles$ } from "@builder.io/qwik";
-import logger from "../../utils/logger";
 import { Link } from "@builder.io/qwik-city";
 import { useAuth } from "~/contexts/auth";
 import { useI18n, useTranslate, type SupportedLanguage } from "~/contexts/i18n";
@@ -40,11 +39,8 @@ export const Navigation = component$(() => {
   });
 
   const selectLanguage = $((lang: SupportedLanguage) => {
-    logger.info({ lang }, "selectLanguage called");
-    logger.info({ currentLanguage }, "Current language before change");
     // Trigger language change through signal
     setLanguageSignal.value = { language: lang };
-    logger.info({ language: lang }, "Signal set");
     state.showLanguageDropdown = false;
   });
 
@@ -101,6 +97,7 @@ export const Navigation = component$(() => {
               onClick$={theme.toggleTheme}
               class="theme-toggle"
               aria-label="Toggle theme"
+              data-testid="theme-toggle"
             >
               {theme.theme === "light" ? (
                 <svg
@@ -162,6 +159,7 @@ export const Navigation = component$(() => {
                       <button
                         key={lang.code}
                         onClick$={$(() => selectLanguage(lang.code))}
+                        data-testid={`lang-select-${lang.code}`}
                         class={`lang-dropdown-item ${
                           lang.code === currentLanguage
                             ? "lang-dropdown-item-active"

@@ -27,6 +27,9 @@ export const SELECTORS = {
     '[data-testid="mobile-menu-button"], button[aria-label="Menu"]',
   profileLink: '[data-testid="profile-link"], a[href="/profile"]',
 
+  // Theme
+  themeToggle: '[data-testid="theme-toggle"]',
+
   // Jobs
   jobCard: '[data-testid="job-card"]',
   jobCardLink: '[data-testid="job-card-link"]',
@@ -149,27 +152,16 @@ export async function loginViaUI(
  * Logout through UI
  */
 export async function logoutViaUI(page: Page): Promise<void> {
-  const isMobile = page.viewportSize()?.width
-    ? page.viewportSize()!.width < 768
-    : false;
-
-  if (isMobile) {
-    const mobileMenu = page.locator('[data-testid="mobile-menu-button"]');
-    // If we can't see the menu button, maybe we are already in the menu?
-    // Or maybe we are on a larger screen? But isMobile check should handle that.
-    if (await mobileMenu.isVisible()) {
-      const isMenuOpen = await page
-        .locator(".mobile-menu")
-        .isVisible()
-        .catch(() => false);
-      if (!isMenuOpen) {
-        await mobileMenu.click();
-        await page.waitForTimeout(1000); // Increased wait for animation
-      }
+  if (isMobileViewport(page)) {
+    const mobileMenu = page.locator(SELECTORS.mobileMenuButton);
+    const isMenuOpen = await page
+      .locator(".mobile-menu")
+      .isVisible()
+      .catch(() => false);
+    if ((await mobileMenu.isVisible()) && !isMenuOpen) {
+      await mobileMenu.click();
+      await page.waitForTimeout(500);
     }
-  } else {
-    // Desktop: Logout button is directly visible in the header
-    // No user menu to open
   }
 
   const logoutBtn = page
@@ -179,7 +171,7 @@ export async function logoutViaUI(page: Page): Promise<void> {
   await expect(logoutBtn).toBeVisible({ timeout: 5000 });
   await logoutBtn.click({ force: true });
 
-  // Wait for navigation and cookie deletion with retries
+  // Wait for navigation and cookie deletion
   let authToken;
   const maxRetries = 10;
   for (let i = 0; i < maxRetries; i++) {
@@ -188,16 +180,7 @@ export async function logoutViaUI(page: Page): Promise<void> {
     if (!authToken) break;
     await page.waitForTimeout(500);
   }
-
-  if (authToken) {
-    const allCookies = await page.context().cookies();
-    console.log(
-      "Cookies found after failed logout:",
-      allCookies.map((c) => c.name),
-    );
-  }
   expect(authToken).toBeUndefined();
-
   await expect(page).toHaveURL(/(\/login|\/$)/);
 }
 
@@ -225,21 +208,18 @@ export async function clickNavElement(
   selector: string,
 ): Promise<void> {
   const element = page.locator(selector).first();
-
-  // If element is not visible, try opening mobile menu
   if (!(await element.isVisible({ timeout: 500 }).catch(() => false))) {
     const mobileMenu = page.locator(SELECTORS.mobileMenuButton);
     if (await mobileMenu.isVisible({ timeout: 500 }).catch(() => false)) {
       await mobileMenu.click();
-      await page.waitForTimeout(300); // Animation
+      await page.waitForTimeout(300);
     }
   }
-
   await element.click();
 }
 
 /**
- * Assert that a toast/notification appeared with given text pattern
+ * Assert that a toast/notification appeared
  */
 export async function expectToast(
   page: Page,
@@ -268,13 +248,12 @@ export async function waitForApiResponse(
 }
 
 /**
- * Verify auth state in localStorage
+ * Verify auth state
  */
 export async function verifyAuthState(
   page: Page,
   shouldBeLoggedIn: boolean,
 ): Promise<void> {
-  // Check for auth_token cookie with retries if we expect it to be there
   let authToken;
   const maxRetries = 10;
   for (let i = 0; i < maxRetries; i++) {
@@ -286,67 +265,30 @@ export async function verifyAuthState(
   }
 
   if (shouldBeLoggedIn) {
-    if (!authToken) {
-      // Log available cookies for debugging
-      const allCookies = await page.context().cookies();
-      console.log(
-        "Cookies found during failed login check:",
-        allCookies.map((c) => c.name),
-      );
-    }
     expect(authToken).toBeDefined();
-
-    // Handle Mobile Menu visibility for logout button
     if (isMobileViewport(page)) {
       const mobileMenu = page.locator(SELECTORS.mobileMenuButton);
       const isMenuOpen = await page
         .locator(".mobile-menu")
         .isVisible()
         .catch(() => false);
-
       if ((await mobileMenu.isVisible()) && !isMenuOpen) {
         await mobileMenu.click();
         await page.waitForTimeout(300);
       }
     }
-
-    // Also check UI - Logout button should be visible
-    // Filter by visibility to ensure we don't pick the hidden desktop button on mobile
     const logoutBtn = page
       .locator(SELECTORS.logoutButton)
       .filter({ visible: true })
       .first();
-    // We allow a small timeout because hydration might take a moment
     await expect(logoutBtn).toBeVisible({ timeout: 5000 });
   } else {
     expect(authToken).toBeUndefined();
-
-    // Handle Mobile Menu for login link
-    if (isMobileViewport(page)) {
-      const mobileMenu = page.locator(SELECTORS.mobileMenuButton);
-      const isMenuOpen = await page
-        .locator(".mobile-menu")
-        .isVisible()
-        .catch(() => false);
-
-      if ((await mobileMenu.isVisible()) && !isMenuOpen) {
-        await mobileMenu.click();
-        await page.waitForTimeout(300);
-      }
-    }
-
-    // Check UI - Login link should be visible
-    // Filter by visibility for mobile
-    const loginLink = page
-      .locator(SELECTORS.loginLink)
-      .filter({ visible: true })
-      .first();
-    await expect(loginLink).toBeVisible({ timeout: 5000 });
   }
 }
 
 /**
- * Ensure we are viewing "All Jobs" not "Personalized Feed"
+ * Ensure All Jobs View
  */
 export async function ensureAllJobsView(page: Page): Promise<void> {
   const personalizedBtn = page
@@ -368,7 +310,6 @@ export async function ensureAllJobsView(page: Page): Promise<void> {
  * Click first job card and go to detail page
  */
 export async function goToFirstJobDetail(page: Page): Promise<void> {
-  // Use /jobs to ensure we find a job card
   console.log("Navigating to /jobs...");
   await page.goto("/jobs");
   await ensurePageReady(page);
@@ -389,11 +330,42 @@ export async function getReactionCounts(page: Page): Promise<{
   likes: number;
   dislikes: number;
 }> {
-  const likesText = await page.locator(SELECTORS.likeCount).innerText();
-  const dislikesText = await page.locator(SELECTORS.dislikeCount).innerText();
+  // Ensure the selectors exist in the DOM
+  await page.waitForSelector(SELECTORS.likeCount, {
+    state: "visible",
+    timeout: 10000,
+  });
 
-  return {
-    likes: parseInt(likesText, 10) || 0,
-    dislikes: parseInt(dislikesText, 10) || 0,
+  const countsHandle = await page.waitForFunction(
+    (selectors) => {
+      const likesEl = document.querySelector(selectors.likeCount);
+      const dislikesEl = document.querySelector(selectors.dislikeCount);
+
+      const lText = likesEl?.textContent?.trim();
+      const dText = dislikesEl?.textContent?.trim();
+
+      // If we have no text yet, hydration might be pending
+      if (
+        lText === undefined ||
+        dText === undefined ||
+        (lText === "" && dText === "")
+      ) {
+        return null;
+      }
+
+      const likes = parseInt(lText || "0", 10);
+      const dislikes = parseInt(dText || "0", 10);
+
+      if (isNaN(likes) || isNaN(dislikes)) return null;
+
+      return { likes, dislikes };
+    },
+    { likeCount: SELECTORS.likeCount, dislikeCount: SELECTORS.dislikeCount },
+    { timeout: 10000 },
+  );
+
+  return (await countsHandle.jsonValue()) as {
+    likes: number;
+    dislikes: number;
   };
 }

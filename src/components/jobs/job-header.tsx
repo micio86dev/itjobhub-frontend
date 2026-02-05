@@ -4,7 +4,7 @@ import {
   type PropFunction,
 } from "@builder.io/qwik";
 import styles from "./job-header.css?inline";
-import { useTranslate } from "~/contexts/i18n";
+import { useI18n, translate } from "~/contexts/i18n";
 import type { JobListing } from "~/contexts/jobs";
 import { ReactionButtons } from "~/components/ui/reaction-buttons";
 import { DetailStats } from "~/components/ui/detail-stats";
@@ -20,8 +20,10 @@ interface JobHeaderProps {
 
 export const JobHeader = component$<JobHeaderProps>((props) => {
   const { job, isAuthenticated } = props;
+  const i18n = useI18n();
   useStylesScoped$(styles);
-  const t = useTranslate();
+
+  const t = (key: string) => translate(key, i18n.currentLanguage);
 
   return (
     <div class="heroHeader">
@@ -130,7 +132,9 @@ export const JobHeader = component$<JobHeaderProps>((props) => {
           </a>
 
           {!isAuthenticated && (
-            <AuthActionPrompt actionText={t("job.apply_login_required")} />
+            <div class="loginHint">
+              <AuthActionPrompt />
+            </div>
           )}
         </div>
       </div>
