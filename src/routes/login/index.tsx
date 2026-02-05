@@ -66,6 +66,13 @@ export default component$(() => {
   const urlError = loc.url.searchParams.get("error") || "";
   const displayError = form.error || urlError;
 
+  // Log client-side error detection for E2E debugging
+  useTask$(() => {
+    if (urlError) {
+      console.log(`[Login] Detected error from URL: ${urlError}`);
+    }
+  });
+
   // Watch for login results
   useTask$(({ track }) => {
     const result = track(() => auth.loginResult.value);

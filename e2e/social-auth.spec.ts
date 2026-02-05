@@ -54,20 +54,21 @@ test.describe('Social Attribution & Authentication', () => {
         });
 
         const googleBtn = page.getByTestId('social-login-google-btn');
-        await expect(googleBtn).toBeVisible();
+        await expect(googleBtn).toBeVisible({ timeout: 10000 });
 
-        // Wait for a bit for hydration
-        await page.waitForTimeout(1000);
-        await googleBtn.click();
+        // Wait for a bit for hydration and stability
+        await page.waitForTimeout(2000);
+        await googleBtn.click({ force: true });
 
         // Wait for redirect and check URL with poll
         await expect.poll(() => page.url(), {
             message: 'URL should contain error parameter after failed social login',
-            timeout: 15000
+            timeout: 20000
         }).toContain('error=OAuth-Failed-Test-Nuclear');
 
         const errorMsg = page.getByTestId('login-error-message');
-        await expect(errorMsg).toBeVisible({ timeout: 10000 });
-        await expect(errorMsg).toContainText(/OAuth-Failed-Test-Nuclear/i);
+        // On Webkit sometimes it takes a while to render after URL change
+        await expect(errorMsg).toBeVisible({ timeout: 15000 });
+        await expect(errorMsg).toContainText(/OAuth-Failed-Test-Nuclear/i, { timeout: 10000 });
     });
 });

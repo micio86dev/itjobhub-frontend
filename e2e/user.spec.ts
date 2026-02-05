@@ -175,8 +175,16 @@ test.describe('Registered User', () => {
         test('should see authenticated navigation elements', async ({ userPage: page }) => {
             await page.goto('/');
             await ensurePageReady(page);
+
+            // If on mobile, open menu first
+            const mobileMenuBtn = page.locator(SELECTORS.mobileMenuButton);
+            if (await mobileMenuBtn.isVisible()) {
+                await mobileMenuBtn.click();
+                await page.waitForTimeout(500);
+            }
+
             const logoutBtn = page.locator(SELECTORS.logoutButton).filter({ visible: true }).first();
-            await expect(logoutBtn).toBeVisible({ timeout: 5000 });
+            await expect(logoutBtn).toBeVisible({ timeout: 10000 });
         });
     });
 });

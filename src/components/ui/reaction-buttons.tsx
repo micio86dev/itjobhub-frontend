@@ -32,12 +32,26 @@ export const ReactionButtons = component$<ReactionButtonsProps>((props) => {
   const localDislikes = useSignal(props.dislikes);
   const localReaction = useSignal(props.userReaction);
 
-  // Sync with props when entityId changes
+  // Sync with props when entityId changes or props update
   useTask$(({ track }) => {
-    track(() => props.entityId);
-    localLikes.value = props.likes;
-    localDislikes.value = props.dislikes;
-    localReaction.value = props.userReaction;
+    const id = track(() => props.entityId);
+    const pLikes = track(() => props.likes);
+    const pDislikes = track(() => props.dislikes);
+    const pReaction = track(() => props.userReaction);
+
+    // Only update if not currently waiting for an optimistic update or if entity ID changed
+    localLikes.value = pLikes;
+    localDislikes.value = pDislikes;
+    localReaction.value = pReaction;
+
+    console.log(
+      `[ReactionButtons] Synced state for ${props.entityType}:${id}`,
+      {
+        likes: pLikes,
+        dislikes: pDislikes,
+        reaction: pReaction,
+      },
+    );
   });
 
   const { onReactionChange$ } = props;

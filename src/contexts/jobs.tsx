@@ -108,6 +108,8 @@ export interface JobsState {
   companies: Company[];
   pagination: PaginationState;
   currentFilters: JobFilters | null;
+  loadingJobId: string | null; // For favorites/actions
+  loadingReactionId: string | null; // For reactions
   // Signals for triggering actions
   likeJobSignal: Signal<LikeJobRequest | null>;
   dislikeJobSignal: Signal<DislikeJobRequest | null>;
@@ -231,6 +233,8 @@ export const JobsProvider = component$(() => {
       limit: 10, // Load 10 jobs per page
     },
     currentFilters: null,
+    loadingJobId: null,
+    loadingReactionId: null,
     likeJobSignal,
     dislikeJobSignal,
     addCommentSignal,
@@ -437,6 +441,9 @@ export const JobsProvider = component$(() => {
 
     // toggleFavorite$: Add/remove job from favorites
     jobsState.toggleFavorite$ = $(async (jobId: string) => {
+      if (jobsState.loadingJobId) return;
+      jobsState.loadingJobId = jobId;
+
       // Find all instances of this job across state
       const allInstances = [
         ...jobsState.jobs.filter((j) => j.id === jobId),
@@ -509,6 +516,8 @@ export const JobsProvider = component$(() => {
         allInstances.forEach((job) => {
           job.is_favorite = wasFavorite;
         });
+      } finally {
+        jobsState.loadingJobId = null;
       }
     });
 
@@ -558,7 +567,9 @@ export const JobsProvider = component$(() => {
   useTask$(async ({ track }) => {
     const action = track(() => likeJobSignal.value);
     if (action && isBrowser) {
+      if (jobsState.loadingReactionId) return;
       const { jobId, remove } = action;
+      jobsState.loadingReactionId = jobId;
       const allInstances = [
         ...jobsState.jobs.filter((j) => j.id === jobId),
         ...jobsState.favorites.filter((j) => j.id === jobId),
@@ -630,6 +641,8 @@ export const JobsProvider = component$(() => {
         }
       } catch (error) {
         logger.error({ error, jobId }, "Failed to persist action");
+      } finally {
+        jobsState.loadingReactionId = null;
       }
     }
   });
@@ -638,7 +651,9 @@ export const JobsProvider = component$(() => {
   useTask$(async ({ track }) => {
     const action = track(() => dislikeJobSignal.value);
     if (action && isBrowser) {
+      if (jobsState.loadingReactionId) return;
       const { jobId, remove } = action;
+      jobsState.loadingReactionId = jobId;
       const allInstances = [
         ...jobsState.jobs.filter((j) => j.id === jobId),
         ...jobsState.favorites.filter((j) => j.id === jobId),
@@ -710,6 +725,8 @@ export const JobsProvider = component$(() => {
         }
       } catch (error) {
         logger.error({ error, jobId }, "Failed to persist action");
+      } finally {
+        jobsState.loadingReactionId = null;
       }
     }
   });
