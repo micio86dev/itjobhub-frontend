@@ -96,7 +96,6 @@ export default component$(() => {
       jobsContext.trackJobInteraction$(state.job.id, "APPLY");
       // Optimistic local update
       state.job.clicks_count = (state.job.clicks_count || 0) + 1;
-      alert(translate("jobs.apply_success", i18n.currentLanguage));
     }
   });
 

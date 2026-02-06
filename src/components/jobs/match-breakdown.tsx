@@ -94,8 +94,8 @@ export const MatchBreakdown = component$<MatchBreakdownProps>(
               <span class="factor-label">
                 {t("match.seniority")} ({Math.round(factors.seniorityMatch)}%)
               </span>
-              <span class="factor-sublabel capitalize">
-                {details.seniorityGap.replace("_", " ")}
+              <span class="factor-sublabel">
+                {t(`match.seniority.${details.seniorityGap}`)}
               </span>
             </div>
             <div class="progress-bar-bg">
@@ -112,8 +112,8 @@ export const MatchBreakdown = component$<MatchBreakdownProps>(
               <span class="factor-label">
                 {t("match.location")} ({Math.round(factors.locationMatch)}%)
               </span>
-              <span class="factor-sublabel capitalize">
-                {details.locationStatus}
+              <span class="factor-sublabel">
+                {t(`match.location.${details.locationStatus}`)}
               </span>
             </div>
             <div class="progress-bar-bg">

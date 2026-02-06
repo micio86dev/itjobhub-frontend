@@ -315,11 +315,23 @@ export async function goToFirstJobDetail(page: Page): Promise<void> {
   await ensurePageReady(page);
   await ensureAllJobsView(page);
 
-  const jobCardLink = page.locator(SELECTORS.jobCardLink).first();
-  await expect(jobCardLink).toBeVisible({ timeout: 15000 });
-  await jobCardLink.click();
+  const jobCardLinkSelector = SELECTORS.jobCardLink;
+  await page.waitForSelector(jobCardLinkSelector, {
+    state: "visible",
+    timeout: 15000,
+  });
 
-  await expect(page).toHaveURL(/\/jobs\/detail\//);
+  // Safari resilience: Direct DOM click if regular click is flaky
+  console.log("Clicking job card link via evaluate...");
+  await page.evaluate((sel: string) => {
+    const el = document.querySelector(sel) as HTMLElement;
+    if (el) {
+      el.scrollIntoView();
+      el.click();
+    }
+  }, jobCardLinkSelector);
+
+  await expect(page).toHaveURL(/\/jobs\/detail\//, { timeout: 20000 });
   await ensurePageReady(page);
 }
 

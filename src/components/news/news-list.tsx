@@ -39,8 +39,12 @@ export const NewsList = component$<NewsListProps>(({ news, isLoading }) => {
             ></path>
           </svg>
         </div>
-        <h3 class="font-medium text-gray-900 text-lg">{t("news.no_news")}</h3>
-        <p class="mt-1 text-gray-500">{t("news.no_news_desc")}</p>
+        <h3 class="mb-2 font-medium text-gray-900 dark:text-white text-lg">
+          {t("news.no_news")}
+        </h3>
+        <p class="mt-1 text-gray-500 dark:text-gray-400">
+          {t("news.no_news_desc")}
+        </p>
       </div>
     );
   }
