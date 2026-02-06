@@ -62,8 +62,8 @@ test.describe('Comments System', () => {
             ).catch(() => null);
 
             // New comment should appear
-            await expect(page.locator(`text="${testComment}"`).first()).toBeVisible({
-                timeout: 7000,
+            await expect(page.locator(SELECTORS.commentItem).filter({ hasText: testComment }).first()).toBeVisible({
+                timeout: 10000,
             });
         });
 
@@ -92,10 +92,19 @@ test.describe('Comments System', () => {
             // First add a comment
             const testComment = `Delete Test ${Date.now()}`;
             await commentInput.fill(testComment);
+            // Wait for API response after clicking
+            const responsePromise = page.waitForResponse(
+                (response) => response.url().includes('/comments') && response.request().method() === 'POST',
+                { timeout: 10000 }
+            );
             await page.locator(SELECTORS.commentSubmit).click({ force: true });
+            await responsePromise;
 
-            await expect(page.locator(`text="${testComment}"`).first()).toBeVisible({
-                timeout: 7000,
+            // Small wait for UI update
+            await page.waitForTimeout(500);
+
+            await expect(page.locator(SELECTORS.commentItem).filter({ hasText: testComment }).first()).toBeVisible({
+                timeout: 10000,
             });
 
             // Find and click delete button
@@ -112,8 +121,8 @@ test.describe('Comments System', () => {
             await page.locator(SELECTORS.modalConfirm).first().click({ force: true });
 
             // Comment should disappear
-            await expect(page.locator(`text="${testComment}"`).first()).not.toBeVisible({
-                timeout: 7000,
+            await expect(page.locator(SELECTORS.commentItem).filter({ hasText: testComment }).first()).not.toBeVisible({
+                timeout: 10000,
             });
         });
     });

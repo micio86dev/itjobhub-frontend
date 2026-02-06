@@ -85,7 +85,7 @@ export const JobHeader = component$<JobHeaderProps>((props) => {
           </div>
         </div>
 
-        <div class="actionsContainer">
+        <div class="actionsContainer" data-testid="job-actions">
           <ReactionButtons
             likes={job.likes || 0}
             dislikes={job.dislikes || 0}

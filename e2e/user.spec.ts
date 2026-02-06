@@ -57,9 +57,11 @@ test.describe('Registered User', () => {
         test('should be able to like a job', async ({ userPage: page, userContext, authenticatedAsUser }) => {
             await goToFirstJobDetail(page);
 
-            // Extract jobId from URL
+            // Isolation reset: Ensure we start with no reactions
             const url = page.url();
-            const jobId = url.split('/').pop()?.split('?')[0];
+            const jobIdMatch = url.match(/\/jobs\/detail\/([^\/?#]+)/);
+            const jobId = jobIdMatch ? jobIdMatch[1] : null;
+
             if (jobId) {
                 const { resetUserReactions } = await import('./fixtures');
                 await resetUserReactions(userContext, authenticatedAsUser.token, jobId);
@@ -69,8 +71,12 @@ test.describe('Registered User', () => {
 
             await page.waitForTimeout(1500); // Hydration wait
 
-            const likeBtn = page.locator(SELECTORS.likeButton).first();
-            const initial = await getReactionCounts(page);
+            const scope = '[data-testid="job-actions"]';
+            const likeBtn = page.locator(scope).locator(SELECTORS.likeButton).first();
+
+            // PRE-CONDITION: Button should not be active initially
+            await expect(likeBtn).toHaveAttribute('data-active', 'false', { timeout: 10000 });
+            const initial = await getReactionCounts(page, scope);
 
             // Wait for the POST request to complete if we click
             const responsePromise = page.waitForResponse(r =>
@@ -81,8 +87,10 @@ test.describe('Registered User', () => {
             await likeBtn.click({ force: true });
             await responsePromise;
 
+            // ASSERT: Button should now be active
+            await expect(likeBtn).toHaveAttribute('data-active', 'true', { timeout: 10000 });
             await expect.poll(async () => {
-                const current = await getReactionCounts(page);
+                const current = await getReactionCounts(page, scope);
                 return current.likes;
             }, { timeout: 20000, intervals: [500, 1000, 2000] }).toBe(initial.likes + 1);
         });
@@ -91,7 +99,10 @@ test.describe('Registered User', () => {
             await goToFirstJobDetail(page);
 
             // Isolation reset
-            const jobId = page.url().split('/').pop()?.split('?')[0];
+            const url = page.url();
+            const jobIdMatch = url.match(/\/jobs\/detail\/([^\/?#]+)/);
+            const jobId = jobIdMatch ? jobIdMatch[1] : null;
+
             if (jobId) {
                 const { resetUserReactions } = await import('./fixtures');
                 await resetUserReactions(userContext, authenticatedAsUser.token, jobId);
@@ -100,8 +111,12 @@ test.describe('Registered User', () => {
             }
 
             await page.waitForTimeout(1500);
-            const likeBtn = page.locator(SELECTORS.likeButton).first();
-            const initial = await getReactionCounts(page);
+            const scope = '[data-testid="job-actions"]';
+            const likeBtn = page.locator(scope).locator(SELECTORS.likeButton).first();
+
+            // PRE-CONDITION
+            await expect(likeBtn).toHaveAttribute('data-active', 'false', { timeout: 10000 });
+            const initial = await getReactionCounts(page, scope);
 
             // Turn like on
             const likeOnPromise = page.waitForResponse(r =>
@@ -109,14 +124,12 @@ test.describe('Registered User', () => {
                 { timeout: 15000 }
             ).catch(() => null);
 
-            await page.evaluate((sel) => {
-                const el = document.querySelector(sel) as HTMLElement;
-                if (el) el.click();
-            }, SELECTORS.likeButton);
+            await likeBtn.click({ force: true });
 
             await likeOnPromise;
-            await page.waitForTimeout(1500); // Safari needs more time to update DOM text content
-            await expect.poll(async () => (await getReactionCounts(page)).likes, { timeout: 20000 }).toBe(initial.likes + 1);
+            await expect(likeBtn).toHaveAttribute('data-active', 'true', { timeout: 10000 });
+            await page.waitForTimeout(1500);
+            await expect.poll(async () => (await getReactionCounts(page, scope)).likes, { timeout: 20000 }).toBe(initial.likes + 1);
 
             // Turn like off
             const likeOffPromise = page.waitForResponse(r =>
@@ -124,21 +137,22 @@ test.describe('Registered User', () => {
                 { timeout: 15000 }
             ).catch(() => null);
 
-            await page.evaluate((sel) => {
-                const el = document.querySelector(sel) as HTMLElement;
-                if (el) el.click();
-            }, SELECTORS.likeButton);
+            await likeBtn.click({ force: true });
 
             await likeOffPromise;
+            await expect(likeBtn).toHaveAttribute('data-active', 'false', { timeout: 10000 });
             await page.waitForTimeout(1500);
-            await expect.poll(async () => (await getReactionCounts(page)).likes, { timeout: 20000 }).toBe(initial.likes);
+            await expect.poll(async () => (await getReactionCounts(page, scope)).likes, { timeout: 20000 }).toBe(initial.likes);
         });
 
         test('should update counts when switching from like to dislike', async ({ userPage: page, userContext, authenticatedAsUser }) => {
             await goToFirstJobDetail(page);
 
             // Isolation reset
-            const jobId = page.url().split('/').pop()?.split('?')[0];
+            const url = page.url();
+            const jobIdMatch = url.match(/\/jobs\/detail\/([^\/?#]+)/);
+            const jobId = jobIdMatch ? jobIdMatch[1] : null;
+
             if (jobId) {
                 const { resetUserReactions } = await import('./fixtures');
                 await resetUserReactions(userContext, authenticatedAsUser.token, jobId);
@@ -147,9 +161,14 @@ test.describe('Registered User', () => {
             }
 
             await page.waitForTimeout(1500);
-            const likeBtn = page.locator(SELECTORS.likeButton).first();
-            const dislikeBtn = page.locator(SELECTORS.dislikeButton).first();
-            const initial = await getReactionCounts(page);
+            const scope = '[data-testid="job-actions"]';
+            const likeBtn = page.locator(scope).locator(SELECTORS.likeButton).first();
+            const dislikeBtn = page.locator(scope).locator(SELECTORS.dislikeButton).first();
+
+            // PRE-CONDITION
+            await expect(likeBtn).toHaveAttribute('data-active', 'false', { timeout: 10000 });
+            await expect(dislikeBtn).toHaveAttribute('data-active', 'false', { timeout: 10000 });
+            const initial = await getReactionCounts(page, scope);
 
             // Like it first
             const likePromise = page.waitForResponse(r =>
@@ -157,14 +176,12 @@ test.describe('Registered User', () => {
                 { timeout: 15000 }
             ).catch(() => null);
 
-            await page.evaluate((sel) => {
-                const el = document.querySelector(sel) as HTMLElement;
-                if (el) el.click();
-            }, SELECTORS.likeButton);
+            await likeBtn.click({ force: true });
 
             await likePromise;
+            await expect(likeBtn).toHaveAttribute('data-active', 'true', { timeout: 10000 });
             await page.waitForTimeout(1500);
-            await expect.poll(async () => (await getReactionCounts(page)).likes, { timeout: 20000 }).toBe(initial.likes + 1);
+            await expect.poll(async () => (await getReactionCounts(page, scope)).likes, { timeout: 20000 }).toBe(initial.likes + 1);
 
             // Switch to dislike
             const dislikePromise = page.waitForResponse(r =>
@@ -172,14 +189,13 @@ test.describe('Registered User', () => {
                 { timeout: 15000 }
             ).catch(() => null);
 
-            await page.evaluate((sel) => {
-                const el = document.querySelector(sel) as HTMLElement;
-                if (el) el.click();
-            }, SELECTORS.dislikeButton);
+            await dislikeBtn.click({ force: true });
 
             await dislikePromise;
+            await expect(dislikeBtn).toHaveAttribute('data-active', 'true', { timeout: 10000 });
+            await expect(likeBtn).toHaveAttribute('data-active', 'false', { timeout: 10000 });
             await page.waitForTimeout(1500);
-            await expect.poll(async () => await getReactionCounts(page), { timeout: 20000 }).toEqual({
+            await expect.poll(async () => await getReactionCounts(page, scope), { timeout: 20000 }).toEqual({
                 likes: initial.likes,
                 dislikes: initial.dislikes + 1
             });

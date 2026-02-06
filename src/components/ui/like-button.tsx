@@ -77,7 +77,11 @@ export const LikeButton = component$<LikeButtonProps>((props) => {
       localCount.value += previouslyActive ? 1 : -1;
       console.error("Like failed", e);
     } finally {
-      isOptimistic.value = false;
+      // Optimization: Hold optimistic state for a short buffer to allow
+      // parent props to catch up and prevent UI jitter/revert
+      setTimeout(() => {
+        isOptimistic.value = false;
+      }, 1000);
     }
   });
 
@@ -102,6 +106,7 @@ export const LikeButton = component$<LikeButtonProps>((props) => {
       disabled={!auth.isAuthenticated || props.disabled}
       class={`reaction-btn ${localActive.value ? "reaction-btn-like-active" : "reaction-btn-like-inactive"}`}
       data-testid="like-button"
+      data-active={String(localActive.value)}
     >
       <svg
         class="reaction-icon-svg"

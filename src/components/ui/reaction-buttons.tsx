@@ -32,17 +32,31 @@ export const ReactionButtons = component$<ReactionButtonsProps>((props) => {
   const localDislikes = useSignal(props.dislikes);
   const localReaction = useSignal(props.userReaction);
 
+  // Optimization: prevent prop sync while actively changing
+  const isOptimistic = useSignal(false);
+
   // Sync with props when entityId changes or props update
+  const prevId = useSignal(props.entityId);
   useTask$(({ track }) => {
     const id = track(() => props.entityId);
+
+    // Automatically reset optimistic state if we switch entities
+    if (prevId.value !== id) {
+      isOptimistic.value = false;
+      prevId.value = id;
+    }
+
     const pLikes = track(() => props.likes);
     const pDislikes = track(() => props.dislikes);
     const pReaction = track(() => props.userReaction);
 
     // Only update if not currently waiting for an optimistic update or if entity ID changed
-    localLikes.value = pLikes;
-    localDislikes.value = pDislikes;
-    localReaction.value = pReaction;
+    // We use a small heuristic: if props haven't changed yet but we are optimistic, wait.
+    if (!isOptimistic.value) {
+      localLikes.value = pLikes;
+      localDislikes.value = pDislikes;
+      localReaction.value = pReaction;
+    }
 
     console.log(
       `[ReactionButtons] Synced state for ${props.entityType}:${id}`,
@@ -50,6 +64,7 @@ export const ReactionButtons = component$<ReactionButtonsProps>((props) => {
         likes: pLikes,
         dislikes: pDislikes,
         reaction: pReaction,
+        wasOptimistic: isOptimistic.value,
       },
     );
   });
@@ -57,6 +72,7 @@ export const ReactionButtons = component$<ReactionButtonsProps>((props) => {
   const { onReactionChange$ } = props;
 
   const handleLikeChange$ = $((newActive: boolean) => {
+    isOptimistic.value = true;
     const previousReaction = localReaction.value;
     localReaction.value = newActive ? "LIKE" : null;
     localLikes.value += newActive ? 1 : -1;
@@ -68,9 +84,17 @@ export const ReactionButtons = component$<ReactionButtonsProps>((props) => {
     if (onReactionChange$) {
       onReactionChange$("LIKE", localLikes.value);
     }
+
+    // We don't reset isOptimistic here because LikeButton/DislikeButton
+    // also have their own optimistic state and will trigger a refetch or prop update later.
+    // However, to be safe, we'll allow prop sync after a timeout if something hangs
+    setTimeout(() => {
+      isOptimistic.value = false;
+    }, 2000);
   });
 
   const handleDislikeChange$ = $((newActive: boolean) => {
+    isOptimistic.value = true;
     const previousReaction = localReaction.value;
     localReaction.value = newActive ? "DISLIKE" : null;
     localDislikes.value += newActive ? 1 : -1;
@@ -82,6 +106,10 @@ export const ReactionButtons = component$<ReactionButtonsProps>((props) => {
     if (onReactionChange$) {
       onReactionChange$("DISLIKE", localDislikes.value);
     }
+
+    setTimeout(() => {
+      isOptimistic.value = false;
+    }, 2000);
   });
 
   return (

@@ -227,17 +227,22 @@ export async function resetUserReactions(
   token: string,
   jobId: string,
 ): Promise<void> {
-  // Remove like
-  await context.request.delete(`${API_BASE}/likes?jobId=${jobId}&type=LIKE`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  // Remove dislike
-  await context.request.delete(
-    `${API_BASE}/likes?jobId=${jobId}&type=DISLIKE`,
-    {
-      headers: { Authorization: `Bearer ${token}` },
-    },
-  );
+  // Remove like and dislike to ensure clean slate
+  await Promise.all([
+    context.request
+      .delete(`${API_BASE}/likes?jobId=${jobId}&type=LIKE`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .catch(() => null),
+    context.request
+      .delete(`${API_BASE}/likes?jobId=${jobId}&type=DISLIKE`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .catch(() => null),
+  ]);
+
+  // Small wait to ensure DB consistency before page reload
+  await new Promise((resolve) => setTimeout(resolve, 500));
 }
 
 // Extend Playwright test with custom fixtures

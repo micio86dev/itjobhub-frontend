@@ -345,7 +345,10 @@ export async function goToFirstJobDetail(page: Page): Promise<void> {
 /**
  * Get current like/dislike counts from job detail page
  */
-export async function getReactionCounts(page: Page): Promise<{
+export async function getReactionCounts(
+  page: Page,
+  scopeSelector?: string,
+): Promise<{
   likes: number;
   dislikes: number;
 }> {
@@ -356,9 +359,12 @@ export async function getReactionCounts(page: Page): Promise<{
   });
 
   const countsHandle = await page.waitForFunction(
-    (selectors) => {
-      const likesEl = document.querySelector(selectors.likeCount);
-      const dislikesEl = document.querySelector(selectors.dislikeCount);
+    ([selectors, scope]) => {
+      const root = scope ? document.querySelector(scope) : document;
+      if (!root) return null;
+
+      const likesEl = root.querySelector(selectors.likeCount);
+      const dislikesEl = root.querySelector(selectors.dislikeCount);
 
       if (!likesEl || !dislikesEl) return null;
 
@@ -382,7 +388,10 @@ export async function getReactionCounts(page: Page): Promise<{
 
       return { likes, dislikes };
     },
-    { likeCount: SELECTORS.likeCount, dislikeCount: SELECTORS.dislikeCount },
+    [
+      { likeCount: SELECTORS.likeCount, dislikeCount: SELECTORS.dislikeCount },
+      scopeSelector,
+    ] as const,
     { timeout: 15000 },
   );
 
