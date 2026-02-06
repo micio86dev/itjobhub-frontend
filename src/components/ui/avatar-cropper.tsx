@@ -152,15 +152,12 @@ export const AvatarCropper = component$((props: AvatarCropperProps) => {
         </div>
 
         <div class="flex justify-end space-x-4">
-          <button
-            onClick$={props.onCancel$}
-            class="hover:bg-gray-100 dark:hover:bg-gray-800 px-4 py-2 rounded-sm font-medium text-gray-700 dark:text-gray-200 transition-colors"
-          >
+          <button onClick$={props.onCancel$} class="btn-cancel">
             {translate("common.cancel", i18n.currentLanguage)}
           </button>
           <button
             onClick$={handleSave}
-            class="bg-brand-neon hover:bg-brand-neon-hover disabled:opacity-50 shadow-brand-neon/30 shadow-lg px-4 py-2 rounded-sm font-bold text-white transition-colors disabled:cursor-not-allowed"
+            class="btn-primary"
             disabled={!isImageLoaded.value}
           >
             {translate("common.save", i18n.currentLanguage)}
