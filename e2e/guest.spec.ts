@@ -153,7 +153,7 @@ test.describe('Guest User', () => {
         await ensurePageReady(page);
 
         const firstJobCard = page.locator(SELECTORS.jobCard).first();
-        await expect(firstJobCard).toBeVisible();
+        await expect(firstJobCard).toBeVisible({ timeout: 15000 });
 
         // Job card should have title and company info visible
         const cardText = await firstJobCard.textContent();

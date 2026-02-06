@@ -69,12 +69,19 @@ export const SELECTORS = {
  * Wait for page to be fully loaded and hydrated
  */
 export async function ensurePageReady(page: Page): Promise<void> {
-  // Wait for page to be stable, but don't hang forever
-  await Promise.race([
-    page.waitForLoadState("networkidle"),
-    page.waitForTimeout(5000),
-  ]).catch(() => {});
+  // Wait for page to be stable
+  await page.waitForLoadState("load");
   await page.waitForLoadState("domcontentloaded");
+
+  // Safari/WebKit specific: sometimes networkidle hangs or completes too early
+  // We wait for the Qwik container to be present and some hydration signal if possible
+  await page
+    .waitForSelector("[q\\:container]", { state: "attached", timeout: 10000 })
+    .catch(() => {});
+
+  // Extra small grace period for hydration to settle on slower engines
+  await page.waitForTimeout(500);
+
   await checkForViteError(page);
 }
 
@@ -353,27 +360,30 @@ export async function getReactionCounts(page: Page): Promise<{
       const likesEl = document.querySelector(selectors.likeCount);
       const dislikesEl = document.querySelector(selectors.dislikeCount);
 
-      const lText = likesEl?.textContent?.trim();
-      const dText = dislikesEl?.textContent?.trim();
+      if (!likesEl || !dislikesEl) return null;
 
-      // If we have no text yet, hydration might be pending
+      const lText = likesEl.textContent?.trim();
+      const dText = dislikesEl.textContent?.trim();
+
+      // Safari hydration check: text might be empty initially
       if (
+        lText === "" ||
+        dText === "" ||
         lText === undefined ||
-        dText === undefined ||
-        (lText === "" && dText === "")
+        dText === undefined
       ) {
         return null;
       }
 
-      const likes = parseInt(lText || "0", 10);
-      const dislikes = parseInt(dText || "0", 10);
+      const likes = parseInt(lText, 10);
+      const dislikes = parseInt(dText, 10);
 
       if (isNaN(likes) || isNaN(dislikes)) return null;
 
       return { likes, dislikes };
     },
     { likeCount: SELECTORS.likeCount, dislikeCount: SELECTORS.dislikeCount },
-    { timeout: 10000 },
+    { timeout: 15000 },
   );
 
   return (await countsHandle.jsonValue()) as {

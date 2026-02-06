@@ -71,7 +71,7 @@ test.describe('Mobile Experience', () => {
             await ensurePageReady(page);
 
             const jobCards = page.locator(SELECTORS.jobCard);
-            await expect(jobCards.first()).toBeVisible();
+            await expect(jobCards.first()).toBeVisible({ timeout: 15000 });
 
             // Cards should take full width on mobile
             const cardBoundingBox = await jobCards.first().boundingBox();

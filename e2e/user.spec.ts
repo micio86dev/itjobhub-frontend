@@ -106,20 +106,32 @@ test.describe('Registered User', () => {
             // Turn like on
             const likeOnPromise = page.waitForResponse(r =>
                 r.url().includes('/likes') && r.request().method() === 'POST',
-                { timeout: 10000 }
+                { timeout: 15000 }
             ).catch(() => null);
-            await likeBtn.click({ force: true });
+
+            await page.evaluate((sel) => {
+                const el = document.querySelector(sel) as HTMLElement;
+                if (el) el.click();
+            }, SELECTORS.likeButton);
+
             await likeOnPromise;
-            await expect.poll(async () => (await getReactionCounts(page)).likes, { timeout: 15000 }).toBe(initial.likes + 1);
+            await page.waitForTimeout(1500); // Safari needs more time to update DOM text content
+            await expect.poll(async () => (await getReactionCounts(page)).likes, { timeout: 20000 }).toBe(initial.likes + 1);
 
             // Turn like off
             const likeOffPromise = page.waitForResponse(r =>
                 r.url().includes('/likes') && r.request().method() === 'DELETE',
-                { timeout: 10000 }
+                { timeout: 15000 }
             ).catch(() => null);
-            await likeBtn.click({ force: true });
+
+            await page.evaluate((sel) => {
+                const el = document.querySelector(sel) as HTMLElement;
+                if (el) el.click();
+            }, SELECTORS.likeButton);
+
             await likeOffPromise;
-            await expect.poll(async () => (await getReactionCounts(page)).likes, { timeout: 15000 }).toBe(initial.likes);
+            await page.waitForTimeout(1500);
+            await expect.poll(async () => (await getReactionCounts(page)).likes, { timeout: 20000 }).toBe(initial.likes);
         });
 
         test('should update counts when switching from like to dislike', async ({ userPage: page, userContext, authenticatedAsUser }) => {
@@ -142,19 +154,31 @@ test.describe('Registered User', () => {
             // Like it first
             const likePromise = page.waitForResponse(r =>
                 r.url().includes('/likes') && r.request().method() === 'POST',
-                { timeout: 10000 }
+                { timeout: 15000 }
             ).catch(() => null);
-            await likeBtn.click({ force: true });
+
+            await page.evaluate((sel) => {
+                const el = document.querySelector(sel) as HTMLElement;
+                if (el) el.click();
+            }, SELECTORS.likeButton);
+
             await likePromise;
-            await expect.poll(async () => (await getReactionCounts(page)).likes, { timeout: 15000 }).toBe(initial.likes + 1);
+            await page.waitForTimeout(1500);
+            await expect.poll(async () => (await getReactionCounts(page)).likes, { timeout: 20000 }).toBe(initial.likes + 1);
 
             // Switch to dislike
             const dislikePromise = page.waitForResponse(r =>
                 r.url().includes('/likes') && r.request().method() === 'POST',
-                { timeout: 10000 }
+                { timeout: 15000 }
             ).catch(() => null);
-            await dislikeBtn.click({ force: true });
+
+            await page.evaluate((sel) => {
+                const el = document.querySelector(sel) as HTMLElement;
+                if (el) el.click();
+            }, SELECTORS.dislikeButton);
+
             await dislikePromise;
+            await page.waitForTimeout(1500);
             await expect.poll(async () => await getReactionCounts(page), { timeout: 20000 }).toEqual({
                 likes: initial.likes,
                 dislikes: initial.dislikes + 1
