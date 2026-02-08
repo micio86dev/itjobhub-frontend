@@ -12,8 +12,6 @@ import { createQwikCity } from "@builder.io/qwik-city/middleware/bun";
 import qwikCityPlan from "@qwik-city-plan";
 import render from "./entry.ssr";
 
-console.log("Starting Bun Server script...");
-
 // Create the Qwik City Bun middleware
 const { router, notFound, staticFile } = createQwikCity({
   render,
