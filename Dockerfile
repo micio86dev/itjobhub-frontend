@@ -61,7 +61,7 @@ LABEL org.opencontainers.image.title="Frontend SSR"
 LABEL org.opencontainers.image.vendor="DevBoards"
 
 # User context
-USER nextjs
+# USER nextjs
 
 # Expose port
 EXPOSE 3000

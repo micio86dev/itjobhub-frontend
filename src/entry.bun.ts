@@ -1,3 +1,4 @@
+console.log("Starting Bun Server script...");
 /*
  * WHAT IS THIS FILE?
  *
