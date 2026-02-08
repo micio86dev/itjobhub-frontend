@@ -28,6 +28,7 @@ import { CompanyInfoBox } from "~/components/jobs/company-info-box";
 import styles from "./index.css?inline";
 import { Modal } from "~/components/ui/modal";
 import { ScrollButtons } from "~/components/ui/scroll-buttons";
+import { API_URL } from "~/constants";
 
 export default component$(() => {
   useStylesScoped$(styles);
@@ -36,7 +37,6 @@ export default component$(() => {
   const auth = useAuth();
   const i18n = useI18n();
   const nav = useNavigate();
-  const API_URL = import.meta.env.PUBLIC_API_URL || "http://127.0.0.1:3001";
 
   const state = useStore({
     job: null as JobListing | null,

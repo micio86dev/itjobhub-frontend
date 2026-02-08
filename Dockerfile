@@ -1,10 +1,16 @@
 # ARG for version tracking
 ARG APP_VERSION=edge
+# ARG for API URL (needed at build time for Vite)
+ARG PUBLIC_API_URL=http://127.0.0.1:3001
 
 # ==========================================
 # Stage 1: Install & Build
 # ==========================================
 FROM oven/bun:1-alpine AS builder
+
+# Capture build-arg as environment variable for Vite
+ARG PUBLIC_API_URL
+ENV PUBLIC_API_URL=${PUBLIC_API_URL}
 
 WORKDIR /app
 

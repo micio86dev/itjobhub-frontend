@@ -2,6 +2,7 @@ import { component$, $, useStore, useStylesScoped$ } from "@builder.io/qwik";
 import { useTranslate } from "../../contexts/i18n";
 import { useAuth } from "../../contexts/auth";
 import styles from "./contact-form.css?inline";
+import { API_URL } from "~/constants";
 
 export const ContactForm = component$(() => {
   useStylesScoped$(styles);
@@ -24,8 +25,6 @@ export const ContactForm = component$(() => {
     state.error = null;
 
     try {
-      const apiBaseUrl =
-        import.meta.env.VITE_API_URL || "http://127.0.0.1:3001";
       const headers: Record<string, string> = {
         "Content-Type": "application/json",
         "Accept-Language": "it",
@@ -35,7 +34,7 @@ export const ContactForm = component$(() => {
         headers["Authorization"] = `Bearer ${auth.token}`;
       }
 
-      const response = await fetch(`${apiBaseUrl}/contact`, {
+      const response = await fetch(`${API_URL}/contact`, {
         method: "POST",
         headers,
         body: JSON.stringify({

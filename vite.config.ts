@@ -77,6 +77,9 @@ export default defineConfig(({ command, mode }): UserConfig => {
         "Cache-Control": "public, max-age=600",
       },
     },
+    define: {
+      __APP_VERSION__: JSON.stringify(pkg.version),
+    },
   };
 });
 

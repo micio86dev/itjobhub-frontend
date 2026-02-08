@@ -3,7 +3,7 @@ import { Link, type DocumentHead, useLocation } from "@builder.io/qwik-city";
 import { useTranslate, translate, useI18n } from "~/contexts/i18n";
 import { Spinner } from "~/components/ui/spinner";
 import styles from "./index.css?inline";
-
+import { API_URL } from "~/constants";
 export default component$(() => {
   useStylesScoped$(styles);
   const loc = useLocation();
@@ -35,8 +35,7 @@ export default component$(() => {
     }
 
     try {
-      const apiUrl = import.meta.env.PUBLIC_API_URL || "http://127.0.0.1:3001";
-      const res = await fetch(`${apiUrl}/auth/reset-password`, {
+      const res = await fetch(`${API_URL}/auth/reset-password`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -31,6 +31,8 @@ export const Footer = component$(() => {
           >
             @miciodev
           </a>
+          <span class="mx-2">•</span>
+          <span>v{__APP_VERSION__}</span>
         </p>
       </div>
     </footer>

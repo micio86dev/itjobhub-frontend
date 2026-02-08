@@ -16,6 +16,7 @@ import { ReactionButtons } from "~/components/ui/reaction-buttons";
 // import { DeleteConfirmButton } from "~/components/ui/delete-confirm-button";
 import type { ApiNews } from "~/types/models";
 import { Modal } from "~/components/ui/modal";
+import { API_URL } from "~/constants";
 
 export const useNewsLoader = routeLoader$(async ({ params, cookie }) => {
   const slug = params.slug;
@@ -94,13 +95,10 @@ export default component$(() => {
 
     state.isDeleting = true;
     try {
-      const res = await request(
-        `${import.meta.env.PUBLIC_API_URL}/news/${newsId}`,
-        {
-          method: "DELETE",
-          headers: { Authorization: `Bearer ${token}` },
-        },
-      );
+      const res = await request(`${API_URL}/news/${newsId}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
       if (res.ok) {
         await nav("/news");

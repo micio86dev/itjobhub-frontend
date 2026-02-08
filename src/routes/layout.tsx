@@ -7,7 +7,7 @@ import { ThemeProvider } from "~/contexts/theme";
 import { Navigation } from "~/components/navigation/navigation";
 import { Footer } from "~/components/footer/footer";
 import logger from "~/utils/logger";
-
+import { API_URL } from "~/constants";
 export const useAuthLoader = routeLoader$(async ({ cookie, url, redirect }) => {
   let token = cookie.get("auth_token")?.value;
   const lang = cookie.get("preferred-language")?.value as SupportedLanguage;
@@ -18,7 +18,6 @@ export const useAuthLoader = routeLoader$(async ({ cookie, url, redirect }) => {
     try {
       // Determine API URL (handle both local and production if needed)
       // In Qwik loaders we use process.env for server-side env vars
-      const API_URL = process.env.PUBLIC_API_URL || "http://127.0.0.1:3001";
 
       const response = await fetch(`${API_URL}/users/me`, {
         headers: {

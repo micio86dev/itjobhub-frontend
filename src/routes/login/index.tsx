@@ -17,6 +17,7 @@ import {
 import { SocialLoginButtons } from "~/components/ui/social-login-buttons";
 import { Spinner } from "~/components/ui/spinner";
 import styles from "./index.css?inline";
+import { API_URL } from "~/constants";
 
 // Import translations for server-side DocumentHead
 import it from "~/locales/it.json";
@@ -121,14 +122,13 @@ export default component$(() => {
     form.loading = true;
     form.provider = provider;
     // Redirect to backend OAuth URL
-    const apiUrl = import.meta.env.PUBLIC_API_URL || "http://127.0.0.1:3001";
 
     const returnUrl = loc.url.searchParams.get("returnUrl");
     const redirectQuery = returnUrl
       ? `?return_to=${encodeURIComponent(returnUrl)}`
       : "";
 
-    window.location.href = `${apiUrl}/auth/oauth/${provider}${redirectQuery}`;
+    window.location.href = `${API_URL}/auth/oauth/${provider}${redirectQuery}`;
   });
 
   return (

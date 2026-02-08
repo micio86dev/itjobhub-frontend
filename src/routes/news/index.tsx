@@ -19,6 +19,7 @@ import type { ApiNews } from "~/types/models";
 import { useInfiniteScroll } from "~/hooks/use-infinite-scroll";
 import { Spinner } from "../../components/ui/spinner";
 import { request } from "~/utils/api";
+import { API_URL } from "~/constants";
 
 // Import translation files
 import it from "~/locales/it.json";
@@ -126,7 +127,7 @@ export default component$(() => {
         state.selectedCategory !== "All"
           ? `&category=${state.selectedCategory}`
           : "";
-      const endpoint = `${import.meta.env.PUBLIC_API_URL}/news?page=${page}&limit=12${categoryParam}`;
+      const endpoint = `${API_URL}/news?page=${page}&limit=12${categoryParam}`;
 
       const res = await request(endpoint, {
         cache: "no-store",

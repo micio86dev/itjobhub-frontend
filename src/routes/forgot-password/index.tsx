@@ -3,7 +3,7 @@ import { Link, routeLoader$, type DocumentHead } from "@builder.io/qwik-city";
 import { type SupportedLanguage, useTranslate } from "~/contexts/i18n";
 import { Spinner } from "~/components/ui/spinner";
 import styles from "./index.css?inline";
-
+import { API_URL } from "~/constants";
 // Import translations for server-side DocumentHead
 import it from "~/locales/it.json";
 import en from "~/locales/en.json";
@@ -42,8 +42,7 @@ export default component$(() => {
     state.success = false;
 
     try {
-      const apiUrl = import.meta.env.PUBLIC_API_URL || "http://127.0.0.1:3001";
-      const res = await fetch(`${apiUrl}/auth/forgot-password`, {
+      const res = await fetch(`${API_URL}/auth/forgot-password`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

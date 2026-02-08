@@ -121,7 +121,8 @@ export interface BackendUser {
 
 export const AuthContext = createContextId<AuthState>("auth-context");
 
-const API_URL = import.meta.env.PUBLIC_API_URL || "http://127.0.0.1:3001";
+// Import centralized API_URL
+import { API_URL } from "../constants";
 
 export const AuthProvider = component$(
   (props: { initialUser?: User | null; initialToken?: string | null }) => {
