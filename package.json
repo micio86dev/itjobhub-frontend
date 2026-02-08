@@ -10,6 +10,8 @@
   "type": "module",
   "scripts": {
     "build": "qwik build",
+    "build.server": "qwik check-client src dist && vite build -c adapters/bun/vite.config.ts",
+    "serve": "bun server/entry.bun.js",
     "build.client": "vite build",
     "build.preview": "vite build --ssr src/entry.preview.tsx",
     "test": "bun test src",
