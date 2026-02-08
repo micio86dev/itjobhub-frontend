@@ -1,4 +1,4 @@
-import { component$, isDev } from "@builder.io/qwik";
+import { component$, isDev, useStyles$ } from "@builder.io/qwik";
 import {
   QwikCityProvider,
   RouterOutlet,
@@ -7,7 +7,7 @@ import {
 import { RouterHead } from "./components/router-head/router-head";
 import { ScrollButtons } from "./components/ui/scroll-buttons";
 
-import "./global.css";
+import globalStyles from "./global.css?inline";
 
 export default component$(() => {
   /**
@@ -16,6 +16,7 @@ export default component$(() => {
    *
    * Don't remove the `<head>` and `<body>` elements.
    */
+  useStyles$(globalStyles);
 
   return (
     <QwikCityProvider>
@@ -30,6 +31,12 @@ export default component$(() => {
           rel="preconnect"
           href="https://fonts.gstatic.com"
           crossOrigin="anonymous"
+        />
+
+        {/* Google Fonts - loading directly from head to avoid CSS import blocking */}
+        <link
+          href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
+          rel="stylesheet"
         />
 
         {/* Favicon and touch icons */}

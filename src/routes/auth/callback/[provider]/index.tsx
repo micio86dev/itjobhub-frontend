@@ -28,7 +28,10 @@ export const useOAuthCallback = routeLoader$(
       throw redirect(302, "/login?error=no_code");
     }
 
-    const API_URL = env.get("PUBLIC_API_URL") || "http://127.0.0.1:3001";
+    // For server-side fetch, use internal URL if available to avoid loopback issues on some VPS/Docker setups
+    const INTERNAL_API_URL = env.get("INTERNAL_API_URL");
+    const PUBLIC_API_URL = env.get("PUBLIC_API_URL") || "http://127.0.0.1:3001";
+    const API_URL = INTERNAL_API_URL || PUBLIC_API_URL;
 
     try {
       logger.info(
