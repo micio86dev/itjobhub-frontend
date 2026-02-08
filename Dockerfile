@@ -37,14 +37,14 @@ WORKDIR /app
 # Copy necessary files for runtime
 # Qwik with Bun adapter usually needs the server entry script and the dist folder
 COPY --from=builder --chown=nextjs:nodejs /app/server ./server
-COPY --from=builder --chown=nextjs:nodejs /app/dist ./dist
-COPY --from=builder --chown=nextjs:nodejs /app/package.json ./package.json
-# Node modules might be needed if not fully bundled, but Bun adapter often bundles.
-# To be safe for dependencies not bundled (like some native modules), we can copy node_modules or install prod deps.
-# Usually bun build --target=bun handles it, but Qwik adapter build might be just JS.
-# Let's install prod modules only to be safe.
-COPY --from=builder --chown=nextjs:nodejs /app/bun.lock ./bun.lock
-RUN bun install --frozen-lockfile --production --ignore-scripts
+# Install wget for healthcheck
+RUN apk update && apk add --no-cache wget
+
+# Remove prepare script to avoid husky error during prod install
+RUN sed -i '/"prepare":/d' package.json
+
+# Install prod deps (allowing scripts to run)
+RUN bun install --frozen-lockfile --production
 
 # Set environment
 ENV NODE_ENV=production
