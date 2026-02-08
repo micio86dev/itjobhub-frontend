@@ -67,5 +67,9 @@
     "marked": "^17.0.1",
     "pino": "^10.2.0",
     "uuid": "^13.0.0"
+  },
+  "optionalDependencies": {
+    "@rollup/rollup-linux-x64-musl": "^4.40.0",
+    "@rollup/rollup-linux-x64-gnu": "^4.40.0"
   }
 }
