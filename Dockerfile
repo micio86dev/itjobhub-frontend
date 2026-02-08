@@ -37,6 +37,10 @@ WORKDIR /app
 # Copy necessary files for runtime
 # Qwik with Bun adapter usually needs the server entry script and the dist folder
 COPY --from=builder --chown=nextjs:nodejs /app/server ./server
+COPY --from=builder --chown=nextjs:nodejs /app/dist ./dist
+COPY --from=builder --chown=nextjs:nodejs /app/package.json ./package.json
+COPY --from=builder --chown=nextjs:nodejs /app/bun.lock ./bun.lock
+
 # Install wget for healthcheck
 RUN apk update && apk add --no-cache wget
 
