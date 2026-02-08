@@ -29,6 +29,11 @@ console.log(`Server started: http://localhost:${port}/`);
 
 Bun.serve({
   async fetch(request: Request) {
+    const url = new URL(request.url);
+    if (url.pathname === "/health") {
+      return new Response("UP", { status: 200 });
+    }
+
     const staticResponse = await staticFile(request);
     if (staticResponse) {
       return staticResponse;
