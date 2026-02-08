@@ -30,6 +30,9 @@ console.log(`Server started: http://localhost:${port}/`);
 Bun.serve({
   async fetch(request: Request) {
     const url = new URL(request.url);
+    console.log(
+      `[DEBUG] Incoming request: ${request.method} ${request.url} -> Path: ${url.pathname}`,
+    );
     if (url.pathname === "/health") {
       return new Response("UP", { status: 200 });
     }
