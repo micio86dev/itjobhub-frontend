@@ -24,18 +24,41 @@ export default component$(() => {
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta name="theme-color" content="#0d1117" />
+        {/* Preconnect for early DNS resolution - non-blocking */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="anonymous"
+        />
+
+        {/* Async load fonts - non-blocking with inline script */}
+        <script
+          dangerouslySetInnerHTML={`
+            (function() {
+              var link = document.createElement('link');
+              link.rel = 'stylesheet';
+              link.href = 'https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap';
+              document.head.appendChild(link);
+            })();
+          `}
+        />
+        <noscript>
+          <link
+            rel="stylesheet"
+            href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
+          />
+        </noscript>
 
         {/* Favicon and touch icons */}
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
         <link rel="apple-touch-icon" href="/icon-192.png" />
-
         {!isDev && (
           <link
             rel="manifest"
             href={`${import.meta.env.BASE_URL}manifest.json`}
           />
         )}
-
         {/* Initialize theme immediately to prevent flash */}
         <script
           dangerouslySetInnerHTML={`
@@ -52,7 +75,6 @@ export default component$(() => {
             })();
           `}
         />
-
         <RouterHead />
       </head>
       <body>
