@@ -10,7 +10,14 @@ import logger from "~/utils/logger";
 import { API_URL } from "~/constants";
 export const useAuthLoader = routeLoader$(async ({ cookie, url, redirect }) => {
   let token = cookie.get("auth_token")?.value;
-  const lang = cookie.get("preferred-language")?.value as SupportedLanguage;
+  // Prioritize query param ?lang=xx over cookie for SEO/direct links
+  const queryLang = url.searchParams.get("lang");
+  const cookieLang = cookie.get("preferred-language")?.value;
+  const lang = (
+    queryLang && ["it", "en", "es", "de", "fr"].includes(queryLang)
+      ? queryLang
+      : cookieLang || "it"
+  ) as SupportedLanguage;
 
   let user: User | null = null;
 

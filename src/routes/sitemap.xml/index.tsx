@@ -57,31 +57,37 @@ export const onGet: RequestHandler = async ({ send, env }) => {
 
   const now = new Date().toISOString();
 
-  // Helper for generating hreflang tags
+  // Helper for generating hreflang tags for a specific path
   const generateHreflangTags = (path: string) => {
-    const tags = SUPPORTED_LANGUAGES.map(
-      (lang) =>
-        `    <xhtml:link rel="alternate" hreflang="${lang}" href="${SITE_URL}${path}"/>`,
-    );
+    const tags = SUPPORTED_LANGUAGES.map((lang) => {
+      const href = `${SITE_URL}${path}${lang !== "it" ? `?lang=${lang}` : ""}`;
+      return `    <xhtml:link rel="alternate" hreflang="${lang}" href="${href}"/>`;
+    });
+    // x-default points to the default version (Italian)
     tags.push(
       `    <xhtml:link rel="alternate" hreflang="x-default" href="${SITE_URL}${path}"/>`,
     );
     return tags.join("\n");
   };
 
-  // Helper for URL entry
-  const createUrlEntry = (
+  // Helper for URL entry - now generates an entry for EACH language version
+  const createUrlEntries = (
     path: string,
     priority: string,
     changefreq: string,
     lastmod: string = now,
-  ) => `  <url>
-    <loc>${SITE_URL}${path}</loc>
+  ) => {
+    return SUPPORTED_LANGUAGES.map((lang) => {
+      const loc = `${SITE_URL}${path}${lang !== "it" ? `?lang=${lang}` : ""}`;
+      return `  <url>
+    <loc>${loc}</loc>
 ${generateHreflangTags(path)}
     <changefreq>${changefreq}</changefreq>
     <priority>${priority}</priority>
     <lastmod>${lastmod}</lastmod>
   </url>`;
+    }).join("\n");
+  };
 
   // Generate XML
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
@@ -89,19 +95,19 @@ ${generateHreflangTags(path)}
         xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <!-- Static Pages -->
-${createUrlEntry("/", "1.0", "daily")}
-${createUrlEntry("/jobs", "0.9", "hourly")}
-${createUrlEntry("/news", "0.9", "hourly")}
-${createUrlEntry("/login", "0.5", "monthly")}
-${createUrlEntry("/register", "0.6", "monthly")}
-${createUrlEntry("/contact", "0.5", "monthly")}
-${createUrlEntry("/privacy-policy", "0.3", "monthly")}
-${createUrlEntry("/forgot-password", "0.4", "monthly")}
+${createUrlEntries("/", "1.0", "daily")}
+${createUrlEntries("/jobs", "0.9", "hourly")}
+${createUrlEntries("/news", "0.9", "hourly")}
+${createUrlEntries("/login", "0.5", "monthly")}
+${createUrlEntries("/register", "0.6", "monthly")}
+${createUrlEntries("/contact", "0.5", "monthly")}
+${createUrlEntries("/privacy-policy", "0.3", "monthly")}
+${createUrlEntries("/forgot-password", "0.4", "monthly")}
   
   <!-- Dynamic Job Pages -->
 ${jobs
   .map((job) =>
-    createUrlEntry(
+    createUrlEntries(
       `/jobs/detail/${job.id}`,
       "0.8",
       "weekly",
@@ -113,7 +119,7 @@ ${jobs
   <!-- Dynamic News Pages -->
 ${newsList
   .map((news) =>
-    createUrlEntry(
+    createUrlEntries(
       `/news/${news.slug}`,
       "0.8",
       "weekly",

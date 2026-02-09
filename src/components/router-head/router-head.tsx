@@ -30,13 +30,18 @@ export const RouterHead = component$(() => {
   const head = useDocumentHead();
   const loc = useLocation();
 
-  // Default to Italian for SEO - the actual user language is handled client-side
-  // via the I18nProvider in layout.tsx
-  const currentLang: SupportedLanguage = "it";
+  // Determine language from query param or fallback to 'it' (default)
+  // We strictly use URL state for SEO meta tags to match the content being served
+  const queryLang = loc.url.searchParams.get("lang");
+  const currentLang: SupportedLanguage =
+    queryLang && (SUPPORTED_LANGUAGES as readonly string[]).includes(queryLang)
+      ? (queryLang as SupportedLanguage)
+      : "it";
+
   const pathname = loc.url.pathname;
 
-  // Build canonical URL (without language prefix for now, as routing is cookie-based)
-  const canonicalUrl = `${SITE_URL}${pathname}`;
+  // Build canonical URL (include lang param if not default)
+  const canonicalUrl = `${SITE_URL}${pathname}${currentLang !== "it" ? `?lang=${currentLang}` : ""}`;
 
   return (
     <>
@@ -48,16 +53,16 @@ export const RouterHead = component$(() => {
       {/* Language attribute for the document */}
       <meta httpEquiv="content-language" content={currentLang} />
 
-      {/* hreflang tags for all supported languages */}
+      {/* hreflang tags - Point to specific language versions via query param */}
       {SUPPORTED_LANGUAGES.map((lang) => (
         <link
           key={lang}
           rel="alternate"
           hreflang={lang}
-          href={`${SITE_URL}${pathname}`}
+          href={`${SITE_URL}${pathname}${lang !== "it" ? `?lang=${lang}` : ""}`}
         />
       ))}
-      {/* x-default hreflang for language selector / default */}
+      {/* x-default points to the default version (Italian) */}
       <link
         rel="alternate"
         hreflang="x-default"
@@ -77,13 +82,16 @@ export const RouterHead = component$(() => {
         property="og:image:alt"
         content="DevBoards.io - Find your ideal IT job"
       />
-      {SUPPORTED_LANGUAGES.filter((l) => l !== currentLang).map((lang) => (
-        <meta
-          key={lang}
-          property="og:locale:alternate"
-          content={LOCALE_MAP[lang]}
-        />
-      ))}
+      {
+        /* Alternate locales for Open Graph */
+        SUPPORTED_LANGUAGES.filter((l) => l !== currentLang).map((lang) => (
+          <meta
+            key={lang}
+            property="og:locale:alternate"
+            content={LOCALE_MAP[lang]}
+          />
+        ))
+      }
 
       {/* Twitter Card tags */}
       <meta name="twitter:card" content="summary_large_image" />
