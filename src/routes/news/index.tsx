@@ -57,7 +57,11 @@ export const useNewsListLoader = routeLoader$(async ({ url, env, cookie }) => {
   const category = url.searchParams.get("category") || "All";
   const page = 1;
   const limit = 12;
-  const API_URL = env.get("PUBLIC_API_URL") || "http://127.0.0.1:3001";
+
+  const API_URL =
+    env.get("INTERNAL_API_URL") ||
+    env.get("PUBLIC_API_URL") ||
+    "http://127.0.0.1:3001";
   const token = cookie.get("auth_token")?.value;
 
   const categoryParam = category !== "All" ? `&category=${category}` : "";

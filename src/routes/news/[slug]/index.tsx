@@ -18,11 +18,14 @@ import type { ApiNews } from "~/types/models";
 import { Modal } from "~/components/ui/modal";
 import { API_URL } from "~/constants";
 
-export const useNewsLoader = routeLoader$(async ({ params, cookie }) => {
+export const useNewsLoader = routeLoader$(async ({ params, cookie, env }) => {
   const slug = params.slug;
   const token = cookie.get("auth_token")?.value;
   const lang = cookie.get("preferred-language")?.value || "it";
-  const API_URL = process.env.PUBLIC_API_URL || "http://127.0.0.1:3001";
+  const API_URL =
+    env.get("INTERNAL_API_URL") ||
+    env.get("PUBLIC_API_URL") ||
+    "http://127.0.0.1:3001";
 
   if (!slug) return { news: null, lang };
 
