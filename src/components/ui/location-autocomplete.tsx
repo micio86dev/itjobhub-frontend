@@ -45,6 +45,9 @@ export const LocationAutocomplete = component$((props: Props) => {
     inputRef.value.dataset.gmapsInit = "true";
   });
 
+  // Capture env var at component level (server-side during SSR)
+  const apiKey = import.meta.env.PUBLIC_GOOGLE_MAPS_KEY;
+
   const loadScript = $(() => {
     if (window.google?.maps?.places) {
       initAutocomplete();
@@ -63,7 +66,6 @@ export const LocationAutocomplete = component$((props: Props) => {
       return;
     }
 
-    const apiKey = import.meta.env.PUBLIC_GOOGLE_MAPS_KEY;
     if (!apiKey) {
       console.error("LocationAutocomplete: Missing API Key");
       return;
