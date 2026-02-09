@@ -11,6 +11,8 @@ FROM oven/bun:1-alpine AS builder
 # Capture build-arg as environment variable for Vite
 ARG PUBLIC_API_URL
 ENV PUBLIC_API_URL=${PUBLIC_API_URL}
+ARG PUBLIC_GOOGLE_MAPS_KEY
+ENV PUBLIC_GOOGLE_MAPS_KEY=${PUBLIC_GOOGLE_MAPS_KEY}
 
 WORKDIR /app
 
