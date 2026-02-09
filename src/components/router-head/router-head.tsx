@@ -40,12 +40,23 @@ export const RouterHead = component$(() => {
 
   const pathname = loc.url.pathname;
 
+  // Environment detection
+  const isProduction = import.meta.env.MODE === "production";
+  const isStaging = import.meta.env.MODE === "staging";
+  const isDev = import.meta.env.DEV;
+
+  // Force noindex if not officially in production (covers dev, staging, or other testing envs)
+  const shouldNoIndex = isDev || isStaging || !isProduction;
+
   // Build canonical URL (include lang param if not default)
   const canonicalUrl = `${SITE_URL}${pathname}${currentLang !== "it" ? `?lang=${currentLang}` : ""}`;
 
   return (
     <>
       <title>{head.title}</title>
+
+      {/* Robots meta tag to prevent indexing in non-prod environments */}
+      {shouldNoIndex && <meta name="robots" content="noindex, nofollow" />}
 
       {/* Canonical URL */}
       <link rel="canonical" href={canonicalUrl} />
