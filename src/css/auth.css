@@ -1,117 +1,129 @@
-/* Register Page Styles */
+/* Shared Authentication Styles */
 
-.registerContainer {
-  @apply min-h-screen flex items-center justify-center bg-brand-light-bg py-12 px-4 sm:px-6 lg:px-8;
+.auth-container {
+  @apply min-h-0 md:min-h-screen flex items-center justify-center bg-brand-light-bg py-12 px-4 sm:px-6 lg:px-8;
 }
 
-:global(.dark) .registerContainer {
+:global(.dark) .auth-container {
   @apply bg-brand-dark-bg;
 }
 
-.registerCard {
+.auth-card {
   @apply max-w-md w-full space-y-8 p-8 rounded-lg border border-gray-200 bg-brand-light-card shadow-lg transition-all duration-300;
 }
 
-:global(.dark) .registerCard {
+:global(.dark) .auth-card {
   @apply bg-brand-dark-card border-gray-800;
 }
 
-.title {
+.auth-title {
   @apply mt-2 text-center text-3xl font-bold font-sans text-gray-900 tracking-tight;
 }
 
-:global(.dark) .title {
+:global(.dark) .auth-title {
   @apply text-white;
 }
 
-.subtitle {
+.auth-subtitle {
   @apply mt-2 text-center text-sm text-gray-600 font-sans;
 }
 
-:global(.dark) .subtitle {
+:global(.dark) .auth-subtitle {
   @apply text-gray-400;
 }
 
-.link {
+.auth-link {
   @apply font-semibold text-brand-neon hover:text-brand-neon/80 transition-colors;
 }
 
-.form {
+.auth-form {
   @apply mt-8 space-y-6;
 }
 
-.inputGroup {
+.auth-input-group {
   @apply rounded-md shadow-sm -space-y-px;
 }
 
-.inputTop {
+.auth-input-top {
   @apply block w-full px-4 py-3 border border-gray-300 rounded-none rounded-t-sm border-b-0 bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-neon focus:border-brand-neon z-10 sm:text-sm transition-all duration-200;
 }
 
-:global(.dark) .inputTop {
+:global(.dark) .auth-input-top {
   @apply bg-gray-900 text-white border-gray-600 placeholder-gray-500;
 }
 
-.inputMiddle {
+.auth-input-middle {
   @apply block w-full px-4 py-3 border border-gray-300 rounded-none border-b-0 bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-neon focus:border-brand-neon z-10 sm:text-sm transition-all duration-200;
 }
 
-:global(.dark) .inputMiddle {
+:global(.dark) .auth-input-middle {
   @apply bg-gray-900 text-white border-gray-600 placeholder-gray-500;
 }
 
-.inputBottom {
+.auth-input-bottom {
   @apply block w-full px-4 py-3 border border-gray-300 rounded-none rounded-b-sm bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-neon focus:border-brand-neon z-10 sm:text-sm transition-all duration-200;
 }
 
-:global(.dark) .inputBottom {
+:global(.dark) .auth-input-bottom {
   @apply bg-gray-900 text-white border-gray-600 placeholder-gray-500;
 }
 
-.errorMessage {
+.auth-input-single {
+  @apply block w-full px-4 py-3 border border-gray-300 rounded-sm bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-neon focus:border-brand-neon z-10 sm:text-sm transition-all duration-200;
+}
+
+:global(.dark) .auth-input-single {
+  @apply bg-gray-900 text-white border-gray-600 placeholder-gray-500;
+}
+
+.auth-error {
   @apply text-red-500 text-sm text-center font-mono bg-red-50 dark:bg-red-900/20 p-2 rounded border border-red-200 dark:border-red-800;
 }
 
-.spinner {
+.auth-success {
+  @apply text-green-500 text-sm text-center font-mono bg-green-50 dark:bg-green-900/20 p-2 rounded border border-green-200 dark:border-green-800;
+}
+
+.auth-spinner {
   @apply animate-spin -ml-1 mr-2 h-4 w-4 text-white dark:text-black inline-block;
 }
 
-.spinnerBase {
+.auth-spinner-base {
   @apply opacity-25;
 }
 
-.spinnerPath {
+.auth-spinner-path {
   @apply opacity-75;
 }
 
-.dividerContainer {
+.auth-divider-container {
   @apply mt-6;
 }
 
-.dividerWrapper {
+.auth-divider-wrapper {
   @apply relative;
 }
 
-.dividerLine {
+.auth-divider-line {
   @apply absolute inset-0 flex items-center;
 }
 
-.divider {
+.auth-divider {
   @apply w-full border-t border-gray-300;
 }
 
-:global(.dark) .divider {
+:global(.dark) .auth-divider {
   @apply border-gray-700;
 }
 
-.dividerTextWrapper {
+.auth-divider-text-wrapper {
   @apply relative flex justify-center text-sm;
 }
 
-.dividerText {
+.auth-divider-text {
   @apply px-4 bg-brand-light-card text-gray-500 font-sans text-xs uppercase tracking-wider font-semibold;
 }
 
-:global(.dark) .dividerText {
+:global(.dark) .auth-divider-text {
   @apply bg-brand-dark-card text-gray-500;
 }

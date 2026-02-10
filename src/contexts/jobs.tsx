@@ -101,6 +101,13 @@ export interface PaginationState {
   limit: number;
 }
 
+export interface ApiPagination {
+  page: number;
+  pages: number;
+  total: number;
+  limit: number;
+}
+
 export interface JobsState {
   jobs: JobListing[];
   favorites: JobListing[];
@@ -144,6 +151,9 @@ export interface JobsState {
         { score: number; label: "excellent" | "good" | "fair" | "low" }
       >
     >
+  >;
+  setInitialData$: QRL<
+    (jobs: ApiJob[], pagination: ApiPagination, filters?: JobFilters) => void
   >;
 }
 
@@ -250,6 +260,7 @@ export const JobsProvider = component$(() => {
     trackJobInteraction$: $(async () => {}), // Will be assigned below
     fetchJobMatchScore$: $(async () => null), // Will be assigned below
     fetchBatchMatchScores$: $(async () => ({})), // Will be assigned below
+    setInitialData$: $(async () => {}), // Will be assigned below
   });
 
   // Assign the method inside useTask to avoid state mutation during render
@@ -1011,6 +1022,46 @@ export const JobsProvider = component$(() => {
         return {};
       }
     });
+
+    // setInitialData$: Hydrate state from SSR data
+    jobsState.setInitialData$ = $(
+      async (
+        jobs: ApiJob[],
+        pagination: ApiPagination,
+        filters?: JobFilters,
+      ) => {
+        logger.info(
+          { count: jobs.length, page: pagination.page },
+          "Hydrating jobs context from SSR data",
+        );
+        jobsState.jobs = jobs.map(processApiJob);
+        jobsState.pagination.currentPage = pagination.page;
+        jobsState.pagination.totalJobs = pagination.total || jobs.length;
+        jobsState.pagination.hasMore = pagination.page < pagination.pages;
+        jobsState.currentFilters = filters || null;
+
+        // Update companies
+        const realCompanies = jobs
+          .map((j: ApiJob) => j.company)
+          .filter(
+            (c: ApiCompany | null): c is ApiCompany =>
+              c !== null && c !== undefined,
+          )
+          .map((c: ApiCompany) => ({
+            name: c.name,
+            trustScore: c.trustScore || 80,
+            totalRatings: c.totalRatings || 0,
+          }));
+
+        const existingNames = new Set(jobsState.companies.map((c) => c.name));
+        realCompanies.forEach((c) => {
+          if (!existingNames.has(c.name)) {
+            jobsState.companies.push(c);
+            existingNames.add(c.name);
+          }
+        });
+      },
+    );
   });
 
   useContextProvider(JobsContext, jobsState);

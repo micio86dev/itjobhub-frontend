@@ -1,8 +1,9 @@
-import { component$, $, useStore, useTask$, isBrowser } from "@builder.io/qwik";
+import { component$, $, useStore, useTask$ } from "@builder.io/qwik";
 import {
   type DocumentHead,
   useLocation,
   routeLoader$,
+  useNavigate,
 } from "@builder.io/qwik-city";
 import { useJobs } from "~/contexts/jobs";
 import { useAuth } from "~/contexts/auth";
@@ -11,7 +12,7 @@ import { JobCard } from "~/components/jobs/job-card";
 import { JobSearch } from "~/components/jobs/job-search";
 import { useInfiniteScroll } from "~/hooks/use-infinite-scroll";
 import { ScrollButtons } from "~/components/ui/scroll-buttons";
-import type { JobFilters, JobListing } from "~/contexts/jobs";
+import type { JobFilters, JobListing, ApiPagination } from "~/contexts/jobs";
 
 // Import translations for server-side DocumentHead
 import it from "~/locales/it.json";
@@ -46,17 +47,85 @@ interface JobSearchFilters {
   salaryMin: string;
 }
 
+export const useJobsListLoader = routeLoader$(async ({ url, env, cookie }) => {
+  const query = url.searchParams.get("q") || "";
+  const seniority = url.searchParams.get("seniority") || "";
+  const remote = url.searchParams.get("remote") || "";
+  const salaryMin = url.searchParams.get("salary_min") || "";
+  const availability = url.searchParams.get("availability") || "";
+  const location = url.searchParams.get("location") || "";
+  const page = 1;
+  const limit = 10;
+
+  const API_URL =
+    env.get("INTERNAL_API_URL") ||
+    env.get("PUBLIC_API_URL") ||
+    "http://127.0.0.1:3001";
+  const token = cookie.get("auth_token")?.value;
+
+  const endpoint = new URL(`${API_URL}/jobs`);
+  endpoint.searchParams.append("page", String(page));
+  endpoint.searchParams.append("limit", String(limit));
+
+  if (query) endpoint.searchParams.append("q", query);
+  if (seniority) endpoint.searchParams.append("seniority", seniority);
+  if (remote) endpoint.searchParams.append("remote", remote);
+  if (salaryMin) endpoint.searchParams.append("salary_min", salaryMin);
+  if (availability)
+    endpoint.searchParams.append("employment_type", availability);
+  if (location) endpoint.searchParams.append("location", location);
+
+  try {
+    const res = await fetch(endpoint.toString(), {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+    });
+
+    if (!res.ok) throw new Error(`API error: ${res.status}`);
+
+    const data = await res.json();
+    return {
+      success: true,
+      jobs: data.success ? data.data.jobs : [],
+      pagination: data.success
+        ? data.data.pagination
+        : { page: 1, total: 0, pages: 0 },
+      filters: {
+        query,
+        remote:
+          remote === "true" ? true : remote === "false" ? false : undefined,
+        salaryMin: salaryMin ? Number(salaryMin) : undefined,
+        seniority,
+        availability,
+        location,
+      } as JobFilters,
+    };
+  } catch (err) {
+    console.error("Failed to fetch jobs in SSR loader:", err);
+    return {
+      success: false,
+      jobs: [],
+      pagination: { page: 1, total: 0, pages: 0, limit: 10 },
+      filters: {} as JobFilters,
+    };
+  }
+});
+
 export default component$(() => {
   const auth = useAuth();
   const t = useTranslate();
-  const location = useLocation();
+  const loc = useLocation();
+  const jobsLoader = useJobsListLoader();
+  const jobsState = useJobs();
 
-  // Parse initial filters from URL
-  const urlParams = location.url.searchParams;
+  // Parse search state from URL for initial component state
+  const urlParams = loc.url.searchParams;
   const initialQuery = urlParams.get("q") || "";
   const initialRemote = urlParams.get("remote") || "";
   const initialSalaryMin = urlParams.get("salary_min") || "";
-  // We could add others here if needed
 
   const hasInitialSearch = !!(
     initialQuery ||
@@ -90,10 +159,21 @@ export default component$(() => {
     totalJobsCount: 0,
   });
 
-  const jobsState = useJobs();
+  // Sync context with loader data (SSR + Client Navigation)
+  useTask$(async ({ track }) => {
+    const data = track(() => jobsLoader.value);
 
-  // Update displayed jobs from server-side paginated context
-  // Update displayed jobs from server-side paginated context
+    if (data.success) {
+      // Sync the shared context state with server-fetched data
+      await jobsState.setInitialData$(
+        data.jobs,
+        data.pagination as ApiPagination,
+        data.filters,
+      );
+    }
+  });
+
+  // Update displayed jobs from context
   useTask$(({ track }) => {
     track(() => jobsState.jobs);
     track(() => jobsState.pagination.hasMore);
@@ -106,119 +186,9 @@ export default component$(() => {
     state.isLoading = jobsState.pagination.isLoading;
   });
 
-  // Initial fetch logic
-  useTask$(async ({ track }) => {
-    track(() => auth.isAuthenticated);
-    track(() => auth.user);
+  const nav = useNavigate();
 
-    // Update personalization state based on auth availability
-    // This ensures that when auth is restored on client, we switch to personalized view
-    if (
-      auth.isAuthenticated &&
-      auth.user?.profileCompleted &&
-      !hasInitialSearch
-    ) {
-      state.showPersonalized = true;
-    }
-
-    // Gather user language filters first
-    const userLanguages = auth.user?.languages
-      ? Array.from(auth.user.languages)
-      : undefined;
-
-    if (hasInitialSearch) {
-      // Logic for when coming from Home search or having URL params
-      const remoteVal =
-        initialRemote === "true"
-          ? true
-          : initialRemote === "false"
-            ? false
-            : undefined;
-
-      const filters: JobFilters = {
-        query: initialQuery,
-        remote: remoteVal,
-        salaryMin: initialSalaryMin ? Number(initialSalaryMin) : undefined,
-        languages: userLanguages,
-      };
-      await jobsState.fetchJobsPage$(1, filters, false);
-    } else if (jobsState.jobs.length === 0) {
-      // Logic for default load (direct navigation to /jobs)
-      let filters: JobFilters | undefined = userLanguages
-        ? { languages: userLanguages }
-        : undefined;
-
-      // Determine default location
-      let defaultLocation: string | undefined = undefined;
-      let defaultGeo: { lat: number; lng: number } | undefined = undefined;
-
-      if (auth.user) {
-        if (auth.user.location) {
-          defaultLocation = auth.user.location;
-        }
-        if (auth.user.location_geo?.coordinates) {
-          defaultGeo = {
-            lat: auth.user.location_geo.coordinates[1],
-            lng: auth.user.location_geo.coordinates[0],
-          };
-        }
-      }
-
-      // Try GPS if no profile location
-      if (!defaultLocation && isBrowser && navigator.geolocation) {
-        try {
-          const pos = await new Promise<GeolocationPosition>(
-            (resolve, reject) => {
-              navigator.geolocation.getCurrentPosition(resolve, reject, {
-                timeout: 5000,
-              });
-            },
-          );
-          defaultGeo = {
-            lat: pos.coords.latitude,
-            lng: pos.coords.longitude,
-          };
-        } catch {
-          // GPS denied or failed, ignore
-        }
-      }
-
-      if (defaultLocation || defaultGeo) {
-        filters = filters || {};
-        filters.location = defaultLocation;
-        filters.location_geo = defaultGeo;
-        filters.radius_km = 50;
-      }
-
-      if (state.showPersonalized && auth.user) {
-        // Valid employment types for filtering
-        const validEmploymentTypes = [
-          "full-time",
-          "part-time",
-          "contract",
-          "freelance",
-          "internship",
-          "hybrid",
-        ];
-        const userAvailability = auth.user.availability
-          ?.toLowerCase()
-          .replace("_", "-");
-
-        filters = {
-          ...filters,
-          skills: auth.user.skills ? Array.from(auth.user.skills) : undefined,
-          seniority: auth.user.seniority?.toLowerCase(),
-          availability: validEmploymentTypes.includes(userAvailability || "")
-            ? userAvailability
-            : undefined,
-          looseSeniority: true,
-        };
-      }
-
-      state.searchFilters = filters || null;
-      await jobsState.fetchJobsPage$(1, filters, false);
-    }
-  });
+  // Initial fetch logic removed - now handled by routeLoader$ and sync
 
   const loadMore = $(async () => {
     if (!state.isLoading && state.hasNextPage) {
@@ -230,6 +200,7 @@ export default component$(() => {
     state.showPersonalized = !state.showPersonalized;
     state.page = 1;
 
+    const url = new URL(loc.url);
     if (state.showPersonalized && auth.user) {
       // Valid employment types for filtering
       const validEmploymentTypes = [
@@ -244,29 +215,21 @@ export default component$(() => {
         ?.toLowerCase()
         .replace("_", "-");
 
-      const personalFilters: JobFilters = {
-        skills: auth.user.skills ? Array.from(auth.user.skills) : undefined,
-        seniority: auth.user.seniority?.toLowerCase(),
-        availability: validEmploymentTypes.includes(userAvailability || "")
-          ? userAvailability
-          : undefined,
-        languages: auth.user.languages
-          ? Array.from(auth.user.languages)
-          : undefined,
-        looseSeniority: true,
-      };
-      state.searchFilters = personalFilters; // Keep track of current filters
-      await jobsState.fetchJobsPage$(1, personalFilters, false);
+      if (auth.user.skills)
+        url.searchParams.set("skills", Array.from(auth.user.skills).join(","));
+      if (auth.user.seniority)
+        url.searchParams.set("seniority", auth.user.seniority.toLowerCase());
+      if (userAvailability && validEmploymentTypes.includes(userAvailability))
+        url.searchParams.set("availability", userAvailability);
+      url.searchParams.set("looseSeniority", "true");
     } else {
       // Reset to all jobs but keep language filter if applicable
-      const baseFilters: JobFilters | undefined =
-        auth.user?.languages && auth.user.languages.length > 0
-          ? { languages: Array.from(auth.user.languages) }
-          : undefined;
-
-      state.searchFilters = baseFilters || null;
-      await jobsState.fetchJobsPage$(1, baseFilters, false);
+      url.searchParams.delete("skills");
+      url.searchParams.delete("seniority");
+      url.searchParams.delete("availability");
+      url.searchParams.delete("looseSeniority");
     }
+    nav(url.pathname + url.search);
   });
 
   const toggleComments = $((jobId: string) => {
@@ -277,63 +240,41 @@ export default component$(() => {
   });
 
   const handleSearch = $(async (filters: JobSearchFilters) => {
-    const hasFilters = !!(
-      filters.query ||
-      filters.seniority ||
-      filters.availability ||
-      filters.location ||
-      filters.remote ||
-      filters.dateRange ||
-      filters.salaryMin
-    );
+    const url = new URL(loc.url);
+    if (filters.query) url.searchParams.set("q", filters.query);
+    else url.searchParams.delete("q");
 
-    // Forces language filtering if user has spoken languages
-    // forces language filtering if user has spoken languages
-    const userLanguages =
-      auth.isAuthenticated && auth.user?.languages
-        ? Array.from(auth.user.languages)
-        : undefined;
-    const shouldFilterByLanguage = userLanguages && userLanguages.length > 0;
+    if (filters.seniority) url.searchParams.set("seniority", filters.seniority);
+    else url.searchParams.delete("seniority");
+
+    if (filters.location) url.searchParams.set("location", filters.location);
+    else url.searchParams.delete("location");
+
+    if (filters.salaryMin)
+      url.searchParams.set("salary_min", filters.salaryMin);
+    else url.searchParams.delete("salary_min");
 
     // Map remote selection to API filters
-    // If 'hybrid' is selected, we map it to availability='hybrid' (assuming backend model)
-    let apiAvailability = filters.availability;
-    let apiRemote: boolean | undefined = undefined;
-
     if (filters.remote === "remote") {
-      apiRemote = true;
+      url.searchParams.set("remote", "true");
     } else if (filters.remote === "office") {
-      apiRemote = false;
+      url.searchParams.set("remote", "false");
     } else if (filters.remote === "hybrid") {
-      apiAvailability = "hybrid";
+      url.searchParams.set("availability", "hybrid");
+    } else {
+      url.searchParams.delete("remote");
+      if (url.searchParams.get("availability") === "hybrid") {
+        url.searchParams.delete("availability");
+      }
     }
 
-    // Convert JobSearchFilters to JobFilters for API
-    const convertedFilters: JobFilters | null =
-      hasFilters || shouldFilterByLanguage
-        ? {
-            query: filters.query,
-            seniority: filters.seniority,
-            availability: apiAvailability,
-            location: filters.location,
-            location_geo: filters.location_geo,
-            radius_km: 50, // Default 50km radius
-            remote: apiRemote,
-            dateRange: filters.dateRange,
-            salaryMin: filters.salaryMin
-              ? Number(filters.salaryMin)
-              : undefined,
-            // Always apply strict language filtering if user has languages
-            languages: userLanguages,
-          }
-        : null;
+    if (filters.availability && filters.remote !== "hybrid") {
+      url.searchParams.set("availability", filters.availability);
+    } else if (filters.remote !== "hybrid") {
+      url.searchParams.delete("availability");
+    }
 
-    state.searchFilters = convertedFilters;
-    state.hasSearched = hasFilters;
-    state.showPersonalized = false; // Disable personalized toggle visual if explicit search gets done
-
-    // Fetch from server with filters
-    await jobsState.fetchJobsPage$(1, convertedFilters || undefined, false);
+    nav(url.pathname + url.search);
   });
 
   // Infinite scroll setup

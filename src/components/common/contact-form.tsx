@@ -1,65 +1,39 @@
 import { component$, $, useStore, useStylesScoped$ } from "@builder.io/qwik";
+import { useContactAction } from "~/routes/contact";
 import { useTranslate } from "../../contexts/i18n";
 import { useAuth } from "../../contexts/auth";
 import styles from "./contact-form.css?inline";
-import { API_URL } from "~/constants";
 
 export const ContactForm = component$(() => {
   useStylesScoped$(styles);
   const t = useTranslate();
   const auth = useAuth();
+  const contactAction = useContactAction();
   const state = useStore({
     name: "",
     email: "",
     type: "general",
     message: "",
-    isSubmitting: false,
-    isSuccess: false,
     error: null as string | null,
   });
 
-  const errorDesc = t("contact.error_desc");
-  const handleSubmit$ = $(async (e: Event) => {
-    e.preventDefault();
-    state.isSubmitting = true;
+  const errorMsg = t("contact.error_desc");
+  const handleSubmit$ = $(async () => {
     state.error = null;
 
-    try {
-      const headers: Record<string, string> = {
-        "Content-Type": "application/json",
-        "Accept-Language": "it",
-      };
+    const result = await contactAction.submit({
+      name: auth.token ? undefined : state.name,
+      email: auth.token ? undefined : state.email,
+      type: state.type,
+      message: state.message,
+    });
 
-      if (auth.token) {
-        headers["Authorization"] = `Bearer ${auth.token}`;
-      }
-
-      const response = await fetch(`${API_URL}/contact`, {
-        method: "POST",
-        headers,
-        body: JSON.stringify({
-          name: auth.token ? undefined : state.name,
-          email: auth.token ? undefined : state.email,
-          type: state.type,
-          message: state.message,
-        }),
-      });
-
-      const result = await response.json();
-
-      if (response.ok && result.success) {
-        state.isSuccess = true;
-      } else {
-        state.error = result.message || errorDesc;
-      }
-    } catch {
-      state.error = "Connection error. Please try again later.";
-    } finally {
-      state.isSubmitting = false;
+    if (result.status !== 200 || !result.value?.success) {
+      state.error = result.value?.message || errorMsg;
     }
   });
 
-  if (state.isSuccess) {
+  if (contactAction.value?.success) {
     return (
       <div class="contact-card glass-effect feedback-container">
         <div class="feedback-icon-wrapper success-icon-wrapper">
@@ -81,11 +55,14 @@ export const ContactForm = component$(() => {
         <p class="feedback-description">{t("contact.success_desc")}</p>
         <button
           onClick$={() => {
-            state.isSuccess = false;
+            // Re-initialize state to allow sending another message
             state.name = "";
             state.email = "";
             state.message = "";
             state.type = "general";
+            // We can't clear action.value easily, so we might need a local flag to hide success
+            // but for now, let's just reload the page or use a local flag.
+            window.location.reload();
           }}
           class="btn-primary"
         >
@@ -204,10 +181,10 @@ export const ContactForm = component$(() => {
 
       <button
         type="submit"
-        disabled={state.isSubmitting}
+        disabled={contactAction.isRunning}
         class="btn-primary submit-button"
       >
-        {state.isSubmitting ? (
+        {contactAction.isRunning ? (
           <div class="flex justify-center items-center gap-3">
             <svg
               class="w-5 h-5 text-current animate-spin"

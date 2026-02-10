@@ -1,7 +1,32 @@
 import { component$, useStore, useTask$, $, isBrowser } from "@builder.io/qwik";
-import { type DocumentHead } from "@builder.io/qwik-city";
+import { type DocumentHead, routeLoader$ } from "@builder.io/qwik-city";
 import { useAuth } from "~/contexts/auth";
-import { useTranslate, translate, useI18n } from "~/contexts/i18n";
+import {
+  useTranslate,
+  translate,
+  useI18n,
+  type SupportedLanguage,
+} from "~/contexts/i18n";
+
+// Import translations for server-side DocumentHead
+import it from "~/locales/it.json";
+import en from "~/locales/en.json";
+import es from "~/locales/es.json";
+import de from "~/locales/de.json";
+import fr from "~/locales/fr.json";
+
+const translations = { it, en, es, de, fr };
+
+export const useAdminStatsHeadLoader = routeLoader$(({ cookie }) => {
+  const savedLang =
+    (cookie.get("preferred-language")?.value as SupportedLanguage) || "it";
+  const lang = savedLang in translations ? savedLang : "it";
+  const t = translations[lang];
+  return {
+    title: t["meta.admin_stats_title"] || "Admin Dashboard - DevBoards.io",
+    description: "Admin statistics and analytics dashboard",
+  };
+});
 import { request } from "../../../utils/api";
 import { LineChart } from "~/components/admin/charts/line-chart";
 import { JobMap } from "~/components/admin/charts/job-map";
@@ -659,12 +684,15 @@ export default component$(() => {
   );
 });
 
-export const head: DocumentHead = {
-  title: "Admin Dashboard - DevBoards.io",
-  meta: [
-    {
-      name: "description",
-      content: "Admin statistics and analytics dashboard",
-    },
-  ],
+export const head: DocumentHead = ({ resolveValue }) => {
+  const meta = resolveValue(useAdminStatsHeadLoader);
+  return {
+    title: meta.title,
+    meta: [
+      {
+        name: "description",
+        content: meta.description,
+      },
+    ],
+  };
 };

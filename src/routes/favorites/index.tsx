@@ -1,9 +1,29 @@
 import { component$, useTask$, useStore } from "@builder.io/qwik";
-import { type DocumentHead } from "@builder.io/qwik-city";
+import { type DocumentHead, routeLoader$ } from "@builder.io/qwik-city";
 import { useJobs } from "~/contexts/jobs";
 import { useAuth } from "~/contexts/auth";
 import { JobCard } from "~/components/jobs/job-card";
-import { useTranslate, translate } from "~/contexts/i18n";
+import { useTranslate, type SupportedLanguage } from "~/contexts/i18n";
+
+// Import translations for server-side DocumentHead
+import it from "~/locales/it.json";
+import en from "~/locales/en.json";
+import es from "~/locales/es.json";
+import de from "~/locales/de.json";
+import fr from "~/locales/fr.json";
+
+const translations = { it, en, es, de, fr };
+
+export const useFavoritesHeadLoader = routeLoader$(({ cookie }) => {
+  const savedLang =
+    (cookie.get("preferred-language")?.value as SupportedLanguage) || "it";
+  const lang = savedLang in translations ? savedLang : "it";
+  const t = translations[lang];
+  return {
+    title: t["meta.favorites_title"] || "Favorites - DevBoards.io",
+    description: t["meta.favorites_description"] || "Your favorite tech jobs",
+  };
+});
 
 export default component$(() => {
   const jobsState = useJobs();
@@ -76,14 +96,14 @@ export default component$(() => {
   );
 });
 
-export const head: DocumentHead = () => {
-  const t = (key: string) => translate(key, "it");
+export const head: DocumentHead = ({ resolveValue }) => {
+  const meta = resolveValue(useFavoritesHeadLoader);
   return {
-    title: t("nav.favorites") + " - DevBoards.io",
+    title: meta.title,
     meta: [
       {
         name: "description",
-        content: "Your favorite tech jobs",
+        content: meta.description,
       },
     ],
   };

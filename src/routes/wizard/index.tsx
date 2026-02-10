@@ -1,9 +1,32 @@
 import { component$, $, useTask$, isBrowser } from "@builder.io/qwik";
-import { useNavigate } from "@builder.io/qwik-city";
+import { useNavigate, routeLoader$ } from "@builder.io/qwik-city";
 import type { DocumentHead } from "@builder.io/qwik-city";
 import { useAuth } from "~/contexts/auth";
 import { ProfileWizard } from "~/components/wizard/profile-wizard";
 import type { WizardData } from "~/contexts/auth";
+import { type SupportedLanguage } from "~/contexts/i18n";
+
+// Import translations for server-side DocumentHead
+import it from "~/locales/it.json";
+import en from "~/locales/en.json";
+import es from "~/locales/es.json";
+import de from "~/locales/de.json";
+import fr from "~/locales/fr.json";
+
+const translations = { it, en, es, de, fr };
+
+export const useWizardHeadLoader = routeLoader$(({ cookie }) => {
+  const savedLang =
+    (cookie.get("preferred-language")?.value as SupportedLanguage) || "it";
+  const lang = savedLang in translations ? savedLang : "it";
+  const t = translations[lang];
+  return {
+    title: t["meta.wizard_title"] || "Complete your profile - DevBoards.io",
+    description:
+      t["meta.wizard_description"] ||
+      "Complete your professional profile on DevBoards.io",
+  };
+});
 
 export default component$(() => {
   const auth = useAuth();
@@ -49,12 +72,15 @@ export default component$(() => {
   );
 });
 
-export const head: DocumentHead = {
-  title: "Completa il tuo profilo - DevBoards.io",
-  meta: [
-    {
-      name: "description",
-      content: "Completa il tuo profilo professionale su DevBoards.io",
-    },
-  ],
+export const head: DocumentHead = ({ resolveValue }) => {
+  const meta = resolveValue(useWizardHeadLoader);
+  return {
+    title: meta.title,
+    meta: [
+      {
+        name: "description",
+        content: meta.description,
+      },
+    ],
+  };
 };

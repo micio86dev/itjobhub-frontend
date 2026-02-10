@@ -1,6 +1,26 @@
 import { component$ } from "@builder.io/qwik";
-import { type DocumentHead } from "@builder.io/qwik-city";
-import { useTranslate } from "~/contexts/i18n";
+import { type DocumentHead, routeLoader$ } from "@builder.io/qwik-city";
+import { useTranslate, type SupportedLanguage } from "~/contexts/i18n";
+
+// Import translations for server-side DocumentHead
+import it from "~/locales/it.json";
+import en from "~/locales/en.json";
+import es from "~/locales/es.json";
+import de from "~/locales/de.json";
+import fr from "~/locales/fr.json";
+
+const translations = { it, en, es, de, fr };
+
+export const usePrivacyHeadLoader = routeLoader$(({ cookie }) => {
+  const savedLang =
+    (cookie.get("preferred-language")?.value as SupportedLanguage) || "it";
+  const lang = savedLang in translations ? savedLang : "it";
+  const t = translations[lang];
+  return {
+    title: (t["footer.privacy_policy"] || "Privacy Policy") + " - DevBoards.io",
+    description: "Privacy Policy for DevBoards.io",
+  };
+});
 
 export default component$(() => {
   const t = useTranslate();
@@ -75,12 +95,15 @@ export default component$(() => {
   );
 });
 
-export const head: DocumentHead = {
-  title: "Privacy Policy - DevBoards.io",
-  meta: [
-    {
-      name: "description",
-      content: "Privacy Policy for DevBoards.io",
-    },
-  ],
+export const head: DocumentHead = ({ resolveValue }) => {
+  const meta = resolveValue(usePrivacyHeadLoader);
+  return {
+    title: meta.title,
+    meta: [
+      {
+        name: "description",
+        content: meta.description,
+      },
+    ],
+  };
 };

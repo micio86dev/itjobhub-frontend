@@ -1,7 +1,12 @@
 import { component$ } from "@builder.io/qwik";
-import { type DocumentHead, routeLoader$ } from "@builder.io/qwik-city";
+import {
+  type DocumentHead,
+  routeLoader$,
+  routeAction$,
+} from "@builder.io/qwik-city";
 import { ContactForm } from "../../components/common/contact-form";
 import { type SupportedLanguage } from "~/contexts/i18n";
+import { API_URL } from "~/constants";
 
 // Import translations for server-side DocumentHead
 import it from "~/locales/it.json";
@@ -24,6 +29,37 @@ export const useContactHeadLoader = routeLoader$(({ cookie }) => {
       t["meta.contact_description"] ||
       "Send a message to the DevBoards.io team for support, feedback, or collaboration.",
   };
+});
+
+export const useContactAction = routeAction$(async (data, { cookie, env }) => {
+  const token = cookie.get("auth_token")?.value;
+  // Use env var or constant
+  const apiUrl = env.get("PUBLIC_API_URL") || env.get("API_URL") || API_URL;
+
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    "Accept-Language": "it",
+  };
+
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+
+  try {
+    const res = await fetch(`${apiUrl}/contact`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(data),
+    });
+
+    await res.json();
+    return { success: true };
+  } catch {
+    return {
+      success: false,
+      message: "Network error",
+    };
+  }
 });
 
 export default component$(() => {

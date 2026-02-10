@@ -1,76 +1,104 @@
 import { component$, useStore, $, useStylesScoped$ } from "@builder.io/qwik";
-import { Link, type DocumentHead, useLocation } from "@builder.io/qwik-city";
-import { useTranslate, translate, useI18n } from "~/contexts/i18n";
+import {
+  Link,
+  type DocumentHead,
+  useLocation,
+  routeAction$,
+  routeLoader$,
+} from "@builder.io/qwik-city";
+import {
+  useTranslate,
+  translate,
+  useI18n,
+  type SupportedLanguage,
+} from "~/contexts/i18n";
 import { Spinner } from "~/components/ui/spinner";
-import styles from "./index.css?inline";
+import styles from "~/css/auth.css?inline";
 import { API_URL } from "~/constants";
+
+// Import translations for server-side DocumentHead
+import it from "~/locales/it.json";
+import en from "~/locales/en.json";
+import es from "~/locales/es.json";
+import de from "~/locales/de.json";
+import fr from "~/locales/fr.json";
+
+const translations = { it, en, es, de, fr };
+
+export const useResetPasswordHeadLoader = routeLoader$(({ cookie }) => {
+  const savedLang =
+    (cookie.get("preferred-language")?.value as SupportedLanguage) || "it";
+  const lang = savedLang in translations ? savedLang : "it";
+  const t = translations[lang];
+  return {
+    title: t["meta.reset_password_title"] || "Reset Password - DevBoards.io",
+    description: t["meta.reset_password_desc"] || "Reset your password",
+  };
+});
+
+export const useResetPasswordAction = routeAction$(async (data, { env }) => {
+  const apiUrl = env.get("PUBLIC_API_URL") || env.get("API_URL") || API_URL;
+
+  try {
+    const res = await fetch(`${apiUrl}/auth/reset-password`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    const result = await res.json();
+    return result;
+  } catch {
+    return { success: false, message: "Network error" };
+  }
+});
+
 export default component$(() => {
   useStylesScoped$(styles);
   const loc = useLocation();
   const t = useTranslate();
   const i18n = useI18n();
+  const resetAction = useResetPasswordAction();
 
   const state = useStore({
     password: "",
     confirmPassword: "",
-    loading: false,
     error: "",
-    success: false,
   });
 
   const handleSubmit = $(async () => {
-    state.loading = true;
     state.error = "";
 
     if (state.password !== state.confirmPassword) {
       state.error = translate("auth.password_mismatch", i18n.currentLanguage);
-      state.loading = false;
       return;
     }
 
     if (state.password.length < 6) {
       state.error = translate("auth.password_min_length", i18n.currentLanguage);
-      state.loading = false;
       return;
     }
 
-    try {
-      const res = await fetch(`${API_URL}/auth/reset-password`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          token: loc.params.token,
-          password: state.password,
-        }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.message || "Failed to reset password");
-      }
-
-      state.success = true;
-    } catch (err) {
-      if (err instanceof Error) {
-        state.error = err.message;
-      } else {
-        state.error = translate("common.unknown_error", i18n.currentLanguage);
-      }
-    } finally {
-      state.loading = false;
-    }
+    resetAction.submit({
+      token: loc.params.token,
+      password: state.password,
+    });
   });
 
-  if (state.success) {
+  const isSuccess = resetAction.value?.success;
+  const displayError =
+    state.error ||
+    (resetAction.value?.success === false ? resetAction.value.message : "");
+
+  if (isSuccess) {
     return (
-      <div class="loginContainer">
-        <div class="loginCard">
+      <div class="auth-container">
+        <div class="auth-card">
           <div class="space-y-4 text-center">
-            <h2 class="title">{t("auth.reset_success")}</h2>
-            <p class="subtitle">{t("auth.reset_success_desc")}</p>
+            <h2 class="auth-title">{t("auth.reset_success")}</h2>
+            <p class="auth-subtitle">{t("auth.reset_success_desc")}</p>
             <div class="pt-4">
               <Link
                 href="/login"
@@ -86,15 +114,15 @@ export default component$(() => {
   }
 
   return (
-    <div class="loginContainer">
-      <div class="loginCard">
+    <div class="auth-container">
+      <div class="auth-card">
         <div>
-          <h2 class="title">{t("auth.reset_password")}</h2>
-          <p class="subtitle">{t("auth.enter_new_password")}</p>
+          <h2 class="auth-title">{t("auth.reset_password")}</h2>
+          <p class="auth-subtitle">{t("auth.enter_new_password")}</p>
         </div>
 
-        <form class="form" preventdefault:submit onSubmit$={handleSubmit}>
-          <div class="inputGroup">
+        <form class="auth-form" preventdefault:submit onSubmit$={handleSubmit}>
+          <div class="auth-input-group">
             <div>
               <label for="password" class="sr-only">
                 {t("auth.new_password")}
@@ -104,7 +132,7 @@ export default component$(() => {
                 name="password"
                 type="password"
                 required
-                class="border-b-0 rounded-b-none inputSingle"
+                class="auth-input-top"
                 placeholder={t("auth.new_password")}
                 value={state.password}
                 onInput$={(e) =>
@@ -121,7 +149,7 @@ export default component$(() => {
                 name="confirmPassword"
                 type="password"
                 required
-                class="rounded-t-none inputSingle"
+                class="auth-input-bottom"
                 placeholder={t("auth.confirm_password")}
                 value={state.confirmPassword}
                 onInput$={(e) =>
@@ -131,18 +159,20 @@ export default component$(() => {
             </div>
           </div>
 
-          {state.error && <div class="errorMessage">{state.error}</div>}
+          {displayError && <div class="auth-error">{displayError}</div>}
 
           <div>
             <button
               type="submit"
-              disabled={state.loading}
+              disabled={resetAction.isRunning}
               class="py-3 w-full btn-primary"
             >
-              {state.loading && (
+              {resetAction.isRunning && (
                 <Spinner size="sm" class="inline-block mr-2 -ml-1" />
               )}
-              {state.loading ? t("common.loading") : t("auth.reset_password")}
+              {resetAction.isRunning
+                ? t("common.loading")
+                : t("auth.reset_password")}
             </button>
           </div>
         </form>
@@ -151,12 +181,15 @@ export default component$(() => {
   );
 });
 
-export const head: DocumentHead = {
-  title: "Reset Password - DevBoards.io",
-  meta: [
-    {
-      name: "description",
-      content: "Reset your password",
-    },
-  ],
+export const head: DocumentHead = ({ resolveValue }) => {
+  const meta = resolveValue(useResetPasswordHeadLoader);
+  return {
+    title: meta.title,
+    meta: [
+      {
+        name: "description",
+        content: meta.description,
+      },
+    ],
+  };
 };

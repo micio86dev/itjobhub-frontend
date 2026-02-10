@@ -5,9 +5,8 @@ import {
   useTask$,
   useStylesScoped$,
 } from "@builder.io/qwik";
-import { useNavigate, routeLoader$ } from "@builder.io/qwik-city";
+import { useNavigate, routeLoader$, routeAction$ } from "@builder.io/qwik-city";
 import type { DocumentHead } from "@builder.io/qwik-city";
-import { useAuth } from "~/contexts/auth";
 import {
   useTranslate,
   translate,
@@ -16,7 +15,7 @@ import {
 } from "~/contexts/i18n";
 import { SocialLoginButtons } from "~/components/ui/social-login-buttons";
 import { Spinner } from "~/components/ui/spinner";
-import styles from "./index.css?inline";
+import styles from "~/css/auth.css?inline";
 import { API_URL } from "~/constants";
 
 // Import translations for server-side DocumentHead
@@ -40,6 +39,30 @@ export const useRegisterHeadLoader = routeLoader$(({ cookie }) => {
   };
 });
 
+export const useRegisterAction = routeAction$(async (data, { cookie, env }) => {
+  const apiUrl = env.get("PUBLIC_API_URL") || env.get("API_URL") || API_URL;
+
+  try {
+    const response = await fetch(`${apiUrl}/auth/register`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    const result = await response.json();
+    if (response.status === 201 && result.success) {
+      const { token } = result.data;
+      cookie.set("auth_token", token, { path: "/", httpOnly: false });
+      return result;
+    }
+    return result;
+  } catch {
+    return { success: false, message: "Network error" };
+  }
+});
+
 interface RegisterForm {
   firstName: string;
   lastName: string;
@@ -53,7 +76,6 @@ interface RegisterForm {
 
 export default component$(() => {
   useStylesScoped$(styles);
-  const auth = useAuth();
   const nav = useNavigate();
   const i18n = useI18n();
   const t = useTranslate();
@@ -69,25 +91,14 @@ export default component$(() => {
     provider: "",
   });
 
+  const registerAction = useRegisterAction();
+
   // Watch for register results
-  useTask$(({ track }) => {
-    const result = track(() => auth.registerResult.value);
-    if (result) {
-      if (result.success) {
-        // Redirect to wizard if profile not completed, otherwise to home
-        if (!auth.user?.profileCompleted) {
-          nav("/wizard");
-        } else {
-          nav("/");
-        }
-      } else {
-        form.error =
-          result.error ||
-          translate("auth.register_error", i18n.currentLanguage);
-      }
-      form.loading = false;
-      form.provider = "";
-      auth.registerResult.value = null; // Clear result
+  useTask$(async ({ track }) => {
+    const res = track(() => registerAction.value);
+    if (res?.success) {
+      // Logic from auth context: redirect to wizard or home
+      nav("/wizard");
     }
   });
 
@@ -105,19 +116,12 @@ export default component$(() => {
       return;
     }
 
-    form.loading = true;
-    form.provider = "email";
-
-    // Use setTimeout to ensure state update is rendered before triggering the signal
-    setTimeout(() => {
-      // Trigger register through signal
-      auth.registerSignal.value = {
-        email: form.email,
-        password: form.password,
-        firstName: form.firstName,
-        lastName: form.lastName,
-      };
-    }, 0);
+    registerAction.submit({
+      email: form.email,
+      password: form.password,
+      firstName: form.firstName,
+      lastName: form.lastName,
+    });
   });
 
   const handleSocialLogin = $((provider: "google" | "linkedin" | "github") => {
@@ -129,20 +133,24 @@ export default component$(() => {
   });
 
   return (
-    <div class="registerContainer">
-      <div class="registerCard">
+    <div class="auth-container">
+      <div class="auth-card">
         <div>
-          <h2 class="title">{t("auth.register_title")}</h2>
-          <p class="subtitle">
+          <h2 class="auth-title">{t("auth.register_title")}</h2>
+          <p class="auth-subtitle">
             {t("common.or")}{" "}
-            <a href="/login" class="link">
+            <a href="/login" class="auth-link">
               {t("auth.have_account")}
             </a>
           </p>
         </div>
 
-        <form class="form" preventdefault:submit onSubmit$={handleRegister}>
-          <div class="-space-y-px shadow-sm rounded-md">
+        <form
+          class="auth-form"
+          preventdefault:submit
+          onSubmit$={handleRegister}
+        >
+          <div class="auth-input-group">
             <div>
               <label for="firstName" class="sr-only">
                 {t("auth.first_name")}
@@ -153,7 +161,7 @@ export default component$(() => {
                 type="text"
                 required
                 data-testid="register-form-firstname-input"
-                class="inputTop"
+                class="auth-input-top"
                 placeholder={t("auth.first_name")}
                 value={form.firstName}
                 onInput$={(e) =>
@@ -171,7 +179,7 @@ export default component$(() => {
                 type="text"
                 required
                 data-testid="register-form-lastname-input"
-                class="inputMiddle"
+                class="auth-input-middle"
                 placeholder={t("auth.last_name")}
                 value={form.lastName}
                 onInput$={(e) =>
@@ -189,7 +197,7 @@ export default component$(() => {
                 type="email"
                 required
                 data-testid="register-form-email-input"
-                class="inputMiddle"
+                class="auth-input-middle"
                 placeholder={t("auth.email")}
                 value={form.email}
                 onInput$={(e) =>
@@ -207,7 +215,7 @@ export default component$(() => {
                 type="password"
                 required
                 data-testid="register-form-password-input"
-                class="inputMiddle"
+                class="auth-input-middle"
                 placeholder={t("auth.password")}
                 value={form.password}
                 onInput$={(e) =>
@@ -225,7 +233,7 @@ export default component$(() => {
                 type="password"
                 required
                 data-testid="register-form-confirm-password-input"
-                class="inputBottom"
+                class="auth-input-bottom"
                 placeholder={t("auth.confirm_password")}
                 value={form.confirmPassword}
                 onInput$={(e) =>
@@ -235,32 +243,39 @@ export default component$(() => {
             </div>
           </div>
 
-          {form.error && <div class="errorMessage">{form.error}</div>}
+          {form.error ||
+            ((registerAction.value?.success === false
+              ? registerAction.value.message
+              : "") && (
+              <div class="auth-error">
+                {form.error || registerAction.value?.message}
+              </div>
+            ))}
 
           <div>
             <button
               type="submit"
-              disabled={form.loading}
+              disabled={registerAction.isRunning}
               data-testid="register-form-submit-btn"
               class="py-3 w-full btn-primary"
             >
-              {form.loading && form.provider === "email" && (
+              {registerAction.isRunning && (
                 <Spinner size="sm" class="inline-block mr-2 -ml-1" />
               )}
-              {form.loading && form.provider === "email"
+              {registerAction.isRunning
                 ? t("auth.registering")
                 : t("auth.register_btn")}
             </button>
           </div>
         </form>
 
-        <div class="dividerContainer">
-          <div class="dividerWrapper">
-            <div class="dividerLine">
-              <div class="divider" />
+        <div class="auth-divider-container">
+          <div class="auth-divider-wrapper">
+            <div class="auth-divider-line">
+              <div class="auth-divider" />
             </div>
-            <div class="dividerTextWrapper">
-              <span class="dividerText">{t("auth.or_register")}</span>
+            <div class="auth-divider-text-wrapper">
+              <span class="auth-divider-text">{t("auth.or_register")}</span>
             </div>
           </div>
 
