@@ -5,7 +5,12 @@ import {
   useTask$,
   useStylesScoped$,
 } from "@builder.io/qwik";
-import { useNavigate, routeLoader$, routeAction$ } from "@builder.io/qwik-city";
+import {
+  useNavigate,
+  routeLoader$,
+  routeAction$,
+  Link,
+} from "@builder.io/qwik-city";
 import type { DocumentHead } from "@builder.io/qwik-city";
 import {
   useTranslate,
@@ -139,9 +144,9 @@ export default component$(() => {
           <h2 class="auth-title">{t("auth.register_title")}</h2>
           <p class="auth-subtitle">
             {t("common.or")}{" "}
-            <a href="/login" class="auth-link">
+            <Link href="/login" class="auth-link">
               {t("auth.have_account")}
-            </a>
+            </Link>
           </p>
         </div>
 

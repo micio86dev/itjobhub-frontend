@@ -7,6 +7,7 @@ import {
 } from "@builder.io/qwik";
 import {
   useNavigate,
+  Link,
   routeLoader$,
   useLocation,
   routeAction$,
@@ -136,9 +137,9 @@ export default component$(() => {
           <h2 class="auth-title">{t("auth.login_title")}</h2>
           <p class="auth-subtitle">
             {t("common.or")}{" "}
-            <a href="/register" class="auth-link">
+            <Link href="/register" class="auth-link">
               {t("auth.need_account")}
-            </a>
+            </Link>
           </p>
         </div>
 
@@ -184,9 +185,9 @@ export default component$(() => {
 
           <div class="flex justify-end items-center">
             <div class="text-sm">
-              <a href="/forgot-password" class="auth-link">
+              <Link href="/forgot-password" class="auth-link">
                 {t("auth.forgot_password")}
-              </a>
+              </Link>
             </div>
           </div>
 

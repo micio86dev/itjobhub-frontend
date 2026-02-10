@@ -131,7 +131,7 @@ export default component$(() => {
             </div>
 
             <div class="text-center">
-              <Link href="/login" class="text-sm auth-link">
+              <Link href="/login" class="auth-link">
                 {t("auth.back_to_login")}
               </Link>
             </div>
