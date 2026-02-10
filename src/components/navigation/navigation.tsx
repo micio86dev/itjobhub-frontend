@@ -38,6 +38,10 @@ export const Navigation = component$(() => {
     state.isMenuOpen = !state.isMenuOpen;
   });
 
+  const closeMenu = $(() => {
+    state.isMenuOpen = false;
+  });
+
   const selectLanguage = $((lang: SupportedLanguage) => {
     // Trigger language change through signal
     setLanguageSignal.value = { language: lang };
@@ -255,22 +259,30 @@ export const Navigation = component$(() => {
       {state.isMenuOpen && (
         <div class="mobile-menu">
           <div class="mobile-menu-panel">
-            <Link href="/jobs" class="mobile-nav-link">
+            <Link href="/jobs" class="mobile-nav-link" onClick$={closeMenu}>
               {t("nav.jobs")}
             </Link>
-            <Link href="/news" class="mobile-nav-link">
+            <Link href="/news" class="mobile-nav-link" onClick$={closeMenu}>
               {t("nav.news")}
             </Link>
-            <Link href="/contact" class="mobile-nav-link">
+            <Link href="/contact" class="mobile-nav-link" onClick$={closeMenu}>
               {t("nav.contact")}
             </Link>
             {auth.user?.role === "admin" && (
-              <Link href="/admin/stats" class="mobile-nav-link">
+              <Link
+                href="/admin/stats"
+                class="mobile-nav-link"
+                onClick$={closeMenu}
+              >
                 {t("nav.dashboard")}
               </Link>
             )}
             {auth.isAuthenticated && (
-              <Link href="/favorites" class="mobile-nav-link">
+              <Link
+                href="/favorites"
+                class="mobile-nav-link"
+                onClick$={closeMenu}
+              >
                 {t("nav.favorites")}
               </Link>
             )}
@@ -278,7 +290,11 @@ export const Navigation = component$(() => {
             <div class="mobile-divider">
               {auth.isAuthenticated ? (
                 <div class="mobile-auth-wrapper">
-                  <Link href="/profile" class="mobile-nav-link">
+                  <Link
+                    href="/profile"
+                    class="mobile-nav-link"
+                    onClick$={closeMenu}
+                  >
                     {t("nav.profile")}
                   </Link>
                   <button
@@ -291,12 +307,17 @@ export const Navigation = component$(() => {
                 </div>
               ) : (
                 <div class="mobile-auth-wrapper">
-                  <Link href="/login" class="mobile-nav-link">
+                  <Link
+                    href="/login"
+                    class="mobile-nav-link"
+                    onClick$={closeMenu}
+                  >
                     {t("nav.login")}
                   </Link>
                   <Link
                     href="/register"
                     class="justify-center w-full btn-primary"
+                    onClick$={closeMenu}
                   >
                     {t("nav.register")}
                   </Link>

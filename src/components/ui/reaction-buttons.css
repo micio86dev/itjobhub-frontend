@@ -3,7 +3,7 @@
 }
 
 .reaction-btn {
-  @apply flex items-center space-x-1.5 px-3 py-1.5 rounded-sm transition-all border border-transparent disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer text-xs font-mono;
+  @apply flex items-center space-x-1.5 px-3 py-1.5 rounded-sm transition border border-transparent disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer text-xs font-mono;
   background-color: rgba(0, 0, 0, 0.03);
 }
 

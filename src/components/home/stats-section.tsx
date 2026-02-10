@@ -31,7 +31,7 @@ export const StatsSection = component$<StatsSectionProps>(({ topSkills }) => {
         {/* Top Skills Chart */}
         {topSkills.value.length > 0 && (
           <div class="chart-card">
-            <h3 class="chart-title">🔥 {t("home.top_skills_title")}</h3>
+            <h2 class="chart-title">🔥 {t("home.top_skills_title")}</h2>
             <div class="chart-grid">
               {topSkills.value.slice(0, 10).map((skill, index) => (
                 <div key={skill.skill} class="group skill-item">

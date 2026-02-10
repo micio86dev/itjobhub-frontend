@@ -15,7 +15,7 @@ export const CompanyInfoBox = component$<CompanyInfoBoxProps>(
     return (
       <div class="companyInfoBox">
         <div class="companyInfoHeader">
-          <h3 class="companyInfoTitle">{t("job.about_company")}</h3>
+          <h2 class="companyInfoTitle">{t("job.about_company")}</h2>
           <div class="trustScore">
             <span class="trustStar">★</span>
             <span class="trustValue">

@@ -53,7 +53,7 @@
 }
 
 .search-input-wrapper {
-  @apply relative gap-x-4 bg-gray-900 border border-brand-neon/50 rounded-md p-2 shadow-xl flex items-center transition-all duration-300 group-hover:shadow-neon-sm;
+  @apply relative gap-x-4 bg-gray-900 border border-brand-neon/50 rounded-md p-2 shadow-xl flex items-center transition duration-300 group-hover:shadow-neon-sm;
 }
 
 .search-icon-wrapper {
@@ -73,5 +73,5 @@
 }
 
 .tag-link {
-  @apply px-2 py-1 rounded-sm bg-gray-800/50 hover:bg-brand-neon/10 hover:text-brand-neon border border-gray-800 hover:border-brand-neon/30 transition-all duration-200 cursor-pointer text-xs uppercase;
+  @apply px-2 py-1 rounded-sm bg-gray-800/50 hover:bg-brand-neon/10 hover:text-brand-neon border border-gray-800 hover:border-brand-neon/30 transition duration-200 cursor-pointer text-xs uppercase;
 }

@@ -422,9 +422,9 @@ export default component$(() => {
                   />
                 </svg>
               </div>
-              <h3 class="mb-2 font-medium text-gray-900 dark:text-white text-lg">
+              <h2 class="mb-2 font-medium text-gray-900 dark:text-white text-lg">
                 {t("profile.complete_profile")}
-              </h3>
+              </h2>
               <p class="mb-4 text-gray-500 dark:text-gray-400">
                 {t("profile.complete_desc")}
               </p>
@@ -442,9 +442,9 @@ export default component$(() => {
               {/* Personal Information */}
               <div class="bg-gray-50 dark:bg-gray-900/50 p-6 rounded-lg">
                 <div class="flex justify-between items-center mb-4">
-                  <h3 class="font-medium text-gray-900 dark:text-white text-lg">
+                  <h2 class="font-medium text-gray-900 dark:text-white text-lg">
                     {t("profile.personal_info")}
-                  </h3>
+                  </h2>
                   <button
                     onClick$={handleEditPersonal}
                     class="text-xs btn-secondary"
@@ -643,9 +643,9 @@ export default component$(() => {
               {/* Professional Information */}
               <div class="bg-gray-50 dark:bg-gray-900/50 p-6 rounded-lg">
                 <div class="flex justify-between items-center mb-4">
-                  <h3 class="font-medium text-gray-900 dark:text-white text-lg">
+                  <h2 class="font-medium text-gray-900 dark:text-white text-lg">
                     {t("profile.professional_info")}
-                  </h3>
+                  </h2>
                   <button
                     onClick$={handleEditProfile}
                     class="text-xs btn-secondary"
@@ -670,9 +670,9 @@ export default component$(() => {
                 <div class="space-y-6">
                   {/* Languages */}
                   <div>
-                    <h4 class="mb-3 font-medium text-gray-500 dark:text-gray-400 text-sm">
+                    <h3 class="mb-3 font-medium text-gray-500 dark:text-gray-400 text-sm">
                       {t("profile.languages_title")}
-                    </h4>
+                    </h3>
                     <div class="flex flex-wrap gap-2">
                       {auth.user?.languages?.map((lang) => {
                         // Try to translate the language name
@@ -697,9 +697,9 @@ export default component$(() => {
 
                   {/* Skills */}
                   <div>
-                    <h4 class="mb-3 font-medium text-gray-500 dark:text-gray-400 text-sm">
+                    <h3 class="mb-3 font-medium text-gray-500 dark:text-gray-400 text-sm">
                       {t("profile.skills_title")}
-                    </h4>
+                    </h3>
                     <div class="flex flex-wrap gap-2">
                       {auth.user?.skills?.map((skill) => (
                         <span
@@ -715,9 +715,9 @@ export default component$(() => {
                   {/* Seniority & Availability */}
                   <div class="gap-6 grid grid-cols-1 md:grid-cols-2">
                     <div>
-                      <h4 class="mb-3 font-medium text-gray-500 dark:text-gray-400 text-sm">
+                      <h3 class="mb-3 font-medium text-gray-500 dark:text-gray-400 text-sm">
                         {t("profile.seniority_title")}
-                      </h4>
+                      </h3>
                       <div class="flex items-center">
                         <div class="bg-brand-neon mr-3 rounded-full w-3 h-3"></div>
                         <span class="font-medium text-gray-900 dark:text-white text-sm capitalize">
@@ -727,9 +727,9 @@ export default component$(() => {
                     </div>
 
                     <div>
-                      <h4 class="mb-3 font-medium text-gray-500 dark:text-gray-400 text-sm">
+                      <h3 class="mb-3 font-medium text-gray-500 dark:text-gray-400 text-sm">
                         {t("profile.availability_title")}
-                      </h4>
+                      </h3>
                       <div class="flex items-center">
                         <div class="bg-green-500 dark:bg-green-400 mr-3 rounded-full w-3 h-3"></div>
                         <span class="font-medium text-gray-900 dark:text-white text-sm capitalize">
@@ -741,9 +741,9 @@ export default component$(() => {
 
                   {/* Work Modes */}
                   <div>
-                    <h4 class="mb-3 font-medium text-gray-500 dark:text-gray-400 text-sm">
+                    <h3 class="mb-3 font-medium text-gray-500 dark:text-gray-400 text-sm">
                       {t("profile.work_modes_title")}
-                    </h4>
+                    </h3>
                     <div class="flex flex-wrap gap-2">
                       {auth.user?.workModes?.map((mode) => (
                         <span

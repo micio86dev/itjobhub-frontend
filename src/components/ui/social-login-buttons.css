@@ -16,7 +16,12 @@
   border-radius: 0.25rem; /* rounded-sm */
   font-size: 0.875rem;
   font-weight: 600;
-  transition: all 0.2s ease-in-out;
+  transition:
+    color 0.2s ease-in-out,
+    background-color 0.2s ease-in-out,
+    border-color 0.2s ease-in-out,
+    box-shadow 0.2s ease-in-out,
+    transform 0.2s ease-in-out;
   cursor: pointer;
   overflow: hidden;
   border: 1px solid #e5e7eb; /* gray-200 */

@@ -39,9 +39,9 @@ export const NewsList = component$<NewsListProps>(({ news, isLoading }) => {
             ></path>
           </svg>
         </div>
-        <h3 class="mb-2 font-medium text-gray-900 dark:text-white text-lg">
+        <h2 class="mb-2 font-medium text-gray-900 dark:text-white text-lg">
           {t("news.no_news")}
-        </h3>
+        </h2>
         <p class="mt-1 text-gray-500 dark:text-gray-400">
           {t("news.no_news_desc")}
         </p>

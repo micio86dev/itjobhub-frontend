@@ -131,6 +131,7 @@
   "job.location_not_specified": "Location not specified",
   "job.posted": "Publication date",
   "job.apply": "Apply",
+  "job.at": "at",
   "job.add_favorite": "Add to favorites",
   "job.remove_favorite": "Remove from favorites",
   "job.views": "views",

@@ -7,7 +7,7 @@
 }
 
 .loginCard {
-  @apply max-w-md w-full space-y-8 p-8 rounded-lg border border-gray-200 bg-brand-light-card shadow-lg transition-all duration-300;
+  @apply max-w-md w-full space-y-8 p-8 rounded-lg border border-gray-200 bg-brand-light-card shadow-lg transition duration-300;
 }
 
 :global(.dark) .loginCard {
@@ -43,7 +43,7 @@
 }
 
 .inputTop {
-  @apply block w-full px-4 py-3 border border-gray-300 rounded-none rounded-t-sm border-b-0 bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-neon focus:border-brand-neon z-10 sm:text-sm transition-all duration-200;
+  @apply block w-full px-4 py-3 border border-gray-300 rounded-none rounded-t-sm border-b-0 bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-neon focus:border-brand-neon z-10 sm:text-sm transition duration-200;
 }
 
 :global(.dark) .inputTop {
@@ -51,7 +51,7 @@
 }
 
 .inputBottom {
-  @apply block w-full px-4 py-3 border border-gray-300 rounded-none rounded-b-sm bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-neon focus:border-brand-neon z-10 sm:text-sm transition-all duration-200;
+  @apply block w-full px-4 py-3 border border-gray-300 rounded-none rounded-b-sm bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-neon focus:border-brand-neon z-10 sm:text-sm transition duration-200;
 }
 
 :global(.dark) .inputBottom {

@@ -3,7 +3,7 @@
 }
 
 .input-container {
-  @apply min-h-[42px] w-full px-3 py-2 border border-gray-300 rounded-sm shadow-sm focus-within:ring-2 focus-within:ring-brand-neon focus-within:border-brand-neon bg-white transition-all duration-200;
+  @apply min-h-[42px] w-full px-3 py-2 border border-gray-300 rounded-sm shadow-sm focus-within:ring-2 focus-within:ring-brand-neon focus-within:border-brand-neon bg-white transition duration-200;
 }
 
 :global(.dark) .input-container {

@@ -202,9 +202,9 @@ export const UnifiedCommentsSection = component$<CommentsSectionProps>(
 
     return (
       <div class="comments-wrapper">
-        <h4 class="comments-title">
+        <h2 class="comments-title">
           {t("comments.title")} ({state.comments.length})
-        </h4>
+        </h2>
 
         {auth.isAuthenticated ? (
           <div class="comment-input-group">

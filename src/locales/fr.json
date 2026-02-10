@@ -127,6 +127,8 @@
   "job.location_not_specified": "Lieu non spécifié",
   "job.posted": "Date de publication",
   "job.apply": "Postuler",
+  "job.at": "chez",
+  "job.back_to_jobs": "Retour aux offres",
   "job.add_favorite": "Ajouter aux favoris",
   "job.remove_favorite": "Retirer des favoris",
   "job.views": "vues",

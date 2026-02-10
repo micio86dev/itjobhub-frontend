@@ -250,6 +250,7 @@ export default component$(() => {
       </div>
 
       <div class="mx-auto px-4 py-8 container">
+        <h2 class="sr-only">{t("news.list_title")}</h2>
         <NewsList
           news={state.news}
           isLoading={false} // Loading handled by SSR or infinite scroll spinner

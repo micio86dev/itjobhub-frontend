@@ -342,6 +342,7 @@ export const JobCard = component$<JobCardProps>(
           <Link
             href={`/jobs/detail/${job.id}`}
             class="justify-center btn-primary"
+            aria-label={`${t("job.apply")} - ${job.title} ${t("job.at")} ${job.company}`}
           >
             <span>{t("job.apply")}</span>
             <svg class="ml-1 w-3 h-3" fill="currentColor" viewBox="0 0 20 20">

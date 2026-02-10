@@ -6,7 +6,7 @@
   display: flex !important;
   align-items: center;
   gap: 0.5rem;
-  @apply px-3 py-1.5 -ml-3 text-sm font-semibold text-gray-600 dark:text-white hover:text-brand-neon rounded-full hover:bg-slate-100 dark:hover:bg-gray-800 transition-all duration-300 mb-6;
+  @apply px-3 py-1.5 -ml-3 text-sm font-semibold text-gray-600 dark:text-white hover:text-brand-neon rounded-full hover:bg-slate-100 dark:hover:bg-gray-800 transition duration-300 mb-6;
 }
 
 .backIcon {

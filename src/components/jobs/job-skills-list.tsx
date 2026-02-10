@@ -19,7 +19,7 @@ export const JobSkillsList = component$<JobSkillsListProps>(
 
     return (
       <div class="skillsSection">
-        <h3 class="skillsTitle">{t("job.skills_title")}</h3>
+        <h2 class="skillsTitle">{t("job.skills_title")}</h2>
         <div class="skillsList">
           {skills.map((skill) => {
             const isMatched = userSkills.includes(skill);

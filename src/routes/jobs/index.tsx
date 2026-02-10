@@ -477,7 +477,7 @@ export default component$(() => {
 
       {/* Results count */}
       {state.totalJobsCount > 0 && (
-        <div class="mb-4 font-mono font-medium text-gray-800 dark:text-gray-300 text-sm">
+        <h2 class="mb-4 font-mono font-medium text-gray-800 dark:text-gray-300 text-sm">
           {state.hasNextPage
             ? t("jobs.showing_count").replace(
                 "{count}",
@@ -487,7 +487,7 @@ export default component$(() => {
                 "{count}",
                 state.totalJobsCount.toString(),
               )}
-        </div>
+        </h2>
       )}
 
       {/* Jobs list */}
@@ -504,9 +504,9 @@ export default component$(() => {
                 />
               </svg>
             </div>
-            <h3 class="mb-2 font-medium text-gray-900 dark:text-white text-lg">
+            <h2 class="mb-2 font-medium text-gray-900 dark:text-white text-lg">
               {t("jobs.no_jobs")}
-            </h3>
+            </h2>
             <p class="text-gray-500 dark:text-gray-400">
               {state.showPersonalized
                 ? t("jobs.no_jobs_personalized")

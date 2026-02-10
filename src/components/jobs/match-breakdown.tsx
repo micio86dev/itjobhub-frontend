@@ -44,7 +44,7 @@ export const MatchBreakdown = component$<MatchBreakdownProps>(
 
     return (
       <div class="container">
-        <h3 class="title">{t("match.title")}</h3>
+        <h2 class="title">{t("match.title")}</h2>
 
         <div class="score-container">
           <div
@@ -53,7 +53,7 @@ export const MatchBreakdown = component$<MatchBreakdownProps>(
             {score}%
           </div>
           <div>
-            <h4 class={`score-text ${getScoreColor(score)}`}>
+            <h3 class={`score-text ${getScoreColor(score)}`}>
               {score >= 75
                 ? t("match.excellent")
                 : score >= 50
@@ -61,7 +61,7 @@ export const MatchBreakdown = component$<MatchBreakdownProps>(
                   : score >= 30
                     ? t("match.fair")
                     : t("match.low")}
-            </h4>
+            </h3>
             <p class="score-subtitle">{t("match.subtitle")}</p>
           </div>
         </div>

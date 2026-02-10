@@ -23,7 +23,7 @@
 }
 
 .nav-link {
-  @apply text-gray-700 dark:text-gray-300 px-3 sm:px-4 py-2 rounded-sm text-sm font-sans font-semibold whitespace-nowrap relative transition-all duration-200;
+  @apply text-gray-700 dark:text-gray-300 px-3 sm:px-4 py-2 rounded-sm text-sm font-sans font-semibold whitespace-nowrap relative transition duration-200;
 }
 
 .nav-link:hover {

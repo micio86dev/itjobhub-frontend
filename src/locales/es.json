@@ -127,6 +127,8 @@
   "job.location_not_specified": "Ubicación no especificada",
   "job.posted": "Fecha de publicación",
   "job.apply": "Postular",
+  "job.at": "en",
+  "job.back_to_jobs": "Volver a ofertas",
   "job.add_favorite": "Añadir a favoritos",
   "job.remove_favorite": "Quitar de favoritos",
   "job.views": "vistas",
