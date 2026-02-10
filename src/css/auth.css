@@ -32,8 +32,13 @@
   @apply text-gray-400;
 }
 
-.auth-link {
-  @apply font-semibold text-brand-neon hover:text-brand-neon/80 transition-colors;
+:global(.auth-link) {
+  @apply font-semibold transition-colors;
+  color: var(--brand-neon);
+}
+
+:global(.auth-link:hover) {
+  color: rgb(var(--brand-neon-rgb) / 0.8);
 }
 
 .auth-form {

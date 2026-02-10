@@ -43,7 +43,6 @@ export const AvatarCropper = component$((props: AvatarCropperProps) => {
     if (isBrowser && loaded && imageEl) {
       // Destroy previous instance if exists
       if (cropperRef.value) {
-        console.log("AvatarCropper: Destroying previous cropper instance");
         try {
           cropperRef.value.destroy();
         } catch (e) {
@@ -51,7 +50,6 @@ export const AvatarCropper = component$((props: AvatarCropperProps) => {
         }
       }
 
-      console.log("AvatarCropper: Initializing new Cropper instance");
       // Small timeout to ensure DOM is ready and layout is stable
       const timer = setTimeout(() => {
         try {
@@ -89,8 +87,6 @@ export const AvatarCropper = component$((props: AvatarCropperProps) => {
 
   const handleSave = $(() => {
     if (cropperRef.value) {
-      console.log("AvatarCropper: handleSave triggered");
-
       // Defensive check for getCroppedCanvas
       if (typeof cropperRef.value.getCroppedCanvas !== "function") {
         console.error(
@@ -145,7 +141,6 @@ export const AvatarCropper = component$((props: AvatarCropperProps) => {
             height={512}
             style={{ opacity: 0 }} // Hide original image until loaded by cropper
             onLoad$={() => {
-              console.log("AvatarCropper: Image loaded");
               isImageLoaded.value = true;
             }}
           />

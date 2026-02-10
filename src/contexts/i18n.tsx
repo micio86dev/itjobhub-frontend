@@ -77,9 +77,6 @@ export const I18nProvider = component$((props: I18nProviderProps) => {
     if (langReq) {
       logger.info({ langReq }, "Language change request");
       i18nState.currentLanguage = langReq.language;
-      console.log(
-        `[E2E] I18nProvider: Language state updated to: ${langReq.language}`,
-      );
       logger.info(
         { currentLanguage: i18nState.currentLanguage },
         "Language changed",

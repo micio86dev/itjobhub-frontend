@@ -17,14 +17,13 @@ const { router, notFound, staticFile } = createQwikCity({
   render,
   qwikCityPlan,
   static: {
-    cacheControl: "public, max-age=31536000, immutable",
+    cacheControl: "public, max-age=3600",
   },
 });
 
 // Allow for dynamic port
 const port = Number(Bun.env.PORT ?? 3000);
 
-// console.log(`Server started: http://localhost:${port}/`);
 console.log(`Server started: http://localhost:${port}/`);
 
 Bun.serve({
@@ -37,8 +36,22 @@ Bun.serve({
       return new Response("UP", { status: 200 });
     }
 
+    // Customize Cache-Control for static files
     const staticResponse = await staticFile(request);
     if (staticResponse) {
+      if (
+        url.pathname.startsWith("/build/") ||
+        url.pathname.startsWith("/assets/")
+      ) {
+        // Hashed build assets: Cache for 1 year, immutable
+        staticResponse.headers.set(
+          "Cache-Control",
+          "public, max-age=31536000, immutable",
+        );
+      } else {
+        // Public assets (favicon, robots.txt, etc): Cache for 1 hour
+        staticResponse.headers.set("Cache-Control", "public, max-age=3600");
+      }
       return staticResponse;
     }
 

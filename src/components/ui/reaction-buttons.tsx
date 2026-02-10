@@ -57,16 +57,6 @@ export const ReactionButtons = component$<ReactionButtonsProps>((props) => {
       localDislikes.value = pDislikes;
       localReaction.value = pReaction;
     }
-
-    console.log(
-      `[ReactionButtons] Synced state for ${props.entityType}:${id}`,
-      {
-        likes: pLikes,
-        dislikes: pDislikes,
-        reaction: pReaction,
-        wasOptimistic: isOptimistic.value,
-      },
-    );
   });
 
   const { onReactionChange$ } = props;
