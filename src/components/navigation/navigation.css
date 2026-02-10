@@ -124,6 +124,10 @@
   @apply text-brand-neon bg-brand-neon/10 pl-6;
 }
 
+.mobile-nav-link.active {
+  @apply font-bold pl-6 text-brand-neon bg-brand-neon/10;
+}
+
 .mobile-divider {
   @apply border-t border-gray-200 dark:border-gray-700 pt-4 pb-3 mx-4;
 }
