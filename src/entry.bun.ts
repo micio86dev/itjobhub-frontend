@@ -45,7 +45,27 @@ Bun.serve({
     // Server-side render this request with Qwik City
     const qwikCityResponse = await router(request);
     if (qwikCityResponse) {
-      return qwikCityResponse;
+      // Create new headers to ensure mutability
+      const headers = new Headers(qwikCityResponse.headers);
+
+      // Security Headers
+      headers.set(
+        "Content-Security-Policy",
+        "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https:; font-src 'self' data:;",
+      );
+      headers.set(
+        "Strict-Transport-Security",
+        "max-age=31536000; includeSubDomains",
+      );
+      headers.set("X-Content-Type-Options", "nosniff");
+      headers.set("X-Frame-Options", "SAMEORIGIN");
+      headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+
+      return new Response(qwikCityResponse.body, {
+        status: qwikCityResponse.status,
+        statusText: qwikCityResponse.statusText,
+        headers,
+      });
     }
 
     // Path not found

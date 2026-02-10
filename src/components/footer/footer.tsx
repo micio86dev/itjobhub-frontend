@@ -7,7 +7,7 @@ export const Footer = component$(() => {
   const year = new Date().getFullYear();
 
   return (
-    <footer class={styles.footer}>
+    <footer class={`${styles.footer} content-visibility-auto`}>
       <div class={`container ${styles.content}`}>
         <p class={styles.copyright}>
           &copy; {year} DevBoards.io. {t("footer.all_rights_reserved")}

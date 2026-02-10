@@ -39,6 +39,7 @@ export default component$(() => {
           type="font/woff2"
           crossOrigin="anonymous"
         />
+        <link rel="preload" href="/grid.svg" as="image" />
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
         <link rel="apple-touch-icon" href="/icon-192.png" />
         {!isDev && (

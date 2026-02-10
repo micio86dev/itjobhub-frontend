@@ -7,7 +7,7 @@ export const ValueProps = component$(() => {
   const t = useTranslate();
 
   return (
-    <section class="value-props-section">
+    <section class="content-visibility-auto value-props-section">
       <div class="container">
         <div class="header">
           <h2 class="title">{t("home.why_us_title")}</h2>

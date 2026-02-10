@@ -50,3 +50,6 @@ lerna-debug.log*
 test-results/
 playwright-report/
 test_output.txt
+
+# Lighthouse Reports
+report-*.report.*

@@ -11,7 +11,7 @@ export const StatsSection = component$<StatsSectionProps>(({ topSkills }) => {
   const t = useTranslate();
 
   return (
-    <section class="stats-section">
+    <section class="content-visibility-auto stats-section">
       <div class="container">
         <div class="stats-grid">
           <div class="stat-item">

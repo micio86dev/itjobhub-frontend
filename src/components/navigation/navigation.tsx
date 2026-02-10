@@ -1,5 +1,11 @@
-import { component$, $, useStore, useStyles$ } from "@builder.io/qwik";
-import { Link } from "@builder.io/qwik-city";
+import {
+  component$,
+  $,
+  useStore,
+  useStyles$,
+  useTask$,
+} from "@builder.io/qwik";
+import { Link, useLocation } from "@builder.io/qwik-city";
 import { useAuth } from "~/contexts/auth";
 import { useI18n, useTranslate, type SupportedLanguage } from "~/contexts/i18n";
 import { useTheme } from "~/contexts/theme";
@@ -12,6 +18,7 @@ export const Navigation = component$(() => {
   const i18n = useI18n();
   const theme = useTheme();
   const t = useTranslate();
+  const location = useLocation();
 
   // Extract values and signals to avoid serialization issues
   const currentLanguage = i18n.currentLanguage;
@@ -22,6 +29,12 @@ export const Navigation = component$(() => {
   const state = useStore({
     showLanguageDropdown: false,
     isMenuOpen: false,
+  });
+
+  // Close menu when route changes
+  useTask$(({ track }) => {
+    track(() => location.url.pathname);
+    state.isMenuOpen = false;
   });
 
   const handleLogout = $(() => {
@@ -36,10 +49,6 @@ export const Navigation = component$(() => {
 
   const toggleMenu = $(() => {
     state.isMenuOpen = !state.isMenuOpen;
-  });
-
-  const closeMenu = $(() => {
-    state.isMenuOpen = false;
   });
 
   const selectLanguage = $((lang: SupportedLanguage) => {
@@ -259,20 +268,28 @@ export const Navigation = component$(() => {
       {state.isMenuOpen && (
         <div class="mobile-menu">
           <div class="mobile-menu-panel">
-            <Link href="/jobs" class="mobile-nav-link" onClick$={closeMenu}>
+            <Link
+              href="/jobs"
+              class={`mobile-nav-link ${location.url.pathname.startsWith("/jobs") ? "active" : ""}`}
+            >
               {t("nav.jobs")}
             </Link>
-            <Link href="/news" class="mobile-nav-link" onClick$={closeMenu}>
+            <Link
+              href="/news"
+              class={`mobile-nav-link ${location.url.pathname.startsWith("/news") ? "active" : ""}`}
+            >
               {t("nav.news")}
             </Link>
-            <Link href="/contact" class="mobile-nav-link" onClick$={closeMenu}>
+            <Link
+              href="/contact"
+              class={`mobile-nav-link ${location.url.pathname.startsWith("/contact") ? "active" : ""}`}
+            >
               {t("nav.contact")}
             </Link>
             {auth.user?.role === "admin" && (
               <Link
                 href="/admin/stats"
-                class="mobile-nav-link"
-                onClick$={closeMenu}
+                class={`mobile-nav-link ${location.url.pathname.startsWith("/admin") ? "active" : ""}`}
               >
                 {t("nav.dashboard")}
               </Link>
@@ -280,8 +297,7 @@ export const Navigation = component$(() => {
             {auth.isAuthenticated && (
               <Link
                 href="/favorites"
-                class="mobile-nav-link"
-                onClick$={closeMenu}
+                class={`mobile-nav-link ${location.url.pathname.startsWith("/favorites") ? "active" : ""}`}
               >
                 {t("nav.favorites")}
               </Link>
@@ -292,8 +308,7 @@ export const Navigation = component$(() => {
                 <div class="mobile-auth-wrapper">
                   <Link
                     href="/profile"
-                    class="mobile-nav-link"
-                    onClick$={closeMenu}
+                    class={`mobile-nav-link ${location.url.pathname.startsWith("/profile") ? "active" : ""}`}
                   >
                     {t("nav.profile")}
                   </Link>
@@ -309,15 +324,13 @@ export const Navigation = component$(() => {
                 <div class="mobile-auth-wrapper">
                   <Link
                     href="/login"
-                    class="mobile-nav-link"
-                    onClick$={closeMenu}
+                    class={`mobile-nav-link ${location.url.pathname.startsWith("/login") ? "active" : ""}`}
                   >
                     {t("nav.login")}
                   </Link>
                   <Link
                     href="/register"
                     class="justify-center w-full btn-primary"
-                    onClick$={closeMenu}
                   >
                     {t("nav.register")}
                   </Link>
