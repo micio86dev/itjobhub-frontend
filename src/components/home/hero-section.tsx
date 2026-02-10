@@ -18,8 +18,8 @@ export const HeroSection = component$<HeroSectionProps>(({ topSkills }) => {
       <div class="container">
         <h1 class="heading">
           <span class="heading-main">{t("home.title")}</span>
-          <span class="heading-sub">{t("home.subtitle")}</span>
         </h1>
+        <h2 class="heading-sub">{t("home.subtitle")}</h2>
         <p class="description">{t("home.opportunities_desc")}</p>
 
         {/* Search Box */}

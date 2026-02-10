@@ -9,6 +9,7 @@ import type { JobListing } from "~/contexts/jobs";
 import { ReactionButtons } from "~/components/ui/reaction-buttons";
 import { DetailStats } from "~/components/ui/detail-stats";
 import { AuthActionPrompt } from "~/components/common/auth-action-prompt";
+import { API_URL } from "~/constants";
 
 interface JobHeaderProps {
   job: JobListing;
@@ -32,11 +33,16 @@ export const JobHeader = component$<JobHeaderProps>((props) => {
           <div class="companyLogoContainer">
             {job.companyLogo ? (
               <img
-                src={job.companyLogo}
+                src={
+                  job.companyLogo && job.companyLogo.startsWith("http")
+                    ? `${API_URL}/image-proxy?url=${encodeURIComponent(job.companyLogo)}`
+                    : job.companyLogo
+                }
                 alt={job.company}
                 width="80"
                 height="80"
                 class="companyLogo"
+                loading="eager"
               />
             ) : (
               <svg

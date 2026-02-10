@@ -10,6 +10,7 @@ import { useTranslate, useI18n } from "~/contexts/i18n";
 import { ReactionButtons } from "~/components/ui/reaction-buttons";
 import { CommentsButton } from "~/components/ui/comments-button";
 import { UnifiedCommentsSection } from "~/components/ui/comments-section";
+import { API_URL } from "~/constants";
 
 interface JobCardProps {
   job: JobListing;
@@ -73,11 +74,16 @@ export const JobCard = component$<JobCardProps>(
               <div class="logo-container">
                 {job.companyLogo ? (
                   <img
-                    src={job.companyLogo}
+                    src={
+                      job.companyLogo && job.companyLogo.startsWith("http")
+                        ? `${API_URL}/image-proxy?url=${encodeURIComponent(job.companyLogo)}`
+                        : job.companyLogo
+                    }
                     alt={job.company}
                     class="logo-image"
                     width="32"
                     height="32"
+                    loading="lazy"
                   />
                 ) : (
                   <svg

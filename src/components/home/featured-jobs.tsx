@@ -23,7 +23,7 @@ export const FeaturedJobs = component$<FeaturedJobsProps>(
         <div class="container">
           <div class="header">
             <div>
-              <h2 class="title">{t("home.recent_jobs_title")}</h2>
+              <h3 class="title">{t("home.recent_jobs_title")}</h3>
               <p class="subtitle">{t("home.recent_jobs_subtitle")}</p>
             </div>
             <a href="/jobs" class="view-all-link">
