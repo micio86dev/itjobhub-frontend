@@ -29,6 +29,11 @@ The DevBoards.io frontend is a high-performance web application designed for dev
 
 ## Recent Changes
 
+### 2026-02-11: Staging Deployment v0.1.0
+
+- **Deployment Trigger**: Pushed tag `stage-v0.1.0` to trigger automated deployment to the staging environment.
+- **Includes**: All performance and security hardening fixes (CSP nonces, HSTS, Caching) and I18n improvements.
+
 ### 2026-02-11: Performance & Security Hardening
 
 - **Trusted Types Implementation**: Added `require-trusted-types-for 'script'` and `trusted-types default` to the CSP to mitigate DOM-based XSS attacks.
