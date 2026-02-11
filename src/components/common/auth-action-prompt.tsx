@@ -10,7 +10,7 @@ export const AuthActionPrompt = component$(() => {
   const toApply = i18n.currentLanguage === "it" ? "per candidarti" : "to apply";
 
   return (
-    <div class="bg-brand-neon/5 mt-3 p-3 border border-brand-neon/10 rounded-sm authActionPrompt">
+    <div class="bg-brand-neon/5 my-3 p-3 border border-brand-neon/10 rounded-sm authActionPrompt">
       <p class="text-gray-700 dark:text-gray-300 text-xs text-center">
         <Link
           href="/login"

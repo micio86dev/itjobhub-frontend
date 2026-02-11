@@ -35,7 +35,8 @@ export const onRequest: RequestHandler = async ({ headers }) => {
     "font-src 'self' https://fonts.gstatic.com",
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "script-src 'self' 'unsafe-inline' 'unsafe-eval'", // Qwik needs unsafe-inline for now; unsafe-eval often needed in dev
-    "connect-src 'self' https://vitals.vercel-insights.com https://fonts.googleapis.com https://fonts.gstatic.com", // Add other API origins if needed
+    "connect-src 'self' https://vitals.vercel-insights.com https://fonts.googleapis.com https://fonts.gstatic.com https://maps.googleapis.com", // Add other API origins if needed
+    "frame-src 'self' https://www.google.com https://maps.google.com",
     "frame-ancestors 'self'",
     "object-src 'none'",
     "base-uri 'self'",

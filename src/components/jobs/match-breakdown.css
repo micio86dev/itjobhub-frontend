@@ -19,7 +19,7 @@
 }
 
 .score-circle {
-  @apply w-24 h-24 rounded-full flex items-center justify-center text-3xl font-bold border-4;
+  @apply min-w-24 w-24 h-24 rounded-full flex items-center justify-center text-3xl font-bold border-4;
 }
 
 .score-text {
