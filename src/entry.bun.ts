@@ -41,9 +41,12 @@ Bun.serve({
     if (staticResponse) {
       if (
         url.pathname.startsWith("/build/") ||
-        url.pathname.startsWith("/assets/")
+        url.pathname.startsWith("/assets/") ||
+        url.pathname.startsWith("/fonts/") ||
+        url.pathname.endsWith(".woff2") ||
+        url.pathname.endsWith(".svg")
       ) {
-        // Hashed build assets: Cache for 1 year, immutable
+        // Hashed build assets, fonts and static vectors: Cache for 1 year, immutable
         staticResponse.headers.set(
           "Cache-Control",
           "public, max-age=31536000, immutable",
