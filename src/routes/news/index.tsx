@@ -20,6 +20,7 @@ import { useInfiniteScroll } from "~/hooks/use-infinite-scroll";
 import { Spinner } from "../../components/ui/spinner";
 import { request } from "~/utils/api";
 import { API_URL } from "~/constants";
+import { ItemListSchema, BreadcrumbSchema } from "~/components/seo/json-ld";
 
 // Import translation files
 import it from "~/locales/it.json";
@@ -211,6 +212,17 @@ export default component$(() => {
           <p class="mx-auto max-w-2xl text-slate-600 dark:text-slate-400 text-lg">
             {t("news.list_subtitle")}
           </p>
+          <div class="mt-6">
+            <BreadcrumbSchema
+              items={[
+                { name: "Home", url: `${import.meta.env.PUBLIC_SITE_URL}/` },
+                {
+                  name: t("news.list_title"),
+                  url: `${import.meta.env.PUBLIC_SITE_URL}/news`,
+                },
+              ]}
+            />
+          </div>
         </div>
       </div>
 
@@ -250,6 +262,17 @@ export default component$(() => {
       </div>
 
       <div class="mx-auto px-4 py-8 container">
+        {state.news.length > 0 && (
+          <ItemListSchema
+            name="News Feed"
+            items={state.news.map((n, index) => ({
+              name: n.title,
+              url: `${import.meta.env.PUBLIC_SITE_URL}/news/${n.slug}`,
+              description: n.summary ?? undefined,
+              position: index + 1,
+            }))}
+          />
+        )}
         <h2 class="sr-only">{t("news.list_title")}</h2>
         <NewsList
           news={state.news}

@@ -19,7 +19,7 @@ import { useI18n, translate } from "~/contexts/i18n";
 import { useAuth } from "~/contexts/auth";
 import { UnifiedCommentsSection } from "~/components/ui/comments-section";
 import { MatchBreakdown } from "~/components/jobs/match-breakdown";
-import { JobPostingSchema } from "~/components/seo/json-ld";
+import { JobPostingSchema, BreadcrumbSchema } from "~/components/seo/json-ld";
 import { JobHeader } from "~/components/jobs/job-header";
 import { JobMapSection } from "~/components/jobs/job-map-section";
 import { JobDescription } from "~/components/jobs/job-description";
@@ -179,6 +179,16 @@ export default component$(() => {
           }
           return (
             <div class="mainContent">
+              <BreadcrumbSchema
+                items={[
+                  { name: "Home", url: `${import.meta.env.PUBLIC_SITE_URL}/` },
+                  {
+                    name: "Jobs",
+                    url: `${import.meta.env.PUBLIC_SITE_URL}/jobs`,
+                  },
+                  { name: job.title, url: loc.url.href },
+                ]}
+              />
               {/* JobPosting JSON-LD for SEO */}
               <JobPostingSchema
                 title={job.title}

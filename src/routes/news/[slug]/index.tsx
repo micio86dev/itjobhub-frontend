@@ -14,7 +14,8 @@ import { UnifiedCommentsSection } from "~/components/ui/comments-section";
 import { ReactionButtons } from "~/components/ui/reaction-buttons";
 
 // import { DeleteConfirmButton } from "~/components/ui/delete-confirm-button";
-import type { ApiNews } from "~/types/models";
+import type { ApiNews, ApiNewsTranslation } from "~/types/models";
+import { ArticleSchema, BreadcrumbSchema } from "~/components/seo/json-ld";
 import { Modal } from "~/components/ui/modal";
 import { API_URL } from "~/constants";
 
@@ -162,7 +163,9 @@ export default component$(() => {
   let displayTitle = news.title;
   let displayContent = news.content;
 
-  const translation = news.translations?.find((tr) => tr.language === lang);
+  const translation = news.translations?.find(
+    (tr: ApiNewsTranslation) => tr.language === lang,
+  );
   if (translation) {
     displayTitle = translation.title;
     displayContent = translation.content || displayContent;
@@ -206,6 +209,23 @@ export default component$(() => {
         </Link>
 
         <article class="bg-white dark:bg-slate-900 shadow-sm rounded-2xl overflow-hidden">
+          <BreadcrumbSchema
+            items={[
+              { name: "Home", url: `${import.meta.env.PUBLIC_SITE_URL}/` },
+              { name: "News", url: `${import.meta.env.PUBLIC_SITE_URL}/news` },
+              { name: displayTitle, url: loc.url.href },
+            ]}
+          />
+          {/* Article JSON-LD for SEO */}
+          <ArticleSchema
+            title={displayTitle}
+            description={
+              news.summary || displayContent?.substring(0, 160) || displayTitle
+            }
+            image={news.image_url || undefined}
+            datePublished={news.published_at || news.created_at || ""}
+            url={loc.url.href}
+          />
           {/* Hero Image */}
           {news.image_url && (
             <div class="relative w-full h-64 md:h-96">
@@ -361,8 +381,9 @@ export const head: DocumentHead = ({ resolveValue }) => {
   let title = news.title;
   let description =
     news.summary || (news.content ? news.content.substring(0, 160) : "");
-
-  const translation = news.translations?.find((tr) => tr.language === lang);
+  const translation = news.translations?.find(
+    (tr: ApiNewsTranslation) => tr.language === lang,
+  );
   if (translation) {
     title = translation.title;
     description =

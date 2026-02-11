@@ -9,7 +9,11 @@ import { routeLoader$ } from "@builder.io/qwik-city";
 import { useAuth } from "~/contexts/auth";
 import { type SupportedLanguage } from "~/contexts/i18n";
 import { useJobs } from "~/contexts/jobs";
-import { OrganizationSchema, WebSiteSchema } from "~/components/seo/json-ld";
+import {
+  OrganizationSchema,
+  WebSiteSchema,
+  BreadcrumbSchema,
+} from "~/components/seo/json-ld";
 import {
   HeroSection,
   StatsSection,
@@ -27,6 +31,8 @@ import de from "~/locales/de.json";
 import fr from "~/locales/fr.json";
 
 const translations = { it, en, es, de, fr };
+
+const SITE_URL = import.meta.env.PUBLIC_SITE_URL || "https://itjobhub.com";
 
 // Route loader to get translated meta for DocumentHead
 export const useIndexHeadLoader = routeLoader$(({ cookie }) => {
@@ -91,6 +97,7 @@ export default component$(() => {
       {/* JSON-LD Structured Data for SEO */}
       <OrganizationSchema />
       <WebSiteSchema />
+      <BreadcrumbSchema items={[{ name: "Home", url: SITE_URL }]} />
 
       <HeroSection topSkills={topSkills} />
       <StatsSection topSkills={topSkills} />

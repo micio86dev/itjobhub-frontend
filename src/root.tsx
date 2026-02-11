@@ -35,6 +35,13 @@ export default component$(() => {
           type="font/woff2"
           crossOrigin="anonymous"
         />
+        <link
+          rel="preload"
+          href="/fonts/FiraCode-Latin.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
         <link rel="preload" href="/grid.svg" as="image" />
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
         <link rel="apple-touch-icon" href="/icon-192.png" />
@@ -44,8 +51,23 @@ export default component$(() => {
             href={`${import.meta.env.BASE_URL}manifest.json`}
           />
         )}
-        {/* Initialize theme immediately to prevent flash - Using external script for CSP compliance */}
-        <script nonce={nonce} src="/theme-loader.js" />
+        {/* Initialize theme immediately to prevent flash - Inlined for performance */}
+        <script
+          nonce={nonce}
+          dangerouslySetInnerHTML={`
+            (function() {
+              try {
+                var theme = localStorage.getItem('theme');
+                var supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+                if (theme === 'dark' || (!theme && supportDarkMode)) {
+                  document.documentElement.classList.add('dark');
+                } else {
+                  document.documentElement.classList.remove('dark');
+                }
+              } catch (e) {}
+            })();
+          `}
+        />
         <RouterHead />
       </head>
       <body>

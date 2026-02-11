@@ -13,6 +13,7 @@ import { JobSearch } from "~/components/jobs/job-search";
 import { useInfiniteScroll } from "~/hooks/use-infinite-scroll";
 import { ScrollButtons } from "~/components/ui/scroll-buttons";
 import type { JobFilters, JobListing, ApiPagination } from "~/contexts/jobs";
+import { ItemListSchema, BreadcrumbSchema } from "~/components/seo/json-ld";
 
 // Import translations for server-side DocumentHead
 import it from "~/locales/it.json";
@@ -299,6 +300,15 @@ export default component$(() => {
         <h1 class="mb-4 font-bold text-gray-900 dark:text-white text-3xl">
           {t("jobs.title")}
         </h1>
+        <BreadcrumbSchema
+          items={[
+            { name: "Home", url: `${import.meta.env.PUBLIC_SITE_URL}/` },
+            {
+              name: t("jobs.title"),
+              url: `${import.meta.env.PUBLIC_SITE_URL}/jobs`,
+            },
+          ]}
+        />
 
         {/* Search component */}
         <JobSearch
@@ -433,6 +443,17 @@ export default component$(() => {
 
       {/* Jobs list */}
       <div class="space-y-6">
+        {state.displayedJobs.length > 0 && (
+          <ItemListSchema
+            name="Jobs Listing"
+            items={state.displayedJobs.map((job, index) => ({
+              name: job.title,
+              url: `${import.meta.env.PUBLIC_SITE_URL}/jobs/detail/${job.id}`,
+              description: job.company,
+              position: index + 1,
+            }))}
+          />
+        )}
         {state.displayedJobs.length === 0 && !state.isLoading ? (
           <div class="py-12 text-center">
             <div class="mx-auto mb-4 w-16 h-16 text-gray-500 dark:text-gray-400">

@@ -7,6 +7,7 @@ interface OrganizationSchemaProps {
   name?: string;
   url?: string;
   logo?: string;
+  socials?: string[];
 }
 
 /**
@@ -17,6 +18,7 @@ export const OrganizationSchema = component$<OrganizationSchemaProps>(
     name = "DevBoards.io",
     url = SITE_URL,
     logo = `${SITE_URL}/favicon.svg`,
+    socials = [],
   }) => {
     const nonce = useServerData<string | undefined>("nonce");
     const schema = {
@@ -25,7 +27,7 @@ export const OrganizationSchema = component$<OrganizationSchemaProps>(
       name: name,
       url: url,
       logo: logo,
-      sameAs: [],
+      ...(socials.length > 0 && { sameAs: socials }),
     };
 
     return (
@@ -217,6 +219,140 @@ export const BreadcrumbSchema = component$<BreadcrumbSchemaProps>(
         name: item.name,
         item: item.url,
       })),
+    };
+
+    return (
+      <script
+        type="application/ld+json"
+        nonce={nonce}
+        dangerouslySetInnerHTML={JSON.stringify(schema)}
+      />
+    );
+  },
+);
+
+interface ArticleSchemaProps {
+  title: string;
+  description: string;
+  image?: string;
+  datePublished: string;
+  dateModified?: string;
+  authorName?: string;
+  publisherName?: string;
+  publisherLogo?: string;
+  url: string;
+}
+
+/**
+ * Article / BlogPosting JSON-LD schema
+ */
+export const ArticleSchema = component$<ArticleSchemaProps>((props) => {
+  const nonce = useServerData<string | undefined>("nonce");
+  const schema = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    headline: props.title,
+    description: props.description,
+    ...(props.image && { image: [props.image] }),
+    datePublished: props.datePublished,
+    dateModified: props.dateModified || props.datePublished,
+    author: {
+      "@type": "Person",
+      name: props.authorName || "Team DevBoards.io",
+    },
+    publisher: {
+      "@type": "Organization",
+      name: props.publisherName || "DevBoards.io",
+      logo: {
+        "@type": "ImageObject",
+        url: props.publisherLogo || `${SITE_URL}/favicon.svg`,
+      },
+    },
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": props.url,
+    },
+  };
+
+  return (
+    <script
+      type="application/ld+json"
+      nonce={nonce}
+      dangerouslySetInnerHTML={JSON.stringify(schema)}
+    />
+  );
+});
+
+interface ItemListSchemaProps {
+  name: string;
+  items: {
+    name: string;
+    url: string;
+    description?: string;
+    position: number;
+  }[];
+}
+
+/**
+ * ItemList JSON-LD schema for collections (Jobs, News)
+ */
+export const ItemListSchema = component$<ItemListSchemaProps>(
+  ({ items, name }) => {
+    const nonce = useServerData<string | undefined>("nonce");
+    const schema = {
+      "@context": "https://schema.org",
+      "@type": "ItemList",
+      name: name,
+      itemListElement: items.map((item) => ({
+        "@type": "ListItem",
+        position: item.position,
+        url: item.url,
+        name: item.name,
+        ...(item.description && { description: item.description }),
+      })),
+    };
+
+    return (
+      <script
+        type="application/ld+json"
+        nonce={nonce}
+        dangerouslySetInnerHTML={JSON.stringify(schema)}
+      />
+    );
+  },
+);
+
+interface ContactPageSchemaProps {
+  name?: string;
+  description?: string;
+  url?: string;
+}
+
+/**
+ * ContactPage JSON-LD schema
+ */
+export const ContactPageSchema = component$<ContactPageSchemaProps>(
+  ({
+    name = "Contattaci - DevBoards.io",
+    description = "Hai domande? Scrivici o seguici sui social.",
+    url = `${SITE_URL}/contact`,
+  }) => {
+    const nonce = useServerData<string | undefined>("nonce");
+    const schema = {
+      "@context": "https://schema.org",
+      "@type": "ContactPage",
+      name: name,
+      description: description,
+      url: url,
+      mainEntity: {
+        "@type": "Organization",
+        name: "DevBoards.io",
+        contactPoint: {
+          "@type": "ContactPoint",
+          contactType: "customer support",
+          email: "support@itjobhub.com",
+        },
+      },
     };
 
     return (

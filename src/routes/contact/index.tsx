@@ -7,6 +7,7 @@ import {
 import { ContactForm } from "../../components/common/contact-form";
 import { type SupportedLanguage } from "~/contexts/i18n";
 import { API_URL } from "~/constants";
+import { ContactPageSchema } from "~/components/seo/json-ld";
 
 // Import translations for server-side DocumentHead
 import it from "~/locales/it.json";
@@ -65,6 +66,7 @@ export const useContactAction = routeAction$(async (data, { cookie, env }) => {
 export default component$(() => {
   return (
     <section class="bg-brand-light-bg dark:bg-brand-dark-bg py-12 md:py-20 min-h-screen transition-colors duration-300 contact-page">
+      <ContactPageSchema />
       <div class="mx-auto px-4 container">
         <ContactForm />
       </div>
