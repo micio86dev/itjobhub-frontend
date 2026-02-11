@@ -4,7 +4,7 @@ export const onRequest: RequestHandler = async ({ headers, sharedMap }) => {
   // HSTS - 1 year, include subdomains, preload
   headers.set(
     "Strict-Transport-Security",
-    "max-age=31536000; includeSubDomains; preload",
+    "max-age=63072000; includeSubDomains; preload",
   );
 
   // X-Frame-Options - Protect against clickjacking

@@ -31,6 +31,7 @@ The DevBoards.io frontend is a high-performance web application designed for dev
 
 ### 2026-02-11: Performance & Security Hardening
 
+- **HSTS Optimization**: Increased `Strict-Transport-Security` max-age to 2 years (63072000) and added the `preload` directive for maximum security and score (Best Practice).
 - **CSP Hardening (XSS Mitigation)**: Implemented dynamic nonces for all inline scripts and removed `'unsafe-inline'` from the `script-src` directive. This significantly improves protection against Cross-Site Scripting (XSS) attacks.
 - **Efficient Caching**: Implemented aggresive caching (1 year, immutable) for static fonts (`/fonts/*.woff2`) and SVG assets (`/grid.svg`) in `entry.bun.ts`. This resolves PageSpeed Insights warnings about inefficient cache durations.
 - **Google Maps CSP Fix (v2)**: Applied `frame-src 'self' https://www.google.com https://maps.google.com` to both `plugin.ts` and `entry.bun.ts`. This fixes the Google Maps embedding in production.
