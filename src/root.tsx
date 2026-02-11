@@ -1,4 +1,4 @@
-import { component$, isDev, useStyles$ } from "@builder.io/qwik";
+import { component$, isDev, useStyles$, useServerData } from "@builder.io/qwik";
 import {
   QwikCityProvider,
   RouterOutlet,
@@ -10,6 +10,7 @@ import { ScrollButtons } from "./components/ui/scroll-buttons";
 import globalStyles from "./global.css?inline";
 
 export default component$(() => {
+  const nonce = useServerData<string | undefined>("nonce");
   /**
    * The root of a QwikCity site always start with the <QwikCityProvider> component,
    * immediately followed by the document's <head> and <body>.
@@ -50,6 +51,7 @@ export default component$(() => {
         )}
         {/* Initialize theme immediately to prevent flash */}
         <script
+          nonce={nonce}
           dangerouslySetInnerHTML={`
             (function() {
               try {
