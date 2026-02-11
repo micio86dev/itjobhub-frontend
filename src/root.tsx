@@ -11,12 +11,7 @@ import globalStyles from "./global.css?inline";
 
 export default component$(() => {
   const nonce = useServerData<string | undefined>("nonce");
-  /**
-   * The root of a QwikCity site always start with the <QwikCityProvider> component,
-   * immediately followed by the document's <head> and <body>.
-   *
-   * Don't remove the `<head>` and `<body>` elements.
-   */
+
   useStyles$(globalStyles);
 
   return (
@@ -49,23 +44,8 @@ export default component$(() => {
             href={`${import.meta.env.BASE_URL}manifest.json`}
           />
         )}
-        {/* Initialize theme immediately to prevent flash */}
-        <script
-          nonce={nonce}
-          dangerouslySetInnerHTML={`
-            (function() {
-              try {
-                var theme = localStorage.getItem("theme");
-                var supportDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches === true;
-                if (theme === "dark" || (!theme && supportDarkMode)) {
-                  document.documentElement.classList.add("dark");
-                } else {
-                  document.documentElement.classList.remove("dark");
-                }
-              } catch (e) {}
-            })();
-          `}
-        />
+        {/* Initialize theme immediately to prevent flash - Using external script for CSP compliance */}
+        <script nonce={nonce} src="/theme-loader.js" />
         <RouterHead />
       </head>
       <body>
