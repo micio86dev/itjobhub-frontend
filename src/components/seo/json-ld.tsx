@@ -1,4 +1,4 @@
-import { component$ } from "@builder.io/qwik";
+import { component$, useServerData } from "@builder.io/qwik";
 
 // Base URL for production
 const SITE_URL = import.meta.env.PUBLIC_SITE_URL;
@@ -18,6 +18,7 @@ export const OrganizationSchema = component$<OrganizationSchemaProps>(
     url = SITE_URL,
     logo = `${SITE_URL}/favicon.svg`,
   }) => {
+    const nonce = useServerData<string | undefined>("nonce");
     const schema = {
       "@context": "https://schema.org",
       "@type": "Organization",
@@ -30,6 +31,7 @@ export const OrganizationSchema = component$<OrganizationSchemaProps>(
     return (
       <script
         type="application/ld+json"
+        nonce={nonce}
         dangerouslySetInnerHTML={JSON.stringify(schema)}
       />
     );
@@ -51,6 +53,7 @@ export const WebSiteSchema = component$<WebSiteSchemaProps>(
     url = SITE_URL,
     searchUrl = `${SITE_URL}/jobs?q={search_term_string}`,
   }) => {
+    const nonce = useServerData<string | undefined>("nonce");
     const schema = {
       "@context": "https://schema.org",
       "@type": "WebSite",
@@ -69,6 +72,7 @@ export const WebSiteSchema = component$<WebSiteSchemaProps>(
     return (
       <script
         type="application/ld+json"
+        nonce={nonce}
         dangerouslySetInnerHTML={JSON.stringify(schema)}
       />
     );
@@ -105,6 +109,7 @@ interface JobPostingSchemaProps {
  * JobPosting JSON-LD schema for job detail pages
  */
 export const JobPostingSchema = component$<JobPostingSchemaProps>((props) => {
+  const nonce = useServerData<string | undefined>("nonce");
   const schema: Record<string, unknown> = {
     "@context": "https://schema.org",
     "@type": "JobPosting",
@@ -182,6 +187,7 @@ export const JobPostingSchema = component$<JobPostingSchemaProps>((props) => {
   return (
     <script
       type="application/ld+json"
+      nonce={nonce}
       dangerouslySetInnerHTML={JSON.stringify(schema)}
     />
   );
@@ -201,6 +207,7 @@ interface BreadcrumbSchemaProps {
 
 export const BreadcrumbSchema = component$<BreadcrumbSchemaProps>(
   ({ items }) => {
+    const nonce = useServerData<string | undefined>("nonce");
     const schema = {
       "@context": "https://schema.org",
       "@type": "BreadcrumbList",
@@ -215,6 +222,7 @@ export const BreadcrumbSchema = component$<BreadcrumbSchemaProps>(
     return (
       <script
         type="application/ld+json"
+        nonce={nonce}
         dangerouslySetInnerHTML={JSON.stringify(schema)}
       />
     );
