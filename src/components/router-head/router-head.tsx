@@ -1,4 +1,4 @@
-import { component$ } from "@builder.io/qwik";
+import { component$, useServerData } from "@builder.io/qwik";
 import { useDocumentHead, useLocation } from "@builder.io/qwik-city";
 import type { SupportedLanguage } from "~/contexts/i18n";
 
@@ -29,6 +29,7 @@ const LOCALE_MAP: Record<SupportedLanguage, string> = {
 export const RouterHead = component$(() => {
   const head = useDocumentHead();
   const loc = useLocation();
+  const nonce = useServerData<string | undefined>("nonce");
 
   // Determine language from query param or fallback to 'it' (default)
   // We strictly use URL state for SEO meta tags to match the content being served
@@ -144,6 +145,7 @@ export const RouterHead = component$(() => {
         <style
           key={s.key}
           {...s.props}
+          nonce={nonce}
           {...(s.props?.dangerouslySetInnerHTML
             ? {}
             : { dangerouslySetInnerHTML: s.style })}
@@ -154,6 +156,7 @@ export const RouterHead = component$(() => {
         <script
           key={s.key}
           {...s.props}
+          nonce={nonce}
           {...(s.props?.dangerouslySetInnerHTML
             ? {}
             : { dangerouslySetInnerHTML: s.script })}

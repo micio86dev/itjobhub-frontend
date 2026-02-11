@@ -71,7 +71,7 @@ export default component$(() => {
       <body>
         <RouterOutlet />
         <ScrollButtons />
-        {!isDev && <ServiceWorkerRegister />}
+        {!isDev && <ServiceWorkerRegister nonce={nonce} />}
       </body>
     </QwikCityProvider>
   );
