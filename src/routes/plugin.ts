@@ -44,6 +44,8 @@ export const onRequest: RequestHandler = async ({ headers, sharedMap }) => {
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",
+    "require-trusted-types-for 'script'",
+    "trusted-types default",
   ];
 
   headers.set("Content-Security-Policy", csp.join("; "));
