@@ -29,10 +29,10 @@ The DevBoards.io frontend is a high-performance web application designed for dev
 
 ## Recent Changes
 
-### 2026-02-11: Google Maps CSP Fix
+### 2026-02-11: Google Maps CSP Fix (v2)
 
-- **CSP Update**: Added `frame-src 'self' https://www.google.com https://maps.google.com` to the frontend `plugin.ts` to allow embedding Google Maps. This fixes the "Framing violates Content Security Policy" error in staging.
-- **Improved Connectivity**: Updated `connect-src` to include `maps.googleapis.com` for future-proofing API interactions.
+- **CSP Update**: Applied `frame-src 'self' https://www.google.com https://maps.google.com` to both `plugin.ts` and `entry.bun.ts`. This ensures that Google Maps framing is allowed in both development and production/staging environments, fixing the "Framing violates Content Security Policy" error.
+- **Improved Connectivity**: Updated `connect-src` to include `maps.googleapis.com` and `vitals.vercel-insights.com` consistently across server entries.
 - **Missing Translation**: Fixed missing `job.add_favorite` translation in Italian locale.
 
 ### 2026-02-11: Reply Placeholder i18n
