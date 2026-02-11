@@ -1,5 +1,5 @@
 .reaction-buttons {
-  @apply flex items-center space-x-3;
+  @apply flex items-center space-x-3 gap-1;
 }
 
 .reaction-btn {

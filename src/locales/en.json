@@ -169,6 +169,7 @@
   "comments.placeholder_add": "Write a comment...",
   "comments.placeholder_reply": "Write a reply...",
   "comments.reply": "Reply",
+  "comments.reply_placeholder": "Reply",
   "comments.edit": "Edit",
   "comments.save_edit": "Save",
   "comments.cancel_edit": "Cancel",

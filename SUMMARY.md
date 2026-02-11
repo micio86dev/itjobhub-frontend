@@ -29,6 +29,12 @@ The DevBoards.io frontend is a high-performance web application designed for dev
 
 ## Recent Changes
 
+### 2026-02-11: Reply Placeholder i18n
+
+- **Localized Reply Placeholder**: Added a localized placeholder "Rispondi" (and matching translations for EN, FR, ES, DE) to the reply textarea in the comments section.
+- **i18n Consistency**: Ensured the placeholder uses the standard `useTranslate` context and is added to all current locale files (`it.json`, `en.json`, `fr.json`, `es.json`, `de.json`).
+- **Improved UX**: Users now see a clear "Reply" hint (in their preferred language) in the nested comment reply input.
+
 ### 2026-02-04: Contact Form Submission Fix
 
 - **Fixed "Cancelled" Requests**: Resolved an issue where contact form submissions were being cancelled by the browser due to an asynchronous `onSubmit$` trigger without explicit form prevention.

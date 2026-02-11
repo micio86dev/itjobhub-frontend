@@ -182,7 +182,7 @@ export default component$(() => {
   });
 
   return (
-    <div class="bg-slate-50 dark:bg-slate-950 pb-20 min-h-screen">
+    <div class="pb-20 min-h-screen">
       {/* Header Banner */}
       <div class="relative bg-white dark:bg-slate-900 shadow-sm pt-16 pb-12">
         <div class="mx-auto px-4 text-center container">
@@ -264,7 +264,7 @@ export default component$(() => {
         )}
 
         {!state.hasMore && state.news.length > 0 && (
-          <p class="py-8 text-slate-400 text-sm text-center">
+          <p class="py-8 text-slate-600 dark:text-slate-200 text-sm text-center">
             {t("news.end_of_results")}
           </p>
         )}

@@ -370,7 +370,7 @@ export const ProfileWizard = component$<ProfileWizardProps>(
                   {t("wizard.back")}
                 </button>
               )}
-              {onCancel$ && (
+              {onCancel$ && state.currentStep === 1 && (
                 <button onClick$={onCancel$} class="btn-secondary">
                   {t("wizard.cancel")}
                 </button>

@@ -164,6 +164,7 @@
   "comments.placeholder_add": "Escribe un comentario...",
   "comments.placeholder_reply": "Escribe una respuesta...",
   "comments.reply": "Responder",
+  "comments.reply_placeholder": "Responder",
   "comments.edit": "Editar",
   "comments.save_edit": "Guardar",
   "comments.cancel_edit": "Cancelar",

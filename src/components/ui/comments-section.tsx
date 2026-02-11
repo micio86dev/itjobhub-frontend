@@ -332,48 +332,110 @@ export const UnifiedCommentsSection = component$<CommentsSectionProps>(
                       entityId={comment.id}
                       entityType="comment"
                       isAuthenticated={auth.isAuthenticated}
-                    />
-
-                    {auth.isAuthenticated && (
-                      <button
-                        class="btn-action btn-reply"
-                        onClick$={() => {
-                          state.replyingTo =
-                            state.replyingTo === comment.id ? null : comment.id;
-                          state.replyText = "";
-                        }}
-                      >
-                        {t("comments.reply")}
-                      </button>
-                    )}
-
-                    {(auth.user?.id === comment.user_id ||
-                      auth.user?.role === "admin") && (
-                      <>
+                    >
+                      {auth.isAuthenticated && (
                         <button
-                          class="btn-action btn-reply"
+                          class="reaction-style-btn btn-reply-icon"
+                          data-testid="comment-reply"
+                          title={t("comments.reply")}
                           onClick$={() => {
-                            state.editingCommentId = comment.id;
-                            state.editText = comment.content;
+                            state.replyingTo =
+                              state.replyingTo === comment.id
+                                ? null
+                                : comment.id;
+                            state.replyText = "";
                           }}
-                          data-testid="comment-edit"
                         >
-                          {t("comments.edit")}
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            class="reaction-icon-svg"
+                          >
+                            <polyline points="9 17 4 12 9 7"></polyline>
+                            <path d="M20 18v-2a4 4 0 0 0-4-4H4"></path>
+                          </svg>
                         </button>
-                        <button
-                          onClick$={() => openDeleteModal(comment.id)}
-                          class="btn-delete-comment"
-                          data-testid="comment-delete"
-                        >
-                          {t("common.delete")}
-                        </button>
-                      </>
-                    )}
+                      )}
+
+                      {(auth.user?.id === comment.user_id ||
+                        auth.user?.role === "admin") && (
+                        <>
+                          <button
+                            class="reaction-style-btn btn-edit-icon"
+                            onClick$={() => {
+                              state.editingCommentId = comment.id;
+                              state.editText = comment.content;
+                            }}
+                            data-testid="comment-edit"
+                            title={t("comments.edit")}
+                          >
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="16"
+                              height="16"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              stroke-width="2"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              class="reaction-icon-svg"
+                            >
+                              <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+                            </svg>
+                          </button>
+                          <button
+                            onClick$={() => openDeleteModal(comment.id)}
+                            class="reaction-style-btn btn-delete-icon"
+                            data-testid="comment-delete"
+                            title={t("common.delete")}
+                          >
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="16"
+                              height="16"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              stroke-width="2"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              class="reaction-icon-svg"
+                            >
+                              <polyline points="3 6 5 6 21 6"></polyline>
+                              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                            </svg>
+                          </button>
+                        </>
+                      )}
+                    </ReactionButtons>
                   </div>
 
                   {/* Reply Input */}
                   {state.replyingTo === comment.id && (
                     <div class="reply-input-container">
+                      <div class="input-avatar">
+                        {auth.user?.avatar ? (
+                          <img
+                            src={auth.user.avatar}
+                            class="avatar-image"
+                            alt="Me"
+                            width="32"
+                            height="32"
+                          />
+                        ) : (
+                          <div class="avatar-placeholder small">
+                            {auth.user?.firstName?.charAt(0)}
+                          </div>
+                        )}
+                      </div>
                       <div class="input-body">
                         <textarea
                           value={state.replyText}
@@ -383,6 +445,7 @@ export const UnifiedCommentsSection = component$<CommentsSectionProps>(
                             ).value)
                           }
                           class="comment-textarea reply-textarea"
+                          placeholder={t("comments.reply_placeholder")}
                           rows={1}
                         />
                         <div class="input-actions">
@@ -474,21 +537,50 @@ export const UnifiedCommentsSection = component$<CommentsSectionProps>(
                                     auth.user?.role === "admin") && (
                                     <>
                                       <button
-                                        class="btn-action btn-reply"
+                                        class="reaction-style-btn btn-edit-icon"
                                         onClick$={() => {
                                           state.editingCommentId = reply.id;
                                           state.editText = reply.content;
                                         }}
+                                        title={t("comments.edit")}
                                       >
-                                        {t("comments.edit")}
+                                        <svg
+                                          xmlns="http://www.w3.org/2000/svg"
+                                          width="16"
+                                          height="16"
+                                          viewBox="0 0 24 24"
+                                          fill="none"
+                                          stroke="currentColor"
+                                          stroke-width="2"
+                                          stroke-linecap="round"
+                                          stroke-linejoin="round"
+                                          class="reaction-icon-svg"
+                                        >
+                                          <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+                                        </svg>
                                       </button>
                                       <button
                                         onClick$={() =>
                                           openDeleteModal(reply.id)
                                         }
-                                        class="btn-delete-comment"
+                                        class="reaction-style-btn btn-delete-icon"
+                                        title={t("common.delete")}
                                       >
-                                        {t("common.delete")}
+                                        <svg
+                                          xmlns="http://www.w3.org/2000/svg"
+                                          width="16"
+                                          height="16"
+                                          viewBox="0 0 24 24"
+                                          fill="none"
+                                          stroke="currentColor"
+                                          stroke-width="2"
+                                          stroke-linecap="round"
+                                          stroke-linejoin="round"
+                                          class="reaction-icon-svg"
+                                        >
+                                          <polyline points="3 6 5 6 21 6"></polyline>
+                                          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                        </svg>
                                       </button>
                                     </>
                                   )}

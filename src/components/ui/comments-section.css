@@ -42,6 +42,10 @@
   background-color: var(--brand-neon);
 }
 
+.avatar-placeholder.small {
+  @apply w-8 h-8 text-sm;
+}
+
 .input-body {
   @apply flex-1 flex flex-col gap-3;
 }
@@ -165,7 +169,7 @@
 }
 
 .comment-actions {
-  @apply flex items-center gap-4;
+  @apply flex items-center gap-1;
 }
 
 .btn-action {
@@ -265,9 +269,15 @@
   @apply px-4 py-2 text-sm rounded-lg;
 }
 
-/* Reply Textarea - Compact variant */
+/* Reply Textarea - Compact variant with distinct background */
 .reply-textarea {
   min-height: 2.5rem !important;
+  background: var(--textarea-bg-focus);
+  border-color: rgba(var(--brand-neon-rgb), 0.2);
+}
+
+:global(.dark) .reply-textarea {
+  background: rgba(0, 0, 0, 0.2);
 }
 
 /* Submit Buttons - Enhanced styling */
@@ -302,4 +312,53 @@
     background-color: rgba(239, 68, 68, 0.15);
     color: rgb(248, 113, 113); /* red-400 */
   }
+}
+
+/* New Reaction-Style Buttons for Icons */
+.reaction-style-btn {
+  @apply flex items-center justify-center p-2 rounded-sm transition border border-transparent disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer;
+  background-color: rgba(0, 0, 0, 0.03);
+  width: 2rem;
+  height: 2rem;
+}
+
+:global(.dark) .reaction-style-btn {
+  background-color: rgba(255, 255, 255, 0.03);
+}
+
+.reaction-style-btn:hover:not(:disabled) {
+  @apply scale-105;
+}
+
+.reaction-style-btn svg {
+  @apply w-4 h-4 transition-transform duration-200;
+}
+
+.reaction-style-btn:hover:not(:disabled) svg {
+  @apply scale-110;
+}
+
+/* specific variants */
+.btn-reply-icon {
+  @apply text-gray-500 hover:text-brand-neon hover:border-brand-neon/30;
+}
+
+:global(.dark) .btn-reply-icon {
+  @apply text-gray-400 hover:text-brand-neon hover:border-brand-neon/50;
+}
+
+.btn-edit-icon {
+  @apply text-gray-500 hover:text-blue-500 hover:border-blue-500/30;
+}
+
+:global(.dark) .btn-edit-icon {
+  @apply text-gray-400 hover:text-blue-400 hover:border-blue-400/50;
+}
+
+.btn-delete-icon {
+  @apply text-gray-500 hover:text-red-600 hover:border-red-200;
+}
+
+:global(.dark) .btn-delete-icon {
+  @apply text-gray-400 hover:text-red-400 hover:border-red-800;
 }

@@ -163,6 +163,7 @@
   "comments.placeholder_add": "Schreiben Sie einen Kommentar...",
   "comments.placeholder_reply": "Schreiben Sie eine Antwort...",
   "comments.reply": "Antworten",
+  "comments.reply_placeholder": "Antworten",
   "comments.edit": "Bearbeiten",
   "comments.save_edit": "Speichern",
   "comments.cancel_edit": "Abbrechen",
