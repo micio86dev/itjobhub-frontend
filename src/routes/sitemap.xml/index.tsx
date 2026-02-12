@@ -22,7 +22,11 @@ const SUPPORTED_LANGUAGES = ["it", "en", "es", "de", "fr"];
  */
 export const onGet: RequestHandler = async ({ send, env }) => {
   const API_URL = env.get("PUBLIC_API_URL") || "http://127.0.0.1:3001";
-  const SITE_URL = env.get("PUBLIC_SITE_URL") || "https://itjobhub.com";
+  const RAW_SITE_URL = env.get("PUBLIC_SITE_URL");
+  const SITE_URL =
+    RAW_SITE_URL && RAW_SITE_URL !== "undefined"
+      ? RAW_SITE_URL
+      : "https://itjobhub.com";
 
   // Fetch data in parallel
   const [jobsResult, newsResult] = await Promise.allSettled([

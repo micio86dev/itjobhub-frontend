@@ -5,7 +5,11 @@ import type { SupportedLanguage } from "~/contexts/i18n";
 
 // Base URL for production - update this when deploying
 // Base URL for production
-const SITE_URL = import.meta.env.PUBLIC_SITE_URL || "https://itjobhub.com"; // Fallback to avoid undefined
+const RAW_SITE_URL = import.meta.env.PUBLIC_SITE_URL;
+const SITE_URL =
+  RAW_SITE_URL && RAW_SITE_URL !== "undefined"
+    ? RAW_SITE_URL
+    : "https://itjobhub.com";
 
 // Supported languages for hreflang
 const SUPPORTED_LANGUAGES: SupportedLanguage[] = ["it", "en", "es", "de", "fr"];
@@ -51,7 +55,8 @@ export const RouterHead = component$(() => {
   const shouldNoIndex = isDev || isStaging || !isProduction;
 
   // Build canonical URL (include lang param if not default)
-  const canonicalUrl = `${SITE_URL}${pathname}${currentLang !== "it" ? `?lang=${currentLang}` : ""}`;
+  // Ensure we don't have double slashes if pathname starts with one
+  const canonicalUrl = `${SITE_URL}${pathname.startsWith("/") ? "" : "/"}${pathname}${currentLang !== "it" ? `?lang=${currentLang}` : ""}`;
 
   return (
     <>
