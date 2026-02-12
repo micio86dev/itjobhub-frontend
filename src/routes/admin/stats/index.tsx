@@ -183,7 +183,7 @@ export default component$(() => {
           {state.selectedYear > 0 && (
             <select
               value={state.selectedMonth}
-              onChange$={(e) =>
+              onChange$={(e: Event) =>
                 (state.selectedMonth = parseInt(
                   (e.target as HTMLSelectElement).value,
                 ))
@@ -204,7 +204,7 @@ export default component$(() => {
           )}
           <select
             value={state.selectedYear}
-            onChange$={(e) =>
+            onChange$={(e: Event) =>
               (state.selectedYear = parseInt(
                 (e.target as HTMLSelectElement).value,
               ))

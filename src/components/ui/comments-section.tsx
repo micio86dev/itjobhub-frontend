@@ -182,9 +182,21 @@ export const UnifiedCommentsSection = component$<CommentsSectionProps>(
           };
           state.comments = deleteRecursive(state.comments);
           state.commentToDelete = null;
+          showDeleteModal.value = false;
         } else {
-          console.error("Failed to delete comment");
+          console.error(
+            "Failed to delete comment:",
+            res.status,
+            res.statusText,
+          );
+          // Still close the modal so the user knows the attempt finished
+          showDeleteModal.value = false;
+          state.commentToDelete = null;
         }
+      } catch (e) {
+        console.error("Error during comment deletion:", e);
+        showDeleteModal.value = false;
+        state.commentToDelete = null;
       } finally {
         state.isDeleting = false;
       }

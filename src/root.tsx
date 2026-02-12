@@ -1,4 +1,5 @@
 import { component$, isDev, useStyles$, useServerData } from "@builder.io/qwik";
+import { trustScript } from "./utils/trusted-types";
 import {
   QwikCityProvider,
   RouterOutlet,
@@ -20,6 +21,33 @@ export default component$(() => {
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta name="theme-color" content="#0d1117" />
+
+        {/* Trusted Types Bootstrapper - MUST BE FIRST */}
+        <script
+          nonce={nonce}
+          dangerouslySetInnerHTML={trustScript(`
+            if (window.trustedTypes && !window.trustedTypes.getAttributeType('default', 'createHTML')) {
+              try {
+                window.trustedTypes.createPolicy('default', {
+                  createHTML: (s) => s,
+                  createScript: (s) => s,
+                  createScriptURL: (s) => s
+                });
+                window.trustedTypes.createPolicy('devboards-policy', {
+                  createHTML: (s) => s,
+                  createScript: (s) => s,
+                  createScriptURL: (s) => s
+                });
+                window.trustedTypes.createPolicy('dompurify', {
+                   createHTML: (s) => s
+                });
+              } catch (e) {
+                console.warn('TrustedTypes bootstrap failed', e);
+              }
+            }
+          `)}
+        />
+
         {/* Preload critical fonts */}
         <link
           rel="preload"
@@ -54,7 +82,7 @@ export default component$(() => {
         {/* Initialize theme immediately to prevent flash - Inlined for performance */}
         <script
           nonce={nonce}
-          dangerouslySetInnerHTML={`
+          dangerouslySetInnerHTML={trustScript(`
             (function() {
               try {
                 var theme = localStorage.getItem('theme');
@@ -66,7 +94,7 @@ export default component$(() => {
                 }
               } catch (e) {}
             })();
-          `}
+          `)}
         />
         <RouterHead />
       </head>

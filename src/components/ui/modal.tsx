@@ -62,7 +62,6 @@ export const Modal = component$<ModalProps>(
                 }`}
                 disabled={isLoading}
                 onClick$={() => {
-                  isOpen.value = false;
                   onConfirm$?.();
                 }}
               >

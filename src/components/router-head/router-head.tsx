@@ -1,4 +1,5 @@
 import { component$, useServerData } from "@builder.io/qwik";
+import { trustHtml, trustScript } from "~/utils/trusted-types";
 import { useDocumentHead, useLocation } from "@builder.io/qwik-city";
 import type { SupportedLanguage } from "~/contexts/i18n";
 
@@ -148,7 +149,7 @@ export const RouterHead = component$(() => {
           nonce={nonce}
           {...(s.props?.dangerouslySetInnerHTML
             ? {}
-            : { dangerouslySetInnerHTML: s.style })}
+            : { dangerouslySetInnerHTML: trustHtml(s.style || "") })}
         />
       ))}
 
@@ -159,7 +160,7 @@ export const RouterHead = component$(() => {
           nonce={nonce}
           {...(s.props?.dangerouslySetInnerHTML
             ? {}
-            : { dangerouslySetInnerHTML: s.script })}
+            : { dangerouslySetInnerHTML: trustScript(s.script || "") })}
         />
       ))}
     </>

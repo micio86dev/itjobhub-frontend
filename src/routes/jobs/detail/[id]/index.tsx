@@ -88,6 +88,7 @@ export default component$(() => {
       logger.error({ e }, "Error deleting job");
     } finally {
       state.isDeleting = false;
+      showDeleteModal.value = false;
     }
   });
 

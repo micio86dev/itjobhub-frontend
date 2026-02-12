@@ -12,6 +12,9 @@ import {
 import type { MarkerClusterer } from "@googlemaps/markerclusterer";
 import logger from "../../../utils/logger";
 import { ThemeContext } from "~/contexts/theme";
+import { createGoogleMapsPolicy } from "~/utils/trusted-types";
+
+const GOOGLE_MAPS_KEY = import.meta.env.PUBLIC_GOOGLE_MAPS_KEY;
 
 interface JobLocation {
   id: string;
@@ -170,14 +173,22 @@ export const JobMap = component$((props: Props) => {
       };
 
       if (!existingScript) {
-        const apiKey = import.meta.env.PUBLIC_GOOGLE_MAPS_KEY;
-        if (!apiKey) {
+        if (!GOOGLE_MAPS_KEY) {
           logger.error("Missing Google Maps API Key");
           return;
         }
         const script = document.createElement("script");
         script.id = scriptId;
-        script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
+        const src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_KEY}&libraries=places`;
+
+        const policy = createGoogleMapsPolicy();
+        if (policy) {
+          // Google Maps Policy returns TrustedScriptURL, but script.src expects string
+          script.src = policy.createScriptURL(src) as unknown as string;
+        } else {
+          script.src = src;
+        }
+
         script.async = true;
         script.onload = () => initMap();
         document.head.appendChild(script);

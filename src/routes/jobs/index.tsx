@@ -24,6 +24,9 @@ import fr from "~/locales/fr.json";
 
 const translations = { it, en, es, de, fr };
 
+// Extract to constant to avoid "Cannot use 'import.meta' outside a module" error
+const SITE_URL = import.meta.env.PUBLIC_SITE_URL;
+
 export const useJobsHeadLoader = routeLoader$(({ cookie }) => {
   const savedLang =
     (cookie.get("preferred-language")?.value as SupportedLanguage) || "it";
@@ -55,6 +58,8 @@ export const useJobsListLoader = routeLoader$(async ({ url, env, cookie }) => {
   const salaryMin = url.searchParams.get("salary_min") || "";
   const availability = url.searchParams.get("availability") || "";
   const location = url.searchParams.get("location") || "";
+  const lat = url.searchParams.get("lat") || "";
+  const lng = url.searchParams.get("lng") || "";
   const page = 1;
   const limit = 10;
 
@@ -75,6 +80,9 @@ export const useJobsListLoader = routeLoader$(async ({ url, env, cookie }) => {
   if (availability)
     endpoint.searchParams.append("employment_type", availability);
   if (location) endpoint.searchParams.append("location", location);
+  if (lat) endpoint.searchParams.append("lat", lat);
+  if (lng) endpoint.searchParams.append("lng", lng);
+  if (lat && lng) endpoint.searchParams.append("radius_km", "50");
 
   try {
     const res = await fetch(endpoint.toString(), {
@@ -102,6 +110,8 @@ export const useJobsListLoader = routeLoader$(async ({ url, env, cookie }) => {
         seniority,
         availability,
         location,
+        lat: lat ? Number(lat) : undefined,
+        lng: lng ? Number(lng) : undefined,
       } as JobFilters,
     };
   } catch (err) {
@@ -166,11 +176,22 @@ export default component$(() => {
 
     if (data.success) {
       // Sync the shared context state with server-fetched data
-      await jobsState.setInitialData$(
-        data.jobs,
-        data.pagination as ApiPagination,
-        data.filters,
-      );
+      if (typeof jobsState.setInitialData$ === "function") {
+        try {
+          await jobsState.setInitialData$(
+            data.jobs,
+            data.pagination as ApiPagination,
+            data.filters,
+          );
+        } catch (err) {
+          console.error("Error invoking setInitialData$", err);
+        }
+      } else {
+        console.warn(
+          "jobsState.setInitialData$ is not a function",
+          jobsState.setInitialData$,
+        );
+      }
     }
   });
 
@@ -218,6 +239,11 @@ export default component$(() => {
 
       if (auth.user.skills)
         url.searchParams.set("skills", Array.from(auth.user.skills).join(","));
+      if (auth.user.languages)
+        url.searchParams.set(
+          "languages",
+          Array.from(auth.user.languages).join(","),
+        );
       if (auth.user.seniority)
         url.searchParams.set("seniority", auth.user.seniority.toLowerCase());
       if (userAvailability && validEmploymentTypes.includes(userAvailability))
@@ -226,6 +252,7 @@ export default component$(() => {
     } else {
       // Reset to all jobs but keep language filter if applicable
       url.searchParams.delete("skills");
+      url.searchParams.delete("languages");
       url.searchParams.delete("seniority");
       url.searchParams.delete("availability");
       url.searchParams.delete("looseSeniority");
@@ -254,6 +281,14 @@ export default component$(() => {
     if (filters.salaryMin)
       url.searchParams.set("salary_min", filters.salaryMin);
     else url.searchParams.delete("salary_min");
+
+    if (filters.location_geo) {
+      url.searchParams.set("lat", String(filters.location_geo.lat));
+      url.searchParams.set("lng", String(filters.location_geo.lng));
+    } else {
+      url.searchParams.delete("lat");
+      url.searchParams.delete("lng");
+    }
 
     // Map remote selection to API filters
     if (filters.remote === "remote") {
@@ -302,10 +337,10 @@ export default component$(() => {
         </h1>
         <BreadcrumbSchema
           items={[
-            { name: "Home", url: `${import.meta.env.PUBLIC_SITE_URL}/` },
+            { name: "Home", url: `${SITE_URL}/` },
             {
               name: t("jobs.title"),
-              url: `${import.meta.env.PUBLIC_SITE_URL}/jobs`,
+              url: `${SITE_URL}/jobs`,
             },
           ]}
         />
@@ -448,7 +483,7 @@ export default component$(() => {
             name="Jobs Listing"
             items={state.displayedJobs.map((job, index) => ({
               name: job.title,
-              url: `${import.meta.env.PUBLIC_SITE_URL}/jobs/detail/${job.id}`,
+              url: `${SITE_URL}/jobs/detail/${job.id}`,
               description: job.company,
               position: index + 1,
             }))}

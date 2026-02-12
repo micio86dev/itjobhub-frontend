@@ -1,13 +1,8 @@
 import {
   component$,
-  $,
-  useSignal,
-  useTask$,
   useStylesScoped$,
   type PropFunction,
 } from "@builder.io/qwik";
-import { useAuth } from "~/contexts/auth";
-import { request } from "~/utils/api";
 import styles from "./reaction-buttons.css?inline";
 
 interface DislikeButtonProps {
@@ -15,102 +10,28 @@ interface DislikeButtonProps {
   entityType: "job" | "news" | "comment";
   count: number;
   active: boolean;
-  onReactionChange$?: PropFunction<(newActive: boolean) => void>;
+  onReactionChange$?: PropFunction<() => void>;
   isAuthenticated: boolean;
   disabled?: boolean;
 }
 
 export const DislikeButton = component$<DislikeButtonProps>((props) => {
   useStylesScoped$(styles);
-  const auth = useAuth();
 
-  // Local signal for optimistic updates
-  const isOptimistic = useSignal(false);
-  const localActive = useSignal(props.active);
-  const localCount = useSignal(props.count);
-
-  const { onReactionChange$, disabled, entityType, entityId } = props;
-
-  const handleClick$ = $(async () => {
-    if (!auth.isAuthenticated || disabled) return;
-
-    const previouslyActive = localActive.value;
-
-    // Optimistic Update
-    localActive.value = !previouslyActive;
-    localCount.value += previouslyActive ? -1 : 1;
-    isOptimistic.value = true;
-
-    if (onReactionChange$) {
-      await onReactionChange$(localActive.value);
-    }
-
-    try {
-      const method = previouslyActive ? "DELETE" : "POST";
-      const baseUrl = import.meta.env.PUBLIC_API_URL + "/likes";
-
-      const url =
-        method === "DELETE"
-          ? `${baseUrl}?${entityType}Id=${entityId}&type=DISLIKE`
-          : baseUrl;
-
-      const body =
-        method === "POST"
-          ? JSON.stringify({ [`${entityType}Id`]: entityId, type: "DISLIKE" })
-          : undefined;
-
-      const response = await request(url, {
-        method,
-        headers: {
-          Authorization: `Bearer ${auth.token}`,
-          "Content-Type": "application/json",
-        },
-        body,
-      });
-
-      if (!response.ok) {
-        throw new Error("Reaction failed");
-      }
-    } catch (e) {
-      // Revert on error
-      localActive.value = previouslyActive;
-      localCount.value += previouslyActive ? 1 : -1;
-      console.error("Dislike failed", e);
-    } finally {
-      // Optimization: Hold optimistic state for a short buffer to allow
-      // parent props to catch up and prevent UI jitter/revert
-      setTimeout(() => {
-        isOptimistic.value = false;
-      }, 1000);
-    }
-  });
-
-  // ✅ FIX: Sync with props using useTask$ instead of in render
-  // Resets when entity changes or when props change and NOT in optimistic state
-  useTask$(({ track }) => {
-    track(() => props.entityId);
-
-    // Also track props to pick up changes from parent (e.g. initial load or refetch)
-    const pActive = track(() => props.active);
-    const pCount = track(() => props.count);
-
-    if (!isOptimistic.value) {
-      localActive.value = pActive;
-      localCount.value = pCount;
-    }
-  });
+  const { onReactionChange$, disabled, active, count, isAuthenticated } = props;
 
   return (
     <button
-      onClick$={handleClick$}
-      disabled={!auth.isAuthenticated || props.disabled}
-      class={`reaction-btn ${localActive.value ? "reaction-btn-dislike-active" : "reaction-btn-dislike-inactive"}`}
+      onClick$={onReactionChange$}
+      disabled={!isAuthenticated || disabled}
+      class={`reaction-btn ${active ? "reaction-btn-dislike-active" : "reaction-btn-dislike-inactive"}`}
       data-testid="dislike-button"
-      data-active={String(localActive.value)}
+      data-active={String(active)}
+      type="button"
     >
       <svg
         class="reaction-icon-svg"
-        fill={localActive.value ? "currentColor" : "none"}
+        fill={active ? "currentColor" : "none"}
         stroke="currentColor"
         viewBox="0 0 24 24"
       >
@@ -122,7 +43,7 @@ export const DislikeButton = component$<DislikeButtonProps>((props) => {
         />
       </svg>
       <span class="reaction-count" data-testid="dislike-count">
-        {localCount.value}
+        {count}
       </span>
     </button>
   );

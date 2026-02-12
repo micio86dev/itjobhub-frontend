@@ -18,7 +18,7 @@ const { router, notFound, staticFile } = createQwikCity({
   render,
   qwikCityPlan,
   static: {
-    cacheControl: "public, max-age=3600",
+    cacheControl: "public, max-age=0, must-revalidate",
   },
 });
 
@@ -41,6 +41,8 @@ Bun.serve({
       // Customize Cache-Control for static files
       const staticResponse = await staticFile(request);
       if (staticResponse) {
+        const responseHeaders = new Headers(staticResponse.headers);
+
         if (
           url.pathname.startsWith("/build/") ||
           url.pathname.startsWith("/assets/") ||
@@ -49,15 +51,23 @@ Bun.serve({
           url.pathname.endsWith(".svg")
         ) {
           // Hashed build assets, fonts and static vectors: Cache for 1 year, immutable
-          staticResponse.headers.set(
+          responseHeaders.set(
             "Cache-Control",
             "public, max-age=31536000, immutable",
           );
         } else {
-          // Public assets (favicon, robots.txt, etc): Cache for 1 hour
-          staticResponse.headers.set("Cache-Control", "public, max-age=3600");
+          // Public assets (favicon, robots.txt, etc): Must revalidate (max-age=0)
+          responseHeaders.set(
+            "Cache-Control",
+            "public, max-age=0, must-revalidate",
+          );
         }
-        return staticResponse;
+
+        return new Response(staticResponse.body, {
+          status: staticResponse.status,
+          statusText: staticResponse.statusText,
+          headers: responseHeaders,
+        });
       }
 
       // Server-side render this request with Qwik City
@@ -65,6 +75,11 @@ Bun.serve({
       if (qwikCityResponse) {
         // Create new headers to ensure mutability
         const headers = new Headers(qwikCityResponse.headers);
+
+        // Standard Qwik SSR Cache-Control: Must revalidate to ensure fresh HTML
+        if (!headers.has("Cache-Control")) {
+          headers.set("Cache-Control", "public, max-age=0, must-revalidate");
+        }
 
         // Security Headers
         if (!headers.has("Content-Security-Policy")) {
@@ -76,7 +91,7 @@ Bun.serve({
 
           headers.set(
             "Content-Security-Policy",
-            `default-src 'self'; img-src 'self' data: https:; font-src 'self' https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; script-src ${scriptSrc}; connect-src 'self' https://vitals.vercel-insights.com https://fonts.googleapis.com https://fonts.gstatic.com https://maps.googleapis.com; frame-src 'self' https://www.google.com https://maps.google.com; frame-ancestors 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; require-trusted-types-for 'script'; trusted-types default;`,
+            `default-src 'self'; img-src 'self' data: https:; font-src 'self' https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; script-src ${scriptSrc} https://maps.googleapis.com; connect-src 'self' https://vitals.vercel-insights.com https://fonts.googleapis.com https://fonts.gstatic.com https://maps.googleapis.com; frame-src 'self' https://www.google.com https://maps.google.com; frame-ancestors 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; require-trusted-types-for 'script'; trusted-types default google-maps google-maps-api#html lit-html dompurify devboards-policy 'allow-duplicates';`,
           );
         }
         headers.set(

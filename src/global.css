@@ -226,3 +226,33 @@ textarea:focus-visible,
   content-visibility: auto;
   contain-intrinsic-size: 1px 1000px;
 }
+
+/* =========================================
+   GOOGLE MAPS AUTOCOMPLETE STYLES
+   ========================================= */
+
+.pac-container {
+  z-index: 10000 !important; /* Ensure it appears above everything */
+  @apply shadow-lg border border-gray-200 dark:border-gray-700 rounded-md mt-1 bg-white dark:bg-gray-800 font-sans;
+}
+
+.pac-item {
+  @apply px-4 py-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 border-t border-gray-100 dark:border-gray-700 text-gray-700 dark:text-gray-300;
+  line-height: normal;
+}
+
+.pac-item:first-child {
+  border-top: none;
+}
+
+.pac-item-query {
+  @apply text-gray-900 dark:text-white font-medium;
+}
+
+.pac-matched {
+  @apply font-bold text-brand-neon;
+}
+
+.pac-icon {
+  @apply hidden; /* Hide default icon for cleaner look */
+}

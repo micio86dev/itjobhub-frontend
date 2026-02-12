@@ -19,6 +19,7 @@ import { LocationAutocomplete } from "~/components/ui/location-autocomplete";
 import { Spinner } from "~/components/ui/spinner";
 import { AvatarCropper } from "~/components/ui/avatar-cropper";
 import type { WizardData } from "~/contexts/auth";
+import { formatLocaleDate } from "~/utils/date";
 import logger from "~/utils/logger";
 
 export const useProfileProtection = routeLoader$(
@@ -524,7 +525,10 @@ export default component$(() => {
                         </label>
                         <LocationAutocomplete
                           value={state.formData.location}
-                          onInput$={(val) => (state.formData.location = val)}
+                          onInput$={(val) => {
+                            state.formData.location = val;
+                            state.formData.coordinates = undefined;
+                          }}
                           onLocationSelect$={(location, coordinates) => {
                             state.formData.location = location;
                             state.formData.coordinates = coordinates;
@@ -623,7 +627,7 @@ export default component$(() => {
                         {t("profile.birth_date_label")}
                       </dt>
                       <dd class="mt-1 text-gray-900 dark:text-white text-sm">
-                        {auth.user?.birthDate || "-"}
+                        {formatLocaleDate(auth.user?.birthDate, lang)}
                       </dd>
                     </div>
                     {auth.user?.bio && (

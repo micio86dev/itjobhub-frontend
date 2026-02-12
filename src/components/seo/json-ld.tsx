@@ -1,4 +1,5 @@
 import { component$, useServerData } from "@builder.io/qwik";
+import { trustScript } from "~/utils/trusted-types";
 
 // Base URL for production
 const SITE_URL = import.meta.env.PUBLIC_SITE_URL;
@@ -34,7 +35,7 @@ export const OrganizationSchema = component$<OrganizationSchemaProps>(
       <script
         type="application/ld+json"
         nonce={nonce}
-        dangerouslySetInnerHTML={JSON.stringify(schema)}
+        dangerouslySetInnerHTML={trustScript(JSON.stringify(schema))}
       />
     );
   },
@@ -75,7 +76,7 @@ export const WebSiteSchema = component$<WebSiteSchemaProps>(
       <script
         type="application/ld+json"
         nonce={nonce}
-        dangerouslySetInnerHTML={JSON.stringify(schema)}
+        dangerouslySetInnerHTML={trustScript(JSON.stringify(schema))}
       />
     );
   },
@@ -190,7 +191,7 @@ export const JobPostingSchema = component$<JobPostingSchemaProps>((props) => {
     <script
       type="application/ld+json"
       nonce={nonce}
-      dangerouslySetInnerHTML={JSON.stringify(schema)}
+      dangerouslySetInnerHTML={trustScript(JSON.stringify(schema))}
     />
   );
 });
@@ -225,7 +226,7 @@ export const BreadcrumbSchema = component$<BreadcrumbSchemaProps>(
       <script
         type="application/ld+json"
         nonce={nonce}
-        dangerouslySetInnerHTML={JSON.stringify(schema)}
+        dangerouslySetInnerHTML={trustScript(JSON.stringify(schema))}
       />
     );
   },
@@ -278,7 +279,7 @@ export const ArticleSchema = component$<ArticleSchemaProps>((props) => {
     <script
       type="application/ld+json"
       nonce={nonce}
-      dangerouslySetInnerHTML={JSON.stringify(schema)}
+      dangerouslySetInnerHTML={trustScript(JSON.stringify(schema))}
     />
   );
 });
@@ -316,7 +317,7 @@ export const ItemListSchema = component$<ItemListSchemaProps>(
       <script
         type="application/ld+json"
         nonce={nonce}
-        dangerouslySetInnerHTML={JSON.stringify(schema)}
+        dangerouslySetInnerHTML={trustScript(JSON.stringify(schema))}
       />
     );
   },
@@ -359,7 +360,7 @@ export const ContactPageSchema = component$<ContactPageSchemaProps>(
       <script
         type="application/ld+json"
         nonce={nonce}
-        dangerouslySetInnerHTML={JSON.stringify(schema)}
+        dangerouslySetInnerHTML={trustScript(JSON.stringify(schema))}
       />
     );
   },

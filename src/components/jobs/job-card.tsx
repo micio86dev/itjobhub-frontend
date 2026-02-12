@@ -1,6 +1,7 @@
 import { component$, $, type QRL, useStylesScoped$ } from "@builder.io/qwik";
 import styles from "./job-card.css?inline";
 import { marked } from "marked";
+import { sanitizeHtml } from "~/utils/sanitize";
 import { Link } from "@builder.io/qwik-city";
 import type { JobListing } from "~/contexts/jobs";
 import { useJobs, getCommentsFromState } from "~/contexts/jobs";
@@ -198,7 +199,9 @@ export const JobCard = component$<JobCardProps>(
         {job.description && (
           <div
             class="dark:prose-invert description prose prose-sm"
-            dangerouslySetInnerHTML={marked.parse(job.description) as string}
+            dangerouslySetInnerHTML={sanitizeHtml(
+              marked.parse(job.description) as string,
+            )}
           ></div>
         )}
 

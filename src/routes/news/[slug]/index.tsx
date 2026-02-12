@@ -8,6 +8,7 @@ import {
 } from "@builder.io/qwik-city";
 import { marked } from "marked";
 import { request } from "~/utils/api";
+import { sanitizeHtml } from "~/utils/sanitize";
 import { useTranslate, useI18n } from "~/contexts/i18n";
 import { useAuth } from "~/contexts/auth";
 import { UnifiedCommentsSection } from "~/components/ui/comments-section";
@@ -122,6 +123,7 @@ export default component$(() => {
       alert(deleteFailedMsg);
     } finally {
       state.isDeleting = false;
+      showDeleteModal.value = false;
     }
   });
 
@@ -341,7 +343,9 @@ export default component$(() => {
             {displayContent && (
               <div
                 class="dark:prose-invert max-w-none prose prose-lg"
-                dangerouslySetInnerHTML={marked.parse(displayContent) as string}
+                dangerouslySetInnerHTML={sanitizeHtml(
+                  marked.parse(displayContent) as string,
+                )}
               ></div>
             )}
           </div>

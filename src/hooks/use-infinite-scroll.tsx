@@ -1,10 +1,5 @@
-import {
-  useSignal,
-  useTask$,
-  isBrowser,
-  type QRL,
-  type Signal,
-} from "@builder.io/qwik";
+import { useSignal, useTask$, isBrowser } from "@builder.io/qwik";
+import type { QRL, Signal } from "@builder.io/qwik";
 
 interface UseInfiniteScrollOptions {
   threshold?: number;
@@ -23,7 +18,6 @@ export const useInfiniteScroll = (
   const ref = useSignal<HTMLElement>();
 
   // IntersectionObserver is not serializable and only used in visible task
-
   useTask$(({ track, cleanup }) => {
     const element = track(() => ref.value);
 

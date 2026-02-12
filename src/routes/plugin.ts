@@ -56,7 +56,7 @@ export const onRequest: RequestHandler = async ({ headers, sharedMap }) => {
     "base-uri 'self'",
     "form-action 'self'",
     "require-trusted-types-for 'script'",
-    "trusted-types default",
+    "trusted-types default google-maps google-maps-api#html lit-html dompurify devboards-policy 'allow-duplicates'",
   ];
 
   headers.set("Content-Security-Policy", csp.join("; "));
