@@ -47,8 +47,10 @@ Bun.serve({
           url.pathname.startsWith("/build/") ||
           url.pathname.startsWith("/assets/") ||
           url.pathname.startsWith("/fonts/") ||
-          url.pathname.endsWith(".woff2") ||
-          url.pathname.endsWith(".svg")
+          (/\.(woff2?|svg|png|jpg|jpeg|webp|avif|ico|js|css)$/.test(
+            url.pathname,
+          ) &&
+            url.pathname.includes("-")) // Simple heuristic for hashed files if outside /build/
         ) {
           // Hashed build assets, fonts and static vectors: Cache for 1 year, immutable
           responseHeaders.set(
@@ -78,7 +80,10 @@ Bun.serve({
 
         // Standard Qwik SSR Cache-Control: Must revalidate to ensure fresh HTML
         if (!headers.has("Cache-Control")) {
-          headers.set("Cache-Control", "public, max-age=0, must-revalidate");
+          headers.set(
+            "Cache-Control",
+            "no-store, no-cache, must-revalidate, proxy-revalidate",
+          );
         }
 
         // Security Headers

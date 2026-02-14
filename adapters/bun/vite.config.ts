@@ -15,7 +15,7 @@ export default extendConfig(baseConfig, () => {
             bunServerAdapter({
                 ssg: {
                     include: ["/*"],
-                    origin: "https://yoursite.dev",
+                    origin: "https://devboards.io",
                 },
             }),
         ],
