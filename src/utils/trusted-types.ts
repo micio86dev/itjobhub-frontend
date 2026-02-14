@@ -82,8 +82,9 @@ export const getTrustedPolicy = (): TrustedTypePolicy | undefined => {
         : [];
 
     if (existing.includes("devboards-policy")) {
-      // Logic to "get" it isn't standard, but we we know it exists.
-      // We'll try to create it anyway since allow-duplicates is set, or just return undefined if we can't find our local ref.
+      // Logic to "get" it isn't standard in the API spec (no getPolicy),
+      // but we know it exists. We cannot recreate it if allow-duplicates is off or broken.
+      // We best effort try to create it, but catch the error specifically for duplicates.
     }
 
     try {

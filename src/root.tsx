@@ -31,24 +31,29 @@ export default component$(() => {
                 ? window.trustedTypes.getPolicyNames() 
                 : [];
               
-              if (!existingPolicies.includes('default')) {
-                try {
+              // Create policies safely
+              try {
+                if (!existingPolicies.includes('default')) {
                   window.trustedTypes.createPolicy('default', {
                     createHTML: (s) => s,
                     createScript: (s) => s,
                     createScriptURL: (s) => s
                   });
+                }
+                if (!existingPolicies.includes('devboards-policy')) {
                   window.trustedTypes.createPolicy('devboards-policy', {
                     createHTML: (s) => s,
                     createScript: (s) => s,
                     createScriptURL: (s) => s
                   });
+                }
+                if (!existingPolicies.includes('dompurify')) {
                   window.trustedTypes.createPolicy('dompurify', {
                     createHTML: (s) => s
                   });
-                } catch (e) {
-                  console.warn('TrustedTypes bootstrap failed', e);
                 }
+              } catch (e) {
+                console.warn('TrustedTypes bootstrap failed', e);
               }
             }
           `)}
