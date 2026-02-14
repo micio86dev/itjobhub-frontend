@@ -53,3 +53,5 @@ test_output.txt
 
 # Lighthouse Reports
 report-*.report.*
+# Build artifacts
+build_output.txt
