@@ -1,8 +1,7 @@
 import { component$, useStylesScoped$ } from "@builder.io/qwik";
 import styles from "./job-map-section.css?inline";
 import { useTranslate } from "~/contexts/i18n";
-
-const GOOGLE_MAPS_KEY = import.meta.env.PUBLIC_GOOGLE_MAPS_KEY;
+import { GOOGLE_MAPS_KEY } from "~/constants";
 
 interface JobMapSectionProps {
   location: string;

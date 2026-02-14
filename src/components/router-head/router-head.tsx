@@ -2,14 +2,9 @@ import { component$, useServerData } from "@builder.io/qwik";
 import { trustHtml, trustScript } from "~/utils/trusted-types";
 import { useDocumentHead, useLocation } from "@builder.io/qwik-city";
 import type { SupportedLanguage } from "~/contexts/i18n";
+import { SITE_URL } from "~/constants";
 
 // Base URL for production - update this when deploying
-// Base URL for production
-const RAW_SITE_URL = import.meta.env.PUBLIC_SITE_URL;
-const SITE_URL =
-  RAW_SITE_URL && RAW_SITE_URL !== "undefined"
-    ? RAW_SITE_URL
-    : "https://itjobhub.com";
 
 // Supported languages for hreflang
 const SUPPORTED_LANGUAGES: SupportedLanguage[] = ["it", "en", "es", "de", "fr"];

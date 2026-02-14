@@ -3,3 +3,5 @@ export const API_URL =
 
 export const SITE_URL =
   import.meta.env.PUBLIC_SITE_URL || "https://devboards.io";
+
+export const GOOGLE_MAPS_KEY = import.meta.env.PUBLIC_GOOGLE_MAPS_KEY || "";

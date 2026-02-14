@@ -18,7 +18,7 @@ import { ReactionButtons } from "~/components/ui/reaction-buttons";
 import type { ApiNews, ApiNewsTranslation } from "~/types/models";
 import { ArticleSchema, BreadcrumbSchema } from "~/components/seo/json-ld";
 import { Modal } from "~/components/ui/modal";
-import { API_URL } from "~/constants";
+import { API_URL, SITE_URL } from "~/constants";
 
 export const useNewsLoader = routeLoader$(async ({ params, cookie, env }) => {
   const slug = params.slug;
@@ -213,8 +213,8 @@ export default component$(() => {
         <article class="bg-white dark:bg-slate-900 shadow-sm rounded-2xl overflow-hidden">
           <BreadcrumbSchema
             items={[
-              { name: "Home", url: `${import.meta.env.PUBLIC_SITE_URL}/` },
-              { name: "News", url: `${import.meta.env.PUBLIC_SITE_URL}/news` },
+              { name: "Home", url: `${SITE_URL}/` },
+              { name: "News", url: `${SITE_URL}/news` },
               { name: displayTitle, url: loc.url.href },
             ]}
           />

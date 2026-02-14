@@ -14,6 +14,7 @@ import { useInfiniteScroll } from "~/hooks/use-infinite-scroll";
 import { ScrollButtons } from "~/components/ui/scroll-buttons";
 import type { JobFilters, JobListing, ApiPagination } from "~/contexts/jobs";
 import { ItemListSchema, BreadcrumbSchema } from "~/components/seo/json-ld";
+import { SITE_URL } from "~/constants";
 
 // Import translations for server-side DocumentHead
 import it from "~/locales/it.json";
@@ -23,9 +24,6 @@ import de from "~/locales/de.json";
 import fr from "~/locales/fr.json";
 
 const translations = { it, en, es, de, fr };
-
-// Extract to constant to avoid "Cannot use 'import.meta' outside a module" error
-const SITE_URL = import.meta.env.PUBLIC_SITE_URL;
 
 export const useJobsHeadLoader = routeLoader$(({ cookie }) => {
   const savedLang =

@@ -28,7 +28,7 @@ import { CompanyInfoBox } from "~/components/jobs/company-info-box";
 import styles from "./index.css?inline";
 import { Modal } from "~/components/ui/modal";
 import { ScrollButtons } from "~/components/ui/scroll-buttons";
-import { API_URL } from "~/constants";
+import { API_URL, SITE_URL } from "~/constants";
 
 export default component$(() => {
   useStylesScoped$(styles);
@@ -182,10 +182,10 @@ export default component$(() => {
             <div class="mainContent">
               <BreadcrumbSchema
                 items={[
-                  { name: "Home", url: `${import.meta.env.PUBLIC_SITE_URL}/` },
+                  { name: "Home", url: `${SITE_URL}/` },
                   {
                     name: "Jobs",
-                    url: `${import.meta.env.PUBLIC_SITE_URL}/jobs`,
+                    url: `${SITE_URL}/jobs`,
                   },
                   { name: job.title, url: loc.url.href },
                 ]}

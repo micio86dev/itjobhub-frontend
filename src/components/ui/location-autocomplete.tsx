@@ -9,6 +9,7 @@ import {
 } from "@builder.io/qwik";
 import { useTranslate } from "~/contexts/i18n";
 import { createGoogleMapsPolicy } from "~/utils/trusted-types";
+import { GOOGLE_MAPS_KEY } from "~/constants";
 
 interface Props {
   value: string;
@@ -18,8 +19,6 @@ interface Props {
   onInput$: PropFunction<(value: string) => void>;
   class?: string;
 }
-
-const GOOGLE_MAPS_KEY = import.meta.env.PUBLIC_GOOGLE_MAPS_KEY;
 
 export const LocationAutocomplete = component$((props: Props) => {
   const inputRef = useSignal<HTMLInputElement | undefined>();

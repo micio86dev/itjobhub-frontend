@@ -13,8 +13,7 @@ import type { MarkerClusterer } from "@googlemaps/markerclusterer";
 import logger from "../../../utils/logger";
 import { ThemeContext } from "~/contexts/theme";
 import { createGoogleMapsPolicy } from "~/utils/trusted-types";
-
-const GOOGLE_MAPS_KEY = import.meta.env.PUBLIC_GOOGLE_MAPS_KEY;
+import { GOOGLE_MAPS_KEY } from "~/constants";
 
 interface JobLocation {
   id: string;

@@ -18,6 +18,7 @@ const { router, notFound, staticFile } = createQwikCity({
   render,
   qwikCityPlan,
   static: {
+    // Default cache control for non-hashed files (favicon, robots.txt, etc)
     cacheControl: "public, max-age=0, must-revalidate",
   },
 });
@@ -38,27 +39,28 @@ Bun.serve({
         return new Response("UP", { status: 200 });
       }
 
-      // Customize Cache-Control for static files
+      // Serve static files (images, css, js, fonts)
       const staticResponse = await staticFile(request);
       if (staticResponse) {
         const responseHeaders = new Headers(staticResponse.headers);
 
+        // Hashed build assets (q-*.js, style.css, etc) and fonts/assets should be cached forever
         if (
           url.pathname.startsWith("/build/") ||
           url.pathname.startsWith("/assets/") ||
           url.pathname.startsWith("/fonts/") ||
-          (/\.(woff2?|svg|png|jpg|jpeg|webp|avif|ico|js|css)$/.test(
+          // Heuristic for hashed files: contains a hyphen and looks like an asset
+          (/\.[a-z0-9]{2,8}\.(js|css|woff2?|svg|png|jpg|webp)$/.test(
             url.pathname,
           ) &&
-            url.pathname.includes("-")) // Simple heuristic for hashed files if outside /build/
+            url.pathname.includes("-"))
         ) {
-          // Hashed build assets, fonts and static vectors: Cache for 1 year, immutable
           responseHeaders.set(
             "Cache-Control",
             "public, max-age=31536000, immutable",
           );
         } else {
-          // Public assets (favicon, robots.txt, etc): Must revalidate (max-age=0)
+          // Non-hashed assets (manifest.json, favicon.svg, robots.txt, etc)
           responseHeaders.set(
             "Cache-Control",
             "public, max-age=0, must-revalidate",
@@ -99,7 +101,13 @@ Bun.serve({
             "img-src 'self' data: https:",
             "font-src 'self' https://fonts.gstatic.com",
             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-            `script-src ${scriptSrc} https://maps.googleapis.com`,
+            `script-src 'self' ${scriptSrc} https://maps.googleapis.com ` +
+              `'sha256-L2VzofRwMKVb7ZeLc29Zs5ei5OG9KJ1eXSwz+w4q4/g=' ` + // Vite error handler
+              `'sha256-6WHWhiUFSczbUiBvl0gdiF+EeOdPRe66tRIT3FE3E8M=' ` + // qerror listener
+              `'sha256-g01uwY0Xp3A6CVmaGXVUZb4BB5+qYIWzHD6zL4NT2+Q=' ` + // qwikdevtools
+              `'sha256-U8Wi5C4OM++NZ4A8DB4yxBO/FitF+ui36Yy1UtYbX48=' ` + // qwik-inspector
+              `'sha256-EwODyXb+JyP/QFEaG9yjy11qmIlA9bcynhiLgeq19to=' ` + // additional dev tool
+              `'sha256-fEB7sBoAvtPwo71XmsbRDawJ54q8Ylx7LVMiLzf4zYU='`, // additional dev script
             "connect-src 'self' https://vitals.vercel-insights.com https://fonts.googleapis.com https://fonts.gstatic.com https://maps.googleapis.com",
             "frame-src 'self' https://www.google.com https://maps.google.com",
             "frame-ancestors 'self'",

@@ -16,6 +16,7 @@ import { request } from "~/utils/api";
 import { formatDistanceToNow } from "date-fns";
 import { it } from "date-fns/locale";
 import styles from "./comments-section.css?inline";
+import { API_URL } from "~/constants";
 
 interface CommentsSectionProps {
   ownerId: string;
@@ -71,7 +72,7 @@ export const UnifiedCommentsSection = component$<CommentsSectionProps>(
         if (auth.token) headers.Authorization = `Bearer ${auth.token}`;
 
         const res = await request(
-          `${import.meta.env.PUBLIC_API_URL}/comments/${type}/${ownerId}?limit=50`,
+          `${API_URL}/comments/${type}/${ownerId}?limit=50`,
           { headers },
         );
         const data = await res.json();
@@ -88,28 +89,25 @@ export const UnifiedCommentsSection = component$<CommentsSectionProps>(
 
       state.isSubmitting = true;
       try {
-        const res = await request(
-          `${import.meta.env.PUBLIC_API_URL}/comments`,
-          {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${auth.token}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              commentableId: ownerId,
-              commentableType: type,
-              content: text,
-              parentId,
-            }),
+        const res = await request(`${API_URL}/comments`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${auth.token}`,
+            "Content-Type": "application/json",
           },
-        );
+          body: JSON.stringify({
+            commentableId: ownerId,
+            commentableType: type,
+            content: text,
+            parentId,
+          }),
+        });
         if (res.ok) {
           const headers: Record<string, string> = {};
           if (auth.token) headers.Authorization = `Bearer ${auth.token}`;
 
           const refreshRes = await request(
-            `${import.meta.env.PUBLIC_API_URL}/comments/${type}/${ownerId}?limit=50`,
+            `${API_URL}/comments/${type}/${ownerId}?limit=50`,
             { headers },
           );
           const refreshData = await refreshRes.json();
@@ -131,17 +129,14 @@ export const UnifiedCommentsSection = component$<CommentsSectionProps>(
       if (!auth.token || !state.editText.trim()) return;
       state.isSubmitting = true;
       try {
-        const res = await request(
-          `${import.meta.env.PUBLIC_API_URL}/comments/${commentId}`,
-          {
-            method: "PUT",
-            headers: {
-              Authorization: `Bearer ${auth.token}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ content: state.editText }),
+        const res = await request(`${API_URL}/comments/${commentId}`, {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${auth.token}`,
+            "Content-Type": "application/json",
           },
-        );
+          body: JSON.stringify({ content: state.editText }),
+        });
         if (res.ok) {
           const updateRecursive = (list: UIComment[]): UIComment[] => {
             return list.map((c) => {
@@ -164,13 +159,10 @@ export const UnifiedCommentsSection = component$<CommentsSectionProps>(
 
       state.isDeleting = true;
       try {
-        const res = await request(
-          `${import.meta.env.PUBLIC_API_URL}/comments/${commentId}`,
-          {
-            method: "DELETE",
-            headers: { Authorization: `Bearer ${auth.token}` },
-          },
-        );
+        const res = await request(`${API_URL}/comments/${commentId}`, {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${auth.token}` },
+        });
         if (res.ok) {
           const deleteRecursive = (list: UIComment[]): UIComment[] => {
             return list

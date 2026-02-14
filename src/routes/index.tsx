@@ -32,7 +32,7 @@ import fr from "~/locales/fr.json";
 
 const translations = { it, en, es, de, fr };
 
-const SITE_URL = import.meta.env.PUBLIC_SITE_URL || "https://itjobhub.com";
+import { SITE_URL } from "~/constants";
 
 // Route loader to get translated meta for DocumentHead
 export const useIndexHeadLoader = routeLoader$(({ cookie }) => {

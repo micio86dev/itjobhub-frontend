@@ -30,6 +30,7 @@ export const useAdminStatsHeadLoader = routeLoader$(({ cookie }) => {
 import { request } from "../../../utils/api";
 import { LineChart } from "~/components/admin/charts/line-chart";
 import { JobMap } from "~/components/admin/charts/job-map";
+import { API_URL } from "~/constants";
 
 // ... interfaces ... (same)
 interface Stats {
@@ -77,7 +78,7 @@ export default component$(() => {
   const fetchStats = $(async () => {
     try {
       state.isLoading = true;
-      const url = new URL(`${import.meta.env.PUBLIC_API_URL}/admin/stats`);
+      const url = new URL(`${API_URL}/admin/stats`);
       if (state.selectedYear > 0) {
         url.searchParams.append("year", state.selectedYear.toString());
       }

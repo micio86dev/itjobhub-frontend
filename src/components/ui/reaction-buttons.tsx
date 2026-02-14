@@ -12,6 +12,7 @@ import { request } from "~/utils/api";
 import styles from "./reaction-buttons.css?inline";
 import { LikeButton } from "./like-button";
 import { DislikeButton } from "./dislike-button";
+import { API_URL } from "~/constants";
 
 interface ReactionButtonsProps {
   likes: number;
@@ -109,7 +110,7 @@ export const ReactionButtons = component$<ReactionButtonsProps>((props) => {
     // --- API CALL ---
     try {
       const method = previouslyActive ? "DELETE" : "POST";
-      const baseUrl = import.meta.env.PUBLIC_API_URL + "/likes";
+      const baseUrl = API_URL + "/likes";
 
       const url =
         method === "DELETE"
