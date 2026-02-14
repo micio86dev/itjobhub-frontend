@@ -19,7 +19,7 @@ import type { ApiNews } from "~/types/models";
 import { useInfiniteScroll } from "~/hooks/use-infinite-scroll";
 import { Spinner } from "../../components/ui/spinner";
 import { request } from "~/utils/api";
-import { API_URL } from "~/constants";
+import { API_URL, SITE_URL } from "~/constants";
 import { ItemListSchema, BreadcrumbSchema } from "~/components/seo/json-ld";
 
 // Import translation files
@@ -215,10 +215,10 @@ export default component$(() => {
           <div class="mt-6">
             <BreadcrumbSchema
               items={[
-                { name: "Home", url: `${import.meta.env.PUBLIC_SITE_URL}/` },
+                { name: "Home", url: `${SITE_URL}/` },
                 {
                   name: t("news.list_title"),
-                  url: `${import.meta.env.PUBLIC_SITE_URL}/news`,
+                  url: `${SITE_URL}/news`,
                 },
               ]}
             />
@@ -267,7 +267,7 @@ export default component$(() => {
             name="News Feed"
             items={state.news.map((n, index) => ({
               name: n.title,
-              url: `${import.meta.env.PUBLIC_SITE_URL}/news/${n.slug}`,
+              url: `${SITE_URL}/news/${n.slug}`,
               description: n.summary ?? undefined,
               position: index + 1,
             }))}

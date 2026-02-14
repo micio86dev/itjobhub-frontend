@@ -1,8 +1,7 @@
 import { component$, useServerData } from "@builder.io/qwik";
 import { trustScript } from "~/utils/trusted-types";
 
-// Base URL for production
-const SITE_URL = import.meta.env.PUBLIC_SITE_URL;
+import { SITE_URL } from "~/constants";
 
 interface OrganizationSchemaProps {
   name?: string;
@@ -266,7 +265,7 @@ export const ArticleSchema = component$<ArticleSchemaProps>((props) => {
       name: props.publisherName || "DevBoards.io",
       logo: {
         "@type": "ImageObject",
-        url: props.publisherLogo || `${SITE_URL}/favicon.svg`,
+        url: props.publisherLogo || `${SITE_URL}/favicon.svg`, // Using SITE_URL
       },
     },
     mainEntityOfPage: {
