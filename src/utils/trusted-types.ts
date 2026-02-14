@@ -20,6 +20,7 @@ interface TrustedTypePolicyFactory {
     },
   ): TrustedTypePolicy;
   getAttributeType(tagName: string, attribute: string): string | null;
+  getPolicyNames(): string[];
 }
 
 declare global {
@@ -75,29 +76,25 @@ export const getTrustedPolicy = (): TrustedTypePolicy | undefined => {
   if (devboardsPolicy) return devboardsPolicy;
 
   if (window.trustedTypes) {
-    // Check if policy already exists to avoid duplicate error
-    if (
-      window.trustedTypes.getAttributeType("devboards-policy", "createHTML")
-    ) {
-      // We can't retrieve the object by name if created elsewhere, but we can assume it exists.
-      // However, standard API doesn't expose a 'getPolicy'.
-      // We must rely on our singleton 'devboardsPolicy' variable or try to create it.
+    const existing =
+      typeof window.trustedTypes.getPolicyNames === "function"
+        ? window.trustedTypes.getPolicyNames()
+        : [];
+
+    if (existing.includes("devboards-policy")) {
+      // Logic to "get" it isn't standard, but we we know it exists.
+      // We'll try to create it anyway since allow-duplicates is set, or just return undefined if we can't find our local ref.
     }
 
     try {
       devboardsPolicy = window.trustedTypes.createPolicy("devboards-policy", {
-        createHTML: (string) => string, // Pass-through, relies on sanitize/validation at call site
+        createHTML: (string) => string,
         createScript: (string) => string,
         createScriptURL: (string) => string,
       });
       return devboardsPolicy;
-    } catch (e) {
-      console.warn(
-        "TrustedType policy 'devboards-policy' failure (likely already exists):",
-        e,
-      );
-      // We cannot recover the policy object if we didn't create it here in this scope/session mostly.
-      // But for our app, this module should be the owner.
+    } catch {
+      // Fail silently if it exists and allow-duplicates is somehow ignored
       return undefined;
     }
   }
@@ -114,18 +111,20 @@ export const createDefaultPolicy = (): TrustedTypePolicy | undefined => {
   if (devboardsPolicy && devboardsPolicy.createHTML("")) return undefined; // already have one
 
   if (window.trustedTypes) {
+    const existing =
+      typeof window.trustedTypes.getPolicyNames === "function"
+        ? window.trustedTypes.getPolicyNames()
+        : [];
+
+    if (existing.includes("default")) return undefined;
+
     try {
-      // Browsers might have already created it (e.g. from our inline script in root.tsx)
-      // Note: trustedTypes doesn't have a 'getPolicy', so we just try to create it if we don't have it.
-      // But we can't create 'default' twice unless 'allow-duplicates' is set (which it is).
       return window.trustedTypes.createPolicy("default", {
         createHTML: (string) => string,
         createScript: (string) => string,
         createScriptURL: (string) => string,
       });
     } catch {
-      // If it fails, it might already exist. We can't easily get the object back,
-      // but the browser will use the existing one as fallback anyway.
       return undefined;
     }
   }

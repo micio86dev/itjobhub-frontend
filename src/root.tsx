@@ -26,23 +26,29 @@ export default component$(() => {
         <script
           nonce={nonce}
           dangerouslySetInnerHTML={trustScript(`
-            if (window.trustedTypes && !window.trustedTypes.getAttributeType('default', 'createHTML')) {
-              try {
-                window.trustedTypes.createPolicy('default', {
-                  createHTML: (s) => s,
-                  createScript: (s) => s,
-                  createScriptURL: (s) => s
-                });
-                window.trustedTypes.createPolicy('devboards-policy', {
-                  createHTML: (s) => s,
-                  createScript: (s) => s,
-                  createScriptURL: (s) => s
-                });
-                window.trustedTypes.createPolicy('dompurify', {
-                   createHTML: (s) => s
-                });
-              } catch (e) {
-                console.warn('TrustedTypes bootstrap failed', e);
+            if (window.trustedTypes) {
+              const existingPolicies = (typeof window.trustedTypes.getPolicyNames === 'function') 
+                ? window.trustedTypes.getPolicyNames() 
+                : [];
+              
+              if (!existingPolicies.includes('default')) {
+                try {
+                  window.trustedTypes.createPolicy('default', {
+                    createHTML: (s) => s,
+                    createScript: (s) => s,
+                    createScriptURL: (s) => s
+                  });
+                  window.trustedTypes.createPolicy('devboards-policy', {
+                    createHTML: (s) => s,
+                    createScript: (s) => s,
+                    createScriptURL: (s) => s
+                  });
+                  window.trustedTypes.createPolicy('dompurify', {
+                    createHTML: (s) => s
+                  });
+                } catch (e) {
+                  console.warn('TrustedTypes bootstrap failed', e);
+                }
               }
             }
           `)}

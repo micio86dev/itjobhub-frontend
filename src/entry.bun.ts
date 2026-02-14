@@ -89,10 +89,22 @@ Bun.serve({
             ? `'self' 'nonce-${nonce}' 'unsafe-eval'`
             : "'self' 'unsafe-eval'";
 
-          headers.set(
-            "Content-Security-Policy",
-            `default-src 'self'; img-src 'self' data: https:; font-src 'self' https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; script-src ${scriptSrc} https://maps.googleapis.com; connect-src 'self' https://vitals.vercel-insights.com https://fonts.googleapis.com https://fonts.gstatic.com https://maps.googleapis.com; frame-src 'self' https://www.google.com https://maps.google.com; frame-ancestors 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; require-trusted-types-for 'script'; trusted-types default google-maps google-maps-api#html lit-html dompurify devboards-policy 'allow-duplicates';`,
-          );
+          const csp = [
+            "default-src 'self'",
+            "img-src 'self' data: https:",
+            "font-src 'self' https://fonts.gstatic.com",
+            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+            `script-src ${scriptSrc} https://maps.googleapis.com`,
+            "connect-src 'self' https://vitals.vercel-insights.com https://fonts.googleapis.com https://fonts.gstatic.com https://maps.googleapis.com",
+            "frame-src 'self' https://www.google.com https://maps.google.com",
+            "frame-ancestors 'self'",
+            "object-src 'none'",
+            "base-uri 'self'",
+            "form-action 'self'",
+            "require-trusted-types-for 'script'",
+            "trusted-types default google-maps google-maps-api#html lit-html dompurify devboards-policy 'allow-duplicates'",
+          ];
+          headers.set("Content-Security-Policy", csp.join("; "));
         }
         headers.set(
           "Strict-Transport-Security",
