@@ -173,7 +173,7 @@ export interface JobFilters {
 }
 
 // Helper to process raw API job into JobListing (outside component to avoid QRL serialization issues)
-const processApiJob = (job: ApiJob): JobListing => {
+export const processApiJob = (job: ApiJob): JobListing => {
   let desc = job.description || "";
   desc = desc
     .replace(/^(&nbsp;|\s|\.|\u00A0)+/g, "")

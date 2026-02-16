@@ -1,7 +1,4 @@
 /* Main Container */
-.comments-wrapper {
-  @apply max-w-4xl mx-auto py-6;
-}
 
 .comments-title {
   @apply text-xl font-bold mb-6 flex items-center gap-2;
@@ -231,7 +228,7 @@
 
 /* Edit Comment Container */
 .edit-comment-container {
-  @apply mt-3 p-4 rounded-lg;
+  @apply my-3 p-4 rounded-lg;
   background: rgba(255, 165, 0, 0.04);
   border: 1px solid rgba(255, 165, 0, 0.2);
 }

@@ -58,9 +58,25 @@ export const UnifiedCommentsSection = component$<CommentsSectionProps>(
       replyText: "",
       editingCommentId: null as string | null,
       editText: "",
+      totalCount: 0,
     });
 
     const showDeleteModal = useSignal(false);
+
+    const updateCount = $(() => {
+      const countRecursive = (list: UIComment[]): number => {
+        let count = 0;
+        for (const item of list) {
+          count++;
+          if (item.replies && item.replies.length > 0) {
+            count += countRecursive(item.replies);
+          }
+        }
+        return count;
+      };
+      state.totalCount = countRecursive(state.comments);
+      console.log("Updated total count in state:", state.totalCount);
+    });
 
     // --- LOADING LOGIC ---
     useTask$(async ({ track }) => {
@@ -72,11 +88,14 @@ export const UnifiedCommentsSection = component$<CommentsSectionProps>(
         if (auth.token) headers.Authorization = `Bearer ${auth.token}`;
 
         const res = await request(
-          `${API_URL}/comments/${type}/${ownerId}?limit=50`,
+          `${API_URL}/comments/${type}/${ownerId}?limit=50&_t=${Date.now()}`,
           { headers },
         );
         const data = await res.json();
-        if (data.success) state.comments = data.data.comments;
+        if (data.success) {
+          state.comments = data.data.comments;
+          await updateCount();
+        }
       } catch (e) {
         console.error("Failed to fetch comments", e);
       }
@@ -103,15 +122,51 @@ export const UnifiedCommentsSection = component$<CommentsSectionProps>(
           }),
         });
         if (res.ok) {
-          const headers: Record<string, string> = {};
-          if (auth.token) headers.Authorization = `Bearer ${auth.token}`;
+          const json = await res.json();
+          const newCommentRaw = json.data;
 
-          const refreshRes = await request(
-            `${API_URL}/comments/${type}/${ownerId}?limit=50`,
-            { headers },
-          );
-          const refreshData = await refreshRes.json();
-          if (refreshData.success) state.comments = refreshData.data.comments;
+          // Construct UIComment from response
+          const newUIComment: UIComment = {
+            id: newCommentRaw.id,
+            content: newCommentRaw.content,
+            created_at: newCommentRaw.created_at || new Date().toISOString(),
+            user_id: newCommentRaw.user_id,
+            user: newCommentRaw.user,
+            likesCount: 0,
+            dislikesCount: 0,
+            userReaction: null,
+            userHasLiked: false,
+            replies: [],
+            parentId,
+          };
+
+          // Optimistically update local state
+          if (!parentId) {
+            // New comments appear at the top
+            state.comments = [newUIComment, ...state.comments];
+          } else {
+            // Add reply to the specific parent
+            const addReplyRecursive = (list: UIComment[]): UIComment[] => {
+              return list.map((c) => {
+                if (c.id === parentId) {
+                  return {
+                    ...c,
+                    replies: [...(c.replies || []), newUIComment],
+                  };
+                }
+                if (c.replies && c.replies.length > 0) {
+                  return {
+                    ...c,
+                    replies: addReplyRecursive(c.replies),
+                  };
+                }
+                return c;
+              });
+            };
+            state.comments = addReplyRecursive(state.comments);
+          }
+
+          await updateCount();
 
           if (parentId) {
             state.replyingTo = null;
@@ -173,6 +228,7 @@ export const UnifiedCommentsSection = component$<CommentsSectionProps>(
               }));
           };
           state.comments = deleteRecursive(state.comments);
+          await updateCount();
           state.commentToDelete = null;
           showDeleteModal.value = false;
         } else {
@@ -207,7 +263,7 @@ export const UnifiedCommentsSection = component$<CommentsSectionProps>(
     return (
       <div class="comments-wrapper">
         <h2 class="comments-title">
-          {t("comments.title")} ({state.comments.length})
+          {t("comments.title")} <span>({state.totalCount})</span>
         </h2>
 
         {auth.isAuthenticated ? (

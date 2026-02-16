@@ -17,10 +17,12 @@ interface JobHeaderProps {
   isAdmin: boolean;
   onToggleFavorite$: PropFunction<() => void>;
   onApplyClick$: PropFunction<() => void>;
+  onReaction$?: PropFunction<(type: "LIKE" | "DISLIKE", count: number) => void>;
+  onReactionComplete$?: PropFunction<() => void>;
 }
 
 export const JobHeader = component$<JobHeaderProps>((props) => {
-  const { job, isAuthenticated } = props;
+  const { job, isAuthenticated, onReaction$, onReactionComplete$ } = props;
   const i18n = useI18n();
   useStylesScoped$(styles);
 
@@ -99,6 +101,8 @@ export const JobHeader = component$<JobHeaderProps>((props) => {
             entityId={job.id}
             entityType="job"
             isAuthenticated={isAuthenticated}
+            onReactionChange$={onReaction$}
+            onReactionComplete$={onReactionComplete$}
           />
 
           <button

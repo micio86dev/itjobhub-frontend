@@ -25,6 +25,7 @@ interface ReactionButtonsProps {
   onReactionChange$?: PropFunction<
     (type: "LIKE" | "DISLIKE", count: number) => void
   >;
+  onReactionComplete$?: PropFunction<() => void>;
 }
 
 export const ReactionButtons = component$<ReactionButtonsProps>((props) => {
@@ -135,6 +136,11 @@ export const ReactionButtons = component$<ReactionButtonsProps>((props) => {
       });
 
       if (!response.ok) throw new Error("Reaction request failed");
+
+      // Notify parent of completion (e.g. to trigger refetch)
+      if (props.onReactionComplete$) {
+        await props.onReactionComplete$();
+      }
     } catch (e) {
       // Revert on failure
       localLikes.value = oldLikes;

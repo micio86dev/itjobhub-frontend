@@ -3,62 +3,133 @@ import {
   useStore,
   useTask$,
   isBrowser,
-  useResource$,
-  Resource,
   $,
   useStylesScoped$,
   useSignal,
 } from "@builder.io/qwik";
+import { isServer } from "@builder.io/qwik/build";
+import { routeLoader$, Link, useNavigate } from "@builder.io/qwik-city";
 
-import { useLocation, Link, useNavigate } from "@builder.io/qwik-city";
-import { request } from "~/utils/api";
 import logger from "~/utils/logger";
-import { useJobs, type JobListing } from "~/contexts/jobs";
+import { useJobs, processApiJob } from "~/contexts/jobs";
 import type { MatchScore } from "~/types/models";
 import { useI18n, translate } from "~/contexts/i18n";
 import { useAuth } from "~/contexts/auth";
-import { UnifiedCommentsSection } from "~/components/ui/comments-section";
-import { MatchBreakdown } from "~/components/jobs/match-breakdown";
-import { JobPostingSchema, BreadcrumbSchema } from "~/components/seo/json-ld";
-import { JobHeader } from "~/components/jobs/job-header";
-import { JobMapSection } from "~/components/jobs/job-map-section";
-import { JobDescription } from "~/components/jobs/job-description";
-import { JobSkillsList } from "~/components/jobs/job-skills-list";
-import { CompanyInfoBox } from "~/components/jobs/company-info-box";
+import { JobDetailContent } from "~/components/jobs/job-detail-content";
 import styles from "./index.css?inline";
-import { Modal } from "~/components/ui/modal";
-import { ScrollButtons } from "~/components/ui/scroll-buttons";
-import { API_URL, SITE_URL } from "~/constants";
+import { API_URL } from "~/constants";
+
+// Server-side loader for the job data
+export const useJobLoader = routeLoader$(async ({ params, cookie, status }) => {
+  const id = params.id;
+  if (!id || id === "undefined") {
+    status(404);
+    return null;
+  }
+
+  try {
+    // Construct headers for authorization if token exists
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
+
+    const tokenCookie = cookie.get("auth_token");
+    if (tokenCookie?.value) {
+      headers["Authorization"] = `Bearer ${tokenCookie.value}`;
+    }
+
+    // We use fetch directly here to ensure it works in the loader environment (node/bun)
+    // and we avoid potential circular dependencies or client-side logic in 'request'
+    const response = await fetch(`${API_URL}/jobs/${id}`, { headers });
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        status(404);
+        return null;
+      }
+      throw new Error(`Failed to fetch job: ${response.status}`);
+    }
+
+    const result = await response.json();
+    if (result.success && result.data) {
+      const job = processApiJob(result.data);
+
+      // Optional: Fetch match score if authenticated (server-side)
+      // Note: This adds latency. It might be better to keep match score as client-side
+      // progressive enhancement if it's slow, but let's try to get it here for SEO/SSR value.
+      let matchScore: MatchScore | null = null;
+      if (tokenCookie?.value && job) {
+        try {
+          const scoreResponse = await fetch(`${API_URL}/jobs/${job.id}/match`, {
+            headers,
+          });
+          if (scoreResponse.ok) {
+            const scoreResult = await scoreResponse.json();
+            if (scoreResult.success) {
+              matchScore = scoreResult.data;
+            }
+          }
+        } catch (e) {
+          console.error("Failed to fetch match score in loader", e);
+          // Non-critical, continue without score
+        }
+      }
+
+      return { job, matchScore };
+    }
+
+    return null;
+  } catch (error) {
+    console.error("Error in useJobLoader:", error);
+    status(500);
+    return null;
+  }
+});
 
 export default component$(() => {
   useStylesScoped$(styles);
-  const loc = useLocation();
   const jobsContext = useJobs();
   const auth = useAuth();
   const i18n = useI18n();
   const nav = useNavigate();
 
+  // Consume the loader data
+  const jobSignal = useJobLoader();
+
   const state = useStore({
-    job: null as JobListing | null,
-    matchScore: null as MatchScore | null,
+    job: jobSignal.value?.job || null,
+    matchScore: jobSignal.value?.matchScore || null,
     isDeleting: false,
   });
+
   const showDeleteModal = useSignal(false);
+  const refreshSignal = useSignal(0);
 
-  const jobResource = useResource$(async ({ track }) => {
-    const id = track(() => loc.params.id);
-    track(() => auth.token); // Re-fetch when auth changes to get is_favorite status
-    if (!id || id === "undefined") return null;
-    const job = await jobsContext.fetchJobById$(id);
-    state.job = job;
+  // Reactive updates for specific fields without full page reload
+  // Kept for interactive updates (e.g. after editing profile or liking)
+  useTask$(async ({ track }) => {
+    track(() => refreshSignal.value);
+    track(() => auth.user?.skills);
+    track(() => auth.user?.seniority);
+    track(() => auth.user?.location);
+    track(() => auth.user?.workModes);
 
-    // Fetch match score if authenticated
-    if (auth.token && job) {
-      const scoreData = await jobsContext.fetchJobMatchScore$(job.id);
-      state.matchScore = scoreData;
+    if (isServer) return;
+
+    const jobId = state.job?.id;
+    if (!jobId) return;
+
+    // Fetch updated job data (e.g. for Trust Score)
+    const updatedJob = await jobsContext.fetchJobById$(jobId);
+    if (updatedJob) {
+      state.job = updatedJob;
     }
 
-    return job;
+    // Fetch updated match score
+    if (auth.token && updatedJob) {
+      const scoreData = await jobsContext.fetchJobMatchScore$(updatedJob.id);
+      state.matchScore = scoreData;
+    }
   });
 
   const handleToggleFavorite = $(async () => {
@@ -74,7 +145,9 @@ export default component$(() => {
     if (!state.job || !auth.token) return;
     state.isDeleting = true;
     try {
-      const res = await request(`${API_URL}/jobs/${state.job.id}`, {
+      // Use fetch here or the jobsContext helper if available, but manual request is safer for custom logic
+      // We'll reuse the pattern from before but ensure imports are clean
+      const res = await fetch(`${API_URL}/jobs/${state.job.id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${auth.token}` },
       });
@@ -130,6 +203,10 @@ export default component$(() => {
     }
   });
 
+  const handleReactionComplete = $(() => {
+    refreshSignal.value++;
+  });
+
   return (
     <div class="container">
       <Link
@@ -153,176 +230,32 @@ export default component$(() => {
         <span>{translate("job.back_to_search", i18n.currentLanguage)}</span>
       </Link>
 
-      <Resource
-        value={jobResource}
-        onPending={() => (
-          <div class="loadingSpinner">
-            <div class="spinner"></div>
-          </div>
-        )}
-        onResolved={() => {
-          const job = state.job;
-          if (!job) {
-            return (
-              <div class="notFoundCard">
-                <div class="notFoundIcon">🔍</div>
-                <h2 class="notFoundTitle">
-                  {translate("job.not_found", i18n.currentLanguage)}
-                </h2>
-                <p class="notFoundDesc">
-                  {translate("job.not_found_description", i18n.currentLanguage)}
-                </p>
-                <Link href="/jobs" class="notFoundButton">
-                  {translate("job.back_to_search", i18n.currentLanguage)}
-                </Link>
-              </div>
-            );
-          }
-          return (
-            <div class="mainContent">
-              <BreadcrumbSchema
-                items={[
-                  { name: "Home", url: `${SITE_URL}/` },
-                  {
-                    name: "Jobs",
-                    url: `${SITE_URL}/jobs`,
-                  },
-                  { name: job.title, url: loc.url.href },
-                ]}
-              />
-              {/* JobPosting JSON-LD for SEO */}
-              <JobPostingSchema
-                title={job.title}
-                description={
-                  job.description?.replace(/<[^>]*>/g, "").substring(0, 500) ||
-                  job.title
-                }
-                datePosted={
-                  job.publishDate instanceof Date
-                    ? job.publishDate.toISOString()
-                    : new Date().toISOString()
-                }
-                employmentType={job.availability || "full_time"}
-                hiringOrganization={{
-                  name: job.company,
-                  logo: job.companyLogo,
-                }}
-                jobLocation={
-                  job.location
-                    ? {
-                        addressLocality: job.location,
-                        addressCountry: "IT",
-                      }
-                    : undefined
-                }
-                isRemote={job.remote}
-                skills={job.skills}
-              />
-
-              {/* Header Card */}
-              <div class="card">
-                <JobHeader
-                  job={job}
-                  isAuthenticated={auth.isAuthenticated}
-                  isAdmin={auth.user?.role === "admin"}
-                  onToggleFavorite$={handleToggleFavorite}
-                  onApplyClick$={handleApplyClick}
-                />
-                <div class="px-8 md:px-10 pb-8">
-                  {auth.user?.role === "admin" && (
-                    <>
-                      <button
-                        data-testid="delete-button"
-                        onClick$={$(() => (showDeleteModal.value = true))}
-                        class="hover:bg-red-50 px-4 py-2 border border-red-200 rounded font-bold text-red-600"
-                      >
-                        {translate("job.delete", i18n.currentLanguage)}
-                      </button>
-
-                      {showDeleteModal.value && (
-                        <Modal
-                          title={translate(
-                            "job.confirm_delete_title",
-                            i18n.currentLanguage,
-                          )}
-                          isOpen={showDeleteModal}
-                          onConfirm$={handleDeleteJob}
-                          isDestructive={true}
-                          isLoading={state.isDeleting}
-                          confirmText={translate(
-                            "job.delete",
-                            i18n.currentLanguage,
-                          )}
-                          cancelText={translate(
-                            "common.cancel",
-                            i18n.currentLanguage,
-                          )}
-                        >
-                          <p>
-                            {translate(
-                              "job.confirm_delete_msg",
-                              i18n.currentLanguage,
-                            )}
-                          </p>
-                        </Modal>
-                      )}
-                    </>
-                  )}
-                </div>
-              </div>
-
-              {/* Map Card - if GPS available */}
-              {job.location_geo && job.location_geo.coordinates && (
-                <div class="card">
-                  <JobMapSection
-                    location={job.location || ""}
-                    geo={{
-                      lat: job.location_geo.coordinates[1],
-                      lng: job.location_geo.coordinates[0],
-                    }}
-                  />
-                </div>
-              )}
-
-              {/* Description Card */}
-              <div class="card">
-                <JobDescription description={job.description || ""} />
-              </div>
-
-              {/* Skills Card */}
-              {job.skills && job.skills.length > 0 && (
-                <div class="card">
-                  <JobSkillsList
-                    skills={job.skills || []}
-                    userSkills={auth.user?.skills || []}
-                    onAddSkill$={handleAddSkill}
-                  />
-                </div>
-              )}
-
-              <CompanyInfoBox
-                company={job.company}
-                companyScore={job.companyScore}
-              />
-
-              {/* Match Breakdown Card */}
-              {state.matchScore && (
-                <MatchBreakdown
-                  score={state.matchScore.score}
-                  factors={state.matchScore.factors}
-                  details={state.matchScore.details}
-                />
-              )}
-
-              {/* Comments Card */}
-              <div class="commentsSection">
-                <UnifiedCommentsSection ownerId={job.id} type="job" />
-              </div>
-            </div>
-          );
-        }}
-      />
-      <ScrollButtons />
+      {!state.job ? (
+        <div class="notFoundCard">
+          <div class="notFoundIcon">🔍</div>
+          <h2 class="notFoundTitle">
+            {translate("job.not_found", i18n.currentLanguage)}
+          </h2>
+          <p class="notFoundDesc">
+            {translate("job.not_found_description", i18n.currentLanguage)}
+          </p>
+          <Link href="/jobs" class="notFoundButton">
+            {translate("job.back_to_search", i18n.currentLanguage)}
+          </Link>
+        </div>
+      ) : (
+        <JobDetailContent
+          job={state.job}
+          matchScore={state.matchScore}
+          isDeleting={state.isDeleting}
+          showDeleteModal={showDeleteModal}
+          onToggleFavorite$={handleToggleFavorite}
+          onApplyClick$={handleApplyClick}
+          onReactionComplete$={handleReactionComplete}
+          onDeleteJob$={handleDeleteJob}
+          onAddSkill$={handleAddSkill}
+        />
+      )}
     </div>
   );
 });

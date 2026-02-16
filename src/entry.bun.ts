@@ -89,7 +89,10 @@ Bun.serve({
         }
 
         // Security Headers
-        if (!headers.has("Content-Security-Policy")) {
+        if (
+          !headers.has("Content-Security-Policy") &&
+          Bun.env.NODE_ENV !== "development"
+        ) {
           // Fallback CSP if plugin doesn't set it (should match plugin.ts logic)
           const nonce = requestStore.getStore()?.nonce;
           const scriptSrc = nonce
