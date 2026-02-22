@@ -1,5 +1,5 @@
 # DevBoards.io - Robots.txt
-# https://itjobhub.com
+# https://devboards.io
 
 User-agent: *
 Allow: /
@@ -18,5 +18,5 @@ Allow: /jobs/*
 Crawl-delay: 1
 
 # Sitemap location (dynamic sitemap)
-Sitemap: https://itjobhub.com/sitemap.xml
+Sitemap: https://devboards.io/sitemap.xml
 

@@ -26,7 +26,7 @@ export const onGet: RequestHandler = async ({ send, env }) => {
   const SITE_URL =
     RAW_SITE_URL && RAW_SITE_URL !== "undefined"
       ? RAW_SITE_URL
-      : "https://itjobhub.com";
+      : "https://devboards.io";
 
   // Fetch data in parallel
   const [jobsResult, newsResult] = await Promise.allSettled([

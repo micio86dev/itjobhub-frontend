@@ -350,7 +350,7 @@ export const ContactPageSchema = component$<ContactPageSchemaProps>(
         contactPoint: {
           "@type": "ContactPoint",
           contactType: "customer support",
-          email: "support@itjobhub.com",
+          email: "support@devboards.io",
         },
       },
     };

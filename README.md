@@ -71,7 +71,7 @@ This project uses environment variables for configuration. Create a `.env` file 
 | Variable          | Description                                       | Default / Example       |
 | ----------------- | ------------------------------------------------- | ----------------------- |
 | `PUBLIC_API_URL`  | URL of the backend API                            | `http://localhost:3001` |
-| `PUBLIC_SITE_URL` | Base URL of the frontend (used for SEO/Canonical) | `https://itjobhub.com`  |
+| `PUBLIC_SITE_URL` | Base URL of the frontend (used for SEO/Canonical) | `https://devboards.io`  |
 
 ## Development
 
