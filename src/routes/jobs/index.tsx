@@ -219,13 +219,18 @@ export default component$(() => {
           console.error("Error invoking setInitialData$", err);
         }
       }
+    } else if (!data.success) {
+      // Loader failed, enable client-side loading
+      shouldInitializeJobs.value = true;
     }
   });
 
   // Auto-load jobs on client if SSR failed or returned empty
-  useTask$(async () => {
+  useTask$(async ({ track }) => {
+    const shouldInit = track(() => shouldInitializeJobs.value);
+
     // Wait for JobsContext QRL functions to be ready
-    if (typeof window !== "undefined" && shouldInitializeJobs.value) {
+    if (typeof window !== "undefined" && shouldInit) {
       const timeout = setTimeout(async () => {
         shouldInitializeJobs.value = false;
 
