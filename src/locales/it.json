@@ -215,6 +215,7 @@
   "profile.location_label": "Località",
   "profile.birth_date_label": "Data di nascita",
   "profile.salary_min_label": "RAL Minima",
+  "profile.salary_any": "Qualsiasi",
   "profile.bio_label": "Bio",
   "profile.save_changes": "Salva Modifiche",
   "profile.cancel": "Annulla",

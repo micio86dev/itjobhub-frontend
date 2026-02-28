@@ -409,13 +409,17 @@ export const AuthProvider = component$(
           // Update user in sync with backend response
           const backendProfile = data.data;
           if (authState.user) {
-            authState.user.languages = backendProfile.languages;
-            authState.user.skills = backendProfile.skills;
-            authState.user.seniority = backendProfile.seniority;
-            authState.user.availability = backendProfile.availability;
-            authState.user.workModes = backendProfile.workModes;
-            authState.user.salaryMin = backendProfile.salaryMin;
-            authState.user.profileCompleted = true;
+            // Reassign the entire user object to trigger reactivity
+            authState.user = {
+              ...authState.user,
+              languages: backendProfile.languages,
+              skills: backendProfile.skills,
+              seniority: backendProfile.seniority,
+              availability: backendProfile.availability,
+              workModes: backendProfile.workModes,
+              salaryMin: backendProfile.salaryMin,
+              profileCompleted: true,
+            };
           }
           profileUpdateResult.value = { success: true };
         } else {
@@ -442,26 +446,28 @@ export const AuthProvider = component$(
       if (!personalInfo || !authState.user) return;
 
       try {
-        // Optimistic update
+        // Optimistic update - reassign entire user object for reactivity
         const prevUser = { ...authState.user };
-        authState.user.firstName = personalInfo.firstName;
-        authState.user.lastName = personalInfo.lastName;
-        authState.user.name =
-          `${personalInfo.firstName} ${personalInfo.lastName}`.trim();
-        authState.user.phone = personalInfo.phone;
-        authState.user.location = personalInfo.location;
-        authState.user.location_geo = personalInfo.coordinates
-          ? {
-              type: "Point",
-              coordinates: [
-                personalInfo.coordinates.lng,
-                personalInfo.coordinates.lat,
-              ],
-            }
-          : undefined;
-        authState.user.birthDate = personalInfo.birthDate;
-        authState.user.bio = personalInfo.bio;
-        authState.user.salaryMin = personalInfo.salaryMin;
+        authState.user = {
+          ...authState.user,
+          firstName: personalInfo.firstName,
+          lastName: personalInfo.lastName,
+          name: `${personalInfo.firstName} ${personalInfo.lastName}`.trim(),
+          phone: personalInfo.phone,
+          location: personalInfo.location,
+          location_geo: personalInfo.coordinates
+            ? {
+                type: "Point",
+                coordinates: [
+                  personalInfo.coordinates.lng,
+                  personalInfo.coordinates.lat,
+                ],
+              }
+            : undefined,
+          birthDate: personalInfo.birthDate,
+          bio: personalInfo.bio,
+          salaryMin: personalInfo.salaryMin,
+        };
 
         const response = await request(`${API_URL}/users/me/profile`, {
           method: "PUT",
@@ -523,7 +529,7 @@ export const AuthProvider = component$(
         });
 
         if (response.ok) {
-          authState.user.avatar = avatarUpdate.avatar;
+          authState.user = { ...authState.user, avatar: avatarUpdate.avatar };
           avatarUpdateResult.value = { success: true };
         } else {
           avatarUpdateResult.value = {

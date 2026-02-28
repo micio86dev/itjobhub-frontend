@@ -214,6 +214,7 @@
   "profile.location_label": "Location",
   "profile.birth_date_label": "Birth date",
   "profile.salary_min_label": "Minimum Salary",
+  "profile.salary_any": "Any",
   "profile.bio_label": "Bio",
   "profile.save_changes": "Save Changes",
   "profile.cancel": "Cancel",

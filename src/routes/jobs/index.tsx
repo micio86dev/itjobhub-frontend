@@ -176,6 +176,12 @@ export default component$(() => {
   // Signal to track if we should attempt a client-side load
   const shouldInitializeJobs = useSignal(true);
 
+  // Check if personalized feed is active from URL params
+  const hasPersonalizedParams =
+    urlParams.has("skills") ||
+    urlParams.has("languages") ||
+    urlParams.has("looseSeniority");
+
   const state = useStore({
     displayedJobs: [] as JobListing[],
     page: 1,
@@ -183,7 +189,7 @@ export default component$(() => {
     isLoading: false,
     hasNextPage: true,
     openComments: {} as Record<string, boolean>,
-    showPersonalized: false, // Di default mostra tutti gli annunci
+    showPersonalized: hasPersonalizedParams, // Sync with URL params
     searchFilters: hasInitialSearch
       ? ({
           query: initialQuery,
@@ -252,6 +258,16 @@ export default component$(() => {
   });
 
   const nav = useNavigate();
+
+  // Sync showPersonalized with URL params
+  useTask$(({ track }) => {
+    const url = track(() => loc.url);
+    const hasPersonalizedInUrl =
+      url.searchParams.has("skills") ||
+      url.searchParams.has("languages") ||
+      url.searchParams.has("looseSeniority");
+    state.showPersonalized = hasPersonalizedInUrl;
+  });
 
   // Initial fetch logic removed - now handled by routeLoader$ and sync
 
@@ -339,6 +355,22 @@ export default component$(() => {
 
   const handleSearch = $(async (filters: JobSearchFilters) => {
     const url = new URL(loc.url);
+
+    // Preserve personalized feed parameters if active
+    const preserveSkills =
+      state.showPersonalized && url.searchParams.has("skills");
+    const preserveLanguages =
+      state.showPersonalized && url.searchParams.has("languages");
+    const preserveLooseSeniority =
+      state.showPersonalized && url.searchParams.has("looseSeniority");
+    const skillsParam = preserveSkills ? url.searchParams.get("skills") : null;
+    const languagesParam = preserveLanguages
+      ? url.searchParams.get("languages")
+      : null;
+    const looseSeniorityParam = preserveLooseSeniority
+      ? url.searchParams.get("looseSeniority")
+      : null;
+
     if (filters.query) url.searchParams.set("q", filters.query);
     else url.searchParams.delete("q");
 
@@ -386,6 +418,14 @@ export default component$(() => {
     } else if (filters.remote !== "hybrid") {
       url.searchParams.delete("availability");
     }
+
+    // Restore personalized feed parameters if they were active
+    if (preserveSkills && skillsParam)
+      url.searchParams.set("skills", skillsParam);
+    if (preserveLanguages && languagesParam)
+      url.searchParams.set("languages", languagesParam);
+    if (preserveLooseSeniority && looseSeniorityParam)
+      url.searchParams.set("looseSeniority", looseSeniorityParam);
 
     nav(url.pathname + url.search);
   });

@@ -208,6 +208,7 @@
   "profile.location_label": "Standort",
   "profile.birth_date_label": "Geburtsdatum",
   "profile.salary_min_label": "Mindestgehalt",
+  "profile.salary_any": "Beliebig",
   "profile.bio_label": "Bio",
   "profile.save_changes": "Änderungen speichern",
   "profile.cancel": "Abbrechen",

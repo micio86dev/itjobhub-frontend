@@ -209,6 +209,7 @@
   "profile.location_label": "Localisation",
   "profile.birth_date_label": "Date de naissance",
   "profile.salary_min_label": "Salaire Minimum",
+  "profile.salary_any": "Indifférent",
   "profile.bio_label": "Bio",
   "profile.save_changes": "Enregistrer les Modifications",
   "profile.cancel": "Annuler",

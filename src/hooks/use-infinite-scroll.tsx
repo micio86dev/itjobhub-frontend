@@ -1,4 +1,4 @@
-import { useSignal, useTask$, isBrowser } from "@builder.io/qwik";
+import { useSignal, useVisibleTask$ } from "@builder.io/qwik";
 import type { QRL, Signal } from "@builder.io/qwik";
 
 interface UseInfiniteScrollOptions {
@@ -17,9 +17,7 @@ export const useInfiniteScroll = (
   const { threshold = 0, rootMargin = "100px", loadMore$ } = options;
   const ref = useSignal<HTMLElement>();
 
-  useTask$(({ track, cleanup }) => {
-    if (!isBrowser) return;
-
+  useVisibleTask$(({ track, cleanup }) => {
     // Track ref changes to re-observe if it becomes available later
     const element = track(() => ref.value);
 

@@ -85,4 +85,10 @@ export default tseslint.config(
       ],
     },
   },
+  {
+    files: ["**/hooks/use-infinite-scroll.tsx"],
+    rules: {
+      "qwik/no-use-visible-task": "off",
+    },
+  },
 );

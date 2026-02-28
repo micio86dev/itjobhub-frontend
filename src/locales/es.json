@@ -208,6 +208,8 @@
   "profile.phone_label": "Teléfono",
   "profile.location_label": "Ubicación",
   "profile.birth_date_label": "Fecha de nacimiento",
+  "profile.salary_min_label": "Salario Mínimo",
+  "profile.salary_any": "Cualquiera",
   "profile.bio_label": "Biografía",
   "profile.save_changes": "Guardar Cambios",
   "profile.cancel": "Cancelar",
