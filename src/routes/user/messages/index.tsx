@@ -9,6 +9,7 @@ import { type DocumentHead, routeLoader$ } from "@builder.io/qwik-city";
 import { useAuth } from "~/contexts/auth";
 import { useTranslate, useI18n } from "~/contexts/i18n";
 import { API_URL } from "~/constants";
+import { request } from "~/utils/api";
 import { Spinner } from "~/components/ui/spinner";
 
 interface ContactMessage {
@@ -55,11 +56,17 @@ export default component$(() => {
 
   // Fetch user's messages
   const fetchMessages = $(async (page: number = 1) => {
+    if (!auth.token) {
+      isLoading.value = false;
+      error.value = "error";
+      return;
+    }
+
     isLoading.value = true;
     error.value = null;
 
     try {
-      const response = await fetch(
+      const response = await request(
         `${API_URL}/messages/user/me/contacts?page=${page}&limit=10`,
         {
           headers: {
@@ -87,10 +94,15 @@ export default component$(() => {
 
   // Load messages on mount
   useTask$(async ({ track }) => {
-    track(() => auth.token);
-    if (isBrowser && auth.token) {
-      await fetchMessages();
+    const token = track(() => auth.token);
+    if (!isBrowser) return;
+
+    if (!token) {
+      isLoading.value = false;
+      return;
     }
+
+    await fetchMessages();
   });
 
   const formattedDate = (dateString: string) => {
