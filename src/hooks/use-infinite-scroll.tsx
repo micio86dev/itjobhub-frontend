@@ -16,6 +16,7 @@ export const useInfiniteScroll = (
 ): UseInfiniteScrollReturn => {
   const { threshold = 0, rootMargin = "100px", loadMore$ } = options;
   const ref = useSignal<HTMLElement>();
+  const isLoadingRef = useSignal(false);
 
   // IntersectionObserver is not serializable and only used in visible task
   useTask$(({ track, cleanup }) => {
@@ -25,8 +26,14 @@ export const useInfiniteScroll = (
       const observer = new IntersectionObserver(
         (entries) => {
           const [entry] = entries;
-          if (entry.isIntersecting) {
-            loadMore$();
+          if (entry.isIntersecting && !isLoadingRef.value) {
+            isLoadingRef.value = true;
+            Promise.resolve(loadMore$()).finally(() => {
+              // Reset flag after a small delay to prevent rapid multiple calls
+              setTimeout(() => {
+                isLoadingRef.value = false;
+              }, 500);
+            });
           }
         },
         {

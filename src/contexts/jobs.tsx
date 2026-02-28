@@ -170,6 +170,7 @@ export interface JobFilters {
   location?: string;
   looseSeniority?: boolean;
   salaryMin?: number;
+  minMatchScore?: number;
 }
 
 // Helper to process raw API job into JobListing (outside component to avoid QRL serialization issues)
@@ -338,6 +339,11 @@ export const JobsProvider = component$(() => {
             url.searchParams.append("looseSeniority", "true");
           if (filters?.salaryMin)
             url.searchParams.append("salary_min", String(filters.salaryMin));
+          if (filters?.minMatchScore)
+            url.searchParams.append(
+              "minMatchScore",
+              String(filters.minMatchScore),
+            );
 
           // Include auth token if available
           const headers: Record<string, string> = {};

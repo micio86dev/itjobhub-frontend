@@ -27,6 +27,7 @@ export interface User {
   birthDate?: string;
   bio?: string;
   avatar?: string;
+  salaryMin?: number;
   languages?: string[];
   skills?: string[];
   seniority?: "junior" | "mid" | "senior";
@@ -47,6 +48,7 @@ export interface WizardData {
   seniority: "junior" | "mid" | "senior" | "";
   availability: "full-time" | "part-time" | "busy" | "";
   workModes: string[];
+  salaryMin?: number;
 }
 
 export interface LoginRequest {
@@ -73,6 +75,7 @@ export interface PersonalInfoUpdate {
   location: string;
   birthDate: string;
   bio: string;
+  salaryMin?: number;
   coordinates?: { lat: number; lng: number };
 }
 
@@ -106,7 +109,12 @@ export interface BackendUser {
   role?: string;
   phone?: string;
   location?: string;
+  location_geo?: {
+    type: string;
+    coordinates: number[];
+  };
   birthDate?: string;
+  salaryMin?: number;
   avatar?: string;
   profileCompleted?: boolean;
   profile?: {
@@ -218,8 +226,10 @@ export const AuthProvider = component$(
             : !!bu.profile,
         phone: bu.phone,
         location: bu.location,
+        location_geo: bu.location_geo,
         birthDate: bu.birthDate,
         avatar: bu.avatar,
+        salaryMin: bu.salaryMin,
       };
     });
 
@@ -390,6 +400,7 @@ export const AuthProvider = component$(
             seniority: wizardData.seniority,
             availability: wizardData.availability,
             workModes: wizardData.workModes,
+            salaryMin: wizardData.salaryMin,
           }),
         });
 
@@ -403,6 +414,7 @@ export const AuthProvider = component$(
             authState.user.seniority = backendProfile.seniority;
             authState.user.availability = backendProfile.availability;
             authState.user.workModes = backendProfile.workModes;
+            authState.user.salaryMin = backendProfile.salaryMin;
             authState.user.profileCompleted = true;
           }
           profileUpdateResult.value = { success: true };
@@ -438,8 +450,18 @@ export const AuthProvider = component$(
           `${personalInfo.firstName} ${personalInfo.lastName}`.trim();
         authState.user.phone = personalInfo.phone;
         authState.user.location = personalInfo.location;
+        authState.user.location_geo = personalInfo.coordinates
+          ? {
+              type: "Point",
+              coordinates: [
+                personalInfo.coordinates.lng,
+                personalInfo.coordinates.lat,
+              ],
+            }
+          : undefined;
         authState.user.birthDate = personalInfo.birthDate;
         authState.user.bio = personalInfo.bio;
+        authState.user.salaryMin = personalInfo.salaryMin;
 
         const response = await request(`${API_URL}/users/me/profile`, {
           method: "PUT",
@@ -456,6 +478,7 @@ export const AuthProvider = component$(
             birthDate: personalInfo.birthDate,
             location: personalInfo.location,
             locationGeo: personalInfo.coordinates,
+            salaryMin: personalInfo.salaryMin,
           }),
         });
 

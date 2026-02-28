@@ -92,6 +92,7 @@ export const ProfileWizard = component$<ProfileWizardProps>(
         seniority: initialData?.seniority || "",
         availability: initialData?.availability || "",
         workModes: initialData?.workModes || [],
+        salaryMin: initialData?.salaryMin,
       } as WizardData,
     });
 
@@ -148,7 +149,7 @@ export const ProfileWizard = component$<ProfileWizardProps>(
             <div class="progress-bar-bg">
               <div
                 class="progress-bar-fill"
-                style={`width: ${(state.currentStep / 5) * 100}%`}
+                style={`width: ${(state.currentStep / 6) * 100}%`}
               ></div>
             </div>
           </div>
@@ -362,6 +363,56 @@ export const ProfileWizard = component$<ProfileWizardProps>(
             </div>
           )}
 
+          {state.currentStep === 6 && (
+            <div class="step-container">
+              <div>
+                <h2 class="step-heading">{t("profile.salary_min_label")}</h2>
+                <p class="step-description">{t("wizard.salary_min_desc")}</p>
+                <div class="space-y-4">
+                  <div class="relative">
+                    <label class="block mb-2 font-medium text-gray-700 dark:text-gray-300 text-sm">
+                      {t("profile.salary_min_label")}
+                      {state.data.salaryMin && (
+                        <span class="ml-2 font-mono text-brand-neon">
+                          €
+                          {Number(state.data.salaryMin).toLocaleString("it-IT")}
+                          +
+                        </span>
+                      )}
+                      {!state.data.salaryMin && (
+                        <span class="ml-2 font-mono text-gray-500">
+                          {t("profile.salary_any")}
+                        </span>
+                      )}
+                    </label>
+                    <input
+                      type="range"
+                      min="0"
+                      max="100000"
+                      step="5000"
+                      value={state.data.salaryMin || "0"}
+                      onInput$={(e) => {
+                        const val = (e.target as HTMLInputElement).value;
+                        state.data.salaryMin =
+                          val === "0" ? undefined : Number(val);
+                      }}
+                      class="bg-gray-200 dark:bg-gray-700 rounded-lg w-full h-2 accent-brand-neon appearance-none cursor-pointer"
+                      aria-label={t("profile.salary_min_label")}
+                    />
+                    <div class="flex justify-between mt-1 font-mono text-gray-500 dark:text-gray-400 text-xs">
+                      <span>{t("profile.salary_any")}</span>
+                      <span>20k</span>
+                      <span>40k</span>
+                      <span>60k</span>
+                      <span>80k</span>
+                      <span>100k+</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Navigation buttons */}
           <div class="nav-buttons">
             <div class="nav-left">
@@ -378,7 +429,7 @@ export const ProfileWizard = component$<ProfileWizardProps>(
             </div>
 
             <div>
-              {state.currentStep < 5 ? (
+              {state.currentStep < 6 ? (
                 <button
                   onClick$={nextStep}
                   disabled={!getCanProceed()}

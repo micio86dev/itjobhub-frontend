@@ -1,4 +1,4 @@
-import { component$, $, useStore, useTask$ } from "@builder.io/qwik";
+import { component$, $, useStore, useTask$, useSignal } from "@builder.io/qwik";
 import {
   type DocumentHead,
   useLocation,
@@ -47,15 +47,21 @@ interface JobSearchFilters {
   remote: string;
   dateRange: string;
   salaryMin: string;
+  minMatchScore: string;
 }
 
 export const useJobsListLoader = routeLoader$(async ({ url, env, cookie }) => {
   const query = url.searchParams.get("q") || "";
   const seniority = url.searchParams.get("seniority") || "";
   const remote = url.searchParams.get("remote") || "";
+  const skills = url.searchParams.get("skills") || "";
+  const languages = url.searchParams.get("languages") || "";
+  const looseSeniority = url.searchParams.get("looseSeniority") || "";
   const salaryMin = url.searchParams.get("salary_min") || "";
   const availability = url.searchParams.get("availability") || "";
   const location = url.searchParams.get("location") || "";
+  const dateRange = url.searchParams.get("dateRange") || "";
+  const minMatchScore = url.searchParams.get("minMatchScore") || "";
   const lat = url.searchParams.get("lat") || "";
   const lng = url.searchParams.get("lng") || "";
   const page = 1;
@@ -74,10 +80,17 @@ export const useJobsListLoader = routeLoader$(async ({ url, env, cookie }) => {
   if (query) endpoint.searchParams.append("q", query);
   if (seniority) endpoint.searchParams.append("seniority", seniority);
   if (remote) endpoint.searchParams.append("remote", remote);
+  if (skills) endpoint.searchParams.append("skills", skills);
+  if (languages) endpoint.searchParams.append("languages", languages);
+  if (looseSeniority)
+    endpoint.searchParams.append("looseSeniority", looseSeniority);
   if (salaryMin) endpoint.searchParams.append("salary_min", salaryMin);
   if (availability)
     endpoint.searchParams.append("employment_type", availability);
   if (location) endpoint.searchParams.append("location", location);
+  if (dateRange) endpoint.searchParams.append("dateRange", dateRange);
+  if (minMatchScore)
+    endpoint.searchParams.append("minMatchScore", minMatchScore);
   if (lat) endpoint.searchParams.append("lat", lat);
   if (lng) endpoint.searchParams.append("lng", lng);
   if (lat && lng) endpoint.searchParams.append("radius_km", "50");
@@ -106,8 +119,13 @@ export const useJobsListLoader = routeLoader$(async ({ url, env, cookie }) => {
           remote === "true" ? true : remote === "false" ? false : undefined,
         salaryMin: salaryMin ? Number(salaryMin) : undefined,
         seniority,
+        skills: skills ? skills.split(",").filter(Boolean) : undefined,
+        languages: languages ? languages.split(",").filter(Boolean) : undefined,
+        looseSeniority: looseSeniority === "true",
         availability,
         location,
+        dateRange,
+        minMatchScore: minMatchScore ? Number(minMatchScore) : undefined,
         lat: lat ? Number(lat) : undefined,
         lng: lng ? Number(lng) : undefined,
       } as JobFilters,
@@ -134,13 +152,25 @@ export default component$(() => {
   const urlParams = loc.url.searchParams;
   const initialQuery = urlParams.get("q") || "";
   const initialRemote = urlParams.get("remote") || "";
-  const initialSalaryMin = urlParams.get("salary_min") || "";
+  const initialSalaryMinFromUrl = urlParams.get("salary_min") || "";
+  const initialSalaryMin =
+    initialSalaryMinFromUrl ||
+    (auth.user?.salaryMin ? String(auth.user.salaryMin) : "");
+  const initialDateRange = urlParams.get("dateRange") || "";
+  const initialMinMatchScore = urlParams.get("minMatchScore") || "";
 
   const hasInitialSearch = !!(
     initialQuery ||
     initialRemote ||
-    initialSalaryMin
+    initialSalaryMinFromUrl
   );
+
+  const matchScores = useSignal<
+    Record<
+      string,
+      { score: number; label: "excellent" | "good" | "fair" | "low" }
+    >
+  >({});
 
   const state = useStore({
     displayedJobs: [] as JobListing[],
@@ -149,8 +179,7 @@ export default component$(() => {
     isLoading: false,
     hasNextPage: true,
     openComments: {} as Record<string, boolean>,
-    showPersonalized:
-      auth.isAuthenticated && auth.user?.profileCompleted && !hasInitialSearch,
+    showPersonalized: false, // Di default mostra tutti gli annunci
     searchFilters: hasInitialSearch
       ? ({
           query: initialQuery,
@@ -190,6 +219,20 @@ export default component$(() => {
           jobsState.setInitialData$,
         );
       }
+    }
+  });
+
+  // Fetch match scores when authenticated and jobs are loaded
+  useTask$(async ({ track }) => {
+    const token = track(() => auth.token);
+    const jobs = track(() => jobsState.jobs);
+
+    if (token && jobs.length > 0) {
+      const jobIds = jobs.map((job) => job.id);
+      const scores = await jobsState.fetchBatchMatchScores$(jobIds);
+      matchScores.value = scores;
+    } else {
+      matchScores.value = {};
     }
   });
 
@@ -280,6 +323,13 @@ export default component$(() => {
       url.searchParams.set("salary_min", filters.salaryMin);
     else url.searchParams.delete("salary_min");
 
+    if (filters.dateRange) url.searchParams.set("dateRange", filters.dateRange);
+    else url.searchParams.delete("dateRange");
+
+    if (filters.minMatchScore)
+      url.searchParams.set("minMatchScore", filters.minMatchScore);
+    else url.searchParams.delete("minMatchScore");
+
     if (filters.location_geo) {
       url.searchParams.set("lat", String(filters.location_geo.lat));
       url.searchParams.set("lng", String(filters.location_geo.lng));
@@ -346,15 +396,23 @@ export default component$(() => {
         {/* Search component */}
         <JobSearch
           onSearch$={handleSearch}
-          initialLocation={auth.user?.location || undefined}
+          initialLocation={
+            auth.user?.workModes?.length === 1 &&
+            auth.user?.workModes[0] === "remote"
+              ? undefined
+              : auth.user?.location || undefined
+          }
           initialGeo={
-            auth.user?.location_geo?.coordinates &&
-            auth.user.location_geo.coordinates.length >= 2
-              ? {
-                  lat: auth.user.location_geo.coordinates[1],
-                  lng: auth.user.location_geo.coordinates[0],
-                }
-              : undefined
+            auth.user?.workModes?.length === 1 &&
+            auth.user?.workModes[0] === "remote"
+              ? undefined
+              : auth.user?.location_geo?.coordinates &&
+                  auth.user.location_geo.coordinates.length >= 2
+                ? {
+                    lat: auth.user.location_geo.coordinates[1],
+                    lng: auth.user.location_geo.coordinates[0],
+                  }
+                : undefined
           }
           initialQuery={initialQuery}
           initialRemote={
@@ -365,6 +423,8 @@ export default component$(() => {
                 : ""
           }
           initialSalaryMin={initialSalaryMin}
+          initialDateRange={initialDateRange}
+          initialMinMatchScore={initialMinMatchScore}
           userHasLanguages={userHasLanguages}
         />
 
@@ -509,15 +569,26 @@ export default component$(() => {
             </p>
           </div>
         ) : (
-          state.displayedJobs.map((job) => (
-            <div key={job.id}>
-              <JobCard
-                job={job}
-                onToggleComments$={toggleComments}
-                showComments={!!state.openComments[job.id]}
-              />
-            </div>
-          ))
+          state.displayedJobs
+            .filter((job) => {
+              // Filter by minimum match score if set
+              if (jobsState.currentFilters?.minMatchScore) {
+                const minScore = Number(jobsState.currentFilters.minMatchScore);
+                const jobMatchScore = matchScores.value[job.id]?.score || 0;
+                return jobMatchScore >= minScore;
+              }
+              return true;
+            })
+            .map((job) => (
+              <div key={job.id}>
+                <JobCard
+                  job={job}
+                  onToggleComments$={toggleComments}
+                  showComments={!!state.openComments[job.id]}
+                  matchScore={matchScores.value[job.id]}
+                />
+              </div>
+            ))
         )}
       </div>
 
@@ -552,29 +623,29 @@ export default component$(() => {
       )}
 
       {/* Infinite scroll trigger */}
-      {state.hasNextPage && !state.isLoading && (
-        <div
-          ref={infiniteScrollRef}
-          class="flex justify-center items-center h-20"
-        >
-          <div class="text-gray-600 dark:text-gray-500">
-            <svg
-              class="mx-auto mb-2 w-6 h-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M19 14l-7 7m0 0l-7-7m7 7V3"
-              />
-            </svg>
-            <span class="text-sm">{t("jobs.scroll_more")}</span>
-          </div>
+      <div
+        ref={infiniteScrollRef}
+        class={`flex justify-center items-center h-20 ${
+          state.hasNextPage && !state.isLoading ? "visible" : "invisible h-0"
+        }`}
+      >
+        <div class="text-gray-600 dark:text-gray-500">
+          <svg
+            class="mx-auto mb-2 w-6 h-6"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M19 14l-7 7m0 0l-7-7m7 7V3"
+            />
+          </svg>
+          <span class="text-sm">{t("jobs.scroll_more")}</span>
         </div>
-      )}
+      </div>
 
       {/* End of results */}
       {!state.hasNextPage && state.displayedJobs.length > 0 && (

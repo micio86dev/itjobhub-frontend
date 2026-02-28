@@ -12,6 +12,7 @@ interface JobSearchFilters {
   remote: string;
   dateRange: string;
   salaryMin: string;
+  minMatchScore: string;
 }
 
 interface JobSearchProps {
@@ -24,6 +25,7 @@ interface JobSearchProps {
   initialRemote?: string;
   initialDateRange?: string;
   initialSalaryMin?: string;
+  initialMinMatchScore?: string;
   userHasLanguages?: boolean;
 }
 
@@ -38,6 +40,7 @@ export const JobSearch = component$<JobSearchProps>(
     initialRemote,
     initialDateRange,
     initialSalaryMin,
+    initialMinMatchScore,
     // userHasLanguages is currently unused but kept in props for future use
   }) => {
     const t = useTranslate();
@@ -50,6 +53,7 @@ export const JobSearch = component$<JobSearchProps>(
       remote: initialRemote || "",
       dateRange: initialDateRange || "",
       salaryMin: initialSalaryMin || "",
+      minMatchScore: initialMinMatchScore || "",
     });
 
     const handleSearch = $(() => {
@@ -65,6 +69,7 @@ export const JobSearch = component$<JobSearchProps>(
       state.remote = "";
       state.dateRange = "";
       state.salaryMin = "";
+      state.minMatchScore = "";
       onSearch$(state);
     });
 
@@ -75,7 +80,8 @@ export const JobSearch = component$<JobSearchProps>(
       state.location ||
       state.remote ||
       state.dateRange ||
-      state.salaryMin;
+      state.salaryMin ||
+      state.minMatchScore;
 
     return (
       <div class="bg-brand-light-card dark:bg-brand-dark-card shadow-none mb-6 p-4 sm:p-6 border border-gray-200 dark:border-gray-800 rounded-sm">
@@ -171,9 +177,10 @@ export const JobSearch = component$<JobSearchProps>(
             </label>
             <select
               value={state.dateRange}
-              onChange$={(e) =>
-                (state.dateRange = (e.target as HTMLSelectElement).value)
-              }
+              onChange$={(e) => {
+                state.dateRange = (e.target as HTMLSelectElement).value;
+                handleSearch();
+              }}
               class="select"
               aria-label={t("jobs.published_label")}
             >
@@ -194,9 +201,10 @@ export const JobSearch = component$<JobSearchProps>(
             </label>
             <select
               value={state.seniority}
-              onChange$={(e) =>
-                (state.seniority = (e.target as HTMLSelectElement).value)
-              }
+              onChange$={(e) => {
+                state.seniority = (e.target as HTMLSelectElement).value;
+                handleSearch();
+              }}
               data-testid="search-seniority"
               class="select"
               aria-label={t("jobs.seniority_label")}
@@ -215,9 +223,10 @@ export const JobSearch = component$<JobSearchProps>(
             </label>
             <select
               value={state.availability}
-              onChange$={(e) =>
-                (state.availability = (e.target as HTMLSelectElement).value)
-              }
+              onChange$={(e) => {
+                state.availability = (e.target as HTMLSelectElement).value;
+                handleSearch();
+              }}
               data-testid="search-availability"
               class="select"
               aria-label={t("jobs.work_type_label")}
@@ -238,9 +247,10 @@ export const JobSearch = component$<JobSearchProps>(
             </label>
             <select
               value={state.remote}
-              onChange$={(e) =>
-                (state.remote = (e.target as HTMLSelectElement).value)
-              }
+              onChange$={(e) => {
+                state.remote = (e.target as HTMLSelectElement).value;
+                handleSearch();
+              }}
               data-testid="search-remote"
               class="select"
               aria-label={t("jobs.mode_label")}
@@ -272,6 +282,7 @@ export const JobSearch = component$<JobSearchProps>(
                 onInput$={(e) => {
                   const val = (e.target as HTMLInputElement).value;
                   state.salaryMin = val === "0" ? "" : val;
+                  handleSearch();
                 }}
                 data-testid="search-salary-min"
                 class="bg-gray-200 dark:bg-gray-700 rounded-lg w-full h-2 accent-brand-neon appearance-none cursor-pointer"
@@ -284,6 +295,43 @@ export const JobSearch = component$<JobSearchProps>(
                 <span>60k</span>
                 <span>80k</span>
                 <span>100k+</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Minimum Match Score Slider */}
+          <div>
+            <label class="block mb-2 font-medium text-gray-700 dark:text-gray-300 text-sm">
+              {t("jobs.compatibility_label")}
+              {state.minMatchScore && (
+                <span class="ml-2 font-mono text-brand-neon">
+                  {state.minMatchScore}%
+                </span>
+              )}
+            </label>
+            <div class="relative">
+              <input
+                type="range"
+                min="0"
+                max="100"
+                step="5"
+                value={state.minMatchScore || "0"}
+                onInput$={(e) => {
+                  const val = (e.target as HTMLInputElement).value;
+                  state.minMatchScore = val === "0" ? "" : val;
+                  handleSearch();
+                }}
+                data-testid="search-compatibility-min"
+                class="bg-gray-200 dark:bg-gray-700 rounded-lg w-full h-2 accent-brand-neon appearance-none cursor-pointer"
+                aria-label="Minimum compatibility score"
+              />
+              <div class="flex justify-between mt-1 font-mono text-gray-500 dark:text-gray-400 text-xs">
+                <span>0%</span>
+                <span>20%</span>
+                <span>40%</span>
+                <span>60%</span>
+                <span>80%</span>
+                <span>100%</span>
               </div>
             </div>
           </div>

@@ -206,6 +206,22 @@
   @apply bg-gray-800 text-gray-400 border-gray-700;
 }
 
+.skillBadge {
+  @apply inline-flex items-center gap-1.5 px-2 py-0.5 rounded-sm text-xs font-medium border;
+}
+
+.skillBadge.matched {
+  @apply bg-emerald-50 border-emerald-200 text-emerald-700;
+}
+
+:global(.dark) .skillBadge.matched {
+  @apply bg-emerald-900/20 border-emerald-800 text-emerald-400;
+}
+
+.matchIcon {
+  @apply text-emerald-500 flex items-center justify-center;
+}
+
 .location-text {
   @apply text-sm text-gray-700 font-medium;
 }

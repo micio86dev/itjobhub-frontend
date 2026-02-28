@@ -280,11 +280,12 @@ export default component$(() => {
         />
 
         {/* Infinite Scroll Trigger */}
-        {state.hasMore && (
-          <div ref={infiniteScrollRef} class="flex justify-center py-12">
-            {state.isLoading && <Spinner size="lg" />}
-          </div>
-        )}
+        <div
+          ref={infiniteScrollRef}
+          class={`flex justify-center py-12 ${state.hasMore ? "visible" : "invisible h-0"}`}
+        >
+          {state.isLoading && <Spinner size="lg" />}
+        </div>
 
         {!state.hasMore && state.news.length > 0 && (
           <p class="py-8 text-slate-600 dark:text-slate-200 text-sm text-center">

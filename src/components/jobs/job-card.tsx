@@ -28,6 +28,9 @@ export const JobCard = component$<JobCardProps>(
     const t = useTranslate();
     const i18n = useI18n();
     const lang = i18n.currentLanguage;
+    const userSkillsNormalized = new Set(
+      (auth.user?.skills || []).map((skill) => skill.trim().toLowerCase()),
+    );
 
     // Use job.user_reaction directly from props/context for reactive state
 
@@ -262,11 +265,40 @@ export const JobCard = component$<JobCardProps>(
           </span>
           <div class="skills-list">
             {job.skills && job.skills.length > 0 ? (
-              job.skills.map((skill) => (
-                <span key={skill} class="badge-base badge-gray">
-                  {skill}
-                </span>
-              ))
+              job.skills.map((skill) => {
+                const isMatched = userSkillsNormalized.has(
+                  skill.trim().toLowerCase(),
+                );
+
+                return (
+                  <span
+                    key={skill}
+                    class={[
+                      "badge-base",
+                      isMatched ? "skillBadge matched" : "badge-gray",
+                    ]}
+                  >
+                    <span>{skill}</span>
+                    {isMatched && (
+                      <span class="matchIcon" title={t("profile.completed")}>
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="12"
+                          height="12"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="3"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        >
+                          <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                      </span>
+                    )}
+                  </span>
+                );
+              })
             ) : (
               <span class="badge-base badge-red">
                 {t("jobs.unknown_skills")}

@@ -1,4 +1,4 @@
-import { component$, useTask$, useStore } from "@builder.io/qwik";
+import { component$, useTask$, useStore, useSignal } from "@builder.io/qwik";
 import { type DocumentHead, routeLoader$ } from "@builder.io/qwik-city";
 import { useJobs } from "~/contexts/jobs";
 import { useAuth } from "~/contexts/auth";
@@ -30,6 +30,13 @@ export default component$(() => {
   const auth = useAuth();
   const t = useTranslate();
 
+  const matchScores = useSignal<
+    Record<
+      string,
+      { score: number; label: "excellent" | "good" | "fair" | "low" }
+    >
+  >({});
+
   const state = useStore({
     isLoading: true,
   });
@@ -46,6 +53,20 @@ export default component$(() => {
       state.isLoading = true;
       await jobsState.fetchFavorites$();
       state.isLoading = false;
+    }
+  });
+
+  // Fetch match scores when favorites are loaded
+  useTask$(async ({ track }) => {
+    const token = track(() => auth.token);
+    const favorites = track(() => jobsState.favorites);
+
+    if (token && favorites.length > 0) {
+      const jobIds = favorites.map((job) => job.id);
+      const scores = await jobsState.fetchBatchMatchScores$(jobIds);
+      matchScores.value = scores;
+    } else {
+      matchScores.value = {};
     }
   });
 
@@ -87,7 +108,11 @@ export default component$(() => {
         ) : (
           <div class="gap-6 grid jobs-grid md:grid-cols-2 lg:grid-cols-3">
             {jobsState.favorites.map((job) => (
-              <JobCard key={job.id} job={job} />
+              <JobCard
+                key={job.id}
+                job={job}
+                matchScore={matchScores.value[job.id]}
+              />
             ))}
           </div>
         )}

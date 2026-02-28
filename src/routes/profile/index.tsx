@@ -39,6 +39,7 @@ interface EditFormData {
   location: string;
   birthDate: string;
   bio: string;
+  salaryMin?: number;
   coordinates?: { lat: number; lng: number };
 }
 
@@ -66,6 +67,7 @@ export default component$(() => {
       location: auth.user?.location || "",
       birthDate: auth.user?.birthDate || "",
       bio: auth.user?.bio || "",
+      salaryMin: auth.user?.salaryMin,
     } as EditFormData,
     showCropper: false,
     cropperImage: "",
@@ -192,6 +194,7 @@ export default component$(() => {
       location: auth.user?.location || "",
       birthDate: auth.user?.birthDate || "",
       bio: auth.user?.bio || "",
+      salaryMin: auth.user?.salaryMin,
     };
   });
 
@@ -552,6 +555,45 @@ export default component$(() => {
                         />
                       </div>
                     </div>
+                    <div class="gap-4 grid grid-cols-1 md:grid-cols-2">
+                      <div>
+                        <label class="block mb-1 font-mono font-bold text-gray-700 dark:text-gray-300 text-xs uppercase tracking-wider">
+                          {t("profile.salary_min_label")}
+                          {state.formData.salaryMin && (
+                            <span class="ml-2 font-mono text-brand-neon">
+                              €
+                              {Number(state.formData.salaryMin).toLocaleString(
+                                "it-IT",
+                              )}
+                              +
+                            </span>
+                          )}
+                        </label>
+                        <div class="relative">
+                          <input
+                            type="range"
+                            min="0"
+                            max="100000"
+                            step="5000"
+                            value={state.formData.salaryMin || "0"}
+                            onInput$={(e) => {
+                              const val = (e.target as HTMLInputElement).value;
+                              state.formData.salaryMin =
+                                val === "0" ? undefined : Number(val);
+                            }}
+                            class="bg-gray-200 dark:bg-gray-700 rounded-lg w-full h-2 accent-brand-neon appearance-none cursor-pointer"
+                          />
+                          <div class="flex justify-between mt-1 font-mono text-gray-500 dark:text-gray-400 text-xs">
+                            <span>{t("jobs.salary_any")}</span>
+                            <span>20k</span>
+                            <span>40k</span>
+                            <span>60k</span>
+                            <span>80k</span>
+                            <span>100k+</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                     <div>
                       <label class="block mb-1 font-mono font-bold text-gray-700 dark:text-gray-300 text-xs uppercase tracking-wider">
                         {t("profile.bio_label")}
@@ -759,6 +801,22 @@ export default component$(() => {
                       ))}
                     </div>
                   </div>
+
+                  {/* Minimum Salary */}
+                  {auth.user?.salaryMin && (
+                    <div>
+                      <h3 class="mb-3 font-medium text-gray-500 dark:text-gray-400 text-sm">
+                        {t("profile.salary_min_label")}
+                      </h3>
+                      <div class="flex items-center">
+                        <div class="bg-brand-neon mr-3 rounded-full w-3 h-3"></div>
+                        <span class="font-mono font-bold text-brand-neon text-sm">
+                          €{Number(auth.user.salaryMin).toLocaleString("it-IT")}
+                          +
+                        </span>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
