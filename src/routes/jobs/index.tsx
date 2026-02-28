@@ -370,11 +370,6 @@ export default component$(() => {
 
   const canShowPersonalized =
     auth.isAuthenticated && auth.user?.profileCompleted && !state.hasSearched;
-  const userHasLanguages = !!(
-    auth.isAuthenticated &&
-    auth.user?.languages &&
-    auth.user.languages.length > 0
-  );
 
   return (
     <div class="mx-auto px-4 sm:px-6 lg:px-8 py-6 max-w-4xl">
@@ -425,7 +420,6 @@ export default component$(() => {
           initialSalaryMin={initialSalaryMin}
           initialDateRange={initialDateRange}
           initialMinMatchScore={initialMinMatchScore}
-          userHasLanguages={userHasLanguages}
         />
 
         {/* Filter toggle for authenticated users */}
@@ -622,11 +616,13 @@ export default component$(() => {
         </div>
       )}
 
-      {/* Infinite scroll trigger */}
+      {/* Infinite scroll trigger - always present but hidden when no more pages */}
       <div
         ref={infiniteScrollRef}
-        class={`flex justify-center items-center h-20 ${
-          state.hasNextPage && !state.isLoading ? "visible" : "invisible h-0"
+        class={`flex justify-center items-center h-20 transition-opacity duration-300 ${
+          state.hasNextPage && !state.isLoading
+            ? "opacity-100 pointer-events-auto"
+            : "opacity-0 pointer-events-none"
         }`}
       >
         <div class="text-gray-600 dark:text-gray-500">

@@ -16,38 +16,32 @@ export const useInfiniteScroll = (
 ): UseInfiniteScrollReturn => {
   const { threshold = 0, rootMargin = "100px", loadMore$ } = options;
   const ref = useSignal<HTMLElement>();
-  const isLoadingRef = useSignal(false);
 
-  // IntersectionObserver is not serializable and only used in visible task
-  useTask$(({ track, cleanup }) => {
-    const element = track(() => ref.value);
+  useTask$(({ cleanup }) => {
+    if (!isBrowser) return;
 
-    if (isBrowser && element) {
-      const observer = new IntersectionObserver(
-        (entries) => {
-          const [entry] = entries;
-          if (entry.isIntersecting && !isLoadingRef.value) {
-            isLoadingRef.value = true;
-            Promise.resolve(loadMore$()).finally(() => {
-              // Reset flag after a small delay to prevent rapid multiple calls
-              setTimeout(() => {
-                isLoadingRef.value = false;
-              }, 500);
-            });
-          }
-        },
-        {
-          threshold,
-          rootMargin,
-        },
-      );
+    const element = ref.value;
+    if (!element) return;
 
-      observer.observe(element);
+    // IntersectionObserver for detecting when element enters viewport
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const [entry] = entries;
+        if (entry.isIntersecting) {
+          loadMore$();
+        }
+      },
+      {
+        threshold,
+        rootMargin,
+      },
+    );
 
-      cleanup(() => {
-        observer.disconnect();
-      });
-    }
+    observer.observe(element);
+
+    cleanup(() => {
+      observer.disconnect();
+    });
   });
 
   return {
