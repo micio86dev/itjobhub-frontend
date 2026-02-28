@@ -489,6 +489,7 @@ export default component$(() => {
           initialSalaryMin={initialSalaryMin}
           initialDateRange={initialDateRange}
           initialMinMatchScore={initialMinMatchScore}
+          isAuthenticated={auth.isAuthenticated}
         />
 
         {/* Filter toggle for authenticated users */}

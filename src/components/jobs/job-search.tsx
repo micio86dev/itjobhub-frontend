@@ -26,6 +26,7 @@ interface JobSearchProps {
   initialDateRange?: string;
   initialSalaryMin?: string;
   initialMinMatchScore?: string;
+  isAuthenticated?: boolean;
 }
 
 export const JobSearch = component$<JobSearchProps>(
@@ -40,6 +41,7 @@ export const JobSearch = component$<JobSearchProps>(
     initialDateRange,
     initialSalaryMin,
     initialMinMatchScore,
+    isAuthenticated = false,
   }) => {
     const t = useTranslate();
     const state = useStore<JobSearchFilters>({
@@ -297,42 +299,44 @@ export const JobSearch = component$<JobSearchProps>(
             </div>
           </div>
 
-          {/* Minimum Match Score Slider */}
-          <div>
-            <label class="block mb-2 font-medium text-gray-700 dark:text-gray-300 text-sm">
-              {t("jobs.compatibility_label")}
-              {state.minMatchScore && (
-                <span class="ml-2 font-mono text-brand-neon">
-                  {state.minMatchScore}%
-                </span>
-              )}
-            </label>
-            <div class="relative">
-              <input
-                type="range"
-                min="0"
-                max="100"
-                step="5"
-                value={state.minMatchScore || "0"}
-                onInput$={(e) => {
-                  const val = (e.target as HTMLInputElement).value;
-                  state.minMatchScore = val === "0" ? "" : val;
-                  handleSearch();
-                }}
-                data-testid="search-compatibility-min"
-                class="bg-gray-200 dark:bg-gray-700 rounded-lg w-full h-2 accent-brand-neon appearance-none cursor-pointer"
-                aria-label="Minimum compatibility score"
-              />
-              <div class="flex justify-between mt-1 font-mono text-gray-500 dark:text-gray-400 text-xs">
-                <span>0%</span>
-                <span>20%</span>
-                <span>40%</span>
-                <span>60%</span>
-                <span>80%</span>
-                <span>100%</span>
+          {/* Minimum Match Score Slider - Only for authenticated users */}
+          {isAuthenticated && (
+            <div>
+              <label class="block mb-2 font-medium text-gray-700 dark:text-gray-300 text-sm">
+                {t("jobs.compatibility_label")}
+                {state.minMatchScore && (
+                  <span class="ml-2 font-mono text-brand-neon">
+                    {state.minMatchScore}%
+                  </span>
+                )}
+              </label>
+              <div class="relative">
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  step="5"
+                  value={state.minMatchScore || "0"}
+                  onInput$={(e) => {
+                    const val = (e.target as HTMLInputElement).value;
+                    state.minMatchScore = val === "0" ? "" : val;
+                    handleSearch();
+                  }}
+                  data-testid="search-compatibility-min"
+                  class="bg-gray-200 dark:bg-gray-700 rounded-lg w-full h-2 accent-brand-neon appearance-none cursor-pointer"
+                  aria-label="Minimum compatibility score"
+                />
+                <div class="flex justify-between mt-1 font-mono text-gray-500 dark:text-gray-400 text-xs">
+                  <span>0%</span>
+                  <span>20%</span>
+                  <span>40%</span>
+                  <span>60%</span>
+                  <span>80%</span>
+                  <span>100%</span>
+                </div>
               </div>
             </div>
-          </div>
+          )}
 
           {/* Actions */}
           <div class="flex items-end gap-2">
