@@ -195,6 +195,9 @@ export const Navigation = component$(() => {
                   <Link href="/profile" class="nav-link">
                     {t("nav.profile")}
                   </Link>
+                  <Link href="/user/messages" class="nav-link">
+                    {t("nav.messages")}
+                  </Link>
                   <button
                     onClick$={handleLogout}
                     class="btn-logout"
@@ -311,6 +314,12 @@ export const Navigation = component$(() => {
                     class={`mobile-nav-link ${location.url.pathname.startsWith("/profile") ? "active" : ""}`}
                   >
                     {t("nav.profile")}
+                  </Link>
+                  <Link
+                    href="/user/messages"
+                    class={`mobile-nav-link ${location.url.pathname.startsWith("/user/messages") ? "active" : ""}`}
+                  >
+                    {t("nav.messages")}
                   </Link>
                   <button
                     onClick$={handleLogout}

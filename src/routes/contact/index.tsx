@@ -47,7 +47,7 @@ export const useContactAction = routeAction$(async (data, { cookie, env }) => {
   }
 
   try {
-    const res = await fetch(`${apiUrl}/contact`, {
+    const res = await fetch(`${apiUrl}/messages/contact`, {
       method: "POST",
       headers,
       body: JSON.stringify(data),
