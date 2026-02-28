@@ -220,26 +220,32 @@ export default component$(() => {
           jobsState.setInitialData$,
         );
       }
-    } else {
-      // Loader failed, try to load on client side with retry
-      if (
-        typeof window !== "undefined" &&
-        jobsState.jobs.length === 0 &&
-        !jobsState.pagination.isLoading
-      ) {
-        jobsState.pagination.isLoading = true;
-        try {
-          logger.info("Loader failed, retrying on client");
-          await jobsState.fetchJobsPage$(
-            1,
-            jobsState.currentFilters || undefined,
-            false,
-          );
-        } catch (err) {
-          logger.error({ err }, "Failed to fetch jobs on client retry");
-        } finally {
-          jobsState.pagination.isLoading = false;
+    }
+  });
+
+  // Fallback: If jobs are still empty on client hydration, load them
+  useTask$(async ({ track }) => {
+    const jobs = track(() => jobsState.jobs.length);
+    const loaderFailed = track(() => !jobsLoader.value.success);
+    const isClient = typeof window !== "undefined";
+
+    // Only trigger on first client render if loader failed and no jobs loaded
+    if (
+      isClient &&
+      loaderFailed &&
+      jobs === 0 &&
+      jobsState.currentFilters === null &&
+      jobsState.pagination.currentPage === 1 &&
+      !jobsState.pagination.isLoading
+    ) {
+      logger.info("SSR loader failed, fetching jobs on client");
+      try {
+        // Wait for fetchJobsPage$ to be assigned
+        if (typeof jobsState.fetchJobsPage$ === "function") {
+          await jobsState.fetchJobsPage$(1, undefined, false);
         }
+      } catch (err) {
+        logger.error({ err }, "Failed to load jobs on client");
       }
     }
   });
@@ -269,6 +275,37 @@ export default component$(() => {
     state.totalJobsCount = jobsState.pagination.totalJobs;
     state.hasNextPage = jobsState.pagination.hasMore;
     state.isLoading = jobsState.pagination.isLoading;
+  });
+
+  // Retry loading if jobs are still empty and we're not loading
+  // This handles the case where fetchJobsPage$ wasn't ready on first attempt
+  useTask$(async ({ track }) => {
+    const jobs = track(() => jobsState.jobs.length);
+    const isLoading = track(() => jobsState.pagination.isLoading);
+    const loaderFailed = track(() => !jobsLoader.value.success);
+
+    if (
+      typeof window !== "undefined" &&
+      loaderFailed &&
+      jobs === 0 &&
+      !isLoading
+    ) {
+      // Wait a bit for fetchJobsPage$ to be ready, then try again
+      const timeout = setTimeout(async () => {
+        logger.info(
+          "Retrying to fetch jobs after fetchJobsPage$ initialization",
+        );
+        try {
+          if (typeof jobsState.fetchJobsPage$ === "function") {
+            await jobsState.fetchJobsPage$(1, undefined, false);
+          }
+        } catch (err) {
+          logger.error({ err }, "Retry fetch jobs failed");
+        }
+      }, 500);
+
+      return () => clearTimeout(timeout);
+    }
   });
 
   const nav = useNavigate();
