@@ -173,6 +173,9 @@ export default component$(() => {
     >
   >({});
 
+  // Signal to track if we should attempt a client-side load
+  const shouldInitializeJobs = useSignal(true);
+
   const state = useStore({
     displayedJobs: [] as JobListing[],
     page: 1,
@@ -202,7 +205,7 @@ export default component$(() => {
   useTask$(async ({ track }) => {
     const data = track(() => jobsLoader.value);
 
-    if (data.success) {
+    if (data.success && data.jobs.length > 0) {
       // Sync the shared context state with server-fetched data
       if (typeof jobsState.setInitialData$ === "function") {
         try {
@@ -211,42 +214,45 @@ export default component$(() => {
             data.pagination as ApiPagination,
             data.filters,
           );
+          shouldInitializeJobs.value = false; // Don't retry if SSR succeeded
         } catch (err) {
           console.error("Error invoking setInitialData$", err);
         }
-      } else {
-        console.warn(
-          "jobsState.setInitialData$ is not a function",
-          jobsState.setInitialData$,
-        );
       }
     }
   });
 
-  // Fallback: If jobs are still empty on client hydration, load them
-  useTask$(async ({ track }) => {
-    const jobs = track(() => jobsState.jobs.length);
-    const loaderFailed = track(() => !jobsLoader.value.success);
-    const isClient = typeof window !== "undefined";
+  // Auto-load jobs on client if SSR failed or returned empty
+  useTask$(async () => {
+    // Wait for JobsContext QRL functions to be ready
+    if (typeof window !== "undefined" && shouldInitializeJobs.value) {
+      const timeout = setTimeout(async () => {
+        shouldInitializeJobs.value = false;
 
-    // Only trigger on first client render if loader failed and no jobs loaded
-    if (
-      isClient &&
-      loaderFailed &&
-      jobs === 0 &&
-      jobsState.currentFilters === null &&
-      jobsState.pagination.currentPage === 1 &&
-      !jobsState.pagination.isLoading
-    ) {
-      logger.info("SSR loader failed, fetching jobs on client");
-      try {
-        // Wait for fetchJobsPage$ to be assigned
-        if (typeof jobsState.fetchJobsPage$ === "function") {
-          await jobsState.fetchJobsPage$(1, undefined, false);
+        if (
+          jobsState.jobs.length === 0 &&
+          typeof jobsState.fetchJobsPage$ === "function"
+        ) {
+          logger.info("Auto-loading jobs on client");
+          try {
+            await jobsState.fetchJobsPage$(1, undefined, false);
+          } catch (err) {
+            logger.error({ err }, "Failed to auto-load jobs");
+          }
         }
-      } catch (err) {
-        logger.error({ err }, "Failed to load jobs on client");
-      }
+      }, 100); // Small delay to ensure context is initialized
+
+      return () => clearTimeout(timeout);
+    }
+  });
+
+  const nav = useNavigate();
+
+  // Initial fetch logic removed - now handled by routeLoader$ and sync
+
+  const loadMore = $(async () => {
+    if (!state.isLoading && state.hasNextPage) {
+      await jobsState.loadMoreJobs$();
     }
   });
 
@@ -275,47 +281,6 @@ export default component$(() => {
     state.totalJobsCount = jobsState.pagination.totalJobs;
     state.hasNextPage = jobsState.pagination.hasMore;
     state.isLoading = jobsState.pagination.isLoading;
-  });
-
-  // Retry loading if jobs are still empty and we're not loading
-  // This handles the case where fetchJobsPage$ wasn't ready on first attempt
-  useTask$(async ({ track }) => {
-    const jobs = track(() => jobsState.jobs.length);
-    const isLoading = track(() => jobsState.pagination.isLoading);
-    const loaderFailed = track(() => !jobsLoader.value.success);
-
-    if (
-      typeof window !== "undefined" &&
-      loaderFailed &&
-      jobs === 0 &&
-      !isLoading
-    ) {
-      // Wait a bit for fetchJobsPage$ to be ready, then try again
-      const timeout = setTimeout(async () => {
-        logger.info(
-          "Retrying to fetch jobs after fetchJobsPage$ initialization",
-        );
-        try {
-          if (typeof jobsState.fetchJobsPage$ === "function") {
-            await jobsState.fetchJobsPage$(1, undefined, false);
-          }
-        } catch (err) {
-          logger.error({ err }, "Retry fetch jobs failed");
-        }
-      }, 500);
-
-      return () => clearTimeout(timeout);
-    }
-  });
-
-  const nav = useNavigate();
-
-  // Initial fetch logic removed - now handled by routeLoader$ and sync
-
-  const loadMore = $(async () => {
-    if (!state.isLoading && state.hasNextPage) {
-      await jobsState.loadMoreJobs$();
-    }
   });
 
   const togglePersonalized = $(async () => {
