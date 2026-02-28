@@ -15,6 +15,7 @@ import { ScrollButtons } from "~/components/ui/scroll-buttons";
 import type { JobFilters, JobListing, ApiPagination } from "~/contexts/jobs";
 import { ItemListSchema, BreadcrumbSchema } from "~/components/seo/json-ld";
 import { SITE_URL } from "~/constants";
+import logger from "~/utils/logger";
 
 // Import translations for server-side DocumentHead
 import it from "~/locales/it.json";
@@ -218,6 +219,27 @@ export default component$(() => {
           "jobsState.setInitialData$ is not a function",
           jobsState.setInitialData$,
         );
+      }
+    } else {
+      // Loader failed, try to load on client side with retry
+      if (
+        typeof window !== "undefined" &&
+        jobsState.jobs.length === 0 &&
+        !jobsState.pagination.isLoading
+      ) {
+        jobsState.pagination.isLoading = true;
+        try {
+          logger.info("Loader failed, retrying on client");
+          await jobsState.fetchJobsPage$(
+            1,
+            jobsState.currentFilters || undefined,
+            false,
+          );
+        } catch (err) {
+          logger.error({ err }, "Failed to fetch jobs on client retry");
+        } finally {
+          jobsState.pagination.isLoading = false;
+        }
       }
     }
   });

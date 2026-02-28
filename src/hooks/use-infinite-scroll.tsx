@@ -17,13 +17,16 @@ export const useInfiniteScroll = (
   const { threshold = 0, rootMargin = "100px", loadMore$ } = options;
   const ref = useSignal<HTMLElement>();
 
-  useTask$(({ cleanup }) => {
+  useTask$(({ track, cleanup }) => {
     if (!isBrowser) return;
 
-    const element = ref.value;
+    // Track ref changes to re-observe if it becomes available later
+    const element = track(() => ref.value);
+
+    // Only observe once we have an element
     if (!element) return;
 
-    // IntersectionObserver for detecting when element enters viewport
+    // Create new IntersectionObserver for detecting when element enters viewport
     const observer = new IntersectionObserver(
       (entries) => {
         const [entry] = entries;

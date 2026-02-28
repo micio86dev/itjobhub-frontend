@@ -26,7 +26,6 @@ interface JobSearchProps {
   initialDateRange?: string;
   initialSalaryMin?: string;
   initialMinMatchScore?: string;
-  userHasLanguages?: boolean;
 }
 
 export const JobSearch = component$<JobSearchProps>(
@@ -41,7 +40,6 @@ export const JobSearch = component$<JobSearchProps>(
     initialDateRange,
     initialSalaryMin,
     initialMinMatchScore,
-    // userHasLanguages is currently unused but kept in props for future use
   }) => {
     const t = useTranslate();
     const state = useStore<JobSearchFilters>({
