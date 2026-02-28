@@ -97,7 +97,7 @@ export const ProfileWizard = component$<ProfileWizardProps>(
     });
 
     const nextStep = $(() => {
-      if (state.currentStep < 5) {
+      if (state.currentStep < 6) {
         state.currentStep++;
       }
     });
@@ -125,6 +125,9 @@ export const ProfileWizard = component$<ProfileWizardProps>(
           return state.data.workModes.length > 0;
         case 5:
           return state.data.availability !== "";
+        case 6:
+          // RAL minima is optional, always allow proceeding
+          return true;
         default:
           return false;
       }
@@ -139,11 +142,11 @@ export const ProfileWizard = component$<ProfileWizardProps>(
               <span class="progress-title">
                 {interpolate(t("wizard.step_of"), {
                   current: state.currentStep.toString(),
-                  total: "5",
+                  total: "6",
                 })}
               </span>
               <span class="progress-percent">
-                {Math.round((state.currentStep / 5) * 100)}%
+                {Math.round((state.currentStep / 6) * 100)}%
               </span>
             </div>
             <div class="progress-bar-bg">
