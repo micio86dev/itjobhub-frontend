@@ -20,7 +20,10 @@ const handleProxy = async (
   // Construct the backend URL
   const backendUrl = `${apiUrl}/${path}${targetUrl.search}`;
 
-  logger.info({ method, path, backendUrl }, "[Proxy] Forwarding request");
+  logger.warn(
+    { method, path, backendUrl, fullUrl: url.toString() },
+    "[Proxy] Forwarding request",
+  );
 
   const token = cookie.get("auth_token")?.value;
   const headers: Record<string, string> = {
@@ -50,8 +53,18 @@ const handleProxy = async (
       }
     }
 
+    logger.warn(
+      { fetchOptions, backendUrl },
+      `[Proxy] About to fetch ${method} request`,
+    );
+
     const response = await fetch(backendUrl, fetchOptions);
     const data = await response.json();
+
+    logger.warn(
+      { status: response.status, backendUrl, method },
+      `[Proxy] Got response from backend`,
+    );
 
     json(response.status, data);
   } catch (err) {
