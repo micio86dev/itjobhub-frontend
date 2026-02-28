@@ -5,11 +5,7 @@ import {
   isBrowser,
   $,
 } from "@builder.io/qwik";
-import {
-  useNavigate,
-  type DocumentHead,
-  routeLoader$,
-} from "@builder.io/qwik-city";
+import { type DocumentHead, routeLoader$ } from "@builder.io/qwik-city";
 import { useAuth } from "~/contexts/auth";
 import { useTranslate, useI18n } from "~/contexts/i18n";
 import { API_URL } from "~/constants";
@@ -46,7 +42,6 @@ export const useMessagesProtection = routeLoader$(
 
 export default component$(() => {
   useMessagesProtection();
-  const nav = useNavigate();
   const auth = useAuth();
   const i18n = useI18n();
   const t = useTranslate();
@@ -92,11 +87,9 @@ export default component$(() => {
 
   // Load messages on mount
   useTask$(async ({ track }) => {
-    track(() => auth.isAuthenticated);
-    if (isBrowser && auth.isAuthenticated) {
+    track(() => auth.token);
+    if (isBrowser && auth.token) {
       await fetchMessages();
-    } else if (isBrowser && !auth.isAuthenticated) {
-      nav("/login");
     }
   });
 

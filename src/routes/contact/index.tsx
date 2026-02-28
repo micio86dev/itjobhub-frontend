@@ -53,8 +53,17 @@ export const useContactAction = routeAction$(async (data, { cookie, env }) => {
       body: JSON.stringify(data),
     });
 
-    await res.json();
-    return { success: true };
+    const result = await res.json();
+
+    // Check if the response was successful
+    if (!res.ok || !result.success) {
+      return {
+        success: false,
+        message: result.message || "Failed to send message",
+      };
+    }
+
+    return { success: true, message: result.message };
   } catch {
     return {
       success: false,
