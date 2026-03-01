@@ -211,8 +211,12 @@ export default component$(() => {
   useTask$(async ({ track }) => {
     const data = track(() => jobsLoader.value);
 
-    if (data.success && data.jobs.length > 0) {
-      // Sync the shared context state with server-fetched data
+    if (data.success) {
+      // Immediately update local state from loader pagination
+      state.totalJobsCount = data.pagination.total ?? 0;
+      state.displayedJobs = [];
+
+      // Sync the shared context state with server-fetched data (including empty results)
       if (typeof jobsState.setInitialData$ === "function") {
         try {
           await jobsState.setInitialData$(
@@ -225,7 +229,7 @@ export default component$(() => {
           console.error("Error invoking setInitialData$", err);
         }
       }
-    } else if (!data.success) {
+    } else {
       // Loader failed, enable client-side loading
       shouldInitializeJobs.value = true;
     }
@@ -286,6 +290,19 @@ export default component$(() => {
       const jobIds = jobs.map((job) => job.id);
       const scores = await jobsState.fetchBatchMatchScores$(jobIds);
       matchScores.value = scores;
+
+      // If minMatchScore filter is active, update displayed jobs and count
+      const minScore = jobsState.currentFilters?.minMatchScore
+        ? Number(jobsState.currentFilters.minMatchScore)
+        : 0;
+      if (minScore > 0) {
+        const filtered = jobs.filter((job) => {
+          const jobScore = scores[job.id]?.score || 0;
+          return jobScore >= minScore;
+        });
+        state.displayedJobs = filtered;
+        state.totalJobsCount = filtered.length;
+      }
     } else {
       matchScores.value = {};
     }
@@ -633,26 +650,16 @@ export default component$(() => {
             </p>
           </div>
         ) : (
-          state.displayedJobs
-            .filter((job) => {
-              // Filter by minimum match score if set
-              if (jobsState.currentFilters?.minMatchScore) {
-                const minScore = Number(jobsState.currentFilters.minMatchScore);
-                const jobMatchScore = matchScores.value[job.id]?.score || 0;
-                return jobMatchScore >= minScore;
-              }
-              return true;
-            })
-            .map((job) => (
-              <div key={job.id}>
-                <JobCard
-                  job={job}
-                  onToggleComments$={toggleComments}
-                  showComments={!!state.openComments[job.id]}
-                  matchScore={matchScores.value[job.id]}
-                />
-              </div>
-            ))
+          state.displayedJobs.map((job) => (
+            <div key={job.id}>
+              <JobCard
+                job={job}
+                onToggleComments$={toggleComments}
+                showComments={!!state.openComments[job.id]}
+                matchScore={matchScores.value[job.id]}
+              />
+            </div>
+          ))
         )}
       </div>
 
@@ -690,7 +697,9 @@ export default component$(() => {
       <div
         ref={infiniteScrollRef}
         class={`flex justify-center items-center h-20 transition-opacity duration-300 ${
-          state.hasNextPage && !state.isLoading
+          state.hasNextPage &&
+          !state.isLoading &&
+          state.displayedJobs.length > 0
             ? "opacity-100 pointer-events-auto"
             : "opacity-0 pointer-events-none"
         }`}
