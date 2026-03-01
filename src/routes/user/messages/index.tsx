@@ -162,6 +162,15 @@ export default component$(() => {
     }
   };
 
+  // Translate subject if it's a predefined type key
+  const translateSubject = (subject: string): string => {
+    const predefinedTypes = ["general", "error", "participation", "other"];
+    if (predefinedTypes.includes(subject)) {
+      return t(`contact.type.${subject}`);
+    }
+    return subject;
+  };
+
   return (
     <section class="py-12 md:py-20 min-h-screen bg-brand-light-bg dark:bg-brand-dark-bg transition-colors duration-300">
       <div class="mx-auto px-4 container max-w-4xl">
@@ -219,7 +228,7 @@ export default component$(() => {
                   >
                     <div class="flex items-start justify-between mb-2">
                       <h3 class="font-semibold text-lg text-gray-900 dark:text-white flex-1 truncate">
-                        {msg.subject}
+                        {translateSubject(msg.subject)}
                       </h3>
                       {msg.replies.length > 0 && (
                         <span class="ml-2 px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-200 text-xs font-semibold rounded">
@@ -302,7 +311,7 @@ export default component$(() => {
             <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6">
               <div class="mb-6">
                 <h2 class="text-2xl font-bold mb-2 text-gray-900 dark:text-white">
-                  {selectedMessage.value.subject}
+                  {translateSubject(selectedMessage.value.subject)}
                 </h2>
                 <div class="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400 mb-4">
                   <span>{formattedDate(selectedMessage.value.created_at)}</span>
