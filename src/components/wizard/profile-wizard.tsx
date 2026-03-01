@@ -92,7 +92,7 @@ export const ProfileWizard = component$<ProfileWizardProps>(
         seniority: initialData?.seniority || "",
         availability: initialData?.availability || "",
         workModes: initialData?.workModes || [],
-        salaryMin: initialData?.salaryMin,
+        salaryMin: initialData?.salaryMin ?? 0,
       } as WizardData,
     });
 
@@ -126,8 +126,7 @@ export const ProfileWizard = component$<ProfileWizardProps>(
         case 5:
           return state.data.availability !== "";
         case 6:
-          // RAL minima is optional, always allow proceeding
-          return true;
+          return state.data.salaryMin >= 0;
         default:
           return false;
       }
@@ -375,14 +374,14 @@ export const ProfileWizard = component$<ProfileWizardProps>(
                   <div class="relative">
                     <label class="block mb-2 font-medium text-gray-700 dark:text-gray-300 text-sm">
                       {t("profile.salary_min_label")}
-                      {state.data.salaryMin && (
+                      {state.data.salaryMin > 0 && (
                         <span class="ml-2 font-mono text-brand-neon">
                           €
                           {Number(state.data.salaryMin).toLocaleString("it-IT")}
                           +
                         </span>
                       )}
-                      {!state.data.salaryMin && (
+                      {state.data.salaryMin === 0 && (
                         <span class="ml-2 font-mono text-gray-500">
                           {t("profile.salary_any")}
                         </span>
@@ -393,11 +392,10 @@ export const ProfileWizard = component$<ProfileWizardProps>(
                       min="0"
                       max="100000"
                       step="5000"
-                      value={state.data.salaryMin || "0"}
+                      value={(state.data.salaryMin || 0).toString()}
                       onInput$={(e) => {
                         const val = (e.target as HTMLInputElement).value;
-                        state.data.salaryMin =
-                          val === "0" ? undefined : Number(val);
+                        state.data.salaryMin = Number(val);
                       }}
                       class="bg-gray-200 dark:bg-gray-700 rounded-lg w-full h-2 accent-brand-neon appearance-none cursor-pointer"
                       aria-label={t("profile.salary_min_label")}

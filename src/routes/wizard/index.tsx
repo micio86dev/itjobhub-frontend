@@ -62,9 +62,27 @@ export default component$(() => {
     );
   }
 
+  // Prepare initial data from user profile
+  const initialData: Partial<WizardData> = {
+    languages: auth.user?.languages || [],
+    skills: auth.user?.skills || [],
+    seniority: (auth.user?.seniority as "junior" | "mid" | "senior" | "") || "",
+    availability:
+      (auth.user?.availability as "full-time" | "part-time" | "busy" | "") ||
+      "",
+    workModes: auth.user?.workModes || [],
+    salaryMin: auth.user?.salaryMin || 0,
+  };
+
+  if (isBrowser) {
+    console.log("Wizard initialData:", initialData);
+    console.log("auth.user:", auth.user);
+  }
+
   return (
     <div class="bg-gray-50 py-12 min-h-screen">
       <ProfileWizard
+        initialData={initialData}
         onComplete$={handleWizardComplete}
         onCancel$={handleCancel}
       />

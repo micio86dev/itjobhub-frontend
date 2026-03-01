@@ -48,7 +48,7 @@ export interface WizardData {
   seniority: "junior" | "mid" | "senior" | "";
   availability: "full-time" | "part-time" | "busy" | "";
   workModes: string[];
-  salaryMin?: number;
+  salaryMin: number;
 }
 
 export interface LoginRequest {

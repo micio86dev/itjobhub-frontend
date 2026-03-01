@@ -271,6 +271,7 @@ export default component$(() => {
         (auth.user?.availability as "full-time" | "part-time" | "busy" | "") ||
         "",
       workModes: auth.user?.workModes || [],
+      salaryMin: auth.user?.salaryMin || 0,
     };
     return (
       <ProfileWizard

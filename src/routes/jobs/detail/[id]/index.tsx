@@ -188,6 +188,7 @@ export default component$(() => {
       seniority: auth.user.seniority || "",
       availability: auth.user.availability || "",
       workModes: auth.user.workModes || [],
+      salaryMin: auth.user.salaryMin || 0,
     };
   });
 
