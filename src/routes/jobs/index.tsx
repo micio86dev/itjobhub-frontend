@@ -290,34 +290,46 @@ export default component$(() => {
       const jobIds = jobs.map((job) => job.id);
       const scores = await jobsState.fetchBatchMatchScores$(jobIds);
       matchScores.value = scores;
-
-      // If minMatchScore filter is active, update displayed jobs and count
-      const minScore = jobsState.currentFilters?.minMatchScore
-        ? Number(jobsState.currentFilters.minMatchScore)
-        : 0;
-      if (minScore > 0) {
-        const filtered = jobs.filter((job) => {
-          const jobScore = scores[job.id]?.score || 0;
-          return jobScore >= minScore;
-        });
-        state.displayedJobs = filtered;
-        state.totalJobsCount = filtered.length;
-      }
     } else {
       matchScores.value = {};
     }
   });
 
-  // Update displayed jobs from context
+  // Update displayed jobs from context (single source of truth for state.displayedJobs)
   useTask$(({ track }) => {
     track(() => jobsState.jobs);
     track(() => jobsState.pagination.hasMore);
     track(() => jobsState.pagination.totalJobs);
     track(() => jobsState.pagination.isLoading);
+    const scores = track(() => matchScores.value);
 
-    state.displayedJobs = [...jobsState.jobs];
-    state.totalJobsCount = jobsState.pagination.totalJobs;
-    state.hasNextPage = jobsState.pagination.hasMore;
+    const allJobs = [...jobsState.jobs];
+    const minScore = jobsState.currentFilters?.minMatchScore
+      ? Number(jobsState.currentFilters.minMatchScore)
+      : 0;
+
+    // Apply minMatchScore client-side filter when scores are available
+    if (minScore > 0 && Object.keys(scores).length > 0) {
+      const filtered = allJobs.filter((job) => {
+        const jobScore = scores[job.id]?.score || 0;
+        return jobScore >= minScore;
+      });
+      state.displayedJobs = filtered;
+      state.totalJobsCount = filtered.length;
+      // When filtering client-side by match score, hide "load more" since
+      // the backend doesn't know about this filter — all loaded jobs are
+      // already evaluated and showing more pages won't help until they are
+      // also scored.  We keep hasNextPage true only when the backend still
+      // has pages AND we haven't filtered everything out, so infinite-scroll
+      // can still fetch more candidates to evaluate.
+      state.hasNextPage =
+        jobsState.pagination.hasMore && filtered.length >= allJobs.length;
+    } else {
+      state.displayedJobs = allJobs;
+      state.totalJobsCount = jobsState.pagination.totalJobs;
+      state.hasNextPage = jobsState.pagination.hasMore;
+    }
+
     state.isLoading = jobsState.pagination.isLoading;
   });
 
