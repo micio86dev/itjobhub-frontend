@@ -41,18 +41,64 @@ export const useMessagesProtection = routeLoader$(
   },
 );
 
+export const useMessagesLoader = routeLoader$(async ({ cookie }) => {
+  const token = cookie.get("auth_token")?.value;
+  if (!token) {
+    return {
+      messages: [],
+      pagination: { page: 1, pages: 1 },
+      error: null,
+    };
+  }
+
+  try {
+    const response = await fetch(
+      `${API_URL}/messages/user/me/contacts?page=1&limit=10`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      },
+    );
+
+    if (!response.ok) {
+      return {
+        messages: [],
+        pagination: { page: 1, pages: 1 },
+        error: "failed",
+      };
+    }
+
+    const data = await response.json();
+    return {
+      messages: data.data || [],
+      pagination: data.pagination || { page: 1, pages: 1 },
+      error: null,
+    };
+  } catch (err) {
+    console.error("Failed to fetch messages:", err);
+    return {
+      messages: [],
+      pagination: { page: 1, pages: 1 },
+      error: "error",
+    };
+  }
+});
+
 export default component$(() => {
   useMessagesProtection();
   const auth = useAuth();
   const i18n = useI18n();
   const t = useTranslate();
+  const loaderData = useMessagesLoader();
 
-  const messages = useSignal<ContactMessage[]>([]);
-  const isLoading = useSignal(true);
-  const error = useSignal<string | null>(null);
+  const messages = useSignal<ContactMessage[]>(loaderData.value.messages);
+  const isLoading = useSignal(false);
+  const error = useSignal<string | null>(loaderData.value.error);
   const selectedMessage = useSignal<ContactMessage | null>(null);
-  const currentPage = useSignal(1);
-  const totalPages = useSignal(1);
+  const currentPage = useSignal(loaderData.value.pagination.page);
+  const totalPages = useSignal(loaderData.value.pagination.pages);
 
   // Fetch user's messages
   const fetchMessages = $(async (page: number = 1) => {
@@ -92,17 +138,13 @@ export default component$(() => {
     }
   });
 
-  // Load messages on mount
+  // Only fetch on pagination changes (client-side)
   useTask$(async ({ track }) => {
-    const token = track(() => auth.token);
-    if (!isBrowser) return;
+    const page = track(() => currentPage.value);
 
-    if (!token) {
-      isLoading.value = false;
-      return;
-    }
+    if (!isBrowser || page === loaderData.value.pagination.page) return;
 
-    await fetchMessages();
+    await fetchMessages(page);
   });
 
   const formattedDate = (dateString: string) => {
@@ -238,22 +280,23 @@ export default component$(() => {
           <div class="space-y-4">
             <button
               onClick$={() => (selectedMessage.value = null)}
-              class="inline-flex items-center gap-2 text-blue-600 dark:text-blue-400 hover:underline"
+              class="group flex items-center gap-2 hover:bg-brand-neon/10 dark:hover:bg-brand-neon/5 mb-8 -ml-3 px-3 py-2 rounded-xl w-fit font-bold text-gray-600 hover:text-brand-neon dark:hover:text-brand-neon dark:text-white text-sm transition-all duration-300"
             >
               <svg
-                class="w-4 h-4"
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
-                viewBox="0 0 24 24"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="transition-transform group-hover:-translate-x-1.5 duration-300"
               >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M15 19l-7-7 7-7"
-                ></path>
+                <path d="m15 18-6-6 6-6" />
               </svg>
-              {t("common.back")}
+              <span>{t("common.back")}</span>
             </button>
 
             <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6">
