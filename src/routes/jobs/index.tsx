@@ -154,9 +154,7 @@ export default component$(() => {
   const initialQuery = urlParams.get("q") || "";
   const initialRemote = urlParams.get("remote") || "";
   const initialSalaryMinFromUrl = urlParams.get("salary_min") || "";
-  const initialSalaryMin =
-    initialSalaryMinFromUrl ||
-    (auth.user?.salaryMin ? String(auth.user.salaryMin) : "");
+  const initialSalaryMin = initialSalaryMinFromUrl || "";
   const initialDateRange = urlParams.get("dateRange") || "";
   const initialMinMatchScore = urlParams.get("minMatchScore") || "";
 

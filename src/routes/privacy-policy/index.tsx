@@ -82,6 +82,15 @@ export default component$(() => {
             {t("privacy.cookies_title")}
           </h2>
           <p>{t("privacy.cookies_text")}</p>
+          <p class="mt-3">
+            <a
+              href="/cookie-policy"
+              class="underline hover:no-underline"
+              style="color: var(--color-brand-neon, #39ff14)"
+            >
+              {t("cookie.policy_link")} &rarr;
+            </a>
+          </p>
         </section>
 
         <section>
