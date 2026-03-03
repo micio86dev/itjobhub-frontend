@@ -72,16 +72,14 @@ export const CookieConsent = component$(() => {
                 {t("cookie.banner_text")}{" "}
                 <a
                   href="/privacy-policy"
-                  class="rounded underline hover:no-underline focus:outline-none focus:ring-2 focus:ring-brand-neon"
-                  style="color: var(--color-brand-neon, #39ff14)"
+                  class="text-brand-neon rounded underline hover:no-underline focus:outline-none focus:ring-2 focus:ring-brand-neon"
                 >
                   {t("cookie.privacy_link")}
                 </a>{" "}
                 &amp;{" "}
                 <a
                   href="/cookie-policy"
-                  class="rounded underline hover:no-underline focus:outline-none focus:ring-2 focus:ring-brand-neon"
-                  style="color: var(--color-brand-neon, #39ff14)"
+                  class="text-brand-neon rounded underline hover:no-underline focus:outline-none focus:ring-2 focus:ring-brand-neon"
                 >
                   {t("cookie.policy_link")}
                 </a>
@@ -104,7 +102,7 @@ export const CookieConsent = component$(() => {
                 <button
                   type="button"
                   onClick$={dismiss$}
-                  class="shrink-0 rounded-lg bg-brand-neon px-4 py-2 text-sm font-semibold text-gray-900 transition-opacity hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-brand-neon focus:ring-offset-2 dark:focus:ring-offset-gray-900"
+                  class="btn-primary btn-sm shrink-0"
                 >
                   {t("cookie.accept")}
                 </button>

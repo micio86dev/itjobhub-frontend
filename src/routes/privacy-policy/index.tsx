@@ -85,8 +85,7 @@ export default component$(() => {
           <p class="mt-3">
             <a
               href="/cookie-policy"
-              class="underline hover:no-underline"
-              style="color: var(--color-brand-neon, #39ff14)"
+              class="text-brand-neon underline hover:no-underline"
             >
               {t("cookie.policy_link")} &rarr;
             </a>

@@ -136,8 +136,7 @@ export default component$(() => {
               href="https://privacy.microsoft.com/privacystatement"
               target="_blank"
               rel="noopener noreferrer"
-              class="underline hover:no-underline"
-              style="color: var(--color-brand-neon, #39ff14)"
+              class="text-brand-neon underline hover:no-underline"
             >
               Microsoft Privacy Statement ↗
             </a>
@@ -197,8 +196,7 @@ export default component$(() => {
         <div class="border-t border-gray-200 pt-6 dark:border-gray-700">
           <a
             href="/privacy-policy"
-            class="text-sm underline hover:no-underline"
-            style="color: var(--color-brand-neon, #39ff14)"
+            class="text-brand-neon text-sm underline hover:no-underline"
           >
             {t("cookie_policy.back_privacy")}
           </a>
