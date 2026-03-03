@@ -106,6 +106,7 @@ ${createUrlEntries("/login", "0.5", "monthly")}
 ${createUrlEntries("/register", "0.6", "monthly")}
 ${createUrlEntries("/contact", "0.5", "monthly")}
 ${createUrlEntries("/privacy-policy", "0.3", "monthly")}
+${createUrlEntries("/cookie-policy", "0.3", "monthly")}
 ${createUrlEntries("/forgot-password", "0.4", "monthly")}
   
   <!-- Dynamic Job Pages -->
