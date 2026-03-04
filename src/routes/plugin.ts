@@ -87,7 +87,7 @@ export const onRequest: RequestHandler = async ({
         `'sha256-U8Wi5C4OM++NZ4A8DB4yxBO/FitF+ui36Yy1UtYbX48=' ` + // qwik-inspector
         `'sha256-EwODyXb+JyP/QFEaG9yjy11qmIlA9bcynhiLgeq19to=' ` + // additional dev tool
         `'sha256-fEB7sBoAvtPwo71XmsbRDawJ54q8Ylx7LVMiLzf4zYU='`, // additional dev script
-      "connect-src 'self' https://vitals.vercel-insights.com https://fonts.googleapis.com https://fonts.gstatic.com https://maps.googleapis.com https://c.clarity.ms https://www.clarity.ms",
+      "connect-src 'self' https://vitals.vercel-insights.com https://fonts.googleapis.com https://fonts.gstatic.com https://maps.googleapis.com https://c.clarity.ms https://j.clarity.ms https://www.clarity.ms",
       "frame-src 'self' https://www.google.com https://maps.google.com",
       "frame-ancestors 'self'",
       "object-src 'none'",
