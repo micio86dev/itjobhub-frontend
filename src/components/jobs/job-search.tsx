@@ -135,8 +135,6 @@ export const JobSearch = component$<JobSearchProps>(
                 value={state.location}
                 onInput$={(val) => {
                   state.location = val;
-                  // Clear geo coordinates when user types manually to avoid mismatch
-                  // until they select a suggestion
                   state.location_geo = undefined;
                 }}
                 onLocationSelect$={(loc, coords) => {

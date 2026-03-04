@@ -80,7 +80,7 @@ export const onRequest: RequestHandler = async ({
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       `script-src 'self' 'nonce-${nonce}' 'unsafe-eval' ` +
         `https://maps.googleapis.com ` +
-        `https://www.clarity.ms ` +
+        `https://www.clarity.ms https://scripts.clarity.ms ` +
         `'sha256-L2VzofRwMKVb7ZeLc29Zs5ei5OG9KJ1eXSwz+w4q4/g=' ` + // Vite error handler
         `'sha256-6WHWhiUFSczbUiBvl0gdiF+EeOdPRe66tRIT3FE3E8M=' ` + // qerror listener
         `'sha256-g01uwY0Xp3A6CVmaGXVUZb4BB5+qYIWzHD6zL4NT2+Q=' ` + // qwikdevtools
