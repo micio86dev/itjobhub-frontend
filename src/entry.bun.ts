@@ -17,6 +17,11 @@ import { requestStore } from "./utils/async-store";
 const { router, notFound, staticFile } = createQwikCity({
   render,
   qwikCityPlan,
+  // CSRF check disabled: all mutations are authenticated via JWT (Authorization header).
+  // Qwik's built-in check blocks bodyless DELETE requests because the browser omits
+  // Content-Type (making it a "simple request") and doesn't send Origin for same-origin
+  // fetch calls, causing null !== server-origin → 403.
+  checkOrigin: false,
   static: {
     // Default cache control for non-hashed files (favicon, robots.txt, etc)
     cacheControl: "public, max-age=0, must-revalidate",
