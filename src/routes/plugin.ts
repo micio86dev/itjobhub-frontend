@@ -1,7 +1,42 @@
 import type { RequestHandler } from "@builder.io/qwik-city";
 import { requestStore } from "../utils/async-store";
 
-export const onRequest: RequestHandler = async ({ headers, sharedMap }) => {
+export const onRequest: RequestHandler = async ({
+  headers,
+  sharedMap,
+  method,
+  request,
+  error,
+}) => {
+  // Custom CSRF guard for DELETE (Qwik's built-in checkOrigin is disabled because
+  // same-origin fetch omits the Origin header on bodyless requests, causing false 403s).
+  // Rule: block only when there is NO Bearer token AND the Origin header is present
+  // but its host doesn't match the Host header. Absent Origin (same-origin fetch) → allow.
+  if (method === "DELETE") {
+    const auth =
+      request.headers.get("Authorization") ??
+      request.headers.get("authorization");
+    if (!auth?.startsWith("Bearer ")) {
+      const originHeader = request.headers.get("origin");
+      if (originHeader !== null) {
+        const requestHost = request.headers.get("host") ?? "";
+        let originHost: string;
+        try {
+          originHost = new URL(originHeader).host;
+        } catch {
+          throw error(403, "CSRF check failed: malformed Origin header");
+        }
+        if (originHost !== requestHost) {
+          throw error(
+            403,
+            `CSRF check failed: Origin "${originHeader}" does not match Host "${requestHost}"`,
+          );
+        }
+      }
+      // No Origin header → same-origin fetch → allow
+    }
+    // Bearer token present → JWT auth → CSRF irrelevant → allow
+  }
   // Generate a random nonce for this request
   const nonce = crypto.randomUUID();
 
