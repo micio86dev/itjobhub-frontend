@@ -24,6 +24,7 @@ const handleProxy = async (
   // Construct the backend URL
   const backendUrl = `${apiUrl}/${path}${targetUrl.search}`;
 
+  console.log(`[Proxy] Forwarding request: ${method} ${backendUrl}`);
   logger.warn(
     { method, path, backendUrl, fullUrl: url.toString() },
     "[Proxy] Forwarding request",
