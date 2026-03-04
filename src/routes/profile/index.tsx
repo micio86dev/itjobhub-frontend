@@ -765,7 +765,7 @@ export default component$(() => {
                   </div>
 
                   {/* Minimum Salary */}
-                  {auth.user?.salaryMin && (
+                  {auth.user?.salaryMin && auth.user?.salaryMin > 0 && (
                     <div>
                       <h3 class="mb-3 font-medium text-gray-500 dark:text-gray-400 text-sm">
                         {t("profile.salary_min_label")}
