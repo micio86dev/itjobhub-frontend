@@ -1,182 +1,119 @@
-# Qwik City App ⚡️
+# DevBoards.io — Frontend
 
-- [Qwik Docs](https://qwik.dev/)
-- [Discord](https://qwik.dev/chat)
-- [Qwik GitHub](https://github.com/QwikDev/qwik)
-- [@QwikDev](https://twitter.com/QwikDev)
-- [Vite](https://vitejs.dev/)
+Server-side rendered public web app. Built with Qwik + QwikCity for maximum performance and resumability.
 
----
+## Tech Stack
 
-## Project Structure
+- **Framework**: [Qwik](https://qwik.dev/) 1.16 + QwikCity (SSR + routing)
+- **Runtime**: [Bun](https://bun.sh/) (server), browser (client)
+- **Build**: Vite
+- **Language**: TypeScript 5.4.5 (strict)
+- **Styling**: Tailwind CSS 3.4
+- **Testing**: Playwright E2E
 
-This project is using Qwik with [QwikCity](https://qwik.dev/qwikcity/overview/). QwikCity is just an extra set of tools on top of Qwik to make it easier to build a full site, including directory-based routing, layouts, and more.
+## Prerequisites
 
-Inside your project, you'll see the following directory structure:
+- Bun v1.2+
+- Backend running at `PUBLIC_API_URL` (default: `http://localhost:3001`)
 
-```
-├── public/
-│   └── ...
-└── src/
-    ├── components/
-    │   └── ...
-    └── routes/
-        └── ...
-```
+## Setup
 
-- `src/routes`: Provides the directory-based routing, which can include a hierarchy of `layout.tsx` layout files, and an `index.tsx` file as the page. Additionally, `index.ts` files are endpoints. Please see the [routing docs](https://qwik.dev/qwikcity/routing/overview/) for more info.
-
-- `src/components`: Recommended directory for components.
-
-- `public`: Any static assets, like images, can be placed in the public directory. Please see the [Vite public directory](https://vitejs.dev/guide/assets.html#the-public-directory) for more info.
-
-## UI Components & Styling
-
-### Component Architecture
-
-- **Scoped CSS**: Each component has its own CSS file using Qwik's scoped styling system
-- **Semantic Classes**: We use semantic CSS class names instead of inline Tailwind classes for better maintainability
-- **Dark Mode**: Full dark mode support using `:global(.dark)` selectors
-
-### Key Components
-
-- **SocialLoginButtons** (`src/components/ui/social-login-buttons.tsx`): Premium-styled authentication buttons for Google, LinkedIn, and GitHub with:
-  - Smooth hover animations and transitions
-  - Loading states with spinners
-  - Full dark mode support
-  - Responsive design (grid on desktop, stack on mobile)
-  - Focus states for accessibility
-- **JobCard** (`src/components/jobs/job-card.tsx`): Displays job listings with:
-  - Scoped styling for actions and details
-  - "Apply" button with gradient and hover effects (using global selectors for Link component compatibility)
-  - Interactive "Like" and "Dislike" buttons
-- **NewsCard** (`src/components/news/news-card.tsx`): Displays news articles with:
-  - Responsive layout for news list and detail views
-  - Optimistic UI updates for likes and dislikes
-  - Integration with comments and translation selection
-  - High-performance infinite scroll support
-
-## Add Integrations and deployment
-
-Use the `bun run qwik add` command to add additional integrations. Some examples of integrations includes: Cloudflare, Netlify or Express Server, and the [Static Site Generator (SSG)](https://qwik.dev/qwikcity/guides/static-site-generation/).
-
-```shell
-bun run qwik add
+```bash
+cd apps/frontend
+bun install
+cp .env.example .env
+# Edit .env
+bun run dev     # port 3000
 ```
 
 ## Environment Variables
 
-This project uses environment variables for configuration. Create a `.env` file in the root directory (based on `.env.example`).
-
-| Variable          | Description                                       | Default / Example       |
-| ----------------- | ------------------------------------------------- | ----------------------- |
-| `PUBLIC_API_URL`  | URL of the backend API                            | `http://localhost:3001` |
-| `PUBLIC_SITE_URL` | Base URL of the frontend (used for SEO/Canonical) | `https://devboards.io`  |
-
-## Development
-
-Development mode uses [Vite's development server](https://vitejs.dev/). The `dev` command will server-side render (SSR) the output during development.
-
-```shell
-bun run start
+```bash
+PUBLIC_API_URL=http://localhost:3001    # Backend URL
+PUBLIC_GOOGLE_MAPS_KEY=                # Google Maps API key (job search map)
+VITE_CLARITY_ID=                       # Microsoft Clarity analytics (optional)
 ```
 
-> Note: during dev mode, Vite may request a significant number of `.js` files. This does not represent a Qwik production build.
+## Project Structure
 
-## Preview
-
-The preview command will create a production build of the client modules, a production build of `src/entry.preview.tsx`, and run a local server. The preview server is only for convenience to preview a production build locally and should not be used as a production server.
-
-```shell
-bun run preview
+```
+src/
+├── entry.bun.ts      # Server entry — security headers (CSP, HSTS)
+├── entry.ssr.tsx     # SSR entry point
+├── root.tsx          # Root with I18nProvider, AuthProvider, ThemeProvider
+├── routes/           # Directory-based routing (QwikCity)
+│   ├── api/proxy/    # Server-side API proxy → backend
+│   ├── jobs/         # Job listing + detail
+│   ├── news/         # News feed + article detail
+│   ├── profile/      # User profile + wizard
+│   ├── admin/        # Admin stats + content management
+│   ├── auth/         # Login, register, forgot/reset password
+│   └── contact/      # Contact form
+├── components/       # Reusable UI components
+├── contexts/         # Auth, I18n, Theme, Jobs contexts
+├── locales/          # i18n JSON files (it, en, es, de, fr)
+├── hooks/            # useInfiniteScroll
+├── types/            # TypeScript models
+└── utils/            # API client, sanitization, date, logging
+e2e/                  # Playwright E2E specs (~11 files)
 ```
 
-## Quality Assurance
-
-### Linting
-
-We use ESLint to maintain code quality. To run the linter:
+## Scripts
 
 ```bash
-bun run lint
+bun run dev            # Development server
+bun run build          # Production build
+bun run build.types    # TypeScript check only
+bun run serve          # Serve production build locally
+bun run preview        # Local production preview
+bun run test.e2e       # Run Playwright tests (requires backend on :3001)
+bun run test.e2e.ui    # Playwright UI mode
+bun run test.e2e.report # View last HTML report
+bun run lint           # ESLint
+bun run fmt            # Prettier format
+bun run fmt.check      # Check formatting
 ```
 
-### Type Checking
+## API Proxy
 
-To run a full TypeScript type check:
+All client-side API calls go through `/api/proxy/[...path]`:
+
+1. Client sends request to `/api/proxy/auth/login`
+2. Server route injects `Authorization: Bearer <token>`
+3. Forwards to `{PUBLIC_API_URL}/auth/login`
+4. Returns proxied response
+
+This avoids CORS and keeps JWTs out of browser storage.
+
+## i18n
+
+- 5 locales: `it` (default), `en`, `es`, `de`, `fr`
+- Files: `src/locales/{lang}.json`
+- Persistence: cookie `preferred-language`
+- Usage: `const t = useTranslate()` → `t('jobs.search_placeholder')`
+
+## Qwik Rules
+
+- Never use `useVisibleTask$` — SSR unsafe, fails linting.
+- Use `$` suffix on all event handlers: `onClick$`, not `onClick`.
+- Use `QRL<() => void>` type for function props.
+- Keep `$()` wrappers for all operations that cross component boundaries.
+
+## Security Headers
+
+Defined in `entry.bun.ts` (applied server-side on every response):
+
+- CSP with `trusted-types` — update when adding new external domains.
+- HSTS `max-age=63072000; includeSubDomains; preload`
+- Custom CSRF guard for bodyless DELETE requests.
+
+## Docker
 
 ```bash
-bun run build.types
+docker build \
+  --build-arg PUBLIC_API_URL=https://api.devboards.io \
+  --build-arg PUBLIC_GOOGLE_MAPS_KEY=your-key \
+  -t devboards-frontend .
 ```
 
-### Formatting
-
-We use Prettier for code formatting.
-
-- **Check formatting**: `bun run fmt.check`
-- **Fix formatting**: `bun run fmt`
-
-### Testing
-
-### Testing
-
-#### E2E Testing (Playwright)
-
-We use **Playwright** for End-to-End testing.
-
-**Prerequisites:**
-The backend server must be running on port 3001.
-
-```bash
-cd ../backend
-bun run dev
-```
-
-**Running Tests:**
-
-```bash
-# Run all E2E tests
-bun run test.e2e
-
-# Run tests with UI mode
-bun run test.e2e.ui
-
-# View the last HTML report
-bun run test.e2e.report
-```
-
-## Production
-
-The production build will generate client and server modules by running both client and server build commands. The build command will use Typescript to run a type check on the source code.
-
-```shell
-bun run build
-```
-
-## Git Hooks (Husky)
-
-This project uses [Husky](https://typicode.github.io/husky/) to enforce code quality with pre-commit hooks.
-
-### Installation
-
-To install Husky and its hooks (if not automatically installed):
-
-```shell
-bun run prepare
-```
-
-### Pre-commit Hook
-
-Husky is configured to run automatically before you commit.
-
-- **Action**: Runs `bun lint`.
-- **Behavior**: If linting fails, the commit is **blocked**. You must fix the lint errors before committing.
-
-### Testing the Hook
-
-To verify the hook works:
-
-1. Make a change that violates lint rules (e.g. use `any`).
-2. Try to commit: `git commit -m "test"`.
-3. The commit should fail.
-4. Fix the issue and commit again.
+Two-stage: Bun builder → Bun runtime server. Healthcheck on `GET /health`.
