@@ -1,0 +1,275 @@
+.cv-upload-step {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.cv-upload-area {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.cv-lang-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.cv-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #4b5563;
+  white-space: nowrap;
+}
+
+:global(.dark) .cv-label {
+  color: #d1d5db;
+}
+
+.cv-select {
+  flex: 1;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  background: white;
+  color: #111827;
+}
+
+:global(.dark) .cv-select {
+  background: #1f2937;
+  border-color: #374151;
+  color: #f9fafb;
+}
+
+.cv-drop-zone {
+  position: relative;
+  border: 2px dashed #d1d5db;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  text-align: center;
+  cursor: pointer;
+  transition:
+    border-color 0.2s,
+    background 0.2s;
+  overflow: hidden;
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+:global(.dark) .cv-drop-zone {
+  border-color: #374151;
+  color: #9ca3af;
+}
+
+.cv-drop-zone:hover,
+.cv-drop-zone-active {
+  border-color: #10b981;
+  background: rgba(16, 185, 129, 0.05);
+}
+
+.cv-drop-zone-selected {
+  border-color: #10b981;
+  border-style: solid;
+}
+
+.cv-file-input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+}
+
+.cv-drop-hint {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.cv-upload-icon {
+  font-size: 1.5rem;
+}
+
+.cv-selected-file {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.cv-file-icon {
+  font-size: 1.25rem;
+}
+
+.cv-file-name {
+  font-weight: 600;
+  color: #111827;
+}
+
+:global(.dark) .cv-file-name {
+  color: #f9fafb;
+}
+
+.cv-file-size {
+  color: #9ca3af;
+  font-size: 0.75rem;
+}
+
+.cv-error {
+  color: #ef4444;
+  font-size: 0.8125rem;
+  margin: 0;
+}
+
+.cv-upload-btn,
+.cv-parse-btn {
+  align-self: flex-start;
+}
+
+.cv-btn-loading {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.cv-parsing-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.cv-prefilled-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.75rem;
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid #10b981;
+  border-radius: 9999px;
+  color: #10b981;
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.cv-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.cv-list-title {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #374151;
+  margin: 0;
+}
+
+:global(.dark) .cv-list-title {
+  color: #e5e7eb;
+}
+
+.cv-list-item {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.625rem 0.875rem;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+}
+
+:global(.dark) .cv-list-item {
+  background: #1f2937;
+  border-color: #374151;
+}
+
+.cv-lang-badge {
+  padding: 0.125rem 0.5rem;
+  background: #10b981;
+  color: white;
+  border-radius: 0.25rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.cv-filename {
+  flex: 1;
+  font-size: 0.875rem;
+  color: #374151;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+:global(.dark) .cv-filename {
+  color: #d1d5db;
+}
+
+.cv-size {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  flex-shrink: 0;
+}
+
+.cv-delete-btn {
+  flex-shrink: 0;
+  padding: 0.25rem 0.5rem;
+  background: transparent;
+  border: 1px solid #fca5a5;
+  border-radius: 0.375rem;
+  color: #ef4444;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.cv-delete-btn:hover {
+  background: #fee2e2;
+}
+
+:global(.dark) .cv-delete-btn:hover {
+  background: rgba(239, 68, 68, 0.15);
+}
+
+.cv-empty {
+  font-size: 0.875rem;
+  color: #9ca3af;
+  margin: 0;
+}
+
+.cv-portfolio-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.cv-portfolio-input {
+  padding: 0.625rem 0.875rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  background: white;
+  color: #111827;
+  width: 100%;
+}
+
+:global(.dark) .cv-portfolio-input {
+  background: #1f2937;
+  border-color: #374151;
+  color: #f9fafb;
+}
+
+.cv-portfolio-input:focus {
+  outline: none;
+  border-color: #10b981;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+}
