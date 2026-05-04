@@ -72,12 +72,8 @@ export default component$(() => {
       "",
     workModes: auth.user?.workModes || [],
     salaryMin: auth.user?.salaryMin || 0,
+    portfolioUrl: auth.user?.portfolioUrl || "",
   };
-
-  if (isBrowser) {
-    console.log("Wizard initialData:", initialData);
-    console.log("auth.user:", auth.user);
-  }
 
   return (
     <div class="bg-gray-50 py-12 min-h-screen">
@@ -85,6 +81,8 @@ export default component$(() => {
         initialData={initialData}
         onComplete$={handleWizardComplete}
         onCancel$={handleCancel}
+        token={auth.token || undefined}
+        showCvStep={true}
       />
     </div>
   );
