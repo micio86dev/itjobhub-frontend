@@ -242,26 +242,6 @@ export const CvUploadStep = component$<CvUploadStepProps>((props) => {
           </button>
         )}
 
-        {/* In profile mode: parse button for last CV */}
-        {props.mode === "profile" &&
-          state.lastParsedCvId &&
-          props.onParsed$ && (
-            <button
-              class="cv-parse-btn btn-secondary"
-              onClick$={() => handleParse(state.lastParsedCvId)}
-              disabled={state.isParsing}
-              data-testid="cv-parse-btn"
-            >
-              {state.isParsing ? (
-                <span class="cv-btn-loading">
-                  <Spinner size="sm" /> {labelParsing}
-                </span>
-              ) : (
-                labelParseBtn
-              )}
-            </button>
-          )}
-
         {/* Parse loading (wizard auto-parse) */}
         {state.isParsing && props.mode === "wizard" && (
           <div class="cv-parsing-status">

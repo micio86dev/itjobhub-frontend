@@ -222,10 +222,12 @@ export default component$(() => {
           ? extracted.languages
           : u?.languages || [],
       skills: extracted.skills.length > 0 ? extracted.skills : u?.skills || [],
-      seniority: (extracted.seniority ??
-        (u?.seniority || "")) as WizardData["seniority"],
-      availability: (extracted.availability ??
-        (u?.availability || "")) as WizardData["availability"],
+      seniority: (extracted.seniority ||
+        u?.seniority ||
+        "") as WizardData["seniority"],
+      availability: (extracted.availability ||
+        u?.availability ||
+        "") as WizardData["availability"],
       workModes:
         extracted.workModes.length > 0
           ? extracted.workModes
@@ -354,7 +356,7 @@ export default component$(() => {
         initialData={initialData}
         onComplete$={handleWizardComplete}
         onCancel$={handleCancelEdit}
-        token={auth.token || undefined}
+        token={auth.token ?? undefined}
         showCvStep={true}
       />
     );

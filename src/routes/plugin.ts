@@ -1,5 +1,6 @@
 import type { RequestHandler } from "@builder.io/qwik-city";
 import { requestStore } from "../utils/async-store";
+import { buildCsp } from "../utils/csp";
 
 export const onRequest: RequestHandler = async ({
   headers,
@@ -73,30 +74,7 @@ export const onRequest: RequestHandler = async ({
   // Note: 'unsafe-inline' for style-src is currently required for Qwik's localized inline styles
   // We allow fonts from google, images from everywhere, and scripts from self or with our nonce.
   if (!import.meta.env.DEV) {
-    const csp = [
-      "default-src 'self'",
-      "img-src 'self' data: https:",
-      "font-src 'self' https://fonts.gstatic.com",
-      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-      `script-src 'self' 'nonce-${nonce}' 'unsafe-eval' ` +
-        `https://maps.googleapis.com ` +
-        `https://www.clarity.ms https://scripts.clarity.ms ` +
-        `'sha256-L2VzofRwMKVb7ZeLc29Zs5ei5OG9KJ1eXSwz+w4q4/g=' ` + // Vite error handler
-        `'sha256-6WHWhiUFSczbUiBvl0gdiF+EeOdPRe66tRIT3FE3E8M=' ` + // qerror listener
-        `'sha256-g01uwY0Xp3A6CVmaGXVUZb4BB5+qYIWzHD6zL4NT2+Q=' ` + // qwikdevtools
-        `'sha256-U8Wi5C4OM++NZ4A8DB4yxBO/FitF+ui36Yy1UtYbX48=' ` + // qwik-inspector
-        `'sha256-EwODyXb+JyP/QFEaG9yjy11qmIlA9bcynhiLgeq19to=' ` + // additional dev tool
-        `'sha256-fEB7sBoAvtPwo71XmsbRDawJ54q8Ylx7LVMiLzf4zYU='`, // additional dev script
-      `connect-src 'self'${import.meta.env.PUBLIC_API_URL ? ` ${import.meta.env.PUBLIC_API_URL}` : ""} https://vitals.vercel-insights.com https://fonts.googleapis.com https://fonts.gstatic.com https://maps.googleapis.com https://c.clarity.ms https://j.clarity.ms https://www.clarity.ms`,
-      "frame-src 'self' https://www.google.com https://maps.google.com",
-      "frame-ancestors 'self'",
-      "object-src 'none'",
-      "base-uri 'self'",
-      "form-action 'self'",
-      "require-trusted-types-for 'script'",
-      "trusted-types default google-maps google-maps-api google-maps-api-loader google-maps-api#html lit-html dompurify devboards-policy clarity-api 'allow-duplicates'",
-    ];
-
+    const csp = buildCsp(nonce, import.meta.env.PUBLIC_API_URL);
     headers.set("Content-Security-Policy", csp.join("; "));
   }
 };
