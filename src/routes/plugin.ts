@@ -74,7 +74,11 @@ export const onRequest: RequestHandler = async ({
   // Note: 'unsafe-inline' for style-src is currently required for Qwik's localized inline styles
   // We allow fonts from google, images from everywhere, and scripts from self or with our nonce.
   if (!import.meta.env.DEV) {
-    const csp = buildCsp(nonce, import.meta.env.PUBLIC_API_URL);
+    const csp = buildCsp(
+      nonce,
+      import.meta.env.PUBLIC_API_URL,
+      !!import.meta.env.VITE_CLARITY_ID,
+    );
     headers.set("Content-Security-Policy", csp.join("; "));
   }
 };

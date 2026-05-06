@@ -100,7 +100,11 @@ Bun.serve({
           Bun.env.NODE_ENV !== "development"
         ) {
           const nonce = requestStore.getStore()?.nonce;
-          const csp = buildCsp(nonce, Bun.env.PUBLIC_API_URL);
+          const csp = buildCsp(
+            nonce,
+            Bun.env.PUBLIC_API_URL,
+            !!Bun.env.VITE_CLARITY_ID,
+          );
           headers.set("Content-Security-Policy", csp.join("; "));
         }
         headers.set(

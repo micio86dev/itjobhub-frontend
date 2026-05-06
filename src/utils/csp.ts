@@ -7,20 +7,31 @@ const SCRIPT_HASHES = [
   "'sha256-fEB7sBoAvtPwo71XmsbRDawJ54q8Ylx7LVMiLzf4zYU='",
 ].join(" ");
 
-export function buildCsp(nonce?: string, apiUrl?: string): string[] {
+const CLARITY_SCRIPT_ORIGINS =
+  "https://www.clarity.ms https://scripts.clarity.ms";
+const CLARITY_CONNECT_ORIGINS =
+  "https://c.clarity.ms https://j.clarity.ms https://www.clarity.ms https://f.clarity.ms";
+
+export function buildCsp(
+  nonce?: string,
+  apiUrl?: string,
+  clarityEnabled?: boolean,
+): string[] {
   const scriptSrc = nonce
     ? `'self' 'nonce-${nonce}' 'unsafe-eval'`
     : "'self' 'unsafe-eval'";
 
   const connectExtra = apiUrl ? ` ${apiUrl}` : "";
+  const clarityScript = clarityEnabled ? ` ${CLARITY_SCRIPT_ORIGINS}` : "";
+  const clarityConnect = clarityEnabled ? ` ${CLARITY_CONNECT_ORIGINS}` : "";
 
   return [
     "default-src 'self'",
     "img-src 'self' data: https:",
     "font-src 'self' https://fonts.gstatic.com",
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-    `script-src ${scriptSrc} https://maps.googleapis.com https://www.clarity.ms https://scripts.clarity.ms ${SCRIPT_HASHES}`,
-    `connect-src 'self'${connectExtra} https://vitals.vercel-insights.com https://fonts.googleapis.com https://fonts.gstatic.com https://maps.googleapis.com https://c.clarity.ms https://j.clarity.ms https://www.clarity.ms`,
+    `script-src ${scriptSrc} https://maps.googleapis.com${clarityScript} ${SCRIPT_HASHES}`,
+    `connect-src 'self'${connectExtra} https://vitals.vercel-insights.com https://fonts.googleapis.com https://fonts.gstatic.com https://maps.googleapis.com${clarityConnect}`,
     "frame-src 'self' https://www.google.com https://maps.google.com",
     "frame-ancestors 'self'",
     "object-src 'none'",
