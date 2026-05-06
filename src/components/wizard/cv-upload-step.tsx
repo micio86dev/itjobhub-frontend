@@ -132,6 +132,7 @@ export const CvUploadStep = component$<CvUploadStepProps>((props) => {
   const handleParse = $(async (cvId: string) => {
     if (!props.token) return;
     state.isParsing = true;
+    state.lastParsedCvId = cvId;
     state.parseError = "";
     try {
       const extracted = await parseCV(props.token, cvId);
@@ -288,6 +289,22 @@ export const CvUploadStep = component$<CvUploadStepProps>((props) => {
               <span class="cv-lang-badge">{cv.language.toUpperCase()}</span>
               <span class="cv-filename">{cv.filename}</span>
               <span class="cv-size">{formatSize(cv.size)}</span>
+              {props.mode === "profile" && props.onParsed$ && (
+                <button
+                  class="cv-parse-btn btn-secondary"
+                  onClick$={() => handleParse(cv.id)}
+                  disabled={state.isParsing}
+                  data-testid={`cv-parse-${cv.id}`}
+                >
+                  {state.isParsing && state.lastParsedCvId === cv.id ? (
+                    <span class="cv-btn-loading">
+                      <Spinner size="sm" /> {labelParsing}
+                    </span>
+                  ) : (
+                    labelParseBtn
+                  )}
+                </button>
+              )}
               <button
                 class="cv-delete-btn"
                 onClick$={() => handleDelete(cv.id)}

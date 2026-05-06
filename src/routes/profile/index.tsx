@@ -19,7 +19,7 @@ import { CvUploadStep } from "~/components/wizard/cv-upload-step";
 import { LocationAutocomplete } from "~/components/ui/location-autocomplete";
 import { Spinner } from "~/components/ui/spinner";
 import { AvatarCropper } from "~/components/ui/avatar-cropper";
-import type { WizardData, CvRecord } from "~/contexts/auth";
+import type { WizardData, CvRecord, ExtractedProfile } from "~/contexts/auth";
 import { listCVs } from "~/utils/cv-api";
 import { request } from "~/utils/api";
 import { API_URL } from "~/constants";
@@ -214,6 +214,27 @@ export default component$(() => {
     }
   });
 
+  const handleCvParsedFromProfile = $((extracted: ExtractedProfile) => {
+    const u = auth.user;
+    auth.updateProfileSignal.value = {
+      languages:
+        extracted.languages.length > 0
+          ? extracted.languages
+          : u?.languages || [],
+      skills: extracted.skills.length > 0 ? extracted.skills : u?.skills || [],
+      seniority: (extracted.seniority ??
+        (u?.seniority || "")) as WizardData["seniority"],
+      availability: (extracted.availability ??
+        (u?.availability || "")) as WizardData["availability"],
+      workModes:
+        extracted.workModes.length > 0
+          ? extracted.workModes
+          : u?.workModes || [],
+      salaryMin: extracted.salaryMin ?? u?.salaryMin ?? 0,
+      portfolioUrl: u?.portfolioUrl || "",
+    };
+  });
+
   // Return early if not authenticated to prevent rendering
   if (!auth.isAuthenticated) {
     return null;
@@ -326,12 +347,15 @@ export default component$(() => {
         "",
       workModes: auth.user?.workModes || [],
       salaryMin: auth.user?.salaryMin || 0,
+      portfolioUrl: auth.user?.portfolioUrl || "",
     };
     return (
       <ProfileWizard
         initialData={initialData}
         onComplete$={handleWizardComplete}
         onCancel$={handleCancelEdit}
+        token={auth.token || undefined}
+        showCvStep={true}
       />
     );
   }
@@ -854,6 +878,7 @@ export default component$(() => {
             mode="profile"
             existingCvs={state.cvs}
             portfolioUrl={state.portfolioUrl}
+            onParsed$={handleCvParsedFromProfile}
             onUploaded$={$((cv: CvRecord) => {
               const idx = state.cvs.findIndex(
                 (c) => c.language === cv.language,
