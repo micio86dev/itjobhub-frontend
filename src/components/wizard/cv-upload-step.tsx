@@ -109,8 +109,8 @@ export const CvUploadStep = component$<CvUploadStepProps>((props) => {
       if (props.onUploaded$) {
         props.onUploaded$(cv);
       }
-      // In wizard mode, auto-parse after upload
-      if (props.mode === "wizard" && props.onParsed$) {
+      // Auto-parse after upload whenever a handler is provided (wizard + profile)
+      if (props.onParsed$) {
         state.isParsing = true;
         try {
           const extracted = await parseCV(props.token, cv.id);
