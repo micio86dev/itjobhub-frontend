@@ -91,4 +91,16 @@ export default tseslint.config(
       "qwik/no-use-visible-task": "off",
     },
   },
+  {
+    files: ["**/components/common/cookie-consent/cookie-consent.tsx"],
+    rules: {
+      "qwik/no-use-visible-task": "off",
+    },
+  },
+  {
+    files: ["src/root.tsx"],
+    rules: {
+      "qwik/no-use-visible-task": "off",
+    },
+  },
 );

@@ -5,16 +5,19 @@ import {
   type QRL,
   useStylesScoped$,
 } from "@builder.io/qwik";
-import type { WizardData } from "~/contexts/auth";
+import type { WizardData, ExtractedProfile } from "~/contexts/auth";
 import { useTranslate, interpolate } from "~/contexts/i18n";
 import { TagInput } from "~/components/ui/tag-input";
 import { Spinner } from "~/components/ui/spinner";
+import { CvUploadStep } from "~/components/wizard/cv-upload-step";
 import styles from "./profile-wizard.css?inline";
 
 interface ProfileWizardProps {
   initialData?: Partial<WizardData>;
   onComplete$: QRL<(data: WizardData) => void>;
   onCancel$?: QRL<() => void>;
+  token?: string;
+  showCvStep?: boolean;
 }
 
 // Language translation keys (will be translated based on user's browser language)
@@ -79,13 +82,18 @@ const SKILL_SUGGESTIONS = [
 ];
 
 export const ProfileWizard = component$<ProfileWizardProps>(
-  ({ initialData, onComplete$, onCancel$ }) => {
+  ({ initialData, onComplete$, onCancel$, token, showCvStep }) => {
     useStylesScoped$(styles);
     const t = useTranslate();
 
+    const hasCvStep = showCvStep !== false;
+    const firstStep = hasCvStep ? 0 : 1;
+    const totalSteps = hasCvStep ? 7 : 6;
+
     const state = useStore({
-      currentStep: 1,
+      currentStep: firstStep,
       isSubmitting: false,
+      prefillApplied: false,
       data: {
         languages: initialData?.languages || [],
         skills: initialData?.skills || [],
@@ -93,17 +101,18 @@ export const ProfileWizard = component$<ProfileWizardProps>(
         availability: initialData?.availability || "",
         workModes: initialData?.workModes || [],
         salaryMin: initialData?.salaryMin ?? 0,
+        portfolioUrl: initialData?.portfolioUrl || "",
       } as WizardData,
     });
 
     const nextStep = $(() => {
-      if (state.currentStep < 6) {
+      if (state.currentStep < totalSteps - 1 + firstStep) {
         state.currentStep++;
       }
     });
 
     const prevStep = $(() => {
-      if (state.currentStep > 1) {
+      if (state.currentStep > firstStep) {
         state.currentStep--;
       }
     });
@@ -113,24 +122,70 @@ export const ProfileWizard = component$<ProfileWizardProps>(
       onComplete$(state.data);
     });
 
+    const handleCvParsed = $((extracted: ExtractedProfile) => {
+      if (extracted.skills.length > 0 && state.data.skills.length === 0) {
+        state.data.skills = [...extracted.skills];
+      }
+      if (extracted.languages.length > 0 && state.data.languages.length === 0) {
+        state.data.languages = [...extracted.languages];
+      }
+      if (extracted.seniority && !state.data.seniority) {
+        state.data.seniority = extracted.seniority;
+      }
+      if (extracted.availability && !state.data.availability) {
+        state.data.availability = extracted.availability;
+      }
+      if (extracted.workModes.length > 0 && state.data.workModes.length === 0) {
+        state.data.workModes = [...extracted.workModes];
+      }
+      if (extracted.salaryMin && state.data.salaryMin === 0) {
+        state.data.salaryMin = extracted.salaryMin;
+      }
+      state.prefillApplied = true;
+    });
+
     const getCanProceed = () => {
-      switch (state.currentStep) {
-        case 1:
-          return state.data.languages.length > 0;
-        case 2:
-          return state.data.skills.length > 0;
-        case 3:
-          return state.data.seniority !== "";
-        case 4:
-          return state.data.workModes.length > 0;
-        case 5:
-          return state.data.availability !== "";
-        case 6:
-          return state.data.salaryMin >= 0;
-        default:
-          return false;
+      if (hasCvStep) {
+        switch (state.currentStep) {
+          case 0:
+            return true;
+          case 1:
+            return state.data.languages.length > 0;
+          case 2:
+            return state.data.skills.length > 0;
+          case 3:
+            return state.data.seniority !== "";
+          case 4:
+            return state.data.workModes.length > 0;
+          case 5:
+            return state.data.availability !== "";
+          case 6:
+            return state.data.salaryMin >= 0;
+          default:
+            return false;
+        }
+      } else {
+        switch (state.currentStep) {
+          case 1:
+            return state.data.languages.length > 0;
+          case 2:
+            return state.data.skills.length > 0;
+          case 3:
+            return state.data.seniority !== "";
+          case 4:
+            return state.data.workModes.length > 0;
+          case 5:
+            return state.data.availability !== "";
+          case 6:
+            return state.data.salaryMin >= 0;
+          default:
+            return false;
+        }
       }
     };
+
+    const progressStep = hasCvStep ? state.currentStep + 1 : state.currentStep;
+    const lastStep = hasCvStep ? 6 : 6;
 
     return (
       <div class="wizard-overlay">
@@ -140,28 +195,52 @@ export const ProfileWizard = component$<ProfileWizardProps>(
             <div class="progress-header">
               <span class="progress-title">
                 {interpolate(t("wizard.step_of"), {
-                  current: state.currentStep.toString(),
-                  total: "6",
+                  current: progressStep.toString(),
+                  total: totalSteps.toString(),
                 })}
               </span>
               <span class="progress-percent">
-                {Math.round((state.currentStep / 6) * 100)}%
+                {Math.round((progressStep / totalSteps) * 100)}%
               </span>
             </div>
             <div class="progress-bar-bg">
               <div
                 class="progress-bar-fill"
-                style={`width: ${(state.currentStep / 6) * 100}%`}
+                style={`width: ${(progressStep / totalSteps) * 100}%`}
               ></div>
             </div>
           </div>
 
+          {/* Step 0: CV & Portfolio (optional) */}
+          {hasCvStep && state.currentStep === 0 && (
+            <div class="step-container" data-testid="wizard-step-0">
+              <div>
+                <h2 class="step-heading">{t("wizard.cv_step")}</h2>
+                <p class="step-description">{t("wizard.cv_step_desc")}</p>
+                <CvUploadStep
+                  token={token || ""}
+                  mode="wizard"
+                  onParsed$={handleCvParsed}
+                  portfolioUrl={state.data.portfolioUrl}
+                  onPortfolioChange$={$((url: string) => {
+                    state.data.portfolioUrl = url;
+                  })}
+                />
+              </div>
+            </div>
+          )}
+
           {/* Step content */}
           {state.currentStep === 1 && (
-            <div class="step-container">
+            <div class="step-container" data-testid="wizard-step-1">
               <div>
                 <h2 class="step-heading">{t("wizard.languages_step")}</h2>
                 <p class="step-description">{t("wizard.languages_desc")}</p>
+                {state.prefillApplied && state.data.languages.length > 0 && (
+                  <span class="prefill-badge">
+                    ✓ {t("wizard.cv_prefilled")}
+                  </span>
+                )}
                 <TagInput
                   value={state.data.languages}
                   onChange$={(languages) => (state.data.languages = languages)}
@@ -417,26 +496,40 @@ export const ProfileWizard = component$<ProfileWizardProps>(
           {/* Navigation buttons */}
           <div class="nav-buttons">
             <div class="nav-left">
-              {state.currentStep > 1 && (
+              {state.currentStep > firstStep && (
                 <button onClick$={prevStep} class="btn-secondary">
                   {t("wizard.back")}
                 </button>
               )}
-              {onCancel$ && state.currentStep === 1 && (
+              {onCancel$ && state.currentStep === firstStep && (
                 <button onClick$={onCancel$} class="btn-secondary">
                   {t("wizard.cancel")}
                 </button>
               )}
             </div>
 
-            <div>
-              {state.currentStep < 6 ? (
+            <div class="nav-right-buttons">
+              {/* Skip button for CV step */}
+              {hasCvStep && state.currentStep === 0 && (
+                <button
+                  onClick$={nextStep}
+                  class="btn-secondary"
+                  data-testid="cv-skip-btn"
+                >
+                  {t("wizard.cv_skip")}
+                </button>
+              )}
+
+              {state.currentStep < lastStep ? (
                 <button
                   onClick$={nextStep}
                   disabled={!getCanProceed()}
                   class="btn-primary"
+                  data-testid="cv-continue-btn"
                 >
-                  {t("wizard.next")}
+                  {hasCvStep && state.currentStep === 0
+                    ? t("wizard.cv_continue")
+                    : t("wizard.next")}
                 </button>
               ) : (
                 <button

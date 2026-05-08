@@ -16,6 +16,10 @@ export const Footer = component$(() => {
             {t("footer.privacy_policy")}
           </a>
           <span class="mx-2">•</span>
+          <a href="/cookie-policy" class={styles.legalLink}>
+            {t("cookie.policy_link")}
+          </a>
+          <span class="mx-2">•</span>
           <a href="/contact" class={styles.legalLink}>
             {t("contact.title")}
           </a>

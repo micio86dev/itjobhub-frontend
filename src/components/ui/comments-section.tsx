@@ -216,7 +216,10 @@ export const UnifiedCommentsSection = component$<CommentsSectionProps>(
       try {
         const res = await request(`${API_URL}/comments/${commentId}`, {
           method: "DELETE",
-          headers: { Authorization: `Bearer ${auth.token}` },
+          headers: {
+            Authorization: `Bearer ${auth.token}`,
+            "Content-Type": "application/json",
+          },
         });
         if (res.ok) {
           const deleteRecursive = (list: UIComment[]): UIComment[] => {

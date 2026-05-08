@@ -15,10 +15,14 @@ import {
 import { useAuth } from "~/contexts/auth";
 import { useTranslate, translate, useI18n } from "~/contexts/i18n";
 import { ProfileWizard } from "~/components/wizard/profile-wizard";
+import { CvUploadStep } from "~/components/wizard/cv-upload-step";
 import { LocationAutocomplete } from "~/components/ui/location-autocomplete";
 import { Spinner } from "~/components/ui/spinner";
 import { AvatarCropper } from "~/components/ui/avatar-cropper";
-import type { WizardData } from "~/contexts/auth";
+import type { WizardData, CvRecord, ExtractedProfile } from "~/contexts/auth";
+import { listCVs } from "~/utils/cv-api";
+import { request } from "~/utils/api";
+import { API_URL } from "~/constants";
 import { formatLocaleDate } from "~/utils/date";
 import logger from "~/utils/logger";
 
@@ -71,6 +75,12 @@ export default component$(() => {
     } as EditFormData,
     showCropper: false,
     cropperImage: "",
+    // CV & Portfolio state
+    cvs: [] as CvRecord[],
+    cvsLoaded: false,
+    portfolioUrl: auth.user?.portfolioUrl || "",
+    editingPortfolio: false,
+    isSavingPortfolio: false,
   });
 
   const loc = useLocation();
@@ -158,6 +168,73 @@ export default component$(() => {
         state.message.text = "";
       }, 5000);
     }
+  });
+
+  // Load CVs once after authentication
+  useTask$(({ track }) => {
+    const isAuth = track(() => auth.isAuthenticated);
+    if (!isAuth || state.cvsLoaded || !isBrowser) return;
+    state.cvsLoaded = true;
+    listCVs(auth.token || "")
+      .then((cvs) => {
+        state.cvs = cvs;
+        state.portfolioUrl = auth.user?.portfolioUrl || "";
+      })
+      .catch(() => {});
+  });
+
+  const handleSavePortfolio = $(async () => {
+    if (!auth.token) return;
+    state.isSavingPortfolio = true;
+    try {
+      const res = await request(`${API_URL}/users/me/profile`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${auth.token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ portfolioUrl: state.portfolioUrl }),
+      });
+      if (res.ok) {
+        if (auth.user)
+          auth.user = { ...auth.user, portfolioUrl: state.portfolioUrl };
+        state.editingPortfolio = false;
+        state.message = {
+          type: "success",
+          text: translate("profile.portfolio_saved", i18n.currentLanguage),
+        };
+        setTimeout(() => {
+          state.message.text = "";
+        }, 4000);
+      }
+    } catch {
+      // ignore
+    } finally {
+      state.isSavingPortfolio = false;
+    }
+  });
+
+  const handleCvParsedFromProfile = $((extracted: ExtractedProfile) => {
+    const u = auth.user;
+    auth.updateProfileSignal.value = {
+      languages:
+        extracted.languages.length > 0
+          ? extracted.languages
+          : u?.languages || [],
+      skills: extracted.skills.length > 0 ? extracted.skills : u?.skills || [],
+      seniority: (extracted.seniority ||
+        u?.seniority ||
+        "") as WizardData["seniority"],
+      availability: (extracted.availability ||
+        u?.availability ||
+        "") as WizardData["availability"],
+      workModes:
+        extracted.workModes.length > 0
+          ? extracted.workModes
+          : u?.workModes || [],
+      salaryMin: extracted.salaryMin ?? u?.salaryMin ?? 0,
+      portfolioUrl: u?.portfolioUrl || "",
+    };
   });
 
   // Return early if not authenticated to prevent rendering
@@ -272,12 +349,15 @@ export default component$(() => {
         "",
       workModes: auth.user?.workModes || [],
       salaryMin: auth.user?.salaryMin || 0,
+      portfolioUrl: auth.user?.portfolioUrl || "",
     };
     return (
       <ProfileWizard
         initialData={initialData}
         onComplete$={handleWizardComplete}
         onCancel$={handleCancelEdit}
+        token={auth.token ?? undefined}
+        showCvStep={true}
       />
     );
   }
@@ -765,7 +845,7 @@ export default component$(() => {
                   </div>
 
                   {/* Minimum Salary */}
-                  {auth.user?.salaryMin && (
+                  {(auth.user?.salaryMin ?? 0) > 0 && (
                     <div>
                       <h3 class="mb-3 font-medium text-gray-500 dark:text-gray-400 text-sm">
                         {t("profile.salary_min_label")}
@@ -785,6 +865,77 @@ export default component$(() => {
           )}
         </div>
       </div>
+      {/* Documents Section */}
+      <div
+        class="bg-white dark:bg-gray-800 shadow-lg border border-gray-100 dark:border-gray-700 rounded-2xl overflow-hidden"
+        data-testid="cv-section"
+      >
+        <div class="p-8">
+          <h2 class="mb-6 font-bold text-gray-900 dark:text-white text-xl">
+            {t("profile.documents_title")}
+          </h2>
+
+          <CvUploadStep
+            token={auth.token || ""}
+            mode="profile"
+            existingCvs={state.cvs}
+            portfolioUrl={state.portfolioUrl}
+            onParsed$={handleCvParsedFromProfile}
+            onUploaded$={$((cv: CvRecord) => {
+              const idx = state.cvs.findIndex(
+                (c) => c.language === cv.language,
+              );
+              if (idx >= 0) {
+                state.cvs[idx] = cv;
+              } else {
+                state.cvs = [...state.cvs, cv];
+              }
+            })}
+            onDeleted$={$((cvId: string) => {
+              state.cvs = state.cvs.filter((c) => c.id !== cvId);
+            })}
+            onPortfolioChange$={$((url: string) => {
+              state.portfolioUrl = url;
+            })}
+          />
+
+          {/* Portfolio URL save button (profile mode) */}
+          <div class="flex items-center gap-3 mt-4">
+            {state.editingPortfolio ? (
+              <>
+                <button
+                  class="btn-primary text-xs"
+                  onClick$={handleSavePortfolio}
+                  disabled={state.isSavingPortfolio}
+                >
+                  {state.isSavingPortfolio ? (
+                    <Spinner size="sm" />
+                  ) : (
+                    t("profile.save_changes")
+                  )}
+                </button>
+                <button
+                  class="btn-secondary text-xs"
+                  onClick$={() => {
+                    state.editingPortfolio = false;
+                    state.portfolioUrl = auth.user?.portfolioUrl || "";
+                  }}
+                >
+                  {t("profile.cancel")}
+                </button>
+              </>
+            ) : (
+              <button
+                class="btn-secondary text-xs"
+                onClick$={() => (state.editingPortfolio = true)}
+              >
+                {t("profile.save_changes")}
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+
       {state.showCropper && (
         <AvatarCropper
           imageSrc={state.cropperImage}

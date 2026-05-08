@@ -14,7 +14,11 @@ const handleProxy = async (
   }: import("@builder.io/qwik-city").RequestEvent,
 ) => {
   const path = params.path;
-  const apiUrl = env.get("PUBLIC_API_URL") || env.get("API_URL") || API_URL;
+  const apiUrl =
+    env.get("PUBLIC_API_URL") ||
+    env.get("INTERNAL_API_URL") ||
+    env.get("API_URL") ||
+    API_URL;
   const targetUrl = new URL(url.toString());
 
   // Construct the backend URL
@@ -25,13 +29,26 @@ const handleProxy = async (
     "[Proxy] Forwarding request",
   );
 
-  const token = cookie.get("auth_token")?.value;
   const headers: Record<string, string> = {
     "Accept-Language": cookie.get("preferred-language")?.value || "it",
   };
 
-  if (token) {
-    headers["Authorization"] = `Bearer ${token}`;
+  // Prioritize the Authorization header sent by the browser (always raw/fresh)
+  const incomingAuth =
+    request.headers.get("Authorization") ||
+    request.headers.get("authorization");
+  if (incomingAuth) {
+    headers["Authorization"] = incomingAuth;
+  } else {
+    // Fallback: read from cookie (decodeURIComponent because setCookie uses encodeURIComponent)
+    const rawToken = cookie.get("auth_token")?.value;
+    if (rawToken) {
+      try {
+        headers["Authorization"] = `Bearer ${decodeURIComponent(rawToken)}`;
+      } catch {
+        headers["Authorization"] = `Bearer ${rawToken}`;
+      }
+    }
   }
 
   // Preserve Content-Type if present in original request

@@ -16,6 +16,26 @@ import { request } from "../utils/api";
 import { setCookie, deleteCookie } from "../utils/cookies";
 import logger from "../utils/logger";
 
+export interface CvRecord {
+  id: string;
+  language: string;
+  filename: string;
+  url: string;
+  size: number;
+  uploadedAt: string;
+}
+
+export interface ExtractedProfile {
+  skills: string[];
+  languages: string[];
+  seniority: "junior" | "mid" | "senior" | null;
+  availability: "full-time" | "part-time" | "busy" | null;
+  workModes: string[];
+  salaryMin: number | null;
+  bio: string | null;
+  confidence: number;
+}
+
 export interface User {
   id: string;
   email: string;
@@ -36,6 +56,8 @@ export interface User {
   profileCompleted?: boolean;
   role?: string;
   language?: string;
+  portfolioUrl?: string;
+  cvs?: CvRecord[];
   location_geo?: {
     type: string;
     coordinates: number[];
@@ -49,6 +71,7 @@ export interface WizardData {
   availability: "full-time" | "part-time" | "busy" | "";
   workModes: string[];
   salaryMin: number;
+  portfolioUrl?: string;
 }
 
 export interface LoginRequest {
@@ -124,6 +147,7 @@ export interface BackendUser {
     availability?: "full-time" | "part-time" | "busy";
     workModes?: string[];
     bio?: string;
+    portfolioUrl?: string;
   };
 }
 
@@ -230,6 +254,7 @@ export const AuthProvider = component$(
         birthDate: bu.birthDate,
         avatar: bu.avatar,
         salaryMin: bu.salaryMin,
+        portfolioUrl: bu.profile?.portfolioUrl,
       };
     });
 
@@ -401,6 +426,7 @@ export const AuthProvider = component$(
             availability: wizardData.availability,
             workModes: wizardData.workModes,
             salaryMin: wizardData.salaryMin,
+            portfolioUrl: wizardData.portfolioUrl,
           }),
         });
 

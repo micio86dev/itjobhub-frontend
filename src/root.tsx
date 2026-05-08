@@ -1,4 +1,10 @@
-import { component$, isDev, useStyles$, useServerData } from "@builder.io/qwik";
+import {
+  component$,
+  isDev,
+  useStyles$,
+  useServerData,
+  useVisibleTask$,
+} from "@builder.io/qwik";
 import { trustScript } from "./utils/trusted-types";
 import {
   QwikCityProvider,
@@ -14,6 +20,67 @@ export default component$(() => {
   const nonce = useServerData<string | undefined>("nonce");
 
   useStyles$(globalStyles);
+
+  // ── Microsoft Clarity ─────────────────────────────────────────────────
+  // Injected client-side only (cookieless mode — no GDPR consent required).
+  // Uses devboards-policy for Trusted Types compliance.
+  useVisibleTask$(
+    () => {
+      const clarityId = import.meta.env.VITE_CLARITY_ID;
+      if (!clarityId) return;
+
+      type ClarityFn = ((...args: unknown[]) => void) & { q?: unknown[] };
+      type WindowWithClarity = Window & {
+        clarity?: ClarityFn;
+        trustedTypes?: {
+          createPolicy: (
+            name: string,
+            rules: Record<string, (s: string) => string>,
+          ) => { createScriptURL: (s: string) => string };
+        };
+      };
+      const w = window as WindowWithClarity;
+
+      // Bootstrap the Clarity queue before the script loads
+      w.clarity =
+        w.clarity ||
+        function (...args: unknown[]) {
+          (w.clarity!.q = w.clarity!.q || []).push(args);
+        };
+
+      // Build script element
+      const script = document.createElement("script");
+      script.async = true;
+      const src = `https://www.clarity.ms/tag/${clarityId}`;
+
+      // Trusted Types: use devboards-policy (allow-duplicates lets us re-use it)
+      if (
+        typeof w.trustedTypes !== "undefined" &&
+        typeof w.trustedTypes?.createPolicy === "function"
+      ) {
+        try {
+          const policy = w.trustedTypes.createPolicy("devboards-policy", {
+            createScriptURL: (s: string) => s,
+          });
+          script.src = policy.createScriptURL(src);
+        } catch {
+          script.src = src;
+        }
+      } else {
+        script.src = src;
+      }
+
+      // Enable 100% session sampling once Clarity is ready
+      script.onload = () => {
+        w.clarity?.("set", "samplerate", 100);
+      };
+
+      const firstScript = document.getElementsByTagName("script")[0];
+      firstScript?.parentNode?.insertBefore(script, firstScript);
+    },
+    { strategy: "document-idle" },
+  );
+  // ──────────────────────────────────────────────────────────────────────
 
   return (
     <QwikCityProvider>

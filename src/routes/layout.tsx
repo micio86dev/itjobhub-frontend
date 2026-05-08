@@ -6,6 +6,7 @@ import { I18nProvider, type SupportedLanguage } from "~/contexts/i18n";
 import { ThemeProvider } from "~/contexts/theme";
 import { Navigation } from "~/components/navigation/navigation";
 import { Footer } from "~/components/footer/footer";
+import { CookieConsent } from "~/components/common/cookie-consent/cookie-consent";
 import logger from "~/utils/logger";
 import { API_URL } from "~/constants";
 export const useAuthLoader = routeLoader$(async ({ cookie, url, redirect }) => {
@@ -97,7 +98,12 @@ export const useAuthLoader = routeLoader$(async ({ cookie, url, redirect }) => {
 
   // 3. Profile Completion Guard (Redirect to /wizard if incomplete) - Exempt admins
   if (user && user.role !== "admin" && !user.profileCompleted) {
-    const allowedPaths = ["/wizard", "/auth", "/privacy-policy"];
+    const allowedPaths = [
+      "/wizard",
+      "/auth",
+      "/privacy-policy",
+      "/cookie-policy",
+    ];
     const isAllowed = allowedPaths.some((p) => path.startsWith(p));
 
     if (!isAllowed) {
@@ -141,6 +147,9 @@ export default component$(() => {
               </main>
 
               <Footer />
+
+              {/* Cookie consent banner — GDPR Art. 13 transparency notice */}
+              <CookieConsent />
 
               {/* ARIA Live Region for dynamic announcements */}
               <div
